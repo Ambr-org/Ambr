@@ -7,3 +7,6 @@
 [submodule "libs/leveldb"]
 	path = libs/leveldb
 	url = https://github.com/google/leveldb.git
+[submodule "libs/ed25519-donna"]
+	path = libs/ed25519-donna
+	url = https://github.com/floodyberry/ed25519-donna.git

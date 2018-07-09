@@ -5,8 +5,10 @@
  * Distributed under the MIT software license, see the accompanying   *
  * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
  **********************************************************************/
-#ifndef _AMBRD_H_
-#define _AMBRD_H_
+
+//TODO define 
+#ifndef AMBR_SERVER_AMBRD_H_
+#define AMBR_SERVER_AMBRD_H_
 
 #include <crow.h>
 
