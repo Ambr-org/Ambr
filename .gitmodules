@@ -1,0 +1,9 @@
+[submodule "libs/crow"]
+	path = libs/crow
+	url = https://github.com/ipkn/crow.git
+[submodule "ut/googletest"]
+	path = ut/googletest
+	url = https://github.com/google/googletest.git
+[submodule "libs/leveldb"]
+	path = libs/leveldb
+	url = https://github.com/google/leveldb.git
