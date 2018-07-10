@@ -10,7 +10,7 @@
 #include <core/unit.h>
 #include <core/key.h>
 
-namespace leveldb{
+namespace rocksdb{
 class DB;
 }
 namespace test_temp{
@@ -60,7 +60,7 @@ private:
   static std::shared_ptr<UnitStore> instance_;
   UnitStore();
 private:
-  leveldb::DB* db_unit_;
+  rocksdb::DB* db_unit_;
 };
 
 inline std::shared_ptr<UnitStore> GetUnitStore(){

@@ -1,0 +1,17 @@
+***************
+*** 85,91 ****
+  void
+  ED25519_FN(ed25519_randombytes_unsafe) (void *p, size_t len) {
+  
+-   RAND_bytes(p, (int) len);
+  
+  }
+  #endif
+--- 85,91 ----
+  void
+  ED25519_FN(ed25519_randombytes_unsafe) (void *p, size_t len) {
+  
++   RAND_bytes((unsigned char*)p, (int) len);
+  
+  }
+  #endif

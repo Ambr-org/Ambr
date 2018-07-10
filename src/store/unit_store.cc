@@ -6,9 +6,7 @@
 #include "unit_store.h"
 #include <memory>
 #include <boost/filesystem.hpp>
-#include <leveldb/db.h>
-#include <leveldb/options.h>
-#include <leveldb/write_batch.h>
+#include <rocksdb/db.h>
 
 #include <core/key.h>
 static const int use_log = true;
@@ -35,10 +33,10 @@ bool AddressIsValidate(const std::string& addr){
   return true;
 }
 }
-void ambr::store::UnitStore::Init(){  
-  leveldb::Options options;
+void ambr::store::UnitStore::Init(){
+  rocksdb::Options options;
   options.create_if_missing = true;
-  leveldb::Status status = leveldb::DB::Open(options, "./unit.db", &db_unit_);
+  rocksdb::Status status = rocksdb::DB::Open(options, "./unit.db", &db_unit_);
   assert(status.ok());
   {//first time init db
     core::Amount balance = core::Amount();
@@ -58,14 +56,14 @@ void ambr::store::UnitStore::Init(){
       unit->CalcHashAndFill();
 
       //write genesis to database
-      leveldb::WriteBatch batch;
+      rocksdb::WriteBatch batch;
       std::vector<uint8_t> bytes = unit->SerializeByte();
       std::array<uint8_t,sizeof(ambr::core::UnitHash::ArrayType)> hash_bytes = unit->hash().bytes();
-      batch.Put(leveldb::Slice((const char*)hash_bytes.data(), hash_bytes.size()),
-                leveldb::Slice((const char*)bytes.data(), bytes.size()));
+      batch.Put(rocksdb::Slice((const char*)hash_bytes.data(), hash_bytes.size()),
+                rocksdb::Slice((const char*)bytes.data(), bytes.size()));
       batch.Put(init_addr,
-                leveldb::Slice((const char*)unit->hash().bytes().data(), unit->hash().bytes().size()));
-      leveldb::Status status = db_unit_->Write(leveldb::WriteOptions(), &batch);
+                rocksdb::Slice((const char*)unit->hash().bytes().data(), unit->hash().bytes().size()));
+      rocksdb::Status status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
       if(use_log){//TODO:use log
         std::cout<<"genesis create"<<std::endl;
         std::cout<<unit->hash().encode_to_hex()<<std::endl;
@@ -118,13 +116,13 @@ bool ambr::store::UnitStore::AddUnit(std::shared_ptr<ambr::core::Unit> unit, std
       }
     }
     //write to db
-    leveldb::WriteBatch batch;
+    rocksdb::WriteBatch batch;
     std::vector<uint8_t> bytes = unit->SerializeByte();
     std::array<uint8_t,sizeof(ambr::core::UnitHash::ArrayType)> hash_bytes = send_unit->hash().bytes();
-    batch.Put(leveldb::Slice((const char*)hash_bytes.data(), hash_bytes.size()),
-              leveldb::Slice((const char*)bytes.data(), bytes.size()));
+    batch.Put(rocksdb::Slice((const char*)hash_bytes.data(), hash_bytes.size()),
+              rocksdb::Slice((const char*)bytes.data(), bytes.size()));
     batch.Put(test_temp::GetAddressByPublicKey(send_unit->public_key()),
-              leveldb::Slice((const char*)send_unit->hash().bytes().data(), send_unit->hash().bytes().size()));
+              rocksdb::Slice((const char*)send_unit->hash().bytes().data(), send_unit->hash().bytes().size()));
     if(use_log){//TODO:use log module
       std::cout<<"Add unit for send!"<<std::endl;
       std::cout<<unit->hash().encode_to_hex()<<std::endl;
@@ -132,7 +130,7 @@ bool ambr::store::UnitStore::AddUnit(std::shared_ptr<ambr::core::Unit> unit, std
       std::cout<<"address:"<<test_temp::GetAddressByPublicKey(send_unit->public_key())
               <<"'s last unit change to "<<send_unit->hash().encode_to_hex();
     }
-    leveldb::Status status = db_unit_->Write(leveldb::WriteOptions(), &batch);
+    rocksdb::Status status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
     assert(status.ok());
     return true;
   }else if(unit->type() == ambr::core::UnitType::receive){
@@ -147,14 +145,14 @@ bool ambr::store::UnitStore::AddUnit(std::shared_ptr<ambr::core::Unit> unit, std
     //chain check
     //TODO:
     //write to db
-    leveldb::WriteBatch batch;
+    rocksdb::WriteBatch batch;
     std::vector<uint8_t> bytes = unit->SerializeByte();
     std::array<uint8_t,sizeof(ambr::core::UnitHash::ArrayType)> hash_bytes = receive_unit->hash().bytes();
-    batch.Put(leveldb::Slice((const char*)hash_bytes.data(), hash_bytes.size()),
-              leveldb::Slice((const char*)bytes.data(), bytes.size()));
+    batch.Put(rocksdb::Slice((const char*)hash_bytes.data(), hash_bytes.size()),
+              rocksdb::Slice((const char*)bytes.data(), bytes.size()));
     batch.Put(test_temp::GetAddressByPublicKey(receive_unit->public_key()),
-              leveldb::Slice((const char*)receive_unit->hash().bytes().data(), receive_unit->hash().bytes().size()));
-    leveldb::Status status = db_unit_->Write(leveldb::WriteOptions(), &batch);
+              rocksdb::Slice((const char*)receive_unit->hash().bytes().data(), receive_unit->hash().bytes().size()));
+    rocksdb::Status status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
     assert(status.ok());
     return true;
   }
@@ -167,7 +165,7 @@ bool ambr::store::UnitStore::AddUnit(std::shared_ptr<ambr::core::Unit> unit, std
 
 bool ambr::store::UnitStore::GetLastUnitHashByPubKey(const ambr::core::PublicKey &pub_key, ambr::core::UnitHash& hash){
   std::string value_get;
-  leveldb::Status status = db_unit_->Get(leveldb::ReadOptions(), test_temp::GetAddressByPublicKey(pub_key), &value_get);
+  rocksdb::Status status = db_unit_->Get(rocksdb::ReadOptions(), test_temp::GetAddressByPublicKey(pub_key), &value_get);
   if(status.IsNotFound()){
     return false;
   }
@@ -240,9 +238,9 @@ bool ambr::store::UnitStore::SendToAddress(
 
 std::shared_ptr<ambr::core::Unit> ambr::store::UnitStore::GetUnit(const ambr::core::UnitHash &hash){
   std::string string_readed;
-  leveldb::Status status = db_unit_->Get(
-                             leveldb::ReadOptions(),
-                             leveldb::Slice((const char*)hash.bytes().data(), hash.bytes().size()),
+  rocksdb::Status status = db_unit_->Get(
+                             rocksdb::ReadOptions(),
+                             rocksdb::Slice((const char*)hash.bytes().data(), hash.bytes().size()),
                              &string_readed);
   if(status.IsNotFound()){
     return std::shared_ptr<ambr::core::Unit>();

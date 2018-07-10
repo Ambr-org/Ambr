@@ -1,5 +1,1 @@
-patch -p0 < ed25519-donna.patch
-cd libs/ed25519-donna
-rm test* regression.h README.md -r fuzz
-cd ../leveldb
-cmake -DCMAKE_BUILD_TYPE=Release . && cmake --build .
+cd libs/rocksdb/ && cmake .  -DMAKECMDGOALS=static_lib -DWITH_TESTS=OFF -DCMAKE_BUILD_TYPE=Release && make VERBOSE=1 -j4
