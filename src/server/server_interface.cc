@@ -1,3 +1,8 @@
+/**********************************************************************
+ * Copyright (c) 2018 Ambr project
+ * Distributed under the MIT software license, see the accompanying   *
+ * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
+ **********************************************************************/
 #include "server_interface.h"
 #include "server/ambrd.h"
 #include "core/node.h"
@@ -13,24 +18,23 @@ std::string Ambr::Server::ServerInterface::GetHelpMsg(){
 
 
 std::string Ambr::Server::ServerInterface::ParserArgs(const std::string & option){
-  return std::string();
+	return std::string();
 }
 
 std::string Ambr::Server::ServerInterface::ParserArgs(const std::string & option, const std::string & user){
-  return std::string();
+	return std::string();
 }
 
 std::string Ambr::Server::ServerInterface::ParserArgs(const std::string & option, const std::string & src,
-  const std::string & dst, const int & amount){
-  return std::string();
+	const std::string & dst, const int & amount){
+	return std::string();
 }
 
-std::string Ambr::Server::ServerInterface::ParserArgs(int argc, char* argv[])
-{
-  po::store(po::parse_command_line(argc, argv, desc_), vm_);
-  po::notify(vm_);
+std::string Ambr::Server::ServerInterface::ParserArgs(int argc, char* argv[]) {
+	po::store(po::parse_command_line(argc, argv, desc_), vm_);
+	po::notify(vm_);
 
-  return HandleNodeOption();
+	return HandleNodeOption();
 }
 
 std::string Ambr::Server::ServerInterface::HandleNodeOption(){
@@ -41,14 +45,12 @@ std::string Ambr::Server::ServerInterface::HandleNodeOption(){
 	if (vm_.count("help")) {
 		stream << desc_ << std::endl;
 		return stream.str();
-	}
-	else if (vm_.count("version")) {
+	} else if (vm_.count("version")) {
 		return "0.5";
-	}
-	else if (vm_.count("daemon")) {
+	} else if (vm_.count("daemon")) {
 		ambr::server::DoServer();
 		return "";
-	}else if (vm_.count("get_address")) {
+	} else if (vm_.count("get_address")) {
 		if (vm_.count("key")) {
 			std::stringstream ostream;
 			pt::ptree tree, params;
@@ -60,11 +62,10 @@ std::string Ambr::Server::ServerInterface::HandleNodeOption(){
 			std::stringstream istream(info);
 			pt::read_json(istream, json);
 			return json.get<std::string>("rtn_msg");
-		}
-		else {
+		} else {
 			return "Please supply a key for address .";
 		}
-	}else if (vm_.count("get_balance")) {
+	} else if (vm_.count("get_balance")) {
 		if (vm_.count("key")) {
 			std::stringstream ostream;
 			pt::ptree tree;
@@ -75,11 +76,10 @@ std::string Ambr::Server::ServerInterface::HandleNodeOption(){
 			std::stringstream istream(info);
 			pt::read_json(istream, json);
 			return json.get<std::string>("balance");
-		}
-		else {
+		} else {
 			return "Please supply a key for account .";
 		}
-	}else if (vm_.count("get_pubkey")) {
+	} else if (vm_.count("get_pubkey")) {
 		if (vm_.count("address")) {
 			std::stringstream ostream;
 			pt::ptree tree, params;
@@ -91,22 +91,20 @@ std::string Ambr::Server::ServerInterface::HandleNodeOption(){
 			std::stringstream istream(info);
 			pt::read_json(istream, json);
 			return  json.get<std::string>("rtn_msg");
-		}
-		else {
+		} else {
 			return  "Please supply a address .";
 		}
 
-	}else if (vm_.count("create_pri_key")) {
-			std::stringstream ostream;
-			pt::ptree tree;
-			tree.put("action", "create_pri_key");
-			pt::write_json(ostream, tree);
-			auto info = Ambr::core::ParserArgs(ostream.str());
-			std::stringstream istream(info);
-			pt::read_json(istream, json);
-			return json.get<std::string>("rtn_msg");
-
-	}else if (vm_.count("create_wallet")) {
+	} else if (vm_.count("create_pri_key")) {
+		std::stringstream ostream;
+		pt::ptree tree;
+		tree.put("action", "create_pri_key");
+		pt::write_json(ostream, tree);
+		auto info = Ambr::core::ParserArgs(ostream.str());
+		std::stringstream istream(info);
+		pt::read_json(istream, json);
+		return json.get<std::string>("rtn_msg");
+	} else if (vm_.count("create_wallet")) {
 		std::stringstream ostream;
 		pt::ptree tree;
 		tree.put("action", "create_wallet");
@@ -115,8 +113,7 @@ std::string Ambr::Server::ServerInterface::HandleNodeOption(){
 		std::stringstream istream(info);
 		pt::read_json(istream, json);
 		return json.get<std::string>("wallet");
-
-	}else if (vm_.count("send")) {
+	} else if (vm_.count("send")) {
 		if (vm_.count("source") && vm_.count("destination") && vm_.count("amount")) {
 			std::stringstream ostream;
 			pt::ptree tree, params;
@@ -140,14 +137,14 @@ std::string Ambr::Server::ServerInterface::HandleNodeOption(){
 		else {
 			return "Please supply source,dest and amount options ." ;
 		}
-	}else {
+	} else {
 		stream << desc_ << std::endl;
 		return stream.str();
 	}
 }
 
-void Ambr::Server::ServerInterface::AddNodeOption(){
-  desc_.add_options()
+void Ambr::Server::ServerInterface::AddNodeOption() {
+	desc_.add_options()
 	("help,h", "Print out options")
 	("version,v", "Prints out version")
 	("daemon,d", "Start node daemon")

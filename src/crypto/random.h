@@ -1,3 +1,8 @@
+/**********************************************************************
+ * Copyright (c) 2018 Ambr project
+ * Distributed under the MIT software license, see the accompanying   *
+ * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
+ **********************************************************************/
 #ifndef AMBR_CRYPTO_RANDOM_H_
 #define AMBR_CRYPTO_RANDOM_H_
 
@@ -22,16 +27,16 @@ public:
   static std::array<uint8_t, size> CreateRandomArray(){
     blake2b_state hash_state;
     blake2b_init(&hash_state, size);
-    #ifdef _WIN32
-	  std::random_device rd;
-	  auto random = rd();
-	  blake2b_update(&hash_state, &random, sizeof(random));
-    #else
-	  RandCPU(hash_state);
-	  RandOpenSSL(hash_state);
-	  RandOpenOS(hash_state);
-	  RandHardWare(hash_state);
-    #endif
+#ifdef _WIN32
+    std::random_device rd;
+    auto random = rd();
+    blake2b_update(&hash_state, &random, sizeof(random));
+#else
+    RandCPU(hash_state);
+    RandOpenSSL(hash_state);
+    RandOpenOS(hash_state);
+    RandHardWare(hash_state);
+#endif
     RandTime(hash_state);
     std::array<uint8_t, size> array;
     blake2b_final(&hash_state, array.data(), array.size());

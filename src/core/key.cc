@@ -1,3 +1,8 @@
+/**********************************************************************
+ * Copyright (c) 2018 Ambr project
+ * Distributed under the MIT software license, see the accompanying   *
+ * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
+ **********************************************************************/
 #include "core/key.h"
 #include "core/unit.h"
 //#include "argon2/argon2.h"
@@ -116,11 +121,11 @@ PublicKey GetPublicKeyByAddress (const std::string& addr_hex){
     for(auto& it:pub_tmp){
       uint8_t byte(AddrDecode((uint8_t)it));
       num_l <<= 5;
-			num_l += byte;
+      num_l += byte;
     }
 
-	  utils::uint256&& unit_tmp = (num_l >> 40).convert_to<uint256_t>();
-		const std::array<uint8_t, 32>& bytes = unit_tmp.bytes();
+    utils::uint256&& unit_tmp = (num_l >> 40).convert_to<uint256_t>();
+    const std::array<uint8_t, 32>& bytes = unit_tmp.bytes();
     pub_key.set_bytes(bytes);
   }
 
@@ -131,62 +136,61 @@ bool AddressIsValidate (const std::string& addr){
   bool result(addr.size () < 5);
   if (!result){
     bool prefix("ambr_" == addr.substr(0, 5));
-	  bool test_prefix("test_" == addr.substr(0, 5));
-	  result = (prefix && addr.size () != 64) || (test_prefix && addr.size () != 65);
-	  if (!result){
-	    if (prefix || test_prefix){
+    bool test_prefix("test_" == addr.substr(0, 5));
+    result = (prefix && addr.size () != 64) || (test_prefix && addr.size () != 65);
+    if (!result){
+      if (prefix || test_prefix){
         std::string&& addr_tmp = addr.substr(5, addr.size() - 5);
         std::reverse(addr_tmp.begin(), addr_tmp.end());
-	      uint512_t num_l;
-		    for (auto it : addr_tmp){
-		      uint8_t character = it;
-		      result = character < 0x30 || character >= 0x80;
-		      if (!result){
-		        uint8_t byte (AddrDecode (character));
-			      result = ('~' == byte);
-			      if (!result){
-			        num_l <<= 5;
-			        num_l += byte;
-			      }
-		      }
-		    }
-		    if (!result){
-		      utils::uint256 unit_tmp ;
+        uint512_t num_l;
+        for (auto it : addr_tmp){
+          uint8_t character = it;
+          result = character < 0x30 || character >= 0x80;
+          if (!result){
+            uint8_t byte (AddrDecode (character));
+            result = ('~' == byte);
+            if (!result){
+              num_l <<= 5;
+              num_l += byte;
+            }
+          }
+        }
+
+        if (!result){
+          utils::uint256 unit_tmp ;
           uint64_t validation = 0;
-		      unit_tmp = (num_l >> 40).convert_to<uint256_t>();
+          unit_tmp = (num_l >> 40).convert_to<uint256_t>();
           const std::array<uint8_t, 32>& bytes = unit_tmp.bytes();
-		      uint64_t check (num_l & static_cast<uint64_t> (0xffffffffff));
-		        
+          uint64_t check (num_l & static_cast<uint64_t> (0xffffffffff));
+
 #if 0
-		      blake2b_state hash;
-		      blake2b_init (&hash, 5);
-		      blake2b_update (&hash, bytes.data (), bytes.size ());
-		      blake2b_final (&hash, reinterpret_cast<uint8_t *> (&validation), 5);
+          blake2b_state hash;
+          blake2b_init (&hash, 5);
+          blake2b_update (&hash, bytes.data (), bytes.size ());
+          blake2b_final (&hash, reinterpret_cast<uint8_t *> (&validation), 5);
 #else
           blake2b(reinterpret_cast<uint8_t*>(&validation), 5, bytes.data(), bytes.size(), NULL, 0);
 #endif
-		      result = (check != validation);
-		    }
-	      else{
-	        result = true;
-	      }
-    }
-    else{
-      result = true;
+          result = (check != validation);
+        } else{
+          result = true;
+        }
+      } else{
+        result = true;
+      }
     }
   }
-}
   return result;
 }   
 
 Signature GetSignByPrivateKey(const uint8_t* buf, size_t length, const PrivateKey& pri_key){
   Signature sign;
   std::array<uint8_t, 64> array;
-	PublicKey&& pub_key = GetPublicKeyByPrivateKey(pri_key);
+  PublicKey&& pub_key = GetPublicKeyByPrivateKey(pri_key);
 
   ed25519_sign(buf, length, pri_key.bytes().data(), pub_key.bytes().data(), array.data ());
   sign.set_bytes(array);
-	return sign;
+  return sign;
 }
 
 bool SymEncrypting(const utils::uint256& input, const std::string& password, utils::uint256& output){
@@ -202,7 +206,7 @@ bool SymEncrypting(const utils::uint256& input, const std::string& password, uti
 }
 
 bool SignIsValidate(const uint8_t* buf, size_t length, const PublicKey& pub_key, const Signature& sign){
-	return 0 == ed25519_sign_open(buf, length, pub_key.bytes().data (), sign.bytes().data ());
+  return 0 == ed25519_sign_open(buf, length, pub_key.bytes().data (), sign.bytes().data ());
 }
 
 }

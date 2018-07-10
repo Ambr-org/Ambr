@@ -1,3 +1,8 @@
+/**********************************************************************
+ * Copyright (c) 2018 Ambr project
+ * Distributed under the MIT software license, see the accompanying   *
+ * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
+ **********************************************************************/
 #ifndef AMBR_CORE_NODE_H
 #define AMBR_CORE_NODE_H
 #include <iostream>

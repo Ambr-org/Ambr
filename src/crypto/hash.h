@@ -1,4 +1,8 @@
-
+/**********************************************************************
+ * Copyright (c) 2018 Ambr project
+ * Distributed under the MIT software license, see the accompanying   *
+ * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
+ **********************************************************************/
 #ifndef AMBR_CRYPTO_HASH_H_
 #define AMBR_CRYPTO_HASH_H_
 #include <stdint.h>
@@ -14,8 +18,7 @@ input: address of data for calculate
 length:  length of data by BYTE
 */
 template<typename T, uint32_t size>
-T CalcHash(const void* input, size_t length)
-{
+T CalcHash(const void* input, size_t length) {
   T number;
   blake2b_state hash_state;
   std::array<T, size> bytes;
