@@ -86,7 +86,7 @@ aux_source_directory(${CUR_DIR}/src/server DIR_SERVER_SRCS)
 aux_source_directory(${CUR_DIR}/src/store DIR_STORE_SRCS)
 aux_source_directory(${CUR_DIR}/src/utils DIR_UTILS_SRCS)
 aux_source_directory(${CUR_DIR}/src/wallet DIR_WALLET_SRCS)
-aux_source_directory(${CUR_DIR}/libs/blake2 DIR_BLAKE2_SRCS)
+aux_source_directory(${CUR_DIR}/src/crypto/blake2 DIR_BLAKE2_SRCS)
 aux_source_directory(${CUR_DIR}/libs/cryptopp DIR_CRYPTOPP_SRCS)
 
 
@@ -96,17 +96,26 @@ set(LIB_DIR ${CUR_DIR}/libs)
 set(CROW_DIR ${CUR_DIR}/libs/crow)
 set(LEVELDB_DIR ${CUR_DIR}/libs/leveldb)
 set(CORE_DIR ${CUR_DIR}/src/core)
+set(ROCKSDB_DIR ${CUR_DIR}/libs/rocksdb)
+
 include_directories(${MAIN_DIR})
 include_directories(${CROW_DIR}/include)
 include_directories(${LEVELDB_DIR}/include)
 include_directories(${LIB_DIR})
 include_directories(${ARCH_DIR})
+include_directories(${ROCKSDB_DIR}/include)
+
+link_directories(${ROCKSDB_DIR})
 
 link_libraries(boost_system)
 link_libraries(boost_program_options)
 link_libraries(pthread)
 link_libraries(ssl)
 link_libraries(crypto)
+link_libraries(rocksdb)
+SET(CMAKE_C_COMPILER gcc)
+set(CMAKE_CXX_FLAGS "-std=c++14 -Wall")
+set(CMAKE_CXX_FLAGS "-Wall")
 add_executable(${PROJECT_NAME}
   ${DIR_ARCH_SRCS}
   ${DIR_SRC_SRCS}
@@ -120,29 +129,18 @@ add_executable(${PROJECT_NAME}
   ${DIR_CRYPTOPP_SRCS}
   ${CUR_DIR}/libs/ed25519-donna/ed25519.c
   )
-#============================================
-#example
-#============================================
-add_subdirectory (${CUR_DIR}/libs/leveldb)
-#set(CMAKE_CXX_FLAGS "-Wno-error=macro-redefined -Wno-error=return-type")
-#set(CMAKE_C_FLAGS "-Wno-error=macro-redefined -Wno-error=return-type")
-set(CMAKE_CXX_FLAGS "-Wno-macro-redefined -Wno-error=return-type -Wno-error=undefined-var-template")
-set(CMAKE_C_FLAGS "-Wno-macro-redefined -Wno-error=return-type ")
-add_executable(example_uint ${CUR_DIR}/examples/uint.cc)
-add_executable(example_sha256 ${CUR_DIR}/examples/sha256.cc)
-add_executable(example_leveldb ${CUR_DIR}/examples/leveldb.cc)
-set_target_properties (example_leveldb PROPERTIES LINK_FLAGS "-lpthread")
-target_link_libraries (example_leveldb leveldb)
-add_executable(example_unit ${CUR_DIR}/examples/unit.cc ${CUR_DIR}/src/core/unit.cc)
-aux_source_directory(${CUR_DIR}/libs/blake2 blake2_SRCS)
-add_executable(example_unit_store
-  ${CUR_DIR}/examples/unit_store.cc
-  ${CUR_DIR}/src/core/unit.cc
-  ${CUR_DIR}/src/core/key.cc
-  ${CUR_DIR}/src/store/unit_store.cc
-  ${blake2_SRCS}
-  ${CUR_DIR}/libs/ed25519-donna/ed25519.c)
-target_link_libraries (example_unit_store leveldb ssl crypto)
-target_link_libraries (${PROJECT_NAME} leveldb)
-target_include_directories (example_uint PRIVATE ${CUR_DIR}/src)
+
+add_executable(unit_store_example
+  ${DIR_ARCH_SRCS}
+  ${DIR_CORE_SRCS}
+  ${DIR_NET_SRCS}
+  ${DIR_SERVER_SRCS}
+  ${DIR_STORE_SRCS}
+  ${DIR_UTILS_SRCS}
+  ${DIR_WALLET_SRCS}
+  ${DIR_BLAKE2_SRCS}
+  ${DIR_CRYPTOPP_SRCS}
+  ${CUR_DIR}/libs/ed25519-donna/ed25519.c
+  examples/unit_store.cc
+  )
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Windows")

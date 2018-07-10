@@ -6,7 +6,7 @@
 #include "node.h"
 
 #include <string>
-#include <strstream>
+#include <sstream>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
