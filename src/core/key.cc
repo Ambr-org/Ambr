@@ -68,17 +68,10 @@ std::string HexToString(const std::string& input) {
 }
 
 PublicKey GetPublicKeyByPrivateKey (const PrivateKey& pri_key){	
-  uint8_t src[32] = {0};
-  uint8_t des[32] = {0};
-
-  std::string&& private_key = pri_key.encode_to_hex();
-  memcpy(src, private_key.c_str(), sizeof(src));
-  ed25519_publickey(src, des);
-
-  std::array<uint8_t, 32> bytes;
-  memcpy(bytes.data(), des, sizeof(des));
- 
   PublicKey public_key;
+  std::array<uint8_t, 32> bytes;
+
+  ed25519_publickey(pri_key.bytes().data(), bytes.data());
   public_key.set_bytes(bytes);
   return public_key;
 }
