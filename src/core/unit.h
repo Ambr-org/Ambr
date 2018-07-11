@@ -41,9 +41,6 @@ enum class UnitType : uint8_t{
 };
 
 class Unit{
-  //TODO
-  friend class SendUnit;
-  friend class ReceiveUnit;
 public:
   virtual std::string SerializeJson () const = 0;
   virtual bool DeSerializeJson(const std::string& json) = 0;
@@ -105,8 +102,7 @@ public:
   void set_sign(const Signature& sign){
     sign_ = sign;
   }
-//protected
-private:
+protected:
   uint32_t version_;
   UnitType type_;
   PublicKey public_key_;
@@ -114,8 +110,7 @@ private:
   Amount balance_;
   UnitHash hash_;
   Signature sign_;
-  //protected TODO
-private:
+protected:
   Unit();
 };
 

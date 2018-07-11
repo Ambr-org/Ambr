@@ -9,7 +9,6 @@
 #include <crypto/sha256.h>
 
 
-
 std::shared_ptr<ambr::core::Unit> ambr::core::Unit::CreateUnitByByte(const std::vector<uint8_t> &buf){
   //MakeShared TODO
   std::shared_ptr<ReceiveUnit> receive_unit = std::shared_ptr<ReceiveUnit>(new ReceiveUnit());
@@ -56,7 +55,7 @@ std::string ambr::core::SendUnit::SerializeJson() const{
 bool ambr::core::SendUnit::DeSerializeJson(const std::string& json){
   try{
     ::boost::property_tree::ptree pt;
-    std::istrstream stream(json.c_str());
+    std::istringstream stream(json.c_str());
     ::boost::property_tree::read_json(stream, pt);
     version_ = pt.get<uint32_t>("unit.version");
     type_ = (UnitType)pt.get<uint8_t>("unit.type");
@@ -165,14 +164,7 @@ void ambr::core::SendUnit::CalcHashAndFill(){
 }
 
 bool ambr::core::SendUnit::SignatureAndFill(const ambr::core::PrivateKey &key){
-  //TODO:
-  Signature::ArrayType array_sign;
-  PrivateKey::ArrayType array_key;
-  for(int i = 0; i< array_key.size(); i++){
-    array_key = key.bytes();
-    array_sign[i]=array_key[i];
-  }
-  sign_.set_bytes(array_sign);
+  sign_ = GetSignByPrivateKey(hash_.bytes().data(), hash_.bytes().size(), key);
   return true;
 }
 
@@ -191,8 +183,10 @@ bool ambr::core::SendUnit::Validate(std::string *err) const{
     }
     return false;
   }
-  //check signature
-  //TODO:
+  if(!ambr::core::SignIsValidate(hash_.bytes().data(), hash_.bytes().size(), public_key_, sign_)){
+    *err = "error signature";
+    return false;
+  }
   return true;
 }
 
@@ -220,7 +214,7 @@ std::string ambr::core::ReceiveUnit::SerializeJson() const{
 bool ambr::core::ReceiveUnit::DeSerializeJson(const std::string &json){
   try{
     ::boost::property_tree::ptree pt;
-    std::istrstream stream(json.c_str());
+    std::istringstream stream(json.c_str());
     ::boost::property_tree::read_json(stream, pt);
     version_ = pt.get<uint32_t>("unit.version");
     type_ = (UnitType)pt.get<uint8_t>("unit.type");
@@ -340,7 +334,7 @@ bool ambr::core::ReceiveUnit::SignatureAndFill(const ambr::core::PrivateKey &key
   //TODO:
   Signature::ArrayType array_sign;
   PrivateKey::ArrayType array_key;
-  for(int i = 0; i< array_key.size(); i++){
+  for(size_t i = 0; i< array_key.size(); i++){
     array_sign[i]=array_key[i];
   }
   sign_.set_bytes(array_sign);

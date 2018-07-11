@@ -12,6 +12,7 @@
 
 namespace rocksdb{
 class DB;
+class ColumnFamilyHandle;
 }
 namespace test_temp{
 ambr::core::PublicKey GetPublicKeyByPrivateKey(const ambr::core::PrivateKey& pri_key);
@@ -20,16 +21,6 @@ std::string GetAddressByPublicKey(const ambr::core::PublicKey& pub_key);
 std::string GetAddressByPrivateKey(const ambr::core::PrivateKey &pri_key);
 bool AddressIsValidate(const std::string& addr);
 ambr::core::PublicKey GetPublicKeyByAddress(const std::string& addr);
-/*
-//创建私钥
-PrivateKey CreateRandomPrivateKey();
-PublicKey GetPublicKeyByPrivateKey(PrivateKey& pri_key);
-std::string GetAddressByPublicKey(const PublicKey& pub_key);
-PublicKey GetPublicKeyByAddress(const std::string address);
-bool AddressIsValidate(const std::string& addr);
-
-
-*/
 }
 namespace ambr {
 namespace store {
@@ -61,6 +52,9 @@ private:
   UnitStore();
 private:
   rocksdb::DB* db_unit_;
+  rocksdb::ColumnFamilyHandle* handle_send_unit_;
+  rocksdb::ColumnFamilyHandle* handle_receive_unit_;
+  rocksdb::ColumnFamilyHandle* handle_account_;
 };
 
 inline std::shared_ptr<UnitStore> GetUnitStore(){

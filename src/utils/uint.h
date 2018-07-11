@@ -9,7 +9,7 @@
 
 #include <stdint.h>
 #include <string>
-#include <strstream>
+#include <sstream>
 #include <boost/multiprecision/cpp_int.hpp>
 namespace ambr {
 namespace utils {
@@ -105,7 +105,7 @@ public:
 
   T data () const{
     T result = 0;
-    int i = 0;
+    size_t i = 0;
     for(i = 0; i < bytes_.size()-1; i++){
       result |= bytes_[i];
       result <<= 8;
