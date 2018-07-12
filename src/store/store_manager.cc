@@ -17,10 +17,6 @@ static const std::string init_addr = "ambr_y4bwxzwwrze3mt4i99n614njtsda6s658uqtu
 static const ambr::core::Amount init_balance=(boost::multiprecision::uint128_t)630000000000*1000;
 
 //TODO: db sync
-namespace test_temp{
-
-
-}
 void ambr::store::StoreManager::Init(){
 
   rocksdb::DBOptions options;
@@ -33,12 +29,13 @@ void ambr::store::StoreManager::Init(){
   column_families.push_back(rocksdb::ColumnFamilyDescriptor("send_unit", rocksdb::ColumnFamilyOptions()));
   column_families.push_back(rocksdb::ColumnFamilyDescriptor("receive_unit", rocksdb::ColumnFamilyOptions()));
   column_families.push_back(rocksdb::ColumnFamilyDescriptor("account", rocksdb::ColumnFamilyOptions()));
-
+  column_families.push_back(rocksdb::ColumnFamilyDescriptor("handle_wait_for_receive", rocksdb::ColumnFamilyOptions()));
   rocksdb::Status status = rocksdb::DB::Open(options, "./unit.db", column_families, &column_families_handle, &db_unit_);
   assert(status.ok());
   handle_send_unit_ = column_families_handle[0];
   handle_receive_unit_ = column_families_handle[1];
   handle_account_ = column_families_handle[2];
+  handle_wait_for_receive_ = column_families_handle[3];
 
   {//first time init db
     core::Amount balance = core::Amount();
@@ -129,6 +126,8 @@ bool ambr::store::StoreManager::AddUnit(std::shared_ptr<ambr::core::Unit> unit, 
               rocksdb::Slice((const char*)bytes.data(), bytes.size()));
     batch.Put(handle_account_, rocksdb::Slice((const char*)send_unit->public_key().bytes().data(), send_unit->public_key().bytes().size()),
               rocksdb::Slice((const char*)send_unit->hash().bytes().data(), send_unit->hash().bytes().size()));
+    AddWaitForReceiveUnit(send_unit->dest(), send_unit->hash(), &batch);
+
     if(use_log){//TODO:use log module
       std::cout<<"Add unit for send!"<<std::endl;
       std::cout<<unit->hash().encode_to_hex()<<std::endl;
@@ -137,6 +136,7 @@ bool ambr::store::StoreManager::AddUnit(std::shared_ptr<ambr::core::Unit> unit, 
               <<"'s last unit change to "<<send_unit->hash().encode_to_hex();
     }
     rocksdb::Status status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
+
     assert(status.ok());
     return true;
   }else if(unit->type() == ambr::core::UnitType::receive){
@@ -212,6 +212,7 @@ bool ambr::store::StoreManager::AddSendUnit(std::shared_ptr<ambr::core::SendUnit
             rocksdb::Slice((const char*)bytes.data(), bytes.size()));
   batch.Put(handle_account_, rocksdb::Slice((const char*)send_unit->public_key().bytes().data(), send_unit->public_key().bytes().size()),
             rocksdb::Slice((const char*)send_unit->hash().bytes().data(), send_unit->hash().bytes().size()));
+  AddWaitForReceiveUnit(send_unit->dest(), send_unit->hash(), &batch);
   if(use_log){//TODO:use log module
     std::cout<<"Add unit for send!"<<std::endl;
     std::cout<<send_unit->hash().encode_to_hex()<<std::endl;
@@ -219,6 +220,60 @@ bool ambr::store::StoreManager::AddSendUnit(std::shared_ptr<ambr::core::SendUnit
     std::cout<<"address:"<<ambr::core::GetAddressStringByPublicKey(send_unit->public_key())
             <<"'s last unit change to "<<send_unit->hash().encode_to_hex();
   }
+  rocksdb::Status status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
+  assert(status.ok());
+  return true;
+}
+
+bool ambr::store::StoreManager::AddReceiveUnit(std::shared_ptr<ambr::core::ReceiveUnit> receive_unit, std::string *err){
+  if(!receive_unit){
+    if(err)*err = "receive_unit is nullptr.";
+    return false;
+  }
+  if(!receive_unit->Validate(err)){
+    if(err)*err = "receive_unit  is invalidate.";
+    return false;
+  }
+
+  //chain check
+  std::shared_ptr<SendUnitStore> send_unit_store = GetSendUnit(receive_unit->from());
+  if(!send_unit_store){
+    if(err)*err = "Con't find send unit store.";
+    return false;
+  }
+
+  //check receive member
+  if(send_unit_store->unit()->dest() != receive_unit->public_key()){
+    if(err)*err = "This receiver is not right.";
+    return false;
+  }
+
+  //check receive count
+  core::Amount balance_old;
+  std::shared_ptr<store::UnitStore> prev_receive_store = GetUnit(receive_unit->prev_unit());
+  if(prev_receive_store){
+    balance_old.set_data(receive_unit->balance().data()-prev_receive_store->GetUnit()->balance().data());
+  }
+  std::shared_ptr<store::UnitStore> prev_send_store = GetUnit(send_unit_store->unit()->prev_unit());
+  assert(prev_send_store);
+  if(receive_unit->balance().data()-balance_old.data() !=
+      prev_send_store->GetUnit()->balance().data()-send_unit_store->GetUnit()->balance().data()){
+    if(err)*err = "Error balance number.";
+    return false;
+  }
+  rocksdb::WriteBatch batch;
+  auto receive_unit_store = std::make_shared<ReceiveUnitStore>(receive_unit);
+  std::vector<uint8_t> bytes = receive_unit_store->SerializeByte();
+  std::array<uint8_t,sizeof(ambr::core::UnitHash::ArrayType)> hash_bytes = receive_unit->hash().bytes();
+  batch.Put(handle_receive_unit_, rocksdb::Slice((const char*)hash_bytes.data(), hash_bytes.size()),
+            rocksdb::Slice((const char*)bytes.data(), bytes.size()));
+  batch.Put(handle_account_, rocksdb::Slice((const char*)receive_unit->public_key().bytes().data(), receive_unit->public_key().bytes().size()),
+            rocksdb::Slice((const char*)receive_unit->hash().bytes().data(), receive_unit->hash().bytes().size()));
+  send_unit_store->set_receive_unit_hash(receive_unit->hash());
+  bytes = send_unit_store->SerializeByte();
+  batch.Put(handle_send_unit_, rocksdb::Slice((const char*)send_unit_store->unit()->hash().bytes().begin(), send_unit_store->unit()->hash().bytes().size()),
+            rocksdb::Slice((const char*)bytes.data(), bytes.size()));
+  RemoveWaitForReceiveUnit(receive_unit->public_key(), receive_unit->from(), &batch);
   rocksdb::Status status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
   assert(status.ok());
   return true;
@@ -276,7 +331,6 @@ bool ambr::store::StoreManager::SendToAddress(
   std::shared_ptr<core::SendUnit> unit = std::shared_ptr<core::SendUnit>(new core::SendUnit());
   core::PublicKey pub_key = ambr::core::GetPublicKeyByPrivateKey(prv_key);
   core::UnitHash prev_hash;
-
   if(!GetLastUnitHashByPubKey(pub_key, prev_hash)){
     if(err){
       *err = "Can't find sender's last unithash";
@@ -305,28 +359,162 @@ bool ambr::store::StoreManager::SendToAddress(
   unit->set_dest(pub_key_to);
   unit->CalcHashAndFill();
   unit->SignatureAndFill(prv_key);
-  return AddUnit(unit, err);
+  return AddSendUnit(unit, err);
+}
+
+bool ambr::store::StoreManager::ReceiveFromUnitHash(const core::UnitHash unit_hash, const ambr::core::PrivateKey &pri_key, std::string *err){
+  std::shared_ptr<core::ReceiveUnit> unit = std::shared_ptr<core::ReceiveUnit>(new core::ReceiveUnit());
+  core::PublicKey pub_key = ambr::core::GetPublicKeyByPrivateKey(pri_key);
+  core::UnitHash prev_hash;
+  if(!GetLastUnitHashByPubKey(pub_key, prev_hash)){
+    prev_hash.clear();
+  }
+  core::Amount balance;
+  if(!GetBalanceByPubKey(pub_key, balance)){
+    balance.clear();
+  }
+  core::Amount balance_send;
+  std::shared_ptr<SendUnitStore> send_store = GetSendUnit(unit_hash);
+  if(!send_store){
+    if(err)*err = "con't find send unit.";
+  }
+  balance_send = send_store->unit()->balance();
+
+  core::Amount balance_send_pre;
+  std::shared_ptr<UnitStore> store_pre = GetUnit(send_store->unit()->prev_unit());
+  if(!store_pre){
+    if(err)*err = "con't find send unit's pre unit.";
+  }
+  balance_send_pre = store_pre->GetUnit()->balance();
+
+  balance.set_data(balance.data()+(balance_send_pre.data()-balance_send.data()));
+
+  unit->set_version(0x00000001);
+  unit->set_type(core::UnitType::receive);
+  unit->set_public_key(ambr::core::GetPublicKeyByPrivateKey(pri_key));
+  unit->set_prev_unit(prev_hash);
+  unit->set_balance(balance);
+  unit->set_from(unit_hash);
+  unit->CalcHashAndFill();
+  unit->SignatureAndFill(pri_key);
+  return AddReceiveUnit(unit, err);
+}
+
+std::list<ambr::core::UnitHash> ambr::store::StoreManager::GetWaitForReceiveList(const ambr::core::PublicKey &pub_key){
+  //TODO Improve efficiency
+  std::string string_readed;
+  rocksdb::Status status = db_unit_->Get(
+                               rocksdb::ReadOptions(),
+                               handle_wait_for_receive_,
+                               rocksdb::Slice((const char*)pub_key.bytes().data(), pub_key.bytes().size()),
+                               &string_readed);
+  if(!status.IsNotFound()){
+    assert(status.ok());
+  }
+  size_t idx = 0;
+  std::list<ambr::core::UnitHash> rtn;
+  while(idx+sizeof(core::UnitHash) <= string_readed.size()){
+    //std::array<uint8_t, sizeof(core::UnitHash)> xxx = *(std::array<uint8_t, sizeof(core::UnitHash)>*)(string_readed.data()+idx);
+    rtn.push_back(core::UnitHash(*(std::array<uint8_t, sizeof(core::UnitHash)>*)(string_readed.data()+idx)));
+    idx += sizeof(core::UnitHash);
+  }
+  return rtn;
 }
 
 std::shared_ptr<ambr::store::UnitStore> ambr::store::StoreManager::GetUnit(const ambr::core::UnitHash &hash){
-  std::string string_readed;
-  rocksdb::Status status = db_unit_->Get(
-                             rocksdb::ReadOptions(),
-                             handle_receive_unit_,
-                             rocksdb::Slice((const char*)hash.bytes().data(), hash.bytes().size()),
-                             &string_readed);
-  if(status.IsNotFound()){
-    status = db_unit_->Get(
-                                 rocksdb::ReadOptions(),
-                                 handle_send_unit_,
-                                 rocksdb::Slice((const char*)hash.bytes().data(), hash.bytes().size()),
-                                 &string_readed);
-    if(status.IsNotFound()){
-      return std::shared_ptr<ambr::store::UnitStore>();
+  std::shared_ptr<ambr::store::SendUnitStore> send_unit = GetSendUnit(hash);
+  if(send_unit){
+    return send_unit;
+  }else{
+    std::shared_ptr<ambr::store::ReceiveUnitStore> receive_unit = GetReceiveUnit(hash);
+    if(receive_unit){
+      return receive_unit;
     }
   }
+  return nullptr;
+}
+
+std::shared_ptr<ambr::store::SendUnitStore> ambr::store::StoreManager::GetSendUnit(const ambr::core::UnitHash &hash){
+  std::shared_ptr<ambr::store::SendUnitStore> rtn;
+  std::string string_readed;
+  rocksdb::Status status = db_unit_->Get(
+                                      rocksdb::ReadOptions(),
+                                      handle_send_unit_,
+                                      rocksdb::Slice((const char*)hash.bytes().data(), hash.bytes().size()),
+                                      &string_readed);
+  if(status.IsNotFound()){
+    return rtn;
+  }
   assert(status.ok());
-  return ambr::store::UnitStore::CreateUnitStoreByBytes(std::vector<uint8_t>(string_readed.begin(), string_readed.end()));
+  rtn = std::make_shared<ambr::store::SendUnitStore>(nullptr);
+  if(rtn->DeSerializeByte(std::vector<uint8_t>(string_readed.begin(), string_readed.end()))){
+    return rtn;
+  }
+  return std::shared_ptr<ambr::store::SendUnitStore>();
+}
+
+std::shared_ptr<ambr::store::ReceiveUnitStore> ambr::store::StoreManager::GetReceiveUnit(const ambr::core::UnitHash &hash){
+  std::shared_ptr<ambr::store::ReceiveUnitStore> rtn;
+  std::string string_readed;
+  rocksdb::Status status = db_unit_->Get(
+                                      rocksdb::ReadOptions(),
+                                      handle_receive_unit_,
+                                      rocksdb::Slice((const char*)hash.bytes().data(), hash.bytes().size()),
+                                      &string_readed);
+  if(status.IsNotFound()){
+    return rtn;
+  }
+  assert(status.ok());
+  rtn = std::make_shared<ambr::store::ReceiveUnitStore>(nullptr);
+  if(rtn->DeSerializeByte(std::vector<uint8_t>(string_readed.begin(), string_readed.end()))){
+    return rtn;
+  }
+  return std::shared_ptr<ambr::store::ReceiveUnitStore>();
+}
+
+void ambr::store::StoreManager::AddWaitForReceiveUnit(const ambr::core::PublicKey &pub_key, const ambr::core::UnitHash &hash, rocksdb::WriteBatch* batch){
+  //TODO Improve efficiency
+  std::string string_readed;
+  rocksdb::Status status = db_unit_->Get(
+                               rocksdb::ReadOptions(),
+                               handle_wait_for_receive_,
+                               rocksdb::Slice((const char*)pub_key.bytes().data(), pub_key.bytes().size()),
+                               &string_readed);
+  if(!status.IsNotFound()){
+    assert(status.ok());
+  }
+  std::vector<uint8_t> vec_for_write(string_readed.begin(), string_readed.end());
+  vec_for_write.insert(vec_for_write.end(), hash.bytes().begin(), hash.bytes().end());
+  if(batch){
+    status = batch->Put(handle_wait_for_receive_,
+                        rocksdb::Slice((const char*)pub_key.bytes().data(), pub_key.bytes().size()),
+                        rocksdb::Slice((const char*)vec_for_write.data(), vec_for_write.size()));
+  }else{
+    status = db_unit_->Put(rocksdb::WriteOptions(),
+                           handle_wait_for_receive_,
+                           rocksdb::Slice((const char*)pub_key.bytes().data(), pub_key.bytes().size()),
+                           rocksdb::Slice((const char*)vec_for_write.data(), vec_for_write.size()));
+  }
+  assert(status.ok());
+}
+void ambr::store::StoreManager::RemoveWaitForReceiveUnit(const ambr::core::PublicKey &pub_key, const ambr::core::UnitHash &hash, rocksdb::WriteBatch *batch){
+  std::list<core::UnitHash> hash_list = GetWaitForReceiveList(pub_key);
+  hash_list.remove(hash);
+  std::vector<uint8_t> vec_for_write;
+  for(std::list<core::UnitHash>::iterator iter = hash_list.begin(); iter != hash_list.end(); iter++){
+    vec_for_write.insert(vec_for_write.end(), iter->bytes().begin(), iter->bytes().end());
+  }
+  rocksdb::Status status;
+  if(batch){
+    status = batch->Put(handle_wait_for_receive_,
+                        rocksdb::Slice((const char*)pub_key.bytes().data(), pub_key.bytes().size()),
+                        rocksdb::Slice((const char*)vec_for_write.data(), vec_for_write.size()));
+  }else{
+    status = db_unit_->Put(rocksdb::WriteOptions(),
+                           handle_wait_for_receive_,
+                           rocksdb::Slice((const char*)pub_key.bytes().data(), pub_key.bytes().size()),
+                           rocksdb::Slice((const char*)vec_for_write.data(), vec_for_write.size()));
+  }
 }
 
 ambr::store::StoreManager::StoreManager(){

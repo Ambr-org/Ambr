@@ -152,14 +152,14 @@ public:
   virtual bool SignatureAndFill(const PrivateKey& key) override;
   virtual bool Validate(std::string* err) const override;
 public:
-  const PublicKey& from(){
+  const UnitHash& from(){
     return from_;
   }
-  void set_from(const PublicKey& from){
+  void set_from(const UnitHash& from){
     from_ = from;
   }
 private:
-  PublicKey from_;
+  UnitHash from_;
 };
 
 }

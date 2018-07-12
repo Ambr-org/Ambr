@@ -19,7 +19,7 @@ std::shared_ptr<ambr::store::UnitStore> ambr::store::UnitStore::CreateUnitStoreB
 }
 
 ambr::store::SendUnitStore::SendUnitStore(std::shared_ptr<core::SendUnit> unit):UnitStore(ST_SendUnit), unit_(unit), version_(0x00000001){
-  assert(unit);
+  //assert(unit);
 }
 
 std::shared_ptr<ambr::core::SendUnit> ambr::store::SendUnitStore::unit(){
@@ -61,7 +61,7 @@ std::string ambr::store::SendUnitStore::SerializeJson() const{
 }
 
 bool ambr::store::SendUnitStore::DeSerializeJson(const std::string &json){
-  boost::property_tree::ptree pt;
+  boost::property_tree ::ptree pt;
   std::stringstream stream(json);
   boost::property_tree::read_json(stream, pt);
   try{
@@ -111,9 +111,13 @@ bool ambr::store::SendUnitStore::DeSerializeByte(const std::vector<uint8_t> &buf
   return false;
 }
 
+std::shared_ptr<ambr::core::Unit> ambr::store::SendUnitStore::GetUnit(){
+  return unit_;
+}
+
 
 ambr::store::ReceiveUnitStore::ReceiveUnitStore(std::shared_ptr<core::ReceiveUnit> unit):UnitStore(ST_ReceiveUnit), unit_(unit), version_(0x00000001){
-  assert(unit);
+  //assert(unit);
 }
 
 std::shared_ptr<ambr::core::ReceiveUnit> ambr::store::ReceiveUnitStore::unit(){
@@ -191,7 +195,10 @@ bool ambr::store::ReceiveUnitStore::DeSerializeByte(const std::vector<uint8_t> &
     return true;
   }//else if(other version)
   return false;
+}
 
+std::shared_ptr<ambr::core::Unit> ambr::store::ReceiveUnitStore::GetUnit(){
+  return unit_;
 }
 
 

@@ -13,6 +13,7 @@
 namespace rocksdb{
 class DB;
 class ColumnFamilyHandle;
+class WriteBatch;
 }
 
 namespace ambr {
@@ -34,6 +35,15 @@ public:
       const core::Amount& count,
       const core::PrivateKey& prv_key,
       std::string* err);
+  bool ReceiveFromUnitHash(
+      const core::UnitHash unit_hash,
+      const core::PrivateKey& pri_key,
+      std::string* err);
+  std::list<core::UnitHash> GetWaitForReceiveList(const core::PublicKey& pub_key);
+
+  std::shared_ptr<UnitStore> GetUnit(const core::UnitHash& hash);
+  std::shared_ptr<SendUnitStore> GetSendUnit(const core::UnitHash& hash);
+  std::shared_ptr<ReceiveUnitStore> GetReceiveUnit(const core::UnitHash& hash);
 public:
   static std::shared_ptr<StoreManager> instance(){
     if(!instance_)
@@ -41,15 +51,19 @@ public:
     return instance_;
   }
 private:
-  std::shared_ptr<UnitStore> GetUnit(const core::UnitHash& hash);
+
+  //if batch == 0 writedb without batch
+  void AddWaitForReceiveUnit(const core::PublicKey& pub_key, const core::UnitHash& hash, rocksdb::WriteBatch* batch);
+  void RemoveWaitForReceiveUnit(const core::PublicKey& pub_key, const core::UnitHash& hash, rocksdb::WriteBatch* batch);
 private:
   static std::shared_ptr<StoreManager> instance_;
   StoreManager();
 private:
   rocksdb::DB* db_unit_;
-  rocksdb::ColumnFamilyHandle* handle_send_unit_;
-  rocksdb::ColumnFamilyHandle* handle_receive_unit_;
-  rocksdb::ColumnFamilyHandle* handle_account_;
+  rocksdb::ColumnFamilyHandle* handle_send_unit_;//unit_hash->SendUnitStore
+  rocksdb::ColumnFamilyHandle* handle_receive_unit_;//unit_hash->ReceiveUnitStore
+  rocksdb::ColumnFamilyHandle* handle_account_;//AcountPublicKey->LastUnitHash
+  rocksdb::ColumnFamilyHandle* handle_wait_for_receive_;//AccountPublic->ReceiveList
 };
 
 inline std::shared_ptr<StoreManager> GetStoreManager(){

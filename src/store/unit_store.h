@@ -9,6 +9,7 @@
 #include <core/key.h>
 namespace ambr{
 namespace core{
+  class Unit;
   class SendUnit;
   class ReceiveUnit;
 }
@@ -26,8 +27,9 @@ public:
   virtual bool DeSerializeJson(const std::string& json) = 0;
   virtual std::vector<uint8_t> SerializeByte() const = 0;
   virtual bool DeSerializeByte(const std::vector<uint8_t>& buf) = 0;
+  virtual std::shared_ptr<ambr::core::Unit> GetUnit() = 0;
 public:
-  StoreType type(){return type_;};
+  StoreType type(){return type_;}
   void set_type(StoreType type){type = type;}
 protected:
   UnitStore(StoreType type):type_(type){}
@@ -46,10 +48,11 @@ public:
   uint32_t version();
   void set_version(uint32_t version);
 public:
-  virtual std::string SerializeJson () const;
-  virtual bool DeSerializeJson(const std::string& json);
-  virtual std::vector<uint8_t> SerializeByte() const;
-  virtual bool DeSerializeByte(const std::vector<uint8_t>& buf);
+  virtual std::string SerializeJson () const override;
+  virtual bool DeSerializeJson(const std::string& json) override;
+  virtual std::vector<uint8_t> SerializeByte() const override;
+  virtual bool DeSerializeByte(const std::vector<uint8_t>& buf) override;
+  virtual std::shared_ptr<ambr::core::Unit> GetUnit() override;
 private:
   std::shared_ptr<core::SendUnit> unit_;
   uint32_t version_;
@@ -67,10 +70,11 @@ public:
   uint32_t version();
   void set_version(uint32_t version);
 public:
-  virtual std::string SerializeJson () const;
-  virtual bool DeSerializeJson(const std::string& json);
-  virtual std::vector<uint8_t> SerializeByte() const;
-  virtual bool DeSerializeByte(const std::vector<uint8_t>& buf);
+  virtual std::string SerializeJson() const override;
+  virtual bool DeSerializeJson(const std::string& json) override;
+  virtual std::vector<uint8_t> SerializeByte() const override;
+  virtual bool DeSerializeByte(const std::vector<uint8_t>& buf) override;
+  virtual std::shared_ptr<ambr::core::Unit> GetUnit() override;
 private:
   std::shared_ptr<core::ReceiveUnit> unit_;
   uint32_t version_;
