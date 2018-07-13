@@ -130,17 +130,39 @@ add_executable(${PROJECT_NAME}
   ${CUR_DIR}/libs/ed25519-donna/ed25519.c
   )
 
-add_executable(unit_store_example
-  ${DIR_ARCH_SRCS}
-  ${DIR_CORE_SRCS}
-  ${DIR_NET_SRCS}
-  ${DIR_SERVER_SRCS}
-  ${DIR_STORE_SRCS}
-  ${DIR_UTILS_SRCS}
-  ${DIR_WALLET_SRCS}
-  ${DIR_BLAKE2_SRCS}
-  ${DIR_CRYPTOPP_SRCS}
-  ${CUR_DIR}/libs/ed25519-donna/ed25519.c
-  examples/unit_store.cc
-  )
+
+set(GUI on)
+if(DEFINED GUI)
+  set(CMAKE_INCLUDE_CURRENT_DIR ON)
+  set(CMAKE_AUTOMOC ON)
+  set(CMAKE_AUTOUIC ON)
+  set(CMAKE_AUTORCC ON)
+  #set(RESOURCE_DIR resources/resources.qrc)
+
+  find_package(Qt5 REQUIRED Widgets)
+  qt5_wrap_cpp( MOC ${CUR_DIR}/examples/store_example_main_widget.h)
+  qt5_wrap_ui( UIC ${CUR_DIR}/examples/store_example_main_widget.ui)
+  #qt5_add_resources(RCC resources.qrc)
+  set(QT_SRC
+    ${CUR_DIR}/examples/store_example_main_widget.cc
+    ${CUR_DIR}/examples/store_example_main_widget.h
+    ${CUR_DIR}/examples/store_example_main_widget.ui)
+  add_executable(unit_store_example
+    ${DIR_ARCH_SRCS}
+    ${DIR_CORE_SRCS}
+    ${DIR_NET_SRCS}
+    ${DIR_SERVER_SRCS}
+    ${DIR_STORE_SRCS}
+    ${DIR_UTILS_SRCS}
+    ${DIR_WALLET_SRCS}
+    ${DIR_BLAKE2_SRCS}
+    ${DIR_CRYPTOPP_SRCS}
+    ${CUR_DIR}/libs/ed25519-donna/ed25519.c
+    examples/unit_store.cc
+    ${QT_SRC}
+    )
+  target_link_libraries(unit_store_example Qt5::Widgets)
+else()
+endif()
+
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Windows")

@@ -317,16 +317,49 @@ std::list<std::shared_ptr<ambr::store::UnitStore> > ambr::store::StoreManager::G
   std::list<std::shared_ptr<ambr::store::UnitStore> > unit_list;
   ambr::core::UnitHash hash_iter;
   std::shared_ptr<ambr::store::UnitStore> unit_ptr;
-  while(GetLastUnitHashByPubKey(pub_key, hash_iter) && (unit_ptr = GetUnit(hash_iter))){
-    unit_list.push_back(unit_ptr);
+
+  size_t count_idx = 0;
+  if(GetLastUnitHashByPubKey(pub_key, hash_iter)){
+    while(unit_ptr = GetUnit(hash_iter)){
+      count_idx++;
+      if(count_idx > count || count_idx >1000){
+        break;
+      }
+      unit_list.push_back(unit_ptr);
+      hash_iter = unit_ptr->GetUnit()->prev_unit();
+    }
   }
   return unit_list;
 }
+
+bool ambr::store::StoreManager::GetSendAmount(const ambr::core::UnitHash &unit_hash, ambr::core::Amount &amount, std::string *err)
+{
+  core::Amount balance_send;
+  std::shared_ptr<SendUnitStore> send_store = GetSendUnit(unit_hash);
+  if(!send_store){
+    if(err)*err = "con't find send unit.";
+    return false;
+  }
+  balance_send = send_store->unit()->balance();
+
+  core::Amount balance_send_pre;
+  std::shared_ptr<UnitStore> store_pre = GetUnit(send_store->unit()->prev_unit());
+  if(!store_pre){
+    if(err)*err = "con't find send unit's pre unit.";
+    return false;
+  }
+  balance_send_pre = store_pre->GetUnit()->balance();
+  amount.set_data(balance_send_pre.data()-balance_send.data());
+  return true;
+}
+
+
 
 bool ambr::store::StoreManager::SendToAddress(
     const ambr::core::PublicKey pub_key_to,
     const ambr::core::Amount &send_count,
     const ambr::core::PrivateKey &prv_key,
+    core::UnitHash* tx_hash,
     std::string* err){
   std::shared_ptr<core::SendUnit> unit = std::shared_ptr<core::SendUnit>(new core::SendUnit());
   core::PublicKey pub_key = ambr::core::GetPublicKeyByPrivateKey(prv_key);
@@ -359,10 +392,11 @@ bool ambr::store::StoreManager::SendToAddress(
   unit->set_dest(pub_key_to);
   unit->CalcHashAndFill();
   unit->SignatureAndFill(prv_key);
+  if(tx_hash)*tx_hash = unit->hash();
   return AddSendUnit(unit, err);
 }
 
-bool ambr::store::StoreManager::ReceiveFromUnitHash(const core::UnitHash unit_hash, const ambr::core::PrivateKey &pri_key, std::string *err){
+bool ambr::store::StoreManager::ReceiveFromUnitHash(const core::UnitHash unit_hash, const ambr::core::PrivateKey &pri_key,  core::UnitHash* tx_hash, std::string *err){
   std::shared_ptr<core::ReceiveUnit> unit = std::shared_ptr<core::ReceiveUnit>(new core::ReceiveUnit());
   core::PublicKey pub_key = ambr::core::GetPublicKeyByPrivateKey(pri_key);
   core::UnitHash prev_hash;
@@ -373,10 +407,12 @@ bool ambr::store::StoreManager::ReceiveFromUnitHash(const core::UnitHash unit_ha
   if(!GetBalanceByPubKey(pub_key, balance)){
     balance.clear();
   }
+  //TODO use GetSendAmount
   core::Amount balance_send;
   std::shared_ptr<SendUnitStore> send_store = GetSendUnit(unit_hash);
   if(!send_store){
     if(err)*err = "con't find send unit.";
+    return false;
   }
   balance_send = send_store->unit()->balance();
 
@@ -384,6 +420,7 @@ bool ambr::store::StoreManager::ReceiveFromUnitHash(const core::UnitHash unit_ha
   std::shared_ptr<UnitStore> store_pre = GetUnit(send_store->unit()->prev_unit());
   if(!store_pre){
     if(err)*err = "con't find send unit's pre unit.";
+    return false;
   }
   balance_send_pre = store_pre->GetUnit()->balance();
 
@@ -397,6 +434,7 @@ bool ambr::store::StoreManager::ReceiveFromUnitHash(const core::UnitHash unit_ha
   unit->set_from(unit_hash);
   unit->CalcHashAndFill();
   unit->SignatureAndFill(pri_key);
+  if(tx_hash)*tx_hash = unit->hash();
   return AddReceiveUnit(unit, err);
 }
 
@@ -470,6 +508,30 @@ std::shared_ptr<ambr::store::ReceiveUnitStore> ambr::store::StoreManager::GetRec
     return rtn;
   }
   return std::shared_ptr<ambr::store::ReceiveUnitStore>();
+}
+
+std::list<ambr::core::UnitHash> ambr::store::StoreManager::GetAccountListFromAccountForDebug(){
+  std::list<ambr::core::UnitHash> rtn_list;
+  rocksdb::Iterator* it = db_unit_->NewIterator(rocksdb::ReadOptions(), handle_account_);
+  for (it->SeekToFirst(); it->Valid(); it->Next()) {
+    assert(it->status().ok());
+    ambr::core::UnitHash hash;
+    hash.set_bytes(it->key().data(), it->key().size());
+    rtn_list.push_back(hash);
+  }
+  return rtn_list;
+}
+
+std::list<ambr::core::UnitHash> ambr::store::StoreManager::GetAccountListFromWaitForReceiveForDebug(){
+  std::list<ambr::core::UnitHash> rtn_list;
+  rocksdb::Iterator* it = db_unit_->NewIterator(rocksdb::ReadOptions(), handle_wait_for_receive_);
+  for (it->SeekToFirst(); it->Valid(); it->Next()) {
+    assert(it->status().ok());
+    ambr::core::UnitHash hash;
+    hash.set_bytes(it->key().data(), it->key().size());
+    rtn_list.push_back(hash);
+  }
+  return rtn_list;
 }
 
 void ambr::store::StoreManager::AddWaitForReceiveUnit(const ambr::core::PublicKey &pub_key, const ambr::core::UnitHash &hash, rocksdb::WriteBatch* batch){

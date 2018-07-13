@@ -14,7 +14,7 @@
 namespace ambr {
 namespace utils {
 template<typename T, uint32_t size>
-union uint_tool{
+class uint_tool{
 public:
   typedef  T ValueType;
   typedef std::array<uint8_t, size> ArrayType;
@@ -77,16 +77,25 @@ public:
     return stream.str();
   }
 
+  std::string encode_to_dec() const{
+    std::ostringstream stream;
+    stream << data();
+    return stream.str();
+  }
   bool decode_from_hex (std::string const &str_hex){
     std::stringstream stream(str_hex.c_str());
     T data;
-    stream << std::hex << std::noshowbase;
-    stream >> data;
-    if(!stream.eof()){
-      clear();
+    try{
+      stream << std::hex << std::noshowbase;
+      stream >> data;
+      if(!stream.eof()){
+        clear();
+        return false;
+      }
+      *this = data;
+    }catch(...){
       return false;
     }
-    *this = data;
     return true;
   }
 
@@ -126,6 +135,12 @@ public:
     bytes_ = bytes;
   }
 
+  void set_bytes(const char* buf, size_t count){
+    if(size == sizeof(bytes_)){
+      memcpy(&bytes_, buf, count);
+    }
+  }
+
   void set_bytes(const void* byte, size_t len){
     if(size == len){
       memcpy(bytes_.data(), byte, size);
@@ -134,6 +149,8 @@ public:
 private:
   std::array<uint8_t, size> bytes_;
 };
+
+
 typedef uint_tool<uint32_t, 4> uint32;
 typedef uint_tool<uint64_t, 8> uint64;
 typedef uint_tool<boost::multiprecision::uint128_t, 16> uint128;
@@ -143,5 +160,17 @@ typedef uint_tool<boost::multiprecision::uint1024_t, 128> uint1024;
 }
 }
 
-
+namespace std
+{
+  template<typename T, uint32_t size>
+  struct hash<ambr::utils::uint_tool<T,size>>
+  {
+      typedef ambr::utils::uint_tool<T,size> argument_type;
+      typedef std::size_t result_type;
+      result_type operator()(argument_type const& s) const
+      {
+          return std::hash<std::string>()(s.encode_to_hex());
+      }
+  };
+}
 #endif

@@ -29,21 +29,27 @@ public:
   bool GetBalanceByPubKey(const core::PublicKey& pub_key, core::Amount& balance);
   std::list<std::shared_ptr<store::UnitStore>>
     GetTradeHistoryByPubKey(const core::PublicKey& pub_key, size_t count);
+  bool GetSendAmount(const ambr::core::UnitHash &unit_hash, core::Amount& amount, std::string* err);
 
   bool SendToAddress(
       const core::PublicKey pub_key_to,
       const core::Amount& count,
       const core::PrivateKey& prv_key,
+      core::UnitHash* tx_hash,
       std::string* err);
   bool ReceiveFromUnitHash(
       const core::UnitHash unit_hash,
       const core::PrivateKey& pri_key,
+      core::UnitHash* tx_hash,
       std::string* err);
   std::list<core::UnitHash> GetWaitForReceiveList(const core::PublicKey& pub_key);
 
   std::shared_ptr<UnitStore> GetUnit(const core::UnitHash& hash);
   std::shared_ptr<SendUnitStore> GetSendUnit(const core::UnitHash& hash);
   std::shared_ptr<ReceiveUnitStore> GetReceiveUnit(const core::UnitHash& hash);
+public://for debug
+  std::list<core::UnitHash> GetAccountListFromAccountForDebug();
+  std::list<core::UnitHash> GetAccountListFromWaitForReceiveForDebug();
 public:
   static std::shared_ptr<StoreManager> instance(){
     if(!instance_)
