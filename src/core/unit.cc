@@ -106,7 +106,7 @@ std::vector<uint8_t> ambr::core::SendUnit::SerializeByte( ) const {
   return buf;
 }
 
-bool ambr::core::SendUnit::DeSerializeByte(const std::vector<uint8_t> &buf){
+bool ambr::core::SendUnit::DeSerializeByte(const std::vector<uint8_t> &buf, size_t* used_size){
   if(buf.size() < sizeof(version_)){
     return false;
   }
@@ -114,12 +114,16 @@ bool ambr::core::SendUnit::DeSerializeByte(const std::vector<uint8_t> &buf){
   memcpy(&version_, src, sizeof(version_));
   if(version_== 0x00000001){
     uint32_t len = sizeof(version_) + sizeof(type_)+sizeof(public_key_)+sizeof(prev_unit_)+sizeof(balance_)+sizeof(hash_)+sizeof(sign_)+sizeof(dest_);
-    if(buf.size() == len){
+    if(buf.size() >= len){
       memcpy(&version_, src, sizeof(version_));
       src += sizeof(version_);
 
       memcpy(&type_, src, sizeof(type_));
       src += sizeof(type_);
+
+      if(type_ != UnitType::send){
+        return false;
+      }
 
       memcpy(&public_key_, src, sizeof(public_key_));
       src += sizeof(public_key_);
@@ -138,6 +142,7 @@ bool ambr::core::SendUnit::DeSerializeByte(const std::vector<uint8_t> &buf){
 
       memcpy(&dest_, src, sizeof(dest_));
       src += sizeof(dest_);
+      if(used_size)*used_size=len;
       return true;
     }
   }
@@ -265,7 +270,7 @@ std::vector<uint8_t> ambr::core::ReceiveUnit::SerializeByte() const{
   return buf;
 }
 
-bool ambr::core::ReceiveUnit::DeSerializeByte(const std::vector<uint8_t> &buf){
+bool ambr::core::ReceiveUnit::DeSerializeByte(const std::vector<uint8_t> &buf, size_t* used_count){
   if(buf.size() < sizeof(version_)){
     return false;
   }
@@ -273,7 +278,7 @@ bool ambr::core::ReceiveUnit::DeSerializeByte(const std::vector<uint8_t> &buf){
   memcpy(&version_, src, sizeof(version_));
   if(version_== 0x00000001){
     uint32_t len = sizeof(version_) + sizeof(type_)+sizeof(public_key_)+sizeof(prev_unit_)+sizeof(balance_)+sizeof(hash_)+sizeof(sign_)+sizeof(from_);
-    if(buf.size() == len){
+    if(buf.size() >= len){
       memcpy(&version_, src, sizeof(version_));
       src += sizeof(version_);
 
@@ -281,10 +286,6 @@ bool ambr::core::ReceiveUnit::DeSerializeByte(const std::vector<uint8_t> &buf){
       src += sizeof(type_);
 
       if(type_ != UnitType::receive){
-        return false;
-      }
-
-      if(type_ != UnitType::send){
         return false;
       }
 
@@ -305,6 +306,7 @@ bool ambr::core::ReceiveUnit::DeSerializeByte(const std::vector<uint8_t> &buf){
 
       memcpy(&from_, src, sizeof(from_));
       src += sizeof(from_);
+      if(used_count)*used_count = len;
       return true;
     }
   }

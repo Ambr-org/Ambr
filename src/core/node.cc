@@ -10,7 +10,7 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
-#include <store/unit_store.h>
+#include <store/store_manager.h>
 /*
 action:get_address_by_pub_key
 param:pub_key
@@ -50,12 +50,12 @@ std::string CmdSendTo(boost::property_tree::ptree pt){
   ambr::core::PublicKey pub_key = ambr::core::GetPublicKeyByPrivateKey(pri_key);;
   ambr::core::UnitHash hash;
   ambr::core::Amount amount = boost::multiprecision::uint128_t(0);
-  if(!ambr::store::GetUnitStore()->GetLastUnitHashByPubKey(pub_key, hash)){
+  if(!ambr::store::GetStoreManager()->GetLastUnitHashByPubKey(pub_key, hash)){
     result = "false";
     rtn_msg = "Private key is not found!";
     return std::string("{")+"\"result\":"+result+",\"rtn_msg\":\""+rtn_msg+"\"}";
   }
-  ambr::store::GetUnitStore()->GetBalanceByPubKey(pub_key, amount);
+  ambr::store::GetStoreManager()->GetBalanceByPubKey(pub_key, amount);
   if(param_amount > amount.data()){
     result = "false";
     rtn_msg = "Insufficient Balance!";

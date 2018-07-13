@@ -45,7 +45,7 @@ public:
   virtual std::string SerializeJson () const = 0;
   virtual bool DeSerializeJson(const std::string& json) = 0;
   virtual std::vector<uint8_t> SerializeByte() const = 0;
-  virtual bool DeSerializeByte(const std::vector<uint8_t>& buf) = 0;
+  virtual bool DeSerializeByte(const std::vector<uint8_t>& buf, size_t* used_size) = 0;
 
   virtual void CalcHashAndFill() = 0;
   virtual bool SignatureAndFill(const PrivateKey& key) = 0;
@@ -121,7 +121,7 @@ public:
   virtual std::string SerializeJson () const override;
   virtual bool DeSerializeJson(const std::string& json) override;
   virtual std::vector<uint8_t> SerializeByte() const override;
-  virtual bool DeSerializeByte(const std::vector<uint8_t>& buf) override;
+  virtual bool DeSerializeByte(const std::vector<uint8_t>& buf, size_t* used_size = nullptr) override;
 
   UnitHash CalcHash() const;
   virtual void CalcHashAndFill()override;
@@ -145,21 +145,21 @@ public:
   virtual std::string SerializeJson () const override;
   virtual bool DeSerializeJson(const std::string& json) override;
   virtual std::vector<uint8_t> SerializeByte() const override;
-  virtual bool DeSerializeByte(const std::vector<uint8_t>& buf) override;
+  virtual bool DeSerializeByte(const std::vector<uint8_t>& buf, size_t* used_size = nullptr) override;
 
   UnitHash CalcHash() const;
   virtual void CalcHashAndFill() override;
   virtual bool SignatureAndFill(const PrivateKey& key) override;
   virtual bool Validate(std::string* err) const override;
 public:
-  const PublicKey& from(){
+  const UnitHash& from(){
     return from_;
   }
-  void set_from(const PublicKey& from){
+  void set_from(const UnitHash& from){
     from_ = from;
   }
 private:
-  PublicKey from_;
+  UnitHash from_;
 };
 
 }
