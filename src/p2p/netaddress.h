@@ -2,6 +2,7 @@
 #define AMBR_P2P_NETADDRESS_H
 
 #include <string>
+#include <vector>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 
@@ -23,11 +24,12 @@ namespace Ambr {
       static const unsigned short DEFAULT_PORT = 8000;
       std::string GetSockAddr();
       void SetSockAddr(std::string addr);
+      static std::vector<NetAddress*> SelectAddress(int);
 
-      unsigned short GetPort();
+      const unsigned short GetPort();
 
       std::string ToString();
-      std::string ToStringPort();
+      const std::string ToStringPort();
 
     private:
       std::string address_;

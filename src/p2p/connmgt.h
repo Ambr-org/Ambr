@@ -3,18 +3,41 @@
 
 #include "netaddress.h"
 #include "netbase.h"
+#include "peer.h"
 
 namespace Ambr {
   namespace P2P {
-    class ConnMgt {
+    class ConnMgt
+    {
     public:
-      ConnMgt();
+      ConnMgt(ba::io_context& io_server)
+        :acceptor_(io_server, ba::ip::tcp::endpoint(ba::ip::tcp::v4(), Ambr::P2P::NetAddress::DEFAULT_PORT))
+      {
+        start();
+      }
 
+      void start();
+
+      void accept_conn();
       void PushMsg(Ambr::P2P::NetAddress);
 
     private:
-      std::vector<NetAddress> peers_;
+      struct Session
+        :public std::enable_shared_from_this<Session>
+      {
+         Session(SOCKET socket)
+           :socket_(std::move(socket))
+         {}
+         void Read();
+         void Write(std::string);
 
+         char buff_[Ambr::P2P::NetBase::BUFFSIZE];
+         SOCKET socket_;
+      };
+
+      std::vector<Ambr::P2P::Peer> peers_;
+      boost::asio::io_context io_client_;
+      ba::ip::tcp::acceptor acceptor_;
     };
   };
 };

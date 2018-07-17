@@ -9,14 +9,16 @@ namespace Ambr {
   namespace P2P {
     class Peer {
     public:
-      Peer(NetAddress netaddr)
-        :netaddr_(std::move(netaddr)){
-      }
+      Peer(SOCKET socket)
+        :socket_(std::move(socket))
+      {}
 
       std::string GetAddrLocal();
-    private:
+      static bool ValidateAddr(SOCKET&);
+      static std::string ProcessMessage(std::string);
       SOCKET socket_;
-      NetAddress netaddr_;
+    private:
+      
       std::vector<std::string> sendbuffer_;
       std::vector<std::string> recvbuffer_;
 
