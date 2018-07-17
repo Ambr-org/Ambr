@@ -126,30 +126,28 @@ PublicKey GetPublicKeyByAddress (const std::string& addr_hex){
 }
 
 bool AddressIsValidate (const std::string& addr){
-  bool result(addr.size () < 5);
-  if (!result){
+  bool result(addr.size () > 5);
+  if (result){
     bool prefix("ambr_" == addr.substr(0, 5));
-    bool test_prefix("test_" == addr.substr(0, 5));
-    result = (prefix && addr.size () != 64) || (test_prefix && addr.size () != 65);
-    if (!result){
-      if (prefix || test_prefix){
+    result = (prefix && addr.size () == 65);
+    if (result){
+      if (prefix){
         std::string&& addr_tmp = addr.substr(5, addr.size() - 5);
         std::reverse(addr_tmp.begin(), addr_tmp.end());
         uint512_t num_l;
         for (auto it : addr_tmp){
           uint8_t character = it;
-          result = character < 0x30 || character >= 0x80;
-          if (!result){
+          if (result){
             uint8_t byte (AddrDecode (character));
-            result = ('~' == byte);
-            if (!result){
+            result = ('~' != byte);
+            if (result){
               num_l <<= 5;
               num_l += byte;
             }
           }
         }
 
-        if (!result){
+        if (result){
           utils::uint256 unit_tmp ;
           uint64_t validation = 0;
           unit_tmp = (num_l >> 40).convert_to<uint256_t>();
@@ -164,13 +162,15 @@ bool AddressIsValidate (const std::string& addr){
 #else
           blake2b(reinterpret_cast<uint8_t*>(&validation), 5, bytes.data(), bytes.size(), NULL, 0);
 #endif
-          result = (check != validation);
-        } else{
-          result = true;
+          result = (check == validation);
         }
-      } else{
-        result = true;
+        else{
+          result = false;
+        }
       }
+    }
+    else{
+      result = false;
     }
   }
   return result;
