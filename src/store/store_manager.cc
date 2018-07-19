@@ -253,10 +253,12 @@ bool ambr::store::StoreManager::AddReceiveUnit(std::shared_ptr<ambr::core::Recei
   std::shared_ptr<store::UnitStore> prev_receive_store = GetUnit(receive_unit->prev_unit());
   if(prev_receive_store){
     balance_old.set_data(receive_unit->balance().data()-prev_receive_store->GetUnit()->balance().data());
+  }else{
+    balance_old.set_data(receive_unit->balance().data());
   }
   std::shared_ptr<store::UnitStore> prev_send_store = GetUnit(send_unit_store->unit()->prev_unit());
   assert(prev_send_store);
-  if(receive_unit->balance().data()-balance_old.data() !=
+  if(balance_old.data() !=
       prev_send_store->GetUnit()->balance().data()-send_unit_store->GetUnit()->balance().data()){
     if(err)*err = "Error balance number.";
     return false;
