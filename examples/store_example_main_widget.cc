@@ -1,13 +1,23 @@
 #include "store_example_main_widget.h"
 #include "ui_store_example_main_widget.h"
+#include <QPainter>
+#include <QTransform>
+#include <QDebug>
+
 #include <store/store_manager.h>
 #include <unordered_map>
+#include <store/unit_store.h>
+
+static uint32_t height_distance = 200;
+static uint32_t width_distance = 200;
+static uint32_t unit_width = 100;
 
 StoreExampleMainWidget::StoreExampleMainWidget(QWidget *parent) :
   QWidget(parent),
-  ui(new Ui::StoreExampleMainWidget)
+  ui(new Ui::StoreExampleMainWidget),max_chain_length_for_draw_(10)
 {
   ui->setupUi(this);
+  ui->wgtPaint->installEventFilter(this);
   test_pri_key_list_.push_back("F49E1B9F671D0B244744E07289EA0807FAE09F8335F0C1B0629F1BF924CA64E1");
   test_pri_key_list_.push_back("29176270484F74852C5ABCBFEF26C4193FE4C2E4C522984D833329EDD502DC84");
   test_pri_key_list_.push_back("9812383BF3CE164A3D968186BEBA1CCFF299C9C59448A19BF3C0582336E01301");
@@ -29,6 +39,174 @@ void StoreExampleMainWidget::on_cmbTestPrivateKey_currentTextChanged(const QStri
   ambr::core::PrivateKey pri_key(arg1.toStdString());
   ambr::core::PublicKey pub_key = ambr::core::GetPublicKeyByPrivateKey(pri_key);
   ui->edtTestPublicKey->setText(pub_key.encode_to_hex().c_str());
+}
+
+bool StoreExampleMainWidget::eventFilter(QObject *target, QEvent *event)
+{
+  if(target == ui->wgtPaint && event->type() == QEvent::Paint){
+    DrawChain();
+  }else if(target == ui->wgtPaint && event->type() == QEvent::MouseMove){
+    return OnMouseMove(event);
+  }else if(target == ui->wgtPaint && event->type() == QEvent::MouseButtonPress){
+    return OnMousePress(event);
+  }
+  return QWidget::eventFilter(target, event);
+}
+
+void StoreExampleMainWidget::DrawChain(){
+  QPainter pt(ui->wgtPaint);
+  DrawUnit(pt);
+  DrawLines(pt);
+  //DrawLine(pt, QPoint(5,5), QPoint(95,95), true);
+}
+
+void StoreExampleMainWidget::DrawUnit(QPainter& pt){
+  //clear
+  unit_list_.clear();
+  unit_map_.clear();
+
+  ui->wgtPaint->setFixedSize(3000,3000);
+
+  std::shared_ptr<ambr::store::StoreManager> store_manager = ambr::store::GetStoreManager();
+  std::list<ambr::core::UnitHash> unit_list = store_manager->GetAccountListFromAccountForDebug();
+  uint32_t hori_idx = 0, vert_idx = 0;
+  for(auto iter_account = unit_list.begin(); iter_account != unit_list.end(); iter_account++){
+    //ambr::core::UnitHash account_hash = *iter_account;
+    std::list<std::shared_ptr<ambr::store::UnitStore> > unit_list = store_manager->GetTradeHistoryByPubKey(*iter_account, max_chain_length_for_draw_);
+    vert_idx = 0;
+    for(auto iter_unit = unit_list.begin(); iter_unit != unit_list.end(); iter_unit++){
+      uint32_t space_y = (max_chain_length_for_draw_ - vert_idx)*height_distance+unit_width/2;
+      uint32_t space_x = (hori_idx)*width_distance+unit_width*2;
+      auto item = std::make_shared<DrawItem>();
+      item->space_ = QPoint(space_x, space_y);
+      //item->status_ = DrawItem::DI_NORMAL;
+      item->unit_store_ = *iter_unit;
+      unit_list_[*iter_account].push_back(item);
+      //DrawItem* xxx;
+      unit_map_[item->unit_store_->GetUnit()->hash()] = item;
+      pt.save();
+      if(item->unit_store_->GetUnit()->hash() == active_unit_){
+        pt.setPen(qRgb(125,0,0));
+      }
+      if(item->unit_store_->GetUnit()->hash() == selected_unit_){
+        pt.setPen(qRgb(255,0,0));
+      }
+      pt.drawEllipse(item->space_, unit_width/2, unit_width/2);
+      QString str_hash =(*iter_unit)->GetUnit()->hash().encode_to_hex().c_str();
+      str_hash = str_hash.left(4)+"...."+str_hash.right(4);
+      pt.drawText(QPoint(space_x-unit_width/2+10, space_y), str_hash);
+      //std::cout<<"draw:"<<item->space_.x()<<","<<item->space_.y()<<std::endl;
+      pt.restore();
+      vert_idx++;
+    }
+    //draw account
+    QPen old_pen = pt.pen();
+    pt.setPen(qRgb(175,175,175));
+    QString str_hash = iter_account->encode_to_hex().c_str();
+    str_hash = str_hash.left(4)+"...."+str_hash.right(4);
+    uint32_t space_y = unit_width/2;
+    uint32_t space_x = (hori_idx)*width_distance+unit_width*2;
+    pt.drawEllipse(QPoint(space_x, space_y), unit_width/2, unit_width/2);
+    pt.setPen(old_pen);
+    pt.drawText(QPoint(space_x-unit_width/2+10, space_y), str_hash);
+    hori_idx++;
+  }
+
+}
+
+void StoreExampleMainWidget::DrawLines(QPainter &pt){
+  //std::unordered_map<ambr::core::UnitHash, std::shared_ptr<DrawItem> unit_map_;
+  for(std::pair<ambr::core::UnitHash, std::shared_ptr<DrawItem>> item: unit_map_){
+    QPoint pt_start = item.second->space_;
+    std::shared_ptr<ambr::core::Unit> unit = item.second->unit_store_->GetUnit();
+    if(!unit){
+      continue;
+    }
+    ambr::core::UnitHash prv_hash = unit->prev_unit();
+    if(prv_hash.is_zero()){
+      QPoint pt_end;
+      pt_end.setX(pt_start.x());
+      pt_end.setY(unit_width/2);
+      DrawLine(pt, pt_start, pt_end, false);
+    }else{
+      auto iter_prv = unit_map_.find(prv_hash);
+      if(iter_prv == unit_map_.end()){
+        QPoint pt_end;
+        pt_end.setX(pt_start.x());
+        pt_end.setY(unit_width/2);
+        QPen pen_old = pt.pen();
+        pt.setPen(Qt::DotLine);
+        DrawLine(pt, pt_start, pt_end, false);
+        pt.setPen(pen_old);
+      }else{
+        QPoint pt_end = iter_prv->second->space_;
+        DrawLine(pt, pt_start, pt_end, true);
+      }
+    }
+    if(std::shared_ptr<ambr::core::SendUnit> send_unit =
+       std::dynamic_pointer_cast<ambr::core::SendUnit>(item.second->unit_store_->GetUnit())){
+
+    }else if(std::shared_ptr<ambr::core::ReceiveUnit> receive_unit =
+        std::dynamic_pointer_cast<ambr::core::ReceiveUnit>(item.second->unit_store_->GetUnit())){
+      auto iter = unit_map_.find(receive_unit->from());
+      if(iter != unit_map_.end()){
+        QPoint pt_end = iter->second->space_;
+        DrawLine(pt, pt_start, pt_end, true);
+      }
+    }
+  }
+
+}
+
+void StoreExampleMainWidget::DrawLine(QPainter &pt, const QPoint &from, const QPoint &to, bool b_arrow){
+  double arrow_line = 15.0;
+  double slopy = atan2((to.y() - from.y()), (to.x() - from.x()));
+  double cosy = cos(slopy);
+  double siny = sin(slopy);
+  QPoint point1 = QPoint(to.x() + int(-arrow_line*cosy - (arrow_line / 2.0*siny)), to.y() + int(-arrow_line*siny + (arrow_line / 2.0*cosy)));
+  QPoint point2 = QPoint(to.x() + int(-arrow_line*cosy + (arrow_line / 2.0*siny)), to.y() - int(arrow_line / 2.0*cosy + arrow_line*siny));
+  pt.drawLine(point1.x(), point1.y(), to.x(), to.y());
+  pt.drawLine(point2.x(), point2.y(), to.x(), to.y());
+  pt.drawLine(from, to);
+}
+
+bool StoreExampleMainWidget::OnMouseMove(QEvent *event){
+  QMouseEvent* mouse_event = dynamic_cast<QMouseEvent*>(event);
+  if(mouse_event){
+    ambr::core::UnitHash old_active = active_unit_;
+    active_unit_.clear();
+    QPoint pos = mouse_event->pos();
+    for(std::pair<ambr::core::UnitHash, std::shared_ptr<DrawItem>> item: unit_map_){
+      if(pow(item.second->space_.x() - pos.x(), 2) + pow(item.second->space_.y() - pos.y(), 2) < pow(unit_width/2, 2)){
+        active_unit_ = item.first;
+        break;
+      }
+      std::cout<<sqrt(item.second->space_.x() - pos.x()) + sqrt(item.second->space_.y() - pos.y())<<":<<"<<sqrt(unit_width/2)<<std::endl;
+    }
+    if(active_unit_ != old_active){
+      ui->wgtPaint->update();
+      return true;
+    }
+  }
+  return false;
+}
+
+bool StoreExampleMainWidget::OnMousePress(QEvent *event){
+  if(event->type() == QEvent::MouseButtonPress){
+    ambr::core::UnitHash old_selected = selected_unit_;
+    selected_unit_ = active_unit_;
+    if(old_selected != selected_unit_){
+      ui->wgtPaint->update();
+      std::shared_ptr<ambr::store::UnitStore> unit = ambr::store::GetStoreManager()->GetUnit(selected_unit_);
+      if(unit){
+        ui->edtShowJson->setPlainText(unit->SerializeJson().c_str());
+      }else{
+        ui->edtShowJson->setPlainText("");
+      }
+      return true;
+    }
+  }
+  return false;
 }
 
 void StoreExampleMainWidget::on_btnPriKey2PubKey_clicked(){
@@ -180,7 +358,15 @@ void StoreExampleMainWidget::on_btnTranslateSend_clicked(){
   }
   ui->edtTSPlainEdit->setPlainText(str);
 }
-
+void StoreExampleMainWidget::on_btnUnit_clicked(){
+    ambr::core::UnitHash unit_hash(ui->edtUnit->text().toStdString());
+    std::shared_ptr<ambr::store::UnitStore> unit = ambr::store::GetStoreManager()->GetUnit(unit_hash);
+    if(!unit){
+      ui->edtUnitPlainEdit->setPlainText("Couldn't find unit!");
+    }else{
+      ui->edtUnitPlainEdit->setPlainText(unit->GetUnit()->SerializeJson().c_str());
+    }
+}
 void StoreExampleMainWidget::on_btnTranslateReceive_clicked(){
   ambr::core::PrivateKey pri_key = ambr::core::PrivateKey(ui->edtTRPriKey->text().toStdString());
   ambr::core::PublicKey from;
@@ -211,3 +397,15 @@ void StoreExampleMainWidget::on_btnTranslateReceive_clicked(){
   }
   ui->edtTRPlaintEdit->setPlainText(str);
 }
+
+void StoreExampleMainWidget::on_btnPTLength_clicked(){
+  max_chain_length_for_draw_ = ui->edtPTLength->text().toInt();
+  if(max_chain_length_for_draw_ < 1)max_chain_length_for_draw_ = 1;
+  ui->wgtPaint->repaint();
+}
+
+void StoreExampleMainWidget::on_btnPTRepaint_clicked(){
+  ui->wgtPaint->repaint();
+}
+
+
