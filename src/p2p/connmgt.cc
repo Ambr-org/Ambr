@@ -3,7 +3,7 @@
 void Ambr::P2P::ConnMgt::start()
 {
   accept_conn();
-  auto address = Ambr::P2P::NetAddress::SelectAddress(3);
+  auto address = Ambr::P2P::NetAddress::SelectAddress(1);
   for (int i = 0; i < 3; i++) {
     NetBase netbase(io_client_);
     if (!netbase.ConnectSocket(*address[i])) {
@@ -17,11 +17,6 @@ void Ambr::P2P::ConnMgt::start()
       netbase.CloseSocet();
     }
   }
-
-  //test server
-  for (auto& peer : peers_) {
-    NetBase::Write(peer.socket_, "Hello,World");
-    std::cout << NetBase::Read(peer.socket_) << std::endl;
   }
 }
 
@@ -54,7 +49,6 @@ void Ambr::P2P::ConnMgt::Session::Read()
       std::stringstream stream;
       stream.write(buff_, len);
       auto msg = Ambr::P2P::Peer::ProcessMessage(stream.str());
-      Write(msg);
     }
   });
 }
@@ -70,24 +64,44 @@ void Ambr::P2P::ConnMgt::Session::Write(std::string data)
   {
     if (!ec)
     {
-      Read();
     }
   });
 }
 
 
-//using boost::asio::ip::tcp;
-//int main(int argc, char* argv[])
-//{
-//  boost::asio::io_context io;
-//  try {
-//    Ambr::P2P::ConnMgt conn(io);
-//    std::thread t(boost::bind(&boost::asio::io_context::run, &io));
-//    t.join();
-//  }
-//  catch (std::exception& e) {
-//    std::cerr << e.what() << std::endl;
-//  }
-//  
-//}
+using boost::asio::ip::tcp;
+int main(int argc, char* argv[])
+{
+  boost::asio::io_context io;
+  try {
+    //Ambr::P2P::ConnMgt conn(io);
+    boost::system::error_code ec;
+    //std::thread t(boost::bind(&boost::asio::io_context::run, &io));
+ 
+    
+    Ambr::P2P::NetMsg netmsg;
+    netmsg.SerializeMany("143243243", "1433214321");
+    netmsg.Encode_header();
+   
+
+    char buff[1024];
+    tcp::socket socket(io);
+    tcp::resolver resolver(io);
+    auto ep = resolver.resolve("localhost", "8000");
+    boost::asio::connect(socket, ep, ec);
+    if (!ec) {
+      boost::asio::write(socket, boost::asio::buffer(netmsg.buffer_, netmsg.npos_));
+      netmsg.Clear();
+      netmsg.SerializeMany("143243243");
+      netmsg.Encode_header();
+      boost::asio::write(socket, boost::asio::buffer(netmsg.buffer_, netmsg.npos_));
+      //auto len = boost::asio::read(socket, boost::asio::buffer(buff, 1024));
+     // std::cout.write(buff, len);
+    }
+  }
+  catch (std::exception& e) {
+    std::cerr << e.what() << std::endl;
+  }
+  
+}
 

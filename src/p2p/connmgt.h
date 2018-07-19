@@ -4,6 +4,7 @@
 #include "netaddress.h"
 #include "netbase.h"
 #include "peer.h"
+#include "netmsg.h"
 
 namespace Ambr {
   namespace P2P {
