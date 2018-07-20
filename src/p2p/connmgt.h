@@ -32,7 +32,7 @@ namespace Ambr {
          void Read();
          void Write(std::string);
 
-         char buff_[Ambr::P2P::NetBase::BUFFSIZE];
+         std::array<unsigned char, Ambr::P2P::NetBase::BUFFSIZE> buffer_;
          SOCKET socket_;
       };
 

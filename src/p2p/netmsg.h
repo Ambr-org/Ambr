@@ -1,5 +1,6 @@
 #ifndef AMBR_P2P_NETMSG_H
 #define AMBR_P2P_NETMSG_H
+#include "netbase.h"
 
 #include <string>
 #include <iostream>
@@ -13,81 +14,96 @@ namespace Ambr{
   namespace P2P {
     class NetMsg
     {
+      /* NetMsg Format */
+ /*     struct NetMessage {
+        uint32_t version_;
+        uint32_t len_;
+        uint32_t command_;
+        std::string str_msg_;
+      };*/
+
     public:
+      typedef std::array<unsigned char, Ambr::P2P::NetBase::BUFFSIZE> buffertype;
       static const int HEADR_SIZE = 4;
       static const int MAX_DATA_SIZE = 512;
+      static const int P2P_VERSION = 0x001;
+      static const unsigned short UINT_SIZE = 8;
+      static const unsigned short HEADER_SIZE = 3 * UINT_SIZE;
 
-      NetMsg()
-        :npos_(HEADR_SIZE),
-        msghdr_({ 0 })
+      NetMsg(uint32_t version,uint32_t command, std::string str_msg);
+      NetMsg(uint32_t version, uint32_t command);
+
+      NetMsg();
+  
+      void SerializeMany() {}
+
+      template <typename T, typename... Args>
+      void SerializeMany(T version, Args&&... args)
       {
-
-      }
-
-      
-
-      void SerializeMany() {
-
-      }
-
-      void Encode_header() {
-        std::stringstream stream;
-        stream << std::setw(HEADR_SIZE) << std::setfill('0') << npos_;
-        auto str = stream.str();
-        std::copy(str.begin(), str.end(), buffer_.begin());
-
-        msghdr_.data_len = npos_ - HEADR_SIZE;
-      }
-
-      static void Decode_Header(std::array<unsigned char, 128> buff, std::size_t length) {
-        int maxsize = 128;
-        int current_pos = 0;
-        while (current_pos + 4 < length) {
-          char len[128] = { 0 };
-          std::copy(buff.begin() + current_pos, buff.begin() + current_pos + HEADR_SIZE, len);
-          current_pos += 4;
-          auto data_size = std::stoi(len);
-          if (current_pos + data_size > length) {
-            break;
-          }
-          std::copy(buff.begin() + current_pos, buff.begin() + current_pos + data_size, len);
-          std::cout.write(len, data_size);
-
-          current_pos += data_size;
-        }     
-      }
-
-      template <typename... Args>
-      void SerializeMany(std::string p, Args&&... args)
-      {
-        Serialize(p);
+        Serialize(version);
         SerializeMany(args...);
       }
 
       void Serialize(std::string p)
       {
-        if (p.size() + npos_ > 128) {
-          npos_ = 0;
+        if (npos_ + p.size() < Ambr::P2P::NetBase::BUFFSIZE) {
+          std::copy(p.begin(), p.end(), buffer_.begin() + npos_);
+          npos_ += p.size();
         }
-
-        std::copy(p.c_str(), p.c_str() + p.size(), buffer_.begin() + npos_);
-        npos_ += p.size();
+        else {
+          std::cerr << "buff memory run out" << std::endl;
+        }
       }
+
+      static std::vector<NetMsg> Deserialize(buffertype,std::size_t);
+  
+      void Serialize(uint32_t arg) {
+        if (npos_ + UINT_SIZE < Ambr::P2P::NetBase::BUFFSIZE) {
+          std::stringstream stream;
+          stream << std::setw(UINT_SIZE) << std::setfill('0') << std::hex << arg;
+          auto str = stream.str();
+          std::copy(str.begin(), str.end(), buffer_.begin() + npos_);
+          npos_ += UINT_SIZE;
+        }
+        else {
+          std::cerr << "buff memory run out" << std::endl;
+        }       
+      }
+
+      // Serialize local netmsg
+      void Serialize();
 
       void Print() {
         std::copy(buffer_.begin(), buffer_.begin() + npos_, std::ostream_iterator<char>(std::cout, ""));
         std::cout << std::endl;
+        std::cout << "npos_ = " << npos_ << std::endl;
       }
 
-      std::array<unsigned char, 128> buffer_;
-      std::size_t npos_;
-    private:
-      struct MsgHdr {
-        std::size_t data_len;
-      };
+      buffertype buffer() {
+        return buffer_;
+      }
 
-      struct MsgHdr msghdr_;    
-    };    
+      std::size_t pos() {
+        return npos_;
+      }
+
+      void ToString() {
+        std::cout << "Version: " << version_ << std::endl
+          << "Len: " << len_ << std::endl
+          << "Command: " << command_ << std::endl
+          << "str_msg: " << str_msg_ << std::endl;
+      }
+      
+    private:
+      buffertype buffer_;
+      std::size_t npos_;
+
+      uint32_t version_;
+      uint32_t len_;
+      uint32_t command_;
+      std::string str_msg_;
+    };  
+
   };
 };
 
