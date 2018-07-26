@@ -17,7 +17,7 @@ static const std::string init_addr = "ambr_y4bwxzwwrze3mt4i99n614njtsda6s658uqtu
 static const ambr::core::Amount init_balance=(boost::multiprecision::uint128_t)630000000000*1000;
 
 //TODO: db sync
-void ambr::store::StoreManager::Init(){
+void ambr::store::StoreManager::Init(const std::string& path){
 
   rocksdb::DBOptions options;
   options.create_if_missing = true;
@@ -30,7 +30,7 @@ void ambr::store::StoreManager::Init(){
   column_families.push_back(rocksdb::ColumnFamilyDescriptor("receive_unit", rocksdb::ColumnFamilyOptions()));
   column_families.push_back(rocksdb::ColumnFamilyDescriptor("account", rocksdb::ColumnFamilyOptions()));
   column_families.push_back(rocksdb::ColumnFamilyDescriptor("handle_wait_for_receive", rocksdb::ColumnFamilyOptions()));
-  rocksdb::Status status = rocksdb::DB::Open(options, "./unit.db", column_families, &column_families_handle, &db_unit_);
+  rocksdb::Status status = rocksdb::DB::Open(options, path, column_families, &column_families_handle, &db_unit_);
   assert(status.ok());
   handle_send_unit_ = column_families_handle[0];
   handle_receive_unit_ = column_families_handle[1];
@@ -362,6 +362,7 @@ bool ambr::store::StoreManager::SendToAddress(
     const ambr::core::Amount &send_count,
     const ambr::core::PrivateKey &prv_key,
     core::UnitHash* tx_hash,
+    std::shared_ptr<ambr::core::Unit>& unit_sended,
     std::string* err){
   std::shared_ptr<core::SendUnit> unit = std::shared_ptr<core::SendUnit>(new core::SendUnit());
   core::PublicKey pub_key = ambr::core::GetPublicKeyByPrivateKey(prv_key);
@@ -394,11 +395,17 @@ bool ambr::store::StoreManager::SendToAddress(
   unit->set_dest(pub_key_to);
   unit->CalcHashAndFill();
   unit->SignatureAndFill(prv_key);
+  unit_sended = unit;
   if(tx_hash)*tx_hash = unit->hash();
   return AddSendUnit(unit, err);
 }
 
-bool ambr::store::StoreManager::ReceiveFromUnitHash(const core::UnitHash unit_hash, const ambr::core::PrivateKey &pri_key,  core::UnitHash* tx_hash, std::string *err){
+bool ambr::store::StoreManager::ReceiveFromUnitHash(
+    const core::UnitHash unit_hash,
+    const ambr::core::PrivateKey &pri_key,
+    core::UnitHash* tx_hash,
+    std::shared_ptr<ambr::core::Unit>& unit_received,
+    std::string *err){
   std::shared_ptr<core::ReceiveUnit> unit = std::shared_ptr<core::ReceiveUnit>(new core::ReceiveUnit());
   core::PublicKey pub_key = ambr::core::GetPublicKeyByPrivateKey(pri_key);
   core::UnitHash prev_hash;
@@ -436,6 +443,7 @@ bool ambr::store::StoreManager::ReceiveFromUnitHash(const core::UnitHash unit_ha
   unit->set_from(unit_hash);
   unit->CalcHashAndFill();
   unit->SignatureAndFill(pri_key);
+  unit_received = unit;
   if(tx_hash)*tx_hash = unit->hash();
   return AddReceiveUnit(unit, err);
 }
@@ -582,7 +590,7 @@ void ambr::store::StoreManager::RemoveWaitForReceiveUnit(const ambr::core::Publi
 }
 
 ambr::store::StoreManager::StoreManager(){
-  Init();
+  //Init();
 }
 
 

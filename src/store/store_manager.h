@@ -21,7 +21,7 @@ namespace store {
 
 class StoreManager{
 public:
-  void Init();
+  void Init(const std::string& path);
   bool AddUnit(std::shared_ptr<core::Unit> unit, std::string* err);
   bool AddSendUnit(std::shared_ptr<core::SendUnit> send_unit, std::string* err);
   bool AddReceiveUnit(std::shared_ptr<core::ReceiveUnit> receive_unit, std::string* err);
@@ -36,11 +36,13 @@ public:
       const core::Amount& count,
       const core::PrivateKey& prv_key,
       core::UnitHash* tx_hash,
+      std::shared_ptr<ambr::core::Unit>& unit_sended,
       std::string* err);
   bool ReceiveFromUnitHash(
       const core::UnitHash unit_hash,
       const core::PrivateKey& pri_key,
       core::UnitHash* tx_hash,
+      std::shared_ptr<ambr::core::Unit>& unit_received,
       std::string* err);
   std::list<core::UnitHash> GetWaitForReceiveList(const core::PublicKey& pub_key);
 

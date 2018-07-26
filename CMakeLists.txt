@@ -88,6 +88,7 @@ aux_source_directory(${CUR_DIR}/src/utils DIR_UTILS_SRCS)
 aux_source_directory(${CUR_DIR}/src/wallet DIR_WALLET_SRCS)
 aux_source_directory(${CUR_DIR}/src/crypto/blake2 DIR_BLAKE2_SRCS)
 aux_source_directory(${CUR_DIR}/libs/cryptopp DIR_CRYPTOPP_SRCS)
+aux_source_directory(${CUR_DIR}/src/p2p DIR_P2P_SRCS)
 
 
 set(SERVER_DIR ${CUR_DIR}/src/server)
@@ -97,6 +98,7 @@ set(CROW_DIR ${CUR_DIR}/libs/crow)
 set(LEVELDB_DIR ${CUR_DIR}/libs/leveldb)
 set(CORE_DIR ${CUR_DIR}/src/core)
 set(ROCKSDB_DIR ${CUR_DIR}/libs/rocksdb)
+set(GLOG_DIR ${CUR_DIR}/libs/glog)
 
 include_directories(${MAIN_DIR})
 include_directories(${CROW_DIR}/include)
@@ -104,15 +106,19 @@ include_directories(${LEVELDB_DIR}/include)
 include_directories(${LIB_DIR})
 include_directories(${ARCH_DIR})
 include_directories(${ROCKSDB_DIR}/include)
+include_directories(${GLOG_DIR}/src)
 
 link_directories(${ROCKSDB_DIR})
+link_directories(${GLOG_DIR}/.libs)
 
 link_libraries(boost_system)
+link_libraries(boost_thread)
 link_libraries(boost_program_options)
 link_libraries(pthread)
 link_libraries(ssl)
 link_libraries(crypto)
 link_libraries(rocksdb)
+link_libraries(glog)
 SET(CMAKE_C_COMPILER gcc)
 set(CMAKE_CXX_FLAGS "-std=c++14 -Wall")
 set(CMAKE_CXX_FLAGS "-Wall")
@@ -127,6 +133,7 @@ add_executable(${PROJECT_NAME}
   ${DIR_WALLET_SRCS}
   ${DIR_BLAKE2_SRCS}
   ${DIR_CRYPTOPP_SRCS}
+  ${DIR_P2P_SRCS}
   ${CUR_DIR}/libs/ed25519-donna/ed25519.c
   )
 
@@ -159,6 +166,7 @@ if(DEFINED GUI)
     ${DIR_CRYPTOPP_SRCS}
     ${CUR_DIR}/libs/ed25519-donna/ed25519.c
     examples/unit_store.cc
+    examples/net_test.cc
     ${QT_SRC}
     )
   target_link_libraries(unit_store_example Qt5::Widgets)
