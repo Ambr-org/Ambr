@@ -88,7 +88,7 @@ aux_source_directory(${CUR_DIR}/src/utils DIR_UTILS_SRCS)
 aux_source_directory(${CUR_DIR}/src/wallet DIR_WALLET_SRCS)
 aux_source_directory(${CUR_DIR}/src/crypto/blake2 DIR_BLAKE2_SRCS)
 aux_source_directory(${CUR_DIR}/libs/cryptopp DIR_CRYPTOPP_SRCS)
-aux_source_directory(${CUR_DIR}/src/p2p DIR_P2P_SRCS)
+#aux_source_directory(${CUR_DIR}/src/p2p DIR_P2P_SRCS)
 
 
 set(SERVER_DIR ${CUR_DIR}/src/server)
