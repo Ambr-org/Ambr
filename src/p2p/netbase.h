@@ -1,38 +1,75 @@
-#ifndef AMBR_P2P_NET_BASE_H
-#define AMBR_P2P_NET_BASE_H
-#include <iostream>
-#include <boost/asio.hpp>
+// Copyright (c) 2009-2017 The Bitcoin Core developers
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#ifndef BITCOIN_NETBASE_H
+#define BITCOIN_NETBASE_H
+
+#if defined(HAVE_CONFIG_H)
+#include <config/bitcoin-config.h>
+#endif
+
+#include "compat.h"
 #include "netaddress.h"
+#include "serialize.h"
+#include "logging.h"
+#include "utiltime.h" 
+#include <util.h>
 
-namespace ba = boost::asio;
-#define SOCKET boost::asio::ip::tcp::socket
+#include <stdint.h>
+#include <string>
+#include <vector>
 
-namespace Ambr {
-  namespace P2P {
-    class NetBase {
-    public:
-      NetBase(boost::asio::io_context&  io)
-        :socket_(io),
-        io_(io){
 
-      }
+extern int nConnectTimeout;
+extern bool fNameLookup;
 
-      static const int BUFFSIZE = 128;
-      SOCKET& socket();
-      bool ConnectSocket(NetAddress&);
-      void CloseSocet();
+//! -timeout default
+static const int DEFAULT_CONNECT_TIMEOUT = 5000;
+//! -dns default
+static const int DEFAULT_NAME_LOOKUP = true;
 
-      std::string Read();
-      std::size_t Write(std::string);
+class proxyType
+{
+public:
+    proxyType(): randomize_credentials(false) {}
+    explicit proxyType(const CService &_proxy, bool _randomize_credentials=false): proxy(_proxy), randomize_credentials(_randomize_credentials) {}
 
-      static std::string Read(SOCKET&);
-      static std::size_t Write(SOCKET&, std::string);
+    bool IsValid() const { return proxy.IsValid(); }
 
-    private:
-      boost::asio::ip::tcp::socket socket_;
-      boost::asio::io_context& io_;
-    };
-  };
+    CService proxy;
+    bool randomize_credentials;
 };
 
-#endif // !AMBR_P2P_NET_BASE_H
+enum Network ParseNetwork(std::string net);
+std::string GetNetworkName(enum Network net);
+bool SetProxy(enum Network net, const proxyType &addrProxy);
+bool GetProxy(enum Network net, proxyType &proxyInfoOut);
+bool IsProxy(const CNetAddr &addr);
+bool SetNameProxy(const proxyType &addrProxy);
+bool HaveNameProxy();
+bool GetNameProxy(proxyType &nameProxyOut);
+bool LookupHost(const char *pszName, std::vector<CNetAddr>& vIP, unsigned int nMaxSolutions, bool fAllowLookup);
+bool LookupHost(const char *pszName, CNetAddr& addr, bool fAllowLookup);
+bool Lookup(const char *pszName, CService& addr, int portDefault, bool fAllowLookup);
+bool Lookup(const char *pszName, std::vector<CService>& vAddr, int portDefault, bool fAllowLookup, unsigned int nMaxSolutions);
+CService LookupNumeric(const char *pszName, int portDefault = 0);
+bool LookupSubNet(const char *pszName, CSubNet& subnet);
+SOCKET CreateSocket(const CService &addrConnect);
+bool ConnectSocketDirectly(const CService &addrConnect, const SOCKET& hSocketRet, int nTimeout, bool manual_connection);
+bool ConnectThroughProxy(const proxyType &proxy, const std::string& strDest, int port, const SOCKET& hSocketRet, int nTimeout, bool *outProxyConnectionFailed);
+/** Return readable error string for a network error code */
+std::string NetworkErrorString(int err);
+/** Close socket and set hSocket to INVALID_SOCKET */
+bool CloseSocket(SOCKET& hSocket);
+/** Disable or enable blocking-mode for a socket */
+bool SetSocketNonBlocking(const SOCKET& hSocket, bool fNonBlocking);
+/** Set the TCP_NODELAY flag on a socket */
+bool SetSocketNoDelay(const SOCKET& hSocket);
+/**
+ * Convert milliseconds to a struct timeval for e.g. select.
+ */
+struct timeval MillisToTimeval(int64_t nTimeout);
+void InterruptSocks5(bool interrupt);
+
+#endif // BITCOIN_NETBASE_H
