@@ -15,7 +15,7 @@ ServiceFlags nLocalServices = ServiceFlags(NODE_NETWORK | NODE_NETWORK_LIMITED);
 
 int nMaxConnections = 12;
 
-int main(int argc, char* argv[]){
+bool ambr::p2p::init(int argc, char* argv[]){
     if (gArgs.IsArgSet("-onlynet")) {
         std::set<enum Network> nets;
         for (const std::string& snet : gArgs.GetArgs("-onlynet")) {
