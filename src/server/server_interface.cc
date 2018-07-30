@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (c) 2018 Ambr project
+ * Copyright (c) 2018 ambr project
  * Distributed under the MIT software license, see the accompanying   *
  * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
  **********************************************************************/
@@ -7,37 +7,37 @@
 #include "server/ambrd.h"
 #include "core/node.h"
    
-Ambr::Server::ServerInterface::ServerInterface()
+ambr::server::ServerInterface::ServerInterface()
 	:desc_("Command line options"){
 	AddNodeOption();
 }
 
-std::string Ambr::Server::ServerInterface::GetHelpMsg(){
+std::string ambr::server::ServerInterface::GetHelpMsg(){
 	return std::string();
 }
 
 
-std::string Ambr::Server::ServerInterface::ParserArgs(const std::string & option){
+std::string ambr::server::ServerInterface::ParserArgs(const std::string & option){
 	return std::string();
 }
 
-std::string Ambr::Server::ServerInterface::ParserArgs(const std::string & option, const std::string & user){
+std::string ambr::server::ServerInterface::ParserArgs(const std::string & option, const std::string & user){
 	return std::string();
 }
 
-std::string Ambr::Server::ServerInterface::ParserArgs(const std::string & option, const std::string & src,
+std::string ambr::server::ServerInterface::ParserArgs(const std::string & option, const std::string & src,
 	const std::string & dst, const int & amount){
 	return std::string();
 }
 
-std::string Ambr::Server::ServerInterface::ParserArgs(int argc, char* argv[]) {
+std::string ambr::server::ServerInterface::ParserArgs(int argc, char* argv[]) {
 	po::store(po::parse_command_line(argc, argv, desc_), vm_);
 	po::notify(vm_);
 
 	return HandleNodeOption();
 }
 
-std::string Ambr::Server::ServerInterface::HandleNodeOption(){
+std::string ambr::server::ServerInterface::HandleNodeOption(){
 	std::string str;
 	pt::ptree json;
 	std::stringstream stream;
@@ -58,7 +58,7 @@ std::string Ambr::Server::ServerInterface::HandleNodeOption(){
 			params.put("key", vm_["key"].as<std::string>());
 			tree.put_child("param", params);
 			pt::write_json(ostream, tree);
-			auto info = Ambr::core::ParserArgs(ostream.str());
+			auto info = ambr::core::ParserArgs(ostream.str());
 			std::stringstream istream(info);
 			pt::read_json(istream, json);
 			return json.get<std::string>("rtn_msg");
@@ -72,7 +72,7 @@ std::string Ambr::Server::ServerInterface::HandleNodeOption(){
 			tree.put("action", "get_balance");
 			tree.put("key", vm_["key"].as<std::string>());
 			pt::write_json(ostream, tree);
-			auto info = Ambr::core::ParserArgs(ostream.str());
+			auto info = ambr::core::ParserArgs(ostream.str());
 			std::stringstream istream(info);
 			pt::read_json(istream, json);
 			return json.get<std::string>("balance");
@@ -87,7 +87,7 @@ std::string Ambr::Server::ServerInterface::HandleNodeOption(){
 			params.put("address", vm_["address"].as<std::string>());
 			tree.put_child("param", params);
 			pt::write_json(ostream, tree);
-			auto info = Ambr::core::ParserArgs(ostream.str());
+			auto info = ambr::core::ParserArgs(ostream.str());
 			std::stringstream istream(info);
 			pt::read_json(istream, json);
 			return  json.get<std::string>("rtn_msg");
@@ -100,7 +100,7 @@ std::string Ambr::Server::ServerInterface::HandleNodeOption(){
 		pt::ptree tree;
 		tree.put("action", "create_pri_key");
 		pt::write_json(ostream, tree);
-		auto info = Ambr::core::ParserArgs(ostream.str());
+		auto info = ambr::core::ParserArgs(ostream.str());
 		std::stringstream istream(info);
 		pt::read_json(istream, json);
 		return json.get<std::string>("rtn_msg");
@@ -109,7 +109,7 @@ std::string Ambr::Server::ServerInterface::HandleNodeOption(){
 		pt::ptree tree;
 		tree.put("action", "create_wallet");
 		pt::write_json(ostream, tree);
-		auto info = Ambr::core::ParserArgs(ostream.str());
+		auto info = ambr::core::ParserArgs(ostream.str());
 		std::stringstream istream(info);
 		pt::read_json(istream, json);
 		return json.get<std::string>("wallet");
@@ -123,7 +123,7 @@ std::string Ambr::Server::ServerInterface::HandleNodeOption(){
 			params.put("amount", vm_["amount"].as<int>());
 			tree.put_child("param", params);
 			pt::write_json(ostream, tree);
-			auto info = Ambr::core::ParserArgs(ostream.str());
+			auto info = ambr::core::ParserArgs(ostream.str());
 
 			std::stringstream istream(info);
 			pt::read_json(istream, json);
@@ -143,7 +143,7 @@ std::string Ambr::Server::ServerInterface::HandleNodeOption(){
 	}
 }
 
-void Ambr::Server::ServerInterface::AddNodeOption() {
+void ambr::server::ServerInterface::AddNodeOption() {
 	desc_.add_options()
 	("help,h", "Print out options")
 	("version,v", "Prints out version")

@@ -7,6 +7,7 @@
 #define AMBR_UNIT_STORE_H_
 #include <memory>
 #include <core/key.h>
+#include <vector>
 namespace ambr{
 namespace core{
   class Unit;

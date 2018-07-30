@@ -12,6 +12,7 @@
 #include <memory>
 #include <utils/uint.h>
 #include <core/key.h>
+#include <vector>
 namespace ambr {
 namespace core {
 

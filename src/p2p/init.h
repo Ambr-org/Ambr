@@ -4,7 +4,7 @@
 
 namespace ambr{
     namespace p2p{
-      bool init(int argc, char* argv[]);
+      bool init();
     };
 };
 
