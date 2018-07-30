@@ -51,9 +51,9 @@ void secure_wipe_memory(void *v, size_t n) {
 }
 
 /* Memory clear flag defaults to true. */
-int FLAG_clear_internal_memory = 1;
+int FLAG_clear_internal_memory2 = 1;
 void clear_internal_memory(void *v, size_t n) {
-  if (FLAG_clear_internal_memory && v) {
+  if (FLAG_clear_internal_memory2 && v) {
     secure_wipe_memory(v, n);
   }
 }
@@ -103,6 +103,7 @@ int blake2b_init_param(blake2b_state *S, const blake2b_param *P) {
 }
 
 /* Sequential blake2b initialization */
+extern "C"
 int blake2b_init(blake2b_state *S, size_t outlen) {
     blake2b_param P;
 
@@ -131,6 +132,7 @@ int blake2b_init(blake2b_state *S, size_t outlen) {
     return blake2b_init_param(S, &P);
 }
 
+extern "C"
 int blake2b_init_key(blake2b_state *S, size_t outlen, const void *key,
                      size_t keylen) {
     blake2b_param P;
@@ -236,6 +238,7 @@ static void blake2b_compress(blake2b_state *S, const uint8_t *block) {
 #undef ROUND
 }
 
+extern "C"
 int blake2b_update(blake2b_state *S, const void *in, size_t inlen) {
     const uint8_t *pin = (const uint8_t *)in;
 
@@ -276,6 +279,7 @@ int blake2b_update(blake2b_state *S, const void *in, size_t inlen) {
     return 0;
 }
 
+extern "C"
 int blake2b_final(blake2b_state *S, void *out, size_t outlen) {
     uint8_t buffer[BLAKE2B_OUTBYTES] = {0};
     unsigned int i;
@@ -306,6 +310,7 @@ int blake2b_final(blake2b_state *S, void *out, size_t outlen) {
     return 0;
 }
 
+extern "C"
 int blake2b(void *out, size_t outlen, const void *in, size_t inlen,
             const void *key, size_t keylen) {
     blake2b_state S;
