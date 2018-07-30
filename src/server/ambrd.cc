@@ -40,6 +40,7 @@ void Shutdown()
 {
     LogPrintf("%s: In progress...\n", __func__);
     static CCriticalSection cs_Shutdown;
+
     TRY_LOCK(cs_Shutdown, lockShutdown);
    
    // StopRPC();

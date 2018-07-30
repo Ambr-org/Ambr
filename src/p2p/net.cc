@@ -1154,8 +1154,7 @@ void CConnman::AcceptConnection(const ListenSocket& hListenSocket) {
 void CConnman::ThreadSocketHandler()
 {
     unsigned int nPrevNodeCount = 0;
-    bool interruptNet = false;
-    //for debugging code ,replace interruptNet to false
+
     while (!interruptNet) 
     {
         //
@@ -1765,8 +1764,6 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
   
    int64_t nNextFeeler = PoissonNextSend(nStart*1000*1000, FEELER_INTERVAL); 
  
-    //TODO:   thread interruptNet.   replace interruptNet to bool 
-    bool interruptNet = false;
     while (!interruptNet)
     {
         ProcessOneShot();
@@ -1994,8 +1991,6 @@ void CConnman::OpenNetworkConnection(const CAddress& addrConnect, bool fCountFai
     //
     // Initiate outbound network connection
     //
-    //TODO:   thread interruptNet.   replace interruptNet to bool 
-    bool interruptNet = false;
 
     if (interruptNet) {
         return;
@@ -2034,9 +2029,6 @@ void CConnman::OpenNetworkConnection(const CAddress& addrConnect, bool fCountFai
 void CConnman::ThreadMessageHandler()
 {
     //TODO: for testing,set flagInterruptMsgProc to false
-    std::atomic<bool> flagInterruptMsgProc ;
-    flagInterruptMsgProc = false;
-
 
     while (!flagInterruptMsgProc)
     {
