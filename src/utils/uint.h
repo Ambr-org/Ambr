@@ -104,7 +104,7 @@ public:
   }
 
   bool is_zero () const{
-    for(int i = 0; i < bytes_.size(); i++){
+    for(size_t i = 0; i < bytes_.size(); i++){
       if(bytes_[i]){
         return false;
       }

@@ -10,3 +10,6 @@
 [submodule "libs/ed25519-donna"]
 	path = libs/ed25519-donna
 	url = https://github.com/floodyberry/ed25519-donna.git
+[submodule "libs/glog"]
+	path = libs/glog
+	url = https://github.com/google/glog.git

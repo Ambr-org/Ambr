@@ -6,7 +6,9 @@
 #include <store/store_manager.h>
 #include <core/key.h>
 #include <QApplication>
+#include <glog/logging.h>
 #include "store_example_main_widget.h"
+#include "net_test.h"
 /*
 F49E1B9F671D0B244744E07289EA0807FAE09F8335F0C1B0629F1BF924CA64E1
 6C300AF488B768B4F4E8DB76E695D4662FDA864445B64931597A943B811BB978
@@ -61,12 +63,18 @@ ambr::core::PrivateKey pri_key[10]={"F49E1B9F671D0B244744E07289EA0807FAE09F8335F
 ambr::core::PrivateKey GetPriKey(int i){return pri_key[i];}
 ambr::core::PublicKey GetPubKey(int i){return ambr::core::GetPublicKeyByPrivateKey(pri_key[i]);}
 std::string GetAddr(int i){return ambr::core::GetAddressStringByPublicKey(GetPubKey(i));}
+
 int main(int argc, char**argv){
-  //clear db
-  ambr::core::PrivateKey pri_key_admin("0x25E25210DCE702D4E36B6C8A17E18DC1D02A9E4F0D1D31C4AEE77327CF1641CC");
+  //init log
+  FLAGS_log_dir = ".";
+  FLAGS_colorlogtostderr = true;
+  google::InitGoogleLogging("Ambr");
+  google::SetStderrLogging(google::GLOG_INFO);
+  //reset db
+  /*ambr::core::PrivateKey pri_key_admin("0x25E25210DCE702D4E36B6C8A17E18DC1D02A9E4F0D1D31C4AEE77327CF1641CC");
   std::string addr_admin("ambr_y4bwxzwwrze3mt4i99n614njtsda6s658uqtue9ytjp7i5npg6pz47qdjhx3");
   system("rm -fr unit.db");
-
+  LOG(INFO)<<"Clear DB";
   std::shared_ptr<ambr::store::StoreManager> store_manager = ambr::store::GetStoreManager();
   ambr::core::PublicKey pub_key= ambr::core::GetPublicKeyByAddress(addr_admin);
   ambr::core::Amount amount;
@@ -84,11 +92,11 @@ int main(int argc, char**argv){
   std::cout<<"=====>2.Send token to all 10 users, and 1~10 times"<<std::endl;
   for(size_t i = 0; i < sizeof(pri_key)/sizeof(pri_key[0]); i++){
     std::cout<<"****************************"<<i<<std::endl;
-    for(size_t times = 0; times < i+1; times++){
-      std::string err;
-      if(!store_manager->SendToAddress(GetPubKey(i), ambr::core::Amount(10000), ambr::core::PrivateKey(pri_key_admin), nullptr, &err)){
-        std::cout<<"Send error:"<<err<<std::endl;
-      }
+    //for(size_t times = 0; times < i+1; times++){
+    std::string err;
+    if(!store_manager->SendToAddress(GetPubKey(i), ambr::core::Amount(10000), ambr::core::PrivateKey(pri_key_admin), nullptr, &err)){
+      std::cout<<"Send error:"<<err<<std::endl;
+    //  }
     }
   }
   //===================================
@@ -123,6 +131,19 @@ int main(int argc, char**argv){
       std::cout<<"Get balance open faild!"<<"User"<<i<<std::endl;
     }
   }
+  ambr::net::NetManager net_manager;
+  ambr::net::NetManagerConfig config;
+  config.max_in_peer_ = 8;
+  config.max_out_peer_ = 8;
+  config.max_in_peer_for_optimize_ = 8;
+  config.max_out_peer_for_optimize_ = 8;
+  config.listen_port_ = 9991;
+  config.seed_list_.push_back(boost::asio::ip::tcp::endpoint(boost::asio::ip::address_v4::from_string("10.39.0.34"), 9995));
+  config.use_upnp_ = false;
+  config.use_nat_pmp_ = false;
+  config.use_natp_ = false;
+  config.heart_time_ = 88;//second of heart interval
+  net_manager.init(config);*/
   QApplication app(argc, argv);
   StoreExampleMainWidget widget;
   widget.show();

@@ -7,6 +7,7 @@
 #include <store/store_manager.h>
 #include <unordered_map>
 #include <store/unit_store.h>
+#include "net_test.h"
 
 static uint32_t height_distance = 200;
 static uint32_t width_distance = 200;
@@ -29,6 +30,10 @@ StoreExampleMainWidget::StoreExampleMainWidget(QWidget *parent) :
   test_pri_key_list_.push_back("C38359CD5BD9C5FC65482FFE0E016B2E5E046F7A99E0EFDBCCDF23D2D12C7A3E");
   test_pri_key_list_.push_back("6EDB77B51291C19D82B1105A507008D10B5A0C5CCB5459129D64A3AD8D8AEEFC");
   ui->cmbTestPrivateKey->insertItems(0, test_pri_key_list_);
+  qRegisterMetaType<std::shared_ptr<ambr::net::Peer>>("std::shared_ptr<ambr::net::Peer>");
+  connect(this, SIGNAL(DoConnect(std::shared_ptr<ambr::net::Peer>)), this, SLOT(DealConnect(std::shared_ptr<ambr::net::Peer>)));
+  connect(this, SIGNAL(DoAccept(std::shared_ptr<ambr::net::Peer>)), this, SLOT(DealAccept(std::shared_ptr<ambr::net::Peer>)));
+  connect(this, SIGNAL(DoDisconnected(std::shared_ptr<ambr::net::Peer>)), this, SLOT(DealDisconnected(std::shared_ptr<ambr::net::Peer>)));
 }
 
 StoreExampleMainWidget::~StoreExampleMainWidget(){
@@ -181,7 +186,7 @@ bool StoreExampleMainWidget::OnMouseMove(QEvent *event){
         active_unit_ = item.first;
         break;
       }
-      std::cout<<sqrt(item.second->space_.x() - pos.x()) + sqrt(item.second->space_.y() - pos.y())<<":<<"<<sqrt(unit_width/2)<<std::endl;
+      //std::cout<<sqrt(item.second->space_.x() - pos.x()) + sqrt(item.second->space_.y() - pos.y())<<":<<"<<sqrt(unit_width/2)<<std::endl;
     }
     if(active_unit_ != old_active){
       ui->wgtPaint->update();
@@ -207,6 +212,18 @@ bool StoreExampleMainWidget::OnMousePress(QEvent *event){
     }
   }
   return false;
+}
+
+void StoreExampleMainWidget::OnConnect(std::shared_ptr<ambr::net::Peer> peer){
+  emit DoConnect(peer);
+}
+
+void StoreExampleMainWidget::OnAccept(std::shared_ptr<ambr::net::Peer> peer){
+  emit DoAccept(peer);
+}
+
+void StoreExampleMainWidget::OnDisconnected(std::shared_ptr<ambr::net::Peer> peer){
+  emit DoDisconnected(peer);
 }
 
 void StoreExampleMainWidget::on_btnPriKey2PubKey_clicked(){
@@ -351,7 +368,17 @@ void StoreExampleMainWidget::on_btnTranslateSend_clicked(){
   std::string err;
   QString str;
   ambr::core::UnitHash hash;
-  if(ambr::store::GetStoreManager()->SendToAddress(dest, amount, pri_key, &hash, &err)){
+  std::shared_ptr<ambr::core::Unit> unit_out;
+  if(ambr::store::GetStoreManager()->SendToAddress(dest, amount, pri_key, &hash, unit_out, &err)){
+    {//boardcast to net
+      std::shared_ptr<ambr::net::NetMessage> msg = std::make_shared<ambr::net::NetMessage>();
+      std::vector<uint8_t> buf = unit_out->SerializeByte();
+      msg->version_ = 0x00000001;
+      msg->command_ = ambr::net::MC_NEW_UNIT;
+      msg->len_ = buf.size();
+      msg->str_msg_.assign(buf.begin(), buf.end());
+      ambr::net::GetNetManager()->BoardcastMessage(msg, nullptr);
+    }
     str = str + "Send success.tx_hash:" + hash.encode_to_hex().c_str();
   }else{
     str = str + "Send faild. tx_hash:" + hash.encode_to_hex().c_str();
@@ -388,7 +415,17 @@ void StoreExampleMainWidget::on_btnTranslateReceive_clicked(){
   std::string err;
   QString str;
   ambr::core::UnitHash hash;
-  if(ambr::store::GetStoreManager()->ReceiveFromUnitHash(from, pri_key, &hash, &err)){
+  std::shared_ptr<ambr::core::Unit> unit_out;
+  if(ambr::store::GetStoreManager()->ReceiveFromUnitHash(from, pri_key, &hash, unit_out, &err)){
+    {//boardcast to net
+      std::shared_ptr<ambr::net::NetMessage> msg = std::make_shared<ambr::net::NetMessage>();
+      std::vector<uint8_t> buf = unit_out->SerializeByte();
+      msg->version_ = 0x00000001;
+      msg->command_ = ambr::net::MC_NEW_UNIT;
+      msg->len_ = buf.size();
+      msg->str_msg_.assign(buf.begin(), buf.end());
+      ambr::net::GetNetManager()->BoardcastMessage(msg, nullptr);
+    }
     ambr::core::Amount amount;
     assert(ambr::store::GetStoreManager()->GetSendAmount(from, amount, &err));
     str = str + "Receive " + amount.encode_to_dec().c_str() + "success.tx_hash:" + hash.encode_to_hex().c_str();
@@ -409,3 +446,68 @@ void StoreExampleMainWidget::on_btnPTRepaint_clicked(){
 }
 
 
+
+void StoreExampleMainWidget::on_btnInitDataBase_clicked(){
+  std::string command = "rm -fr ";
+  command += ui->edtDatabasePath->text().toStdString();
+  system(command.c_str());
+  ambr::store::GetStoreManager()->Init(ui->edtDatabasePath->text().toStdString());
+}
+
+void StoreExampleMainWidget::DealConnect(std::shared_ptr<ambr::net::Peer> peer){
+  ui->tbP2PConnectionOut->insertRow(0);
+  ui->tbP2PConnectionOut->setItem(0,0, new QTableWidgetItem(peer->end_point_.address().to_string().c_str()));
+  ui->tbP2PConnectionOut->setItem(0,1, new QTableWidgetItem(QString::number(peer->end_point_.port())));
+}
+
+void StoreExampleMainWidget::DealAccept(std::shared_ptr<ambr::net::Peer> peer){
+  ui->tbP2PConnectionIn->insertRow(0);
+  ui->tbP2PConnectionIn->setItem(0,0, new QTableWidgetItem(peer->end_point_.address().to_string().c_str()));
+  ui->tbP2PConnectionIn->setItem(0,1, new QTableWidgetItem(QString::number(peer->end_point_.port())));
+}
+
+void StoreExampleMainWidget::DealDisconnected(std::shared_ptr<ambr::net::Peer> peer){
+  for(int i = 0; i < ui->tbP2PConnectionOut->rowCount(); i++){
+    if(ui->tbP2PConnectionOut->item(i, 0)->text().toStdString() == peer->end_point_.address().to_string()
+       && ui->tbP2PConnectionOut->item(i, 1)->text().toInt() == peer->end_point_.port()){
+      ui->tbP2PConnectionOut->removeRow(i);
+      break;
+    }
+  }
+  for(int i = 0; i < ui->tbP2PConnectionIn->rowCount(); i++){
+    if(ui->tbP2PConnectionIn->item(i, 0)->text().toStdString() == peer->end_point_.address().to_string()
+       && ui->tbP2PConnectionIn->item(i, 1)->text().toInt() == peer->end_point_.port()){
+      ui->tbP2PConnectionIn->removeRow(i);
+      break;
+    }
+  }
+}
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
+void StoreExampleMainWidget::on_btnP2PStart_clicked(){
+  //boost::function<void(std::shared_ptr<ambr::net::Peer>)> func1 = BOOST_BIND(&StoreExampleMainWidget::OnConnect, this, _1);
+  /*ui->tbP2PConnectionIn->insertRow(0);
+  ui->tbP2PConnectionIn->setItem(0,0, new QTableWidgetItem("aaa"));
+  ui->tbP2PConnectionIn->setItem(0,1, new QTableWidgetItem("bbb"));*/
+  //OnConnect(std::shared_ptr<ambr::net::NetManager> peer)
+  //std::function<void(std::shared_ptr<ambr::net::Peer>)> func = std::bind(&StoreExampleMainWidget::OnConnect, this, std::placeholders::_1);
+  ambr::net::GetNetManager()->SetOnAccept(boost::bind(&StoreExampleMainWidget::OnAccept, this, _1));
+  ambr::net::GetNetManager()->SetOnConnected(boost::bind(&StoreExampleMainWidget::OnConnect, this, _1));
+  ambr::net::GetNetManager()->SetOnDisconnect(boost::bind(&StoreExampleMainWidget::OnDisconnected, this, _1));
+
+  ambr::net::NetManagerConfig config;
+  config.max_in_peer_ = 8;
+  config.max_out_peer_ = 8;
+  config.max_in_peer_for_optimize_ = 8;
+  config.max_out_peer_for_optimize_ = 8;
+  config.listen_port_ = ui->edtP2PListenPort->text().toInt();
+  config.seed_list_.push_back(
+        boost::asio::ip::tcp::endpoint(boost::asio::ip::address_v4::from_string(ui->edtP2PSeedAddr->text().split(":")[0].toStdString()),
+        ui->edtP2PSeedAddr->text().split(":")[1].toInt()
+        ));
+  config.use_upnp_ = false;
+  config.use_nat_pmp_ = false;
+  config.use_natp_ = false;
+  config.heart_time_ = 88;//second of heart interval
+  ambr::net::GetNetManager()->init(config);
+}

@@ -37,7 +37,10 @@ private:
 enum class UnitType : uint8_t{
   Invalidate = 0,
   send = 1,
-  receive = 2
+  receive = 2,
+  EnterValidateSet = 3,
+  Vote = 4,
+  Validator = 5
 };
 
 class Unit{
@@ -160,6 +163,93 @@ public:
   }
 private:
   UnitHash from_;
+};
+
+class VoteUnit:public Unit{
+public:
+  VoteUnit();
+public:
+  virtual std::string SerializeJson () const override;
+  virtual bool DeSerializeJson(const std::string& json) override;
+  virtual std::vector<uint8_t> SerializeByte() const override;
+  virtual bool DeSerializeByte(const std::vector<uint8_t>& buf, size_t* used_size = nullptr) override;
+
+  UnitHash CalcHash() const;
+  virtual void CalcHashAndFill() override;
+  virtual bool SignatureAndFill(const PrivateKey& key) override;
+  virtual bool Validate(std::string* err) const override;
+public:
+  void SetValidatorUnitHash(const UnitHash& hash){
+    validator_unit_hash_ = hash;
+  }
+  UnitHash ValidatorUnitHash(){
+    return validator_unit_hash_;
+  }
+  void SetAccept(bool accept){
+    accept_ = accept;
+  }
+  bool accept(){
+    return accept_;
+  }
+private:
+  UnitHash validator_unit_hash_;
+  uint8_t accept_;
+};
+
+class ValidatorUnit:public Unit{
+public:
+  ValidatorUnit();
+public:
+  virtual std::string SerializeJson () const override;
+  virtual bool DeSerializeJson(const std::string& json) override;
+  virtual std::vector<uint8_t> SerializeByte() const override;
+  virtual bool DeSerializeByte(const std::vector<uint8_t>& buf, size_t* used_size = nullptr) override;
+
+  UnitHash CalcHash() const;
+  virtual void CalcHashAndFill() override;
+  virtual bool SignatureAndFill(const PrivateKey& key) override;
+  virtual bool Validate(std::string* err) const override;
+public:
+  void add_check_list_(const UnitHash& hash);
+  void set_check_list(const std::vector<UnitHash>& hash_list){
+    check_list_ = hash_list;
+  }
+  std::vector<UnitHash> check_list()const{
+    return check_list_;
+  }
+  void add_vote_hash_list(const UnitHash& hash){
+    vote_hash_list_.push_back(hash);
+  }
+  void set_vote_hash_list(const std::vector<UnitHash>& hash_list){
+    vote_hash_list_ = hash_list;
+  }
+  std::vector<UnitHash> vote_hash_list(){
+    return vote_hash_list_;
+  }
+private:
+  //validate unit's hash
+  std::vector<UnitHash> check_list_;
+  std::vector<UnitHash> vote_hash_list_;
+  //0~1000,000
+  uint32_t percent_;
+  //certificate for vote, but it will delete sometime
+  //so,don't contain this value in caculation in sign and hash
+  std::vector<VoteUnit> vote_list_;
+};
+
+class EnterValidateSetUint:public Unit{
+public:
+  EnterValidateSetUint();
+public:
+  virtual std::string SerializeJson () const override;
+  virtual bool DeSerializeJson(const std::string& json) override;
+  virtual std::vector<uint8_t> SerializeByte() const override;
+  virtual bool DeSerializeByte(const std::vector<uint8_t>& buf, size_t* used_size = nullptr) override;
+
+  UnitHash CalcHash() const;
+  virtual void CalcHashAndFill() override;
+  virtual bool SignatureAndFill(const PrivateKey& key) override;
+  virtual bool Validate(std::string* err) const override;
 };
 
 }
