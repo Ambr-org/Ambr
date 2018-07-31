@@ -81,14 +81,15 @@ int DoServer() {
 
     app.port(8080).multithreaded().run();
     */
-    auto ret =ambr::p2p::init();
+   CConnman::Options options;
+    options.nPort = 8090;
+    auto ret =ambr::p2p::init(std::move(options));
 	if (!ret)
     {
         Interrupt();
     } else {
        WaitForShutdown();
     }
-    std::cout << "stop" << std::endl;
     Shutdown(); 
 
     return 0;

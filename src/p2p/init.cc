@@ -1,6 +1,5 @@
 #include <netbase.h>
 #include <netaddress.h>
-#include <net.h>
 #include <scheduler.h>
 #include <net_processing.h> 
 #include <chainparams.h>
@@ -38,7 +37,7 @@ static void HandleSIGTERM(int)
 
 
 
-bool ambr::p2p::init(){
+bool ambr::p2p::init(CConnman::Options&& connOptions){
     /*TODO import config from some class or files
     options: 
         onlynet
@@ -76,7 +75,7 @@ bool ambr::p2p::init(){
 
    // Check for -testnet or -regtest parameter (Params() calls are only valid after this clause)
     try {
-            SelectParams(gArgs.GetChainName());
+            SelectParams(gArgs.GetChainName(), connOptions.nPort);
         } catch (const std::exception& e) {
             fprintf(stderr, "Error: %s\n", e.what());
             return false;
@@ -121,7 +120,6 @@ bool ambr::p2p::init(){
     peerLogic = (new PeerLogicValidation(&connman, scheduler, false));
    // RegisterValidationInterface(peerLogic.get());
 
-    CConnman::Options connOptions;
     connOptions.nLocalServices = nLocalServices;
     connOptions.nMaxConnections = nMaxConnections;
     connOptions.nMaxOutbound = std::min(MAX_OUTBOUND_CONNECTIONS, connOptions.nMaxConnections);
@@ -132,7 +130,8 @@ bool ambr::p2p::init(){
     connOptions.m_added_nodes = gArgs.GetArgs("-addnode");
 
 
-    for (const std::string& strBind : gArgs.GetArgs("-bind")) {
+/*
+    for (const std::string& strBind : connOptions.vBindAddress) {
         CService addrBind;
         if (!Lookup(strBind.c_str(), addrBind, GetListenPort(), false)) {
 			std::cerr <<"Invalid -bind address or hostname: " << strBind << std::endl;
@@ -140,6 +139,7 @@ bool ambr::p2p::init(){
         }
         connOptions.vBinds.push_back(addrBind);
     }
+*/
     for (const std::string& strBind : gArgs.GetArgs("-whitebind")) {
         CService addrBind;
         if (!Lookup(strBind.c_str(), addrBind, 0, false)) {

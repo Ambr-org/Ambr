@@ -335,10 +335,14 @@ std::unique_ptr<CChainParams> CreateChainParams(const std::string& chain)
     throw std::runtime_error(strprintf("%s: Unknown chain %s.", __func__, chain));
 }
 
-void SelectParams(const std::string& network)
+void SelectParams(const std::string& network, const unsigned int nPort)
 {
     SelectBaseParams(network);
     globalChainParams = CreateChainParams(network);
+
+    if( nPort > 0 && nPort < 65535){
+       globalChainParams.get()->SetDefaultProt(nPort);
+    }   
 }
 
 void UpdateVersionBitsParameters(Consensus::DeploymentPos d, int64_t nStartTime, int64_t nTimeout)

@@ -59,6 +59,7 @@ public:
     const Consensus::Params& GetConsensus() const { return consensus; }
     const CMessageHeader::MessageStartChars& MessageStart() const { return pchMessageStart; }
     int GetDefaultPort() const { return nDefaultPort; }
+    void SetDefaultProt(const unsigned int port) { nDefaultPort = port ;}
 
     /** Default value for -checkmempool and -checkblockindex argument */
     bool DefaultConsistencyChecks() const { return fDefaultConsistencyChecks; }
@@ -116,7 +117,7 @@ const CChainParams &Params();
  * Sets the params returned by Params() to those for the given BIP70 chain name.
  * @throws std::runtime_error when the chain is not supported.
  */
-void SelectParams(const std::string& chain);
+void SelectParams(const std::string& chain, const unsigned int nPort);
 
 /**
  * Allows modifying the Version Bits regtest parameters.
