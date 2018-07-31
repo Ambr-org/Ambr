@@ -63,6 +63,10 @@ enum {
         1 / !!(sizeof(blake2b_param) == sizeof(uint64_t) * CHAR_BIT)
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Streaming API */
 int blake2b_init(blake2b_state *S, size_t outlen);
 int blake2b_init_key(blake2b_state *S, size_t outlen, const void *key,
@@ -76,7 +80,11 @@ int blake2b(void *out, size_t outlen, const void *in, size_t inlen,
                          const void *key, size_t keylen);
 
 /* Argon2 Team - Begin Code */
-int blake2b_long(void *out, size_t outlen, const void *in, size_t inlen);
+//int blake2b_long(void *out, size_t outlen, const void *in, size_t inlen);
 /* Argon2 Team - End Code */
+
+#ifdef __cplusplus
+};
+#endif
 
 #endif

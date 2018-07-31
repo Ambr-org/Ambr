@@ -5,6 +5,11 @@
 #include <net_processing.h> 
 #include <chainparams.h>
 #include <init.h>
+#include <shutdown.h>
+
+#ifndef WIN32
+#include <signal.h>
+#endif
 
 std::unique_ptr<CConnman> g_connman;
 PeerLogicValidation *peerLogic;   //TODO: protoype  std::unique_ptr<PeerLogicValidation>
@@ -15,7 +20,41 @@ ServiceFlags nLocalServices = ServiceFlags(NODE_NETWORK | NODE_NETWORK_LIMITED);
 
 int nMaxConnections = 12;
 
-bool ambr::p2p::init(int argc, char* argv[]){
+#ifndef WIN32
+static void registerSignalHandler(int signal, void(*handler)(int))
+{
+    struct sigaction sa;
+    sa.sa_handler = handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sigaction(signal, &sa, nullptr);
+}
+
+static void HandleSIGTERM(int)
+{
+    StartShutdown();
+}
+#endif
+
+
+
+bool ambr::p2p::init(){
+    /*TODO import config from some class or files
+    options: 
+        onlynet
+        dns
+        proxyrandomize
+        proxy
+        upnp
+        addnode
+        bind   --bind address
+        whitebind
+        whitelist
+        seednode
+        connect
+
+    */
+
     if (gArgs.IsArgSet("-onlynet")) {
         std::set<enum Network> nets;
         for (const std::string& snet : gArgs.GetArgs("-onlynet")) {
@@ -79,7 +118,7 @@ bool ambr::p2p::init(int argc, char* argv[]){
 	assert(!g_connman);
     g_connman = std::unique_ptr<CConnman>(new CConnman(ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max()), ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max())));
     CConnman& connman = *g_connman;
-    peerLogic = (new PeerLogicValidation(&connman, scheduler, gArgs.GetBoolArg("-enablebip61", DEFAULT_ENABLE_BIP61)));
+    peerLogic = (new PeerLogicValidation(&connman, scheduler, false));
    // RegisterValidationInterface(peerLogic.get());
 
     CConnman::Options connOptions;
@@ -136,6 +175,12 @@ bool ambr::p2p::init(int argc, char* argv[]){
             connOptions.m_specified_outgoing = connect;
         }
     }
+
+    // Clean shutdown on SIGTERM
+    #ifndef WIN32
+    registerSignalHandler(SIGTERM, HandleSIGTERM);
+    registerSignalHandler(SIGINT, HandleSIGTERM);
+    #endif
 
     return connman.Start(scheduler, connOptions);  
 }

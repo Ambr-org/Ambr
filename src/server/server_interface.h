@@ -22,8 +22,8 @@ namespace pt = boost::property_tree;
 namespace fs = boost::filesystem;
 //TODO 命名空间 成员变量 函数命名 tab 参数 const&
 
-namespace Ambr{
-namespace Server{
+namespace ambr{
+namespace server{
 
 class ServerInterface {
 public:

@@ -9,13 +9,55 @@
 #include <platform.h>
 #include "ambrd.h"
 #include "server_interface.h"
+#include <p2p/net.h>
+#include <p2p/utiltime.h>
+#include <p2p/shutdown.h>
+#include <p2p/net_processing.h>
+#include <p2p/init.h>
+
+extern std::unique_ptr<CConnman> g_connman;
+extern PeerLogicValidation *peerLogic;
 
 namespace ambr {
 namespace server {
 
+void Interrupt()
+  {
+    if (g_connman)
+        g_connman->Interrupt();
+  }
+
+void WaitForShutdown()
+{
+    while (!ShutdownRequested())
+    {  
+        MilliSleep(200);
+    }
+    Interrupt();
+}
+
+void Shutdown()
+{
+    LogPrintf("%s: In progress...\n", __func__);
+    static CCriticalSection cs_Shutdown;
+
+    TRY_LOCK(cs_Shutdown, lockShutdown);
+   
+   // StopRPC();
+   // StopHTTPServer();
+
+
+    // Because these depend on each-other, we make sure that neither can be
+    // using the other before destroying them.
+    if (g_connman) g_connman->Stop();
+    //peerLogic.reset();
+    g_connman.reset();
+}
+
 int DoServer() {
+    /*
     crow::SimpleApp app;
-	Ambr::Server::ServerInterface server_interface;
+	ambr::server::ServerInterface server_interface;
 
     CROW_ROUTE(app,"/<string>")
     ([&](std::string name){
@@ -38,6 +80,16 @@ int DoServer() {
     });
 
     app.port(8080).multithreaded().run();
+    */
+    auto ret =ambr::p2p::init();
+	if (!ret)
+    {
+        Interrupt();
+    } else {
+       WaitForShutdown();
+    }
+    std::cout << "stop" << std::endl;
+    Shutdown(); 
 
     return 0;
 }

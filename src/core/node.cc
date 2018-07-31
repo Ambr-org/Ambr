@@ -11,6 +11,7 @@
 #include <boost/property_tree/ptree.hpp>
 
 #include <store/store_manager.h>
+namespace pt = boost::property_tree;
 /*
 action:get_address_by_pub_key
 param:pub_key
@@ -78,21 +79,22 @@ std::string CmdSendTo(boost::property_tree::ptree pt){
   return std::string("{")+"\"result\":"+result+",\"rtn_msg\":\""+rtn_msg+"\"}";
 }
 
-std::string Ambr::core::ParserArgs(const std::string &  str){
-  boost::property_tree::ptree pt;
+
+std::string ambr::core::ParserArgs(const std::string &  str){
+  pt::ptree pt;
   std::istringstream stream(str);
-  boost::property_tree::read_json(stream, pt);
+  pt::read_json(stream, pt);
 
   std::string result;
   std::string rtn_msg;
   try{
     std::string cmd = pt.get<std::string>("action");
     if(cmd=="get_address_by_pub_key"){
-      boost::property_tree::ptree pt_child = pt.get_child("param");
+      pt::ptree pt_child = pt.get_child("param");
       std::string param_pub_key = pt_child.get<std::string>("pub_key");
           
       std::stringstream ostream;
-      boost::property_tree::ptree root;
+      pt::ptree root;
       ambr::core::PublicKey pub_key = param_pub_key;
       std::string&& addr = ambr::core::GetAddressStringByPublicKey(pub_key);
       if(0 < addr.size()){
@@ -104,15 +106,15 @@ std::string Ambr::core::ParserArgs(const std::string &  str){
         root.put("rtn_msg", "Address key is not get!");
       }
 
-      boost::property_tree::write_json(ostream, root);
+      pt::write_json(ostream, root);
         return ostream.str();
 
     }else if(cmd == "get_pub_key_by_address"){
-      boost::property_tree::ptree pt_child = pt.get_child("param");
+      pt::ptree pt_child = pt.get_child("param");
       std::string addr = pt_child.get<std::string>("address");
           
       std::stringstream ostream;
-      boost::property_tree::ptree root;
+      pt::ptree root;
       ambr::core::PublicKey&& pub_key = ambr::core::GetPublicKeyByAddress(addr);
       if(0 < pub_key.bytes().size()){
         root.put("result", true);
@@ -123,12 +125,12 @@ std::string Ambr::core::ParserArgs(const std::string &  str){
         root.put("rtn_msg", "Public key is not get!");
       }
 
-      boost::property_tree::write_json(ostream, root);
+      pt::write_json(ostream, root);
       return ostream.str();
 
       }else if(cmd == "create_pri_key"){
         std::stringstream ostream;
-        boost::property_tree::ptree root;
+        pt::ptree root;
         ambr::core::PrivateKey pri_key = ambr::core::CreateRandomPrivateKey();
         if(0 < pri_key.bytes().size()){
         root.put("result", true);
@@ -139,7 +141,7 @@ std::string Ambr::core::ParserArgs(const std::string &  str){
         root.put("rtn_msg", "Private key is not created!");
       }
           
-      boost::property_tree::write_json(ostream, root);
+      pt::write_json(ostream, root);
       return ostream.str();
 
       }else if(cmd == "get_balance_by_pub_key"){
@@ -159,3 +161,4 @@ std::string Ambr::core::ParserArgs(const std::string &  str){
   }
   return  std::string();
 }
+

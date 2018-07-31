@@ -11,7 +11,7 @@
 
 int main(int argc, char* argv[]) {
   try{  
-	Ambr::Server::ServerInterface server_interface;
+	ambr::server::ServerInterface server_interface;
 	std::cout << server_interface.ParserArgs(argc, argv) << std::endl;
   }
   catch (std::exception & e){

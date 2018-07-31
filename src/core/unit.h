@@ -13,6 +13,7 @@
 #include <utils/uint.h>
 #include <core/key.h>
 #include <time.h>
+#include <vector>
 namespace ambr {
 namespace core {
 
