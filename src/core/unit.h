@@ -12,6 +12,7 @@
 #include <memory>
 #include <utils/uint.h>
 #include <core/key.h>
+#include <time.h>
 namespace ambr {
 namespace core {
 
@@ -226,6 +227,15 @@ public:
   std::vector<UnitHash> vote_hash_list(){
     return vote_hash_list_;
   }
+  time_t set_time_stamp(){
+    return time_stamp_;
+  }
+  void set_time_stamp_with_now(){
+    time_stamp_ = time(nullptr);
+  }
+  void time_stamp(time_t t){
+    time_stamp_ = t;
+  }
 private:
   //validate unit's hash
   std::vector<UnitHash> check_list_;
@@ -235,6 +245,7 @@ private:
   //certificate for vote, but it will delete sometime
   //so,don't contain this value in caculation in sign and hash
   std::vector<VoteUnit> vote_list_;
+  time_t time_stamp_;
 };
 
 class EnterValidateSetUint:public Unit{

@@ -3,10 +3,11 @@
 #include <QPainter>
 #include <QTransform>
 #include <QDebug>
-
+#include <glog/logging.h>
 #include <store/store_manager.h>
 #include <unordered_map>
 #include <store/unit_store.h>
+
 #include "net_test.h"
 
 static uint32_t height_distance = 200;
@@ -224,6 +225,32 @@ void StoreExampleMainWidget::OnAccept(std::shared_ptr<ambr::net::Peer> peer){
 
 void StoreExampleMainWidget::OnDisconnected(std::shared_ptr<ambr::net::Peer> peer){
   emit DoDisconnected(peer);
+}
+
+void StoreExampleMainWidget::CheckValidatorUnit(){
+  std::shared_ptr<ambr::core::ValidatorUnit> unit = std::make_shared<ambr::core::ValidatorUnit>();
+  unit->set_version(0x00000001);
+  unit->set_type(ambr::core::UnitType::Validator);
+  unit->set_public_key("0x1234567890123456789012345678901234567890123456789012345678901234");
+  unit->set_prev_unit("0x1234567890123456789012345678901234567890123456789012345678901235");
+  unit->set_balance((boost::multiprecision::uint128_t)123456);
+
+  std::vector<ambr::core::UnitHash> hash_list;
+  hash_list.push_back("0x1234567890123456789012345678901234567890123456789012345678901231");
+  hash_list.push_back("0x1234567890123456789012345678901234567890123456789012345678901232");
+  hash_list.push_back("0x1234567890123456789012345678901234567890123456789012345678901233");
+  hash_list.push_back("0x1234567890123456789012345678901234567890123456789012345678901234");
+  unit->set_check_list(hash_list);
+  hash_list.push_back("0x1234567890123456789012345678901234567890123456789012345678901235");
+  unit->set_vote_hash_list(hash_list);
+  unit->set_time_stamp_with_now();
+  unit->CalcHashAndFill();
+  unit->SignatureAndFill("0x1234567890123456789012345678901234567890123456789012345678901231");
+  std::string json_str = unit->SerializeJson();
+  LOG(INFO)<<json_str;
+  std::shared_ptr<ambr::core::ValidatorUnit> unit_2 = std::make_shared<ambr::core::ValidatorUnit>();
+  json_str = unit_2->DeSerializeJson(json_str);
+  LOG(INFO)<<json_str;
 }
 
 void StoreExampleMainWidget::on_btnPriKey2PubKey_clicked(){
@@ -510,4 +537,8 @@ void StoreExampleMainWidget::on_btnP2PStart_clicked(){
   config.use_natp_ = false;
   config.heart_time_ = 88;//second of heart interval
   ambr::net::GetNetManager()->init(config);
+}
+
+void StoreExampleMainWidget::on_pushButton_clicked(){
+  CheckValidatorUnit();
 }

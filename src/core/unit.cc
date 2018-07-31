@@ -579,8 +579,8 @@ std::string ambr::core::ValidatorUnit::SerializeJson() const{
     tmp.put_child("", vote_tree);
     pt_child.push_back(std::make_pair("", tmp));
   }
-  unit_pt.add_child("vote_hash_list", pt_child);
-
+  unit_pt.add_child("vote_list", pt_child);
+  unit_pt.put("time_stamp", time_stamp_);
   ::boost::property_tree::ptree pt;
   pt.add_child("unit", unit_pt);
   ::std::ostringstream stream;
@@ -686,6 +686,9 @@ std::vector<uint8_t> ambr::core::ValidatorUnit::SerializeByte( ) const {
       memcpy(dest, buf.data(), buf.size());
       dest += buf.size();
     }
+
+    memcpy(dest, &time_stamp_, sizeof(time_stamp_));
+    dest += sizeof(time_stamp_);
   }
   return buf;
 }
@@ -697,7 +700,7 @@ bool ambr::core::ValidatorUnit::DeSerializeByte(const std::vector<uint8_t> &buf,
   const uint8_t* src = buf.data();
   memcpy(&version_, src, sizeof(version_));
   if(version_== 0x00000001){
-    uint32_t len = sizeof(version_) + sizeof(type_)+sizeof(public_key_)+sizeof(prev_unit_)+sizeof(balance_)+sizeof(hash_)+sizeof(sign_)+sizeof(uint32_t);
+    uint32_t len = sizeof(version_) + sizeof(type_)+sizeof(public_key_)+sizeof(prev_unit_)+sizeof(balance_)+sizeof(hash_)+sizeof(sign_)+sizeof(uint32_t)+sizeof(time_stamp_);
     if(buf.size() >= len){
       memcpy(&version_, src, sizeof(version_));
       src += sizeof(version_);
@@ -781,17 +784,8 @@ bool ambr::core::ValidatorUnit::DeSerializeByte(const std::vector<uint8_t> &buf,
         src += vote_unit_size;
       }
 
-      /*
-  std::vector<UnitHash> check_list_;
-  std::vector<UnitHash> vote_hash_list_;
-  //0~1000,000
-  uint32_t percent_;
-  //certificate for vote, but it will delete sometime
-  //so,don't contain this value in caculation in sign and hash
-  std::vector<VoteUnit> vote_list_;
-*/
-
-
+      memcpy(&time_stamp_, src, sizeof(time_stamp_));
+      src += sizeof(time_stamp_);
       if(used_size)*used_size=len;
       return true;
     }

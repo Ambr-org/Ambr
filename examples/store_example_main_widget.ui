@@ -821,6 +821,13 @@
                </widget>
               </item>
               <item>
+               <widget class="QPushButton" name="pushButton">
+                <property name="text">
+                 <string>test</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QLabel" name="label_13">
                 <property name="text">
                  <string>日志</string>
@@ -965,7 +972,7 @@
         <string/>
        </property>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>10</x>

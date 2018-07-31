@@ -53,6 +53,9 @@ private slots:
 protected:
   bool eventFilter(QObject *target, QEvent *event);
 
+private slots:
+  void on_pushButton_clicked();
+
 private:
   Ui::StoreExampleMainWidget *ui;
   QStringList test_pri_key_list_;
@@ -67,6 +70,9 @@ private:
   void OnConnect(std::shared_ptr<ambr::net::Peer> peer);
   void OnAccept(std::shared_ptr<ambr::net::Peer> peer);
   void OnDisconnected(std::shared_ptr<ambr::net::Peer> peer);
+private:
+  //check ValidatorUnit
+  void CheckValidatorUnit();
 private:
   uint32_t max_chain_length_for_draw_;
   std::unordered_map<ambr::core::UnitHash, std::list<std::shared_ptr<DrawItem>>> unit_list_;
