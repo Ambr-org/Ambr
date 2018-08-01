@@ -212,7 +212,9 @@ public:
   virtual bool SignatureAndFill(const PrivateKey& key) override;
   virtual bool Validate(std::string* err) const override;
 public:
-  void add_check_list_(const UnitHash& hash);
+  void add_check_list_(const UnitHash& hash){
+    check_list_.push_back(hash);
+  }
   void set_check_list(const std::vector<UnitHash>& hash_list){
     check_list_ = hash_list;
   }
@@ -228,13 +230,22 @@ public:
   std::vector<UnitHash> vote_hash_list(){
     return vote_hash_list_;
   }
-  time_t set_time_stamp(){
+  void add_vote_list(const VoteUnit& unit){
+    vote_list_.push_back(unit);
+  }
+  void set_vote_list(const std::vector<VoteUnit>& unit_list){
+    vote_list_ = unit_list;
+  }
+  std::vector<VoteUnit> vote_list(){
+    return vote_list_;
+  }
+  uint64_t time_stamp(){
     return time_stamp_;
   }
   void set_time_stamp_with_now(){
     time_stamp_ = time(nullptr);
   }
-  void time_stamp(time_t t){
+  void set_time_stamp(uint64_t t){
     time_stamp_ = t;
   }
 private:
@@ -246,7 +257,8 @@ private:
   //certificate for vote, but it will delete sometime
   //so,don't contain this value in caculation in sign and hash
   std::vector<VoteUnit> vote_list_;
-  time_t time_stamp_;
+  uint64_t time_stamp_;
+  uint64_t nonce_;
 };
 
 class EnterValidateSetUint:public Unit{

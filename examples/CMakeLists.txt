@@ -93,6 +93,7 @@ set(CMAKE_CXX_FLAGS "-Wall")
     ${CUR_DIR}/examples/unit_store.cc
     ${CUR_DIR}/examples/net_test.cc
     ${QT_SRC}
+    ${MOC}
     )
   target_link_libraries(unit_store_example Qt5::Widgets)
 

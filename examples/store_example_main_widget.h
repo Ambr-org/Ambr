@@ -6,6 +6,7 @@
 #include <QWidget>
 #include <QMap>
 #include <core/key.h>
+#include <core/unit.h>
 #include "net_test.h"
 namespace Ui {
   class StoreExampleMainWidget;
@@ -21,6 +22,7 @@ class StoreExampleMainWidget : public QWidget
   struct DrawItem{
     QPoint space_;
     std::shared_ptr<ambr::store::UnitStore> unit_store_;
+    std::shared_ptr<ambr::core::ValidatorUnit> validator_unit_store_;
   };
 public:
   explicit StoreExampleMainWidget(QWidget *parent = 0);
@@ -46,15 +48,18 @@ private slots:
   void on_btnPTLength_clicked();
   void on_btnP2PStart_clicked();
   void on_btnInitDataBase_clicked();
+  void on_btnPVRemoveVote_clicked();
+  void on_btnPVTime_clicked();
+  void on_btnPVAddVote_clicked();
+  void on_btnPVRemoveCheck_clicked();
+  void on_btnPVAddCheck_clicked();
+  void on_pushButton_clicked();
 
   void DealConnect(std::shared_ptr<ambr::net::Peer> peer);
   void DealAccept(std::shared_ptr<ambr::net::Peer> peer);
   void DealDisconnected(std::shared_ptr<ambr::net::Peer> peer);
 protected:
   bool eventFilter(QObject *target, QEvent *event);
-
-private slots:
-  void on_pushButton_clicked();
 
 private:
   Ui::StoreExampleMainWidget *ui;
