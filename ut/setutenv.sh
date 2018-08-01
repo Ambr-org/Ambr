@@ -1,11 +1,11 @@
 cd googletest
 cmake ./
-make
+make -j4
 cd googletest
 cmake ./
-make
+make -j4
 cd ..
 cd googlemock
 cmake ./
-make
+make -j4
 cd ..
