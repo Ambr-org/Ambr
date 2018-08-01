@@ -12,7 +12,7 @@
 #include <memory>
 #include <utils/uint.h>
 #include <core/key.h>
-#include <time.h>
+#include <boost/date_time.hpp>
 #include <vector>
 namespace ambr {
 namespace core {
@@ -212,7 +212,7 @@ public:
   virtual bool SignatureAndFill(const PrivateKey& key) override;
   virtual bool Validate(std::string* err) const override;
 public:
-  void add_check_list_(const UnitHash& hash){
+  void add_check_list(const UnitHash& hash){
     check_list_.push_back(hash);
   }
   void set_check_list(const std::vector<UnitHash>& hash_list){
@@ -239,24 +239,41 @@ public:
   std::vector<VoteUnit> vote_list(){
     return vote_list_;
   }
+
+  uint32_t percent(){
+    return percent_;
+  }
+  void set_percent(uint32_t percent){
+    percent_ = percent;
+  }
   uint64_t time_stamp(){
     return time_stamp_;
   }
-  void set_time_stamp_with_now(){
-    time_stamp_ = time(nullptr);
-  }
   void set_time_stamp(uint64_t t){
     time_stamp_ = t;
+  }
+  void set_time_stamp_with_now(){
+    ::boost::posix_time::ptime pt = ::boost::posix_time::second_clock::universal_time();
+    ::boost::posix_time::ptime pt_ori(::boost::gregorian::date(1970, ::boost::gregorian::Jan, 1));
+    ::boost::posix_time::time_duration duration = pt-pt_ori;
+    time_stamp_ = duration.total_seconds();
+  }
+  uint64_t nonce(){
+    return nonce_;
+  }
+  void set_nonce(uint64_t nonce){
+    nonce_ = nonce;
   }
 private:
   //validate unit's hash
   std::vector<UnitHash> check_list_;
   std::vector<UnitHash> vote_hash_list_;
-  //0~1000,000
-  uint32_t percent_;
+
   //certificate for vote, but it will delete sometime
   //so,don't contain this value in caculation in sign and hash
   std::vector<VoteUnit> vote_list_;
+  //0~1000,000
+  uint32_t percent_;
   uint64_t time_stamp_;
   uint64_t nonce_;
 };

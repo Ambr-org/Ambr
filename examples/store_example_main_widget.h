@@ -54,6 +54,7 @@ private slots:
   void on_btnPVRemoveCheck_clicked();
   void on_btnPVAddCheck_clicked();
   void on_pushButton_clicked();
+  void on_btnPVValidatorUnit_clicked();
 
   void DealConnect(std::shared_ptr<ambr::net::Peer> peer);
   void DealAccept(std::shared_ptr<ambr::net::Peer> peer);
@@ -78,6 +79,7 @@ private:
 private:
   //check ValidatorUnit
   void CheckValidatorUnit();
+  void CreateDebugInitChain();
 private:
   uint32_t max_chain_length_for_draw_;
   std::unordered_map<ambr::core::UnitHash, std::list<std::shared_ptr<DrawItem>>> unit_list_;

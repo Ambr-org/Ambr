@@ -343,6 +343,18 @@ void StoreExampleMainWidget::CheckValidatorUnit(){
   LOG(INFO)<<unit_3->SerializeJson();
 }
 
+void StoreExampleMainWidget::CreateDebugInitChain(){
+  ambr::core::PrivateKey create_key("25E25210DCE702D4E36B6C8A17E18DC1D02A9E4F0D1D31C4AEE77327CF1641CC");
+  ambr::core::PublicKey send_to("6C300AF488B768B4F4E8DB76E695D4662FDA864445B64931597A943B811BB978");
+  ambr::core::UnitHash tx_hash;
+  std::shared_ptr<ambr::core::Unit> unit_sended;
+  ambr::store::GetStoreManager()->SendToAddress(send_to, "1", create_key, &tx_hash, unit_sended, nullptr);
+  ambr::store::GetStoreManager()->SendToAddress(send_to, "2", create_key, &tx_hash, unit_sended, nullptr);
+  ambr::store::GetStoreManager()->SendToAddress(send_to, "3", create_key, &tx_hash, unit_sended, nullptr);
+  ambr::store::GetStoreManager()->SendToAddress(send_to, "4", create_key, &tx_hash, unit_sended, nullptr);
+  ambr::store::GetStoreManager()->SendToAddress(send_to, "5", create_key, &tx_hash, unit_sended, nullptr);
+}
+
 void StoreExampleMainWidget::on_btnPriKey2PubKey_clicked(){
   ambr::core::PrivateKey key(ui->edtTx1->text().toStdString().c_str());
   ui->edtTx2->setText(ambr::core::GetPublicKeyByPrivateKey(key).encode_to_hex().c_str());
@@ -630,9 +642,11 @@ void StoreExampleMainWidget::on_btnP2PStart_clicked(){
   config.heart_time_ = 88;//second of heart interval
   ambr::net::GetNetManager()->init(config);
 }
-
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 void StoreExampleMainWidget::on_pushButton_clicked(){
-  CheckValidatorUnit();
+  //CheckValidatorUnit();
+  CreateDebugInitChain();
 }
 
 void StoreExampleMainWidget::on_btnPVAddCheck_clicked(){
@@ -661,11 +675,11 @@ void StoreExampleMainWidget::on_btnPVAddVote_clicked(){
   pub_key = ambr::core::GetPublicKeyByPrivateKey(pri_key);
   unit.set_public_key(pub_key);
   ambr::core::UnitHash last_validator_hash;
-  if(!ambr::store::GetStoreManager()->GetLastValidateUnit(last_validator_hash)){
+  /*if(!ambr::store::GetStoreManager()->GetLastValidateUnit(last_validator_hash)){
     ui->edtPVLOG->setPlainText("get last validator unit error");
     return;
-  }
-  unit.set_prev_unit(last_validator_hash);
+  }*/
+  unit.set_prev_unit(ui->edtPVPriKey->text().toStdString());
   bool accept = (ui->cbPVAccept->checkState()==Qt::Checked)?true:false;
   ambr::core::UnitHash validator_unit_hash;
   if(!validator_unit_hash.decode_from_hex(ui->edtPVArmHash->text().toStdString())){
@@ -693,5 +707,40 @@ void StoreExampleMainWidget::on_btnPVRemoveVote_clicked(){
     QListWidgetItem* item = ui->lstPVVote->currentItem();
     ui->lstPVVote->removeItemWidget(item);
     delete item;
+  }
+}
+
+void StoreExampleMainWidget::on_btnPVValidatorUnit_clicked(){
+  std::shared_ptr<ambr::core::ValidatorUnit> unit = std::make_shared<ambr::core::ValidatorUnit>();
+  unit->set_version(0x00000001);
+  unit->set_type(ambr::core::UnitType::Validator);
+  ambr::core::PrivateKey pri_key(ui->edtPVPriKey->text().toStdString());
+  ambr::core::PublicKey pub_key = ambr::core::GetPublicKeyByPrivateKey(pri_key);
+  unit->set_public_key(pub_key);
+  unit->set_prev_unit(ambr::core::UnitHash(ui->edtPVPrvUnit->text().toStdString()));
+  //unit->set_balance(const Amount& amount);
+  for(int i = 0; i < ui->lstPVCheck->count(); i++){
+    ambr::core::UnitHash hash(ui->lstPVCheck->item(i)->text().toStdString());
+    unit->add_check_list(hash);
+  }
+  for(int i = 0; i < ui->lstPVVote->count(); i++){
+    ambr::core::VoteUnit vote_unit;
+    if(!vote_unit.DeSerializeJson(ui->lstPVVote->item(i)->text().toStdString())){
+      return;
+    }
+    unit->add_vote_list(vote_unit);
+    unit->add_vote_hash_list(vote_unit.hash());
+  }
+
+  unit->set_percent(0);
+  unit->set_time_stamp(ui->edtPVTime->text().toULongLong());
+  unit->set_nonce(ui->edtPVNonce->text().toULongLong());
+  unit->CalcHashAndFill();
+  unit->SignatureAndFill(pri_key);
+  std::string str_err;
+  if(ambr::store::GetStoreManager()->AddValidateUnit(unit, &str_err)){
+    ui->edtPVLOG->setPlainText(QString("Add validator unit success:")+unit->SerializeJson().c_str());
+  }else{
+    ui->edtPVLOG->setPlainText(QString("Add validator unit faild:")+str_err.c_str());
   }
 }

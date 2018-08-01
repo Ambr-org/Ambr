@@ -456,7 +456,7 @@ bool ambr::core::VoteUnit::DeSerializeByte(const std::vector<uint8_t> &buf, size
       memcpy(&type_, src, sizeof(type_));
       src += sizeof(type_);
 
-      if(type_ != UnitType::send){
+      if(type_ != UnitType::Vote){
         return false;
       }
 
@@ -566,18 +566,19 @@ std::string ambr::core::ValidatorUnit::SerializeJson() const{
   }
   unit_pt.add_child("vote_hash_list", pt_child);
 
-  unit_pt.put("percent", percent_);
+
 
   pt_child.clear();
   for(VoteUnit unit:vote_list_){
     ::boost::property_tree::ptree tmp;
     ::boost::property_tree::ptree vote_tree;
-    std::istringstream istream(unit.SerializeJson());
-    ::boost::property_tree::read_json(istream, vote_tree);
-    tmp.put_child("", vote_tree);
+    //std::istringstream istream(unit.SerializeJson());
+    //::boost::property_tree::read_json(istream, vote_tree);
+    tmp.put("", unit.SerializeJson());
     pt_child.push_back(std::make_pair("", tmp));
   }
   unit_pt.add_child("vote_list", pt_child);
+  unit_pt.put("percent", percent_);
   unit_pt.put("time_stamp", time_stamp_);
   unit_pt.put("nonce", nonce_);
   ::boost::property_tree::ptree pt;
@@ -620,6 +621,7 @@ bool ambr::core::ValidatorUnit::DeSerializeJson(const std::string& json){
       vote_unit.DeSerializeJson(child.second.data());
       vote_list_.push_back(vote_unit);
     }
+    percent_ = pt.get<uint32_t>("unit.percent");
     time_stamp_ = pt.get<time_t>("unit.time_stamp");
     nonce_ = pt.get<uint64_t>("unit.nonce");
     return true;
@@ -782,6 +784,7 @@ bool ambr::core::ValidatorUnit::DeSerializeByte(const std::vector<uint8_t> &buf,
       src += sizeof(len);
 
       VoteUnit tmp;
+      tmp.set_version(0x00000001);
       uint32_t vote_unit_size = tmp.SerializeByte().size();
       if(end_point - src < vote_unit_size*len){
         return false;
@@ -824,7 +827,12 @@ ambr::core::UnitHash ambr::core::ValidatorUnit::CalcHash() const {
   for(UnitHash hash:vote_hash_list_){
     hasher.process(hash);
   }
+  for(VoteUnit unit:vote_list_){
+    hasher.process(unit.hash());
+  }
   hasher.process(percent_);
+  hasher.process(time_stamp_);
+  hasher.process(nonce_);
   hasher.finish();
   UnitHash::ArrayType array;
   hasher.get_hash_bytes(array.begin(), array.end());

@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabMain">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab_7">
       <attribute name="title">
@@ -698,9 +698,9 @@
                     <property name="geometry">
                      <rect>
                       <x>0</x>
-                      <y>-194</y>
+                      <y>0</y>
                       <width>609</width>
-                      <height>722</height>
+                      <height>763</height>
                      </rect>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_31">
@@ -763,7 +763,7 @@
                              </widget>
                             </item>
                             <item>
-                             <widget class="QLineEdit" name="edPVPriKey"/>
+                             <widget class="QLineEdit" name="edtPVPriKey"/>
                             </item>
                            </layout>
                           </item>
@@ -799,6 +799,20 @@
                             </item>
                             <item>
                              <widget class="QLineEdit" name="edtPVNonce"/>
+                            </item>
+                           </layout>
+                          </item>
+                          <item>
+                           <layout class="QHBoxLayout" name="horizontalLayout_38">
+                            <item>
+                             <widget class="QLabel" name="label_33">
+                              <property name="text">
+                               <string>上一个交易单元</string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QLineEdit" name="edtPVPrvUnit"/>
                             </item>
                            </layout>
                           </item>
@@ -923,12 +937,19 @@
                                 </property>
                                </widget>
                               </item>
+                              <item>
+                               <widget class="QPushButton" name="btnPVAddVote">
+                                <property name="text">
+                                 <string>+</string>
+                                </property>
+                               </widget>
+                              </item>
                              </layout>
                             </item>
                             <item>
-                             <widget class="QPushButton" name="btnPVAddVote">
+                             <widget class="QPushButton" name="btnPVValidatorUnit">
                               <property name="text">
-                               <string>+</string>
+                               <string>添加验证单元</string>
                               </property>
                              </widget>
                             </item>

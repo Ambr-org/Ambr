@@ -63,7 +63,8 @@ void ambr::store::StoreManager::Init(const std::string& path){
       unit_validate->set_type(core::UnitType::Validator);
       unit_validate->set_public_key(unit->public_key());
       unit_validate->set_balance(init_validate);
-      unit_validate->add_check_list_(unit->hash());
+      unit_validate->add_check_list(unit->hash());
+
       unit_validate->CalcHashAndFill();
       unit_validate->SignatureAndFill(core::PrivateKey("F49E1B9F671D0B244744E07289EA0807FAE09F8335F0C1B0629F1BF924CA64E1"));
 
@@ -306,6 +307,56 @@ bool ambr::store::StoreManager::AddReceiveUnit(std::shared_ptr<ambr::core::Recei
 }
 
 bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::ValidatorUnit> unit, std::string *err){
+  if(!unit){
+    if(err){
+      *err = "Unit point is null";
+    }
+    return false;
+  }
+  std::string validate_err;
+  if(!unit->Validate(&validate_err)){
+    if(err){
+      *err = std::string("Validator unit is not right:")+validate_err;
+    }
+    return false;
+  }
+  if(!GetValidateUnit(unit->prev_unit())){
+    if(err){
+      *err = "Previous validator unit is not exist";
+    }
+    return false;
+  }
+  for(core::UnitHash hash:unit->check_list()){
+    if(!GetUnit(hash)){
+      if(err){
+        *err = std::string("Checked hash is not exist:")+hash.encode_to_hex();
+      }
+      return false;
+    }
+  }
+  for(core::VoteUnit vote_unit:unit->vote_list()){
+    std::string validate_err;
+    if(!vote_unit.Validate(&validate_err)){
+      if(err){
+        *err = std::string("One of validate unit is not right:")+validate_err;
+      }
+      return false;
+    }
+  }
+  std::vector<uint8_t> buf = unit->SerializeByte();
+  rocksdb::WriteBatch batch;
+  rocksdb::Status status = batch.Put(
+     handle_validate_unit_,
+     rocksdb::Slice((const char*)unit->hash().bytes().data(), unit->hash().bytes().size()),
+     rocksdb::Slice((const char*)buf.data(), buf.size()));
+  assert(status.ok());
+  status = batch.Put(
+     handle_validate_unit_,
+     rocksdb::Slice(last_validate_key),
+     rocksdb::Slice((const char*)unit->hash().bytes().data(), unit->hash().bytes().size()));
+  assert(status.ok());
+  status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
+  assert(status.ok());
   return true;
 }
 
