@@ -40,9 +40,10 @@ enum class UnitType : uint8_t{
   Invalidate = 0,
   send = 1,
   receive = 2,
-  EnterValidateSet = 3,
-  Vote = 4,
-  Validator = 5
+  Vote = 3,
+  Validator = 4,
+  EnterValidateSet = 5,
+  LeaveValidateSet = 6
 };
 
 class Unit{
@@ -281,6 +282,21 @@ private:
 class EnterValidateSetUint:public Unit{
 public:
   EnterValidateSetUint();
+public:
+  virtual std::string SerializeJson () const override;
+  virtual bool DeSerializeJson(const std::string& json) override;
+  virtual std::vector<uint8_t> SerializeByte() const override;
+  virtual bool DeSerializeByte(const std::vector<uint8_t>& buf, size_t* used_size = nullptr) override;
+
+  UnitHash CalcHash() const;
+  virtual void CalcHashAndFill() override;
+  virtual bool SignatureAndFill(const PrivateKey& key) override;
+  virtual bool Validate(std::string* err) const override;
+};
+
+class LeaveValidateSetUint:public Unit{
+public:
+  LeaveValidateSetUint();
 public:
   virtual std::string SerializeJson () const override;
   virtual bool DeSerializeJson(const std::string& json) override;
