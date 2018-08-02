@@ -38,9 +38,11 @@ bool CAddrInfo::IsTerrible(int64_t nNow) const
     if (nTime > nNow + 10 * 60) // came in a flying DeLorean
         return true;
 
+    //TODO change nTime
+    /*
     if (nTime == 0 || nNow - nTime > ADDRMAN_HORIZON_DAYS * 24 * 60 * 60) // not seen in recent history
         return true;
-
+    */
     if (nLastSuccess == 0 && nAttempts >= ADDRMAN_RETRIES) // tried N times and never a success
         return true;
 
@@ -65,9 +67,10 @@ double CAddrInfo::GetChance(int64_t nNow) const
     return fChance;
 }
 
-CAddrInfo* CAddrMan::Find(const CNetAddr& addr, int* pnId)
+//TODO ,refer to head file
+CAddrInfo* CAddrMan::Find(const CService& addr, int* pnId)
 {
-    std::map<CNetAddr, int>::iterator it = mapAddr.find(addr);
+    auto it = mapAddr.find(addr);
     if (it == mapAddr.end())
         return nullptr;
     if (pnId)
@@ -253,9 +256,10 @@ void CAddrMan::Good_(const CService& addr, bool test_before_evict, int64_t nTime
 
 bool CAddrMan::Add_(const CAddress& addr, const CNetAddr& source, int64_t nTimePenalty)
 {
-    if (!addr.IsRoutable())
+    //TODO for tesing 
+  //  if (!addr.IsRoutable())
+    if (!addr.IsValid())
         return false;
-
     bool fNew = false;
     int nId;
     CAddrInfo* pinfo = Find(addr, &nId);

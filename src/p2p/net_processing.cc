@@ -794,12 +794,15 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         if (!pfrom->fInbound)
         {
             // Advertise our address 
-            /*
-            if (fListen && !IsInitialBlockDownload())
+
+          //  if (fListen && !IsInitialBlockDownload())
+            if (fListen)
             {
                 CAddress addr = GetLocalAddress(&pfrom->addr, pfrom->GetLocalServices());
-                FastRandomContext insecure_rand;
-                if (addr.IsRoutable())
+                ambr::p2p::FastRandomContext insecure_rand;
+               //for testing ,set true
+               // if (addr.IsRoutable())
+                if (true)
                 {
                     LogPrint(BCLog::NET, "ProcessMessages: advertising address %s\n", addr.ToString());
                     pfrom->PushAddress(addr, insecure_rand);
@@ -809,7 +812,6 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
                     pfrom->PushAddress(addr, insecure_rand);
                 }
             }
-            */
 
             // Get recent addresses
             if (pfrom->fOneShot || pfrom->nVersion >= CADDR_TIME_VERSION || connman->GetAddressCount() < 1000)
@@ -877,11 +879,39 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         return false;
     }
 
+    else if (strCommand == NetMsgType::GETADDR)
+    {
+        // This asymmetric behavior for inbound and outbound connections was introduced
+        // to prevent a fingerprinting attack: an attacker can send specific fake addresses
+        // to users' AddrMan and later request them by sending getaddr messages.
+        // Making nodes which are behind NAT and can only make outgoing connections ignore
+        // the getaddr message mitigates the attack.
+        if (!pfrom->fInbound) {
+            LogPrint(BCLog::NET, "Ignoring \"getaddr\" from outbound connection. peer=%d\n", pfrom->GetId());
+            return true;
+        }
+
+        // Only send one GetAddr response per connection to reduce resource waste
+        //  and discourage addr stamping of INV announcements.
+        if (pfrom->fSentAddr) {
+            LogPrint(BCLog::NET, "Ignoring repeated \"getaddr\". peer=%d\n", pfrom->GetId());
+            return true;
+        }
+        pfrom->fSentAddr = true;
+
+        pfrom->vAddrToSend.clear();
+        std::vector<CAddress> vAddr = connman->GetAddresses();
+        ambr::p2p::FastRandomContext insecure_rand;
+        for (const CAddress &addr : vAddr)
+            pfrom->PushAddress(addr, insecure_rand);
+    }
+
     else if (strCommand == NetMsgType::ADDR)
     {
         std::vector<CAddress> vAddr;
         vRecv >> vAddr;
 
+        std::cout << "Get Addr Size = " << vAddr.size() << std::endl;
         // Don't want addr from older versions unless seeding
         if (pfrom->nVersion < CADDR_TIME_VERSION && connman->GetAddressCount() > 1000)
             return true;
@@ -921,6 +951,11 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
                 vAddrOk.push_back(addr);
         }
         connman->AddNewAddresses(vAddrOk, pfrom->addr, 2 * 60 * 60);
+        auto s =connman->GetAddresses();
+        for(auto i:s){
+            std::cout << i.ToString() << std::endl;
+        }
+        
         if (vAddr.size() < 1000)
             pfrom->fGetAddr = false;
         if (pfrom->fOneShot)
@@ -1354,8 +1389,12 @@ bool PeerLogicValidation::SendMessages(CNode* pto)
         //
         // Message: addr
         //
+       
         if (pto->nNextAddrSend < nNow) {
-            pto->nNextAddrSend = PoissonNextSend(nNow, AVG_ADDRESS_BROADCAST_INTERVAL);
+           // pto->nNextAddrSend = PoissonNextSend(nNow, AVG_ADDRESS_BROADCAST_INTERVAL);
+           //TODO PoissonNextSend return long time to next send
+            pto->nNextAddrSend = nNow + 3000 * 1000;
+         
             std::vector<CAddress> vAddr;
             vAddr.reserve(pto->vAddrToSend.size());
             for (const CAddress& addr : pto->vAddrToSend)

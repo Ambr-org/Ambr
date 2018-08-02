@@ -14,7 +14,7 @@
 #include <limitedmap.h>
 #include <netaddress.h>
 #include <version.h>
-
+#include <bloom.h>
 #include <protocol.h>
 #include <random.h>
 #include <streams.h>
@@ -690,7 +690,7 @@ public:
 
     // flood relay
     std::vector<CAddress> vAddrToSend;
-   // CRollingBloomFilter addrKnown;
+    CRollingBloomFilter addrKnown;
     bool fGetAddr;
     std::set<uint256> setKnown;
     int64_t nNextAddrSend;
@@ -809,18 +809,20 @@ public:
     }
 
 
-    /*
+
     void AddAddressKnown(const CAddress& _addr)
     {
         addrKnown.insert(_addr.GetKey());
     }
 
-    void PushAddress(const CAddress& _addr, FastRandomContext &insecure_rand)
+    void PushAddress(const CAddress& _addr, ambr::p2p::FastRandomContext &insecure_rand)
     {
         // Known checking here is only to save space from duplicates.
         // SendMessages will filter it again for knowns that were added
         // after addresses were pushed.
-        if (_addr.IsValid() && !addrKnown.contains(_addr.GetKey())) {
+        //for tesing ,set _addr.IsValid = true
+    //    if (_addr.IsValid() && !addrKnown.contains(_addr.GetKey())) {
+        if (true&& !addrKnown.contains(_addr.GetKey())) {
             if (vAddrToSend.size() >= MAX_ADDR_TO_SEND) {
                 vAddrToSend[insecure_rand.randrange(vAddrToSend.size())] = _addr;
             } else {
@@ -828,7 +830,6 @@ public:
             }
         }
     }
-    */
 
     void AskFor(const CInv& inv);
 

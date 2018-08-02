@@ -169,7 +169,8 @@ public:
 #define ADDRMAN_REPLACEMENT_HOURS 4
 
 //! the maximum percentage of nodes to return in a getaddr call
-#define ADDRMAN_GETADDR_MAX_PCT 23
+//TODO: change 23 to 100
+#define ADDRMAN_GETADDR_MAX_PCT 100
 
 //! the maximum number of nodes to return in a getaddr call
 #define ADDRMAN_GETADDR_MAX 2500
@@ -194,12 +195,17 @@ private:
     //! last used nId
     int nIdCount;
 
+    //for tesing, add vector address
+    std::vector<CAddress> vAddress;
+
+
     //! table with information about all nIds
     std::map<int, CAddrInfo> mapInfo;
 
     //! find an nId based on its network address
-    std::map<CNetAddr, int> mapAddr;
-
+    //TODO for testing
+ //   std::map<CNetAddr, int> mapAddr;
+    std::map<CService, int> mapAddr;
     //! randomly-ordered vector of all nIds
     std::vector<int> vRandom;
 
@@ -229,7 +235,9 @@ protected:
     ambr::p2p::FastRandomContext insecure_rand;
 
     //! Find an entry.
-    CAddrInfo* Find(const CNetAddr& addr, int *pnId = nullptr);
+    //TODO for testing,replace CNetAddr to CService
+   // CAddrInfo* Find(const CNetAddr& addr, int *pnId = nullptr);
+   CAddrInfo* Find(const CService& addr, int *pnId = nullptr);
 
     //! find an entry, creating it if necessary.
     //! nTime and nServices of the found node are updated, if necessary.

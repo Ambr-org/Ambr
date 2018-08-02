@@ -148,7 +148,15 @@ static std::vector<CAddress> convertSeed6(const std::vector<SeedSpec6> &vSeedsIn
 // one by discovery.
 CAddress GetLocalAddress(const CNetAddr *paddrPeer, ServiceFlags nLocalServices)
 {
-    CAddress ret(CService(CNetAddr(),GetListenPort()), nLocalServices);
+    //TODO for testing 
+    struct in_addr addr_;
+    auto s =inet_pton(AF_INET, "127.0.0.1", &addr_);
+    if (s != 1){
+        std::cerr << "convert failed" << std::endl;
+        exit(1);
+    }
+    CAddress ret(CService(addr_ ,GetListenPort()), nLocalServices);
+    //CAddress ret(CService(CNetAddr(),GetListenPort()), nLocalServices);
     CService addr;
     if (GetLocal(addr, paddrPeer))
     {
@@ -388,13 +396,16 @@ CNode* CConnman::ConnectNode(CAddress addrConnect, const char *pszDest, bool fCo
 
     // Resolve
     const int default_port = Params().GetDefaultPort();
+     if(addrConnect.IsLocal() && addrConnect.GetPort() == default_port){
+        return nullptr;
+    }
     if (pszDest) {
         std::vector<CService> resolved;
         if (Lookup(pszDest, resolved,  default_port, fNameLookup && !HaveNameProxy(), 256) && !resolved.empty()) {
             //TODO : ambr::p2p::GetRand function will block ,replace it to constant value
             std::srand(std::time(nullptr));
             auto s =std::rand() % resolved.size();
-            addrConnect = CAddress(resolved[0], NODE_NONE);
+            addrConnect = CAddress(resolved[s], NODE_NONE);
             if (!addrConnect.IsValid()) {
                 LogPrint(BCLog::NET, "Resolver returned invalid address %s for %s\n", addrConnect.ToString(), pszDest);
                 return nullptr;
@@ -1739,14 +1750,14 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
     // Connect to specific addresses
     if (!connect.empty())
     {
-        for (int64_t nLoop = 0;; nLoop++)
-        {
+      //  for (int64_t nLoop = 0;; nLoop++)
+      //  {
             ProcessOneShot();
             for (const std::string& strAddr : connect)
             {
                 CAddress addr(CService(), NODE_NONE);
                 OpenNetworkConnection(addr, false, nullptr, strAddr.c_str(), false, false, true);
-                for (int i = 0; i < 10 && i < nLoop; i++)
+            //    for (int i = 0; i < 10 && i < nLoop; i++)
                 {
                     if (!interruptNet.sleep_for(std::chrono::milliseconds(500)))
                         return;
@@ -1754,7 +1765,7 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
             }
             if (!interruptNet.sleep_for(std::chrono::milliseconds(500)))
                 return;
-        }
+      //  }
     }
 
     // Initiate network connections
@@ -1833,6 +1844,8 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
             int64_t nTime = GetTimeMicros(); // The current time right now (in microseconds).
             if (nTime > nNextFeeler) {
                 nNextFeeler = PoissonNextSend(nTime, FEELER_INTERVAL);
+
+                std::cout << "nNextFeeler = " << nNextFeeler - nTime << std::endl;
                 fFeeler = true;
             } else {
                 continue;
@@ -1851,7 +1864,6 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
             if (!fFeeler || !addr.IsValid()) {
                 addr = addrman.Select(fFeeler);
             }
-
             // if we selected an invalid address, restart
             if (!addr.IsValid() || setConnected.count(addr.GetGroup()) || IsLocal(addr))
                 break;
@@ -1873,6 +1885,8 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
             // for non-feelers, require all the services we'll want,
             // for feelers, only require they be a full node (only because most
             // SPV clients don't have a good address DB available)
+
+
             if (!fFeeler && !HasAllDesirableServiceFlags(addr.nServices)) {
                 continue;
             } else if (fFeeler && !MayHaveUsefulAddressDB(addr.nServices)) {
@@ -1892,6 +1906,7 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
             if (fFeeler) {
                 // Add small amount of random noise before connection to avoid synchronization.
                 int randsleep = ambr::p2p::GetRandInt(FEELER_SLEEP_WINDOW * 1000);
+                //TODO
               //  if (!interruptNet.sleep_for(std::chrono::milliseconds(randsleep)))
                //     return;
                 std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -2000,7 +2015,8 @@ void CConnman::OpenNetworkConnection(const CAddress& addrConnect, bool fCountFai
     }
     if (!pszDest) {
         if (IsLocal(addrConnect) ||
-            FindNode(static_cast<CNetAddr>(addrConnect)) || IsBanned(addrConnect) ||
+        //    FindNode(static_cast<CNetAddr>(addrConnect)) ||
+         IsBanned(addrConnect) ||
             FindNode(addrConnect.ToStringIPPort()))
             return;
     } else if (FindNode(std::string(pszDest)))
@@ -2302,6 +2318,8 @@ bool CConnman::Start(CScheduler& scheduler, const Options& connOptions)
 
    
     // Load addresses from peers.dat
+    //TODO disable read address from file
+    /*
     int64_t nStart = GetTimeMillis();
     {
         CAddrDB adb;
@@ -2313,6 +2331,7 @@ bool CConnman::Start(CScheduler& scheduler, const Options& connOptions)
             DumpAddresses();
         }
     }
+    */
    
     // Load addresses from banlist.dat
      /*
@@ -2708,7 +2727,7 @@ CNode::CNode(NodeId idIn, ServiceFlags nLocalServicesIn, int nMyStartingHeightIn
     addrBind(addrBindIn),
     fInbound(fInboundIn),
     nKeyedNetGroup(nKeyedNetGroupIn),
-   // addrKnown(5000, 0.001),
+    addrKnown(5000, 0.001),
    // filterInventoryKnown(50000, 0.000001),
     id(idIn),
     nLocalHostNonce(nLocalHostNonceIn),
