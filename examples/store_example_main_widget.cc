@@ -20,6 +20,13 @@ StoreExampleMainWidget::StoreExampleMainWidget(QWidget *parent) :
 {
   ui->setupUi(this);
   ui->wgtPaint->installEventFilter(this);
+  //tab init
+  ui->tabMain->setCurrentIndex(2);
+  ui->tabMain->setTabEnabled(0, false);
+  ui->tabMain->setTabEnabled(1, false);
+  ui->tabDebugUp->setCurrentIndex(0);
+  ui->tabDebugDown->setCurrentIndex(0);
+
   test_pri_key_list_.push_back("F49E1B9F671D0B244744E07289EA0807FAE09F8335F0C1B0629F1BF924CA64E1");
   test_pri_key_list_.push_back("29176270484F74852C5ABCBFEF26C4193FE4C2E4C522984D833329EDD502DC84");
   test_pri_key_list_.push_back("9812383BF3CE164A3D968186BEBA1CCFF299C9C59448A19BF3C0582336E01301");
@@ -117,48 +124,122 @@ void StoreExampleMainWidget::DrawUnit(QPainter& pt){
     pt.drawText(QPoint(space_x-unit_width/2+10, space_y), str_hash);
     hori_idx++;
   }
-
+  //draw validator unit
+  std::list<std::shared_ptr<ambr::core::ValidatorUnit> > validator_unit_list = store_manager->GetValidateHistory(max_chain_length_for_draw_);
+  vert_idx = 0;
+  for(auto iter_unit = validator_unit_list.begin(); iter_unit != validator_unit_list.end(); iter_unit++){
+    uint32_t space_y = (max_chain_length_for_draw_ - vert_idx)*height_distance+unit_width/2;
+    uint32_t space_x = (hori_idx)*width_distance+unit_width*2;
+    auto item = std::make_shared<DrawItem>();
+    item->space_ = QPoint(space_x, space_y);
+    //item->status_ = DrawItem::DI_NORMAL;
+    item->validator_unit_store_ = *iter_unit;
+    unit_list_[ambr::core::UnitHash()].push_back(item);
+    //DrawItem* xxx;
+    unit_map_[item->validator_unit_store_->hash()] = item;
+    pt.save();
+    if(item->validator_unit_store_->hash() == active_unit_){
+      pt.setPen(qRgb(125,0,0));
+    }
+    if(item->validator_unit_store_->hash() == selected_unit_){
+      pt.setPen(qRgb(255,0,0));
+    }
+    pt.drawEllipse(item->space_, unit_width/2, unit_width/2);
+    QString str_hash =(*iter_unit)->hash().encode_to_hex().c_str();
+    str_hash = str_hash.left(4)+"...."+str_hash.right(4);
+    pt.drawText(QPoint(space_x-unit_width/2+10, space_y), str_hash);
+    pt.restore();
+    vert_idx++;
+  }
+  //draw account
+  QPen old_pen = pt.pen();
+  pt.setPen(qRgb(175,175,175));
+  QString str_hash;// = iter_account->encode_to_hex().c_str();
+  str_hash = str_hash.left(4)+"...."+str_hash.right(4);
+  uint32_t space_y = unit_width/2;
+  uint32_t space_x = (hori_idx)*width_distance+unit_width*2;
+  pt.drawEllipse(QPoint(space_x, space_y), unit_width/2, unit_width/2);
+  pt.setPen(old_pen);
+  pt.drawText(QPoint(space_x-unit_width/2+10, space_y), str_hash);
+  hori_idx++;
 }
 
 void StoreExampleMainWidget::DrawLines(QPainter &pt){
   //std::unordered_map<ambr::core::UnitHash, std::shared_ptr<DrawItem> unit_map_;
   for(std::pair<ambr::core::UnitHash, std::shared_ptr<DrawItem>> item: unit_map_){
     QPoint pt_start = item.second->space_;
-    std::shared_ptr<ambr::core::Unit> unit = item.second->unit_store_->GetUnit();
-    if(!unit){
-      continue;
-    }
-    ambr::core::UnitHash prv_hash = unit->prev_unit();
-    if(prv_hash.is_zero()){
-      QPoint pt_end;
-      pt_end.setX(pt_start.x());
-      pt_end.setY(unit_width/2);
-      DrawLine(pt, pt_start, pt_end, false);
-    }else{
-      auto iter_prv = unit_map_.find(prv_hash);
-      if(iter_prv == unit_map_.end()){
+    if(item.second->unit_store_){
+      std::shared_ptr<ambr::core::Unit> unit = item.second->unit_store_->GetUnit();
+      if(!unit){
+        continue;
+      }
+      ambr::core::UnitHash prv_hash = unit->prev_unit();
+      if(prv_hash.is_zero()){
         QPoint pt_end;
         pt_end.setX(pt_start.x());
         pt_end.setY(unit_width/2);
-        QPen pen_old = pt.pen();
-        pt.setPen(Qt::DotLine);
         DrawLine(pt, pt_start, pt_end, false);
-        pt.setPen(pen_old);
       }else{
-        QPoint pt_end = iter_prv->second->space_;
-        DrawLine(pt, pt_start, pt_end, true);
+        auto iter_prv = unit_map_.find(prv_hash);
+        if(iter_prv == unit_map_.end()){
+          QPoint pt_end;
+          pt_end.setX(pt_start.x());
+          pt_end.setY(unit_width/2);
+          QPen pen_old = pt.pen();
+          pt.setPen(Qt::DotLine);
+          DrawLine(pt, pt_start, pt_end, false);
+          pt.setPen(pen_old);
+        }else{
+          QPoint pt_end = iter_prv->second->space_;
+          DrawLine(pt, pt_start, pt_end, true);
+        }
       }
-    }
-    if(std::shared_ptr<ambr::core::SendUnit> send_unit =
-       std::dynamic_pointer_cast<ambr::core::SendUnit>(item.second->unit_store_->GetUnit())){
+      if(std::shared_ptr<ambr::core::SendUnit> send_unit =
+         std::dynamic_pointer_cast<ambr::core::SendUnit>(item.second->unit_store_->GetUnit())){
 
-    }else if(std::shared_ptr<ambr::core::ReceiveUnit> receive_unit =
-        std::dynamic_pointer_cast<ambr::core::ReceiveUnit>(item.second->unit_store_->GetUnit())){
-      auto iter = unit_map_.find(receive_unit->from());
-      if(iter != unit_map_.end()){
-        QPoint pt_end = iter->second->space_;
-        DrawLine(pt, pt_start, pt_end, true);
+      }else if(std::shared_ptr<ambr::core::ReceiveUnit> receive_unit =
+          std::dynamic_pointer_cast<ambr::core::ReceiveUnit>(item.second->unit_store_->GetUnit())){
+        auto iter = unit_map_.find(receive_unit->from());
+        if(iter != unit_map_.end()){
+          QPoint pt_end = iter->second->space_;
+          DrawLine(pt, pt_start, pt_end, true);
+        }
       }
+    }else if(item.second->validator_unit_store_){
+      std::shared_ptr<ambr::core::ValidatorUnit> unit = item.second->validator_unit_store_;
+      if(!unit){
+        continue;
+      }
+      ambr::core::UnitHash prv_hash = unit->prev_unit();
+      if(prv_hash.is_zero()){
+        QPoint pt_end;
+        pt_end.setX(pt_start.x());
+        pt_end.setY(unit_width/2);
+        DrawLine(pt, pt_start, pt_end, false);
+      }else{
+        auto iter_prv = unit_map_.find(prv_hash);
+        if(iter_prv == unit_map_.end()){
+          QPoint pt_end;
+          pt_end.setX(pt_start.x());
+          pt_end.setY(unit_width/2);
+          QPen pen_old = pt.pen();
+          pt.setPen(Qt::DotLine);
+          DrawLine(pt, pt_start, pt_end, false);
+          pt.setPen(pen_old);
+        }else{
+          QPoint pt_end = iter_prv->second->space_;
+          DrawLine(pt, pt_start, pt_end, true);
+        }
+      }
+      std::vector<ambr::core::UnitHash> check_list = unit->check_list();
+      for(auto hash_check:check_list){
+        auto iter = unit_map_.find(hash_check);
+        if(iter != unit_map_.end()){
+          QPoint pt_end = iter->second->space_;
+          DrawLine(pt, pt_start, pt_end, true);
+        }
+      }
+
     }
   }
 
@@ -207,7 +288,10 @@ bool StoreExampleMainWidget::OnMousePress(QEvent *event){
       if(unit){
         ui->edtShowJson->setPlainText(unit->SerializeJson().c_str());
       }else{
-        ui->edtShowJson->setPlainText("");
+        std::shared_ptr<ambr::core::ValidatorUnit> unit_validator = ambr::store::GetStoreManager()->GetValidateUnit(selected_unit_);
+        if(unit_validator){
+          ui->edtShowJson->setPlainText(unit_validator->SerializeJson().c_str());
+        }
       }
       return true;
     }
@@ -247,10 +331,28 @@ void StoreExampleMainWidget::CheckValidatorUnit(){
   unit->CalcHashAndFill();
   unit->SignatureAndFill("0x1234567890123456789012345678901234567890123456789012345678901231");
   std::string json_str = unit->SerializeJson();
+
   LOG(INFO)<<json_str;
   std::shared_ptr<ambr::core::ValidatorUnit> unit_2 = std::make_shared<ambr::core::ValidatorUnit>();
-  json_str = unit_2->DeSerializeJson(json_str);
-  LOG(INFO)<<json_str;
+  unit_2->DeSerializeJson(json_str);
+  LOG(INFO)<<unit_2->SerializeJson();
+
+  std::vector<uint8_t> buf = unit->SerializeByte();
+  std::shared_ptr<ambr::core::ValidatorUnit> unit_3 = std::make_shared<ambr::core::ValidatorUnit>();
+  unit_3->DeSerializeByte(buf);
+  LOG(INFO)<<unit_3->SerializeJson();
+}
+
+void StoreExampleMainWidget::CreateDebugInitChain(){
+  ambr::core::PrivateKey create_key("25E25210DCE702D4E36B6C8A17E18DC1D02A9E4F0D1D31C4AEE77327CF1641CC");
+  ambr::core::PublicKey send_to("6C300AF488B768B4F4E8DB76E695D4662FDA864445B64931597A943B811BB978");
+  ambr::core::UnitHash tx_hash;
+  std::shared_ptr<ambr::core::Unit> unit_sended;
+  ambr::store::GetStoreManager()->SendToAddress(send_to, "1", create_key, &tx_hash, unit_sended, nullptr);
+  ambr::store::GetStoreManager()->SendToAddress(send_to, "2", create_key, &tx_hash, unit_sended, nullptr);
+  ambr::store::GetStoreManager()->SendToAddress(send_to, "3", create_key, &tx_hash, unit_sended, nullptr);
+  ambr::store::GetStoreManager()->SendToAddress(send_to, "4", create_key, &tx_hash, unit_sended, nullptr);
+  ambr::store::GetStoreManager()->SendToAddress(send_to, "5", create_key, &tx_hash, unit_sended, nullptr);
 }
 
 void StoreExampleMainWidget::on_btnPriKey2PubKey_clicked(){
@@ -479,6 +581,8 @@ void StoreExampleMainWidget::on_btnInitDataBase_clicked(){
   command += ui->edtDatabasePath->text().toStdString();
   system(command.c_str());
   ambr::store::GetStoreManager()->Init(ui->edtDatabasePath->text().toStdString());
+  ui->tabMain->setTabEnabled(0, true);
+  ui->tabMain->setTabEnabled(1, true);
 }
 
 void StoreExampleMainWidget::DealConnect(std::shared_ptr<ambr::net::Peer> peer){
@@ -538,7 +642,105 @@ void StoreExampleMainWidget::on_btnP2PStart_clicked(){
   config.heart_time_ = 88;//second of heart interval
   ambr::net::GetNetManager()->init(config);
 }
-
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 void StoreExampleMainWidget::on_pushButton_clicked(){
-  CheckValidatorUnit();
+  //CheckValidatorUnit();
+  CreateDebugInitChain();
+}
+
+void StoreExampleMainWidget::on_btnPVAddCheck_clicked(){
+  ui->lstPVCheck->addItem(ui->edtPVCheckHash->text());
+}
+
+void StoreExampleMainWidget::on_btnPVRemoveCheck_clicked(){
+  if(ui->lstPVCheck->currentRow() != -1){
+    QListWidgetItem* item = ui->lstPVCheck->currentItem();
+    ui->lstPVCheck->removeItemWidget(item);
+    delete item;
+    //ui->lstPVCheck->clear();
+  }
+}
+
+void StoreExampleMainWidget::on_btnPVAddVote_clicked(){
+  ambr::core::VoteUnit unit;
+  unit.set_version(0x00000001);
+  unit.set_type(ambr::core::UnitType::Vote);
+  ambr::core::PrivateKey pri_key;
+  ambr::core::PublicKey pub_key;
+  if(!pri_key.decode_from_hex(ui->edtPVVotePriKey->text().toStdString())){
+    ui->edtPVLOG->setPlainText("private key decode error");
+    return;
+  }
+  pub_key = ambr::core::GetPublicKeyByPrivateKey(pri_key);
+  unit.set_public_key(pub_key);
+  ambr::core::UnitHash last_validator_hash;
+  /*if(!ambr::store::GetStoreManager()->GetLastValidateUnit(last_validator_hash)){
+    ui->edtPVLOG->setPlainText("get last validator unit error");
+    return;
+  }*/
+  unit.set_prev_unit(ui->edtPVPriKey->text().toStdString());
+  bool accept = (ui->cbPVAccept->checkState()==Qt::Checked)?true:false;
+  ambr::core::UnitHash validator_unit_hash;
+  if(!validator_unit_hash.decode_from_hex(ui->edtPVArmHash->text().toStdString())){
+    ui->edtPVLOG->setPlainText("validator unit hash decode error");
+    return;
+  }
+  unit.SetAccept(accept);
+  unit.SetValidatorUnitHash(validator_unit_hash);
+  unit.CalcHashAndFill();
+  unit.SignatureAndFill(pri_key);
+  ui->lstPVVote->addItem(unit.SerializeJson().c_str());
+  LOG(INFO)<<ui->lstPVVote->item(0)->text().toStdString();
+}
+
+void StoreExampleMainWidget::on_btnPVTime_clicked(){
+  boost::posix_time::ptime pt = boost::posix_time::second_clock::universal_time();
+  boost::posix_time::ptime pt_ori(boost::gregorian::date(1970, boost::gregorian::Jan, 1));
+  boost::posix_time::time_duration duration = pt-pt_ori;
+  QString str_time = QString().sprintf("%ld", duration.total_seconds());
+  ui->edtPVTime->setText(str_time);
+}
+
+void StoreExampleMainWidget::on_btnPVRemoveVote_clicked(){
+  if(ui->lstPVVote->currentRow() != -1){
+    QListWidgetItem* item = ui->lstPVVote->currentItem();
+    ui->lstPVVote->removeItemWidget(item);
+    delete item;
+  }
+}
+
+void StoreExampleMainWidget::on_btnPVValidatorUnit_clicked(){
+  std::shared_ptr<ambr::core::ValidatorUnit> unit = std::make_shared<ambr::core::ValidatorUnit>();
+  unit->set_version(0x00000001);
+  unit->set_type(ambr::core::UnitType::Validator);
+  ambr::core::PrivateKey pri_key(ui->edtPVPriKey->text().toStdString());
+  ambr::core::PublicKey pub_key = ambr::core::GetPublicKeyByPrivateKey(pri_key);
+  unit->set_public_key(pub_key);
+  unit->set_prev_unit(ambr::core::UnitHash(ui->edtPVPrvUnit->text().toStdString()));
+  //unit->set_balance(const Amount& amount);
+  for(int i = 0; i < ui->lstPVCheck->count(); i++){
+    ambr::core::UnitHash hash(ui->lstPVCheck->item(i)->text().toStdString());
+    unit->add_check_list(hash);
+  }
+  for(int i = 0; i < ui->lstPVVote->count(); i++){
+    ambr::core::VoteUnit vote_unit;
+    if(!vote_unit.DeSerializeJson(ui->lstPVVote->item(i)->text().toStdString())){
+      return;
+    }
+    unit->add_vote_list(vote_unit);
+    unit->add_vote_hash_list(vote_unit.hash());
+  }
+
+  unit->set_percent(0);
+  unit->set_time_stamp(ui->edtPVTime->text().toULongLong());
+  unit->set_nonce(ui->edtPVNonce->text().toULongLong());
+  unit->CalcHashAndFill();
+  unit->SignatureAndFill(pri_key);
+  std::string str_err;
+  if(ambr::store::GetStoreManager()->AddValidateUnit(unit, &str_err)){
+    ui->edtPVLOG->setPlainText(QString("Add validator unit success:")+unit->SerializeJson().c_str());
+  }else{
+    ui->edtPVLOG->setPlainText(QString("Add validator unit faild:")+str_err.c_str());
+  }
 }

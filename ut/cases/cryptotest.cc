@@ -1,7 +1,7 @@
 
-#include <sha256.h>
-#include <base64.h>
-#include <base58.h>
+#include <crypto/sha256.h>
+#include <crypto/base64.h>
+#include <crypto/base58.h>
 #include <gtest/gtest.h>
 
 TEST(SHA256Test, HandleTrueReturn)

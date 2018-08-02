@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5.1)
-project(unit_store_example)
+project(test_case)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -29,6 +29,7 @@ aux_source_directory(${CUR_DIR}/src/p2p/crypto  DIR_P2P_SRCS)
 aux_source_directory(${CUR_DIR}/src/p2p/support DIR_P2P_SRCS)
 aux_source_directory(${CUR_DIR}/src/p2p/consensus DIR_P2P_SRCS)
 aux_source_directory(${CUR_DIR}/src/p2p/compat DIR_P2P_SRCS)
+aux_source_directory(${CUR_DIR}/ut/cases DIR_UT_SRCS)
 
 
 set(SERVER_DIR ${CUR_DIR}/src/server)
@@ -40,6 +41,7 @@ set(CORE_DIR ${CUR_DIR}/src/core)
 set(ROCKSDB_DIR ${CUR_DIR}/libs/rocksdb)
 set(GLOG_DIR ${CUR_DIR}/libs/glog)
 set(P2P_DIR ${CUR_DIR}/src/p2p)
+set(UT_DIR ${CUR_DIR}/ut)
 
 include_directories(${MAIN_DIR})
 include_directories(${CROW_DIR}/include)
@@ -49,9 +51,15 @@ include_directories(${ARCH_DIR})
 include_directories(${ROCKSDB_DIR}/include)
 include_directories(${GLOG_DIR}/src)
 include_directories(${P2P_DIR})
+include_directories(${UT_DIR}/googletest/googletest/include)
+include_directories(${UT_DIR}/googletest/googlemock/include)
+
 
 link_directories(${ROCKSDB_DIR})
 link_directories(${GLOG_DIR}/.libs)
+link_directories(${UT_DIR}/googletest/googletest)
+link_directories(${UT_DIR}/googletest/googlemock)
+
 link_libraries(boost_chrono)
 link_libraries(boost_filesystem)
 link_libraries(boost_system)
@@ -62,23 +70,15 @@ link_libraries(ssl)
 link_libraries(crypto)
 link_libraries(rocksdb)
 link_libraries(glog)
+link_libraries(gtest)
+link_libraries(gmock)
 SET(CMAKE_C_COMPILER gcc)
 set(CMAKE_CXX_FLAGS "-std=c++14 -Wall")
 set(CMAKE_CXX_FLAGS "-Wall")
 
-  set(CMAKE_INCLUDE_CURRENT_DIR ON)
-  set(CMAKE_AUTOMOC ON)
-  set(CMAKE_AUTOUIC ON)
-  set(CMAKE_AUTORCC ON)
 
-  find_package(Qt5 REQUIRED Widgets)
-  qt5_wrap_cpp( MOC ${CUR_DIR}/examples/store_example_main_widget.h)
-  qt5_wrap_ui( UIC ${CUR_DIR}/examples/store_example_main_widget.ui)
-  set(QT_SRC
-    ${CUR_DIR}/examples/store_example_main_widget.cc
-    ${CUR_DIR}/examples/store_example_main_widget.h
-    ${CUR_DIR}/examples/store_example_main_widget.ui)
-  add_executable(unit_store_example
+
+add_executable(test_case
     ${DIR_ARCH_SRCS}
     ${DIR_CORE_SRCS}
     ${DIR_NET_SRCS}
@@ -90,10 +90,8 @@ set(CMAKE_CXX_FLAGS "-Wall")
     ${DIR_CRYPTOPP_SRCS}
     ${DIR_P2P_SRCS}
     ${CUR_DIR}/libs/ed25519-donna/ed25519.c
-    ${CUR_DIR}/examples/unit_store.cc
     ${CUR_DIR}/examples/net_test.cc
-    ${QT_SRC}
-    ${MOC}
-    )
-  target_link_libraries(unit_store_example Qt5::Widgets)
+    ${DIR_UT_SRCS})
+
+
 

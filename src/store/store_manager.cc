@@ -14,8 +14,9 @@
 static const int use_log = true;
 std::shared_ptr<ambr::store::StoreManager> ambr::store::StoreManager::instance_ = std::shared_ptr<ambr::store::StoreManager>();
 static const std::string init_addr = "ambr_y4bwxzwwrze3mt4i99n614njtsda6s658uqtue9ytjp7i5npg6pz47qdjhx3";
-static const ambr::core::Amount init_balance=(boost::multiprecision::uint128_t)630000000000*1000;
-
+static const ambr::core::Amount init_balance=(boost::multiprecision::uint128_t)530000000000*1000;
+static const ambr::core::Amount init_validate=(boost::multiprecision::uint128_t)100000000000*1000;
+static const std::string last_validate_key = "lv";
 //TODO: db sync
 void ambr::store::StoreManager::Init(const std::string& path){
 
@@ -28,14 +29,16 @@ void ambr::store::StoreManager::Init(const std::string& path){
   column_families.push_back(rocksdb::ColumnFamilyDescriptor(rocksdb::kDefaultColumnFamilyName, rocksdb::ColumnFamilyOptions()));
   column_families.push_back(rocksdb::ColumnFamilyDescriptor("send_unit", rocksdb::ColumnFamilyOptions()));
   column_families.push_back(rocksdb::ColumnFamilyDescriptor("receive_unit", rocksdb::ColumnFamilyOptions()));
+  column_families.push_back(rocksdb::ColumnFamilyDescriptor("invalidate_unit", rocksdb::ColumnFamilyOptions()));
   column_families.push_back(rocksdb::ColumnFamilyDescriptor("account", rocksdb::ColumnFamilyOptions()));
   column_families.push_back(rocksdb::ColumnFamilyDescriptor("handle_wait_for_receive", rocksdb::ColumnFamilyOptions()));
   rocksdb::Status status = rocksdb::DB::Open(options, path, column_families, &column_families_handle, &db_unit_);
   assert(status.ok());
   handle_send_unit_ = column_families_handle[0];
   handle_receive_unit_ = column_families_handle[1];
-  handle_account_ = column_families_handle[2];
-  handle_wait_for_receive_ = column_families_handle[3];
+  handle_validate_unit_ = column_families_handle[2];
+  handle_account_ = column_families_handle[3];
+  handle_wait_for_receive_ = column_families_handle[4];
 
   {//first time init db
     core::Amount balance = core::Amount();
@@ -54,6 +57,16 @@ void ambr::store::StoreManager::Init(const std::string& path){
       unit->set_from(core::Address());
       unit->CalcHashAndFill();
 
+      //construct validate unit of genesis
+      std::shared_ptr<core::ValidatorUnit> unit_validate = std::make_shared<core::ValidatorUnit>();
+      unit_validate->set_version(0x00000001);
+      unit_validate->set_type(core::UnitType::Validator);
+      unit_validate->set_public_key(unit->public_key());
+      unit_validate->set_balance(init_validate);
+      unit_validate->add_check_list(unit->hash());
+
+      unit_validate->CalcHashAndFill();
+      unit_validate->SignatureAndFill(core::PrivateKey("F49E1B9F671D0B244744E07289EA0807FAE09F8335F0C1B0629F1BF924CA64E1"));
 
       //write genesis to database
       rocksdb::WriteBatch batch;
@@ -66,6 +79,15 @@ void ambr::store::StoreManager::Init(const std::string& path){
       batch.Put(handle_account_,
                 rocksdb::Slice((const char*)unit->public_key().bytes().data(), unit->public_key().bytes().size()),
                 rocksdb::Slice((const char*)unit->hash().bytes().data(), unit->hash().bytes().size()));
+      std::vector<uint8_t> validate_buf = unit_validate->SerializeByte();
+      batch.Put(handle_validate_unit_,
+                rocksdb::Slice((const char*)unit_validate->hash().bytes().data(), unit_validate->hash().bytes().size()),
+                rocksdb::Slice((const char*)validate_buf.data(), validate_buf.size())
+                );
+      batch.Put(handle_validate_unit_,
+                rocksdb::Slice(last_validate_key),
+                rocksdb::Slice((const char*)unit_validate->hash().bytes().data(), unit_validate->hash().bytes().size())
+                );
       rocksdb::Status status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
       if(use_log){//TODO:use log
         std::cout<<"genesis create"<<std::endl;
@@ -76,7 +98,7 @@ void ambr::store::StoreManager::Init(const std::string& path){
     }
   }
 }
-
+/*
 bool ambr::store::StoreManager::AddUnit(std::shared_ptr<ambr::core::Unit> unit, std::string *err){
   if(!unit){
     if(err)*err = "Unit ptr is null.";
@@ -167,7 +189,7 @@ bool ambr::store::StoreManager::AddUnit(std::shared_ptr<ambr::core::Unit> unit, 
     return false;
   }
   return true;
-}
+}*/
 
 bool ambr::store::StoreManager::AddSendUnit(std::shared_ptr<ambr::core::SendUnit> send_unit, std::string *err){
   if(!send_unit){
@@ -242,6 +264,9 @@ bool ambr::store::StoreManager::AddReceiveUnit(std::shared_ptr<ambr::core::Recei
     return false;
   }
 
+  if(!send_unit_store->receive_unit_hash().is_zero()){//received
+    return false;
+  }
   //check receive member
   if(send_unit_store->unit()->dest() != receive_unit->public_key()){
     if(err)*err = "This receiver is not right.";
@@ -279,6 +304,94 @@ bool ambr::store::StoreManager::AddReceiveUnit(std::shared_ptr<ambr::core::Recei
   rocksdb::Status status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
   assert(status.ok());
   return true;
+}
+
+bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::ValidatorUnit> unit, std::string *err){
+  if(!unit){
+    if(err){
+      *err = "Unit point is null";
+    }
+    return false;
+  }
+  std::string validate_err;
+  if(!unit->Validate(&validate_err)){
+    if(err){
+      *err = std::string("Validator unit is not right:")+validate_err;
+    }
+    return false;
+  }
+  if(!GetValidateUnit(unit->prev_unit())){
+    if(err){
+      *err = "Previous validator unit is not exist";
+    }
+    return false;
+  }
+  for(core::UnitHash hash:unit->check_list()){
+    if(!GetUnit(hash)){
+      if(err){
+        *err = std::string("Checked hash is not exist:")+hash.encode_to_hex();
+      }
+      return false;
+    }
+  }
+  for(core::VoteUnit vote_unit:unit->vote_list()){
+    std::string validate_err;
+    if(!vote_unit.Validate(&validate_err)){
+      if(err){
+        *err = std::string("One of validate unit is not right:")+validate_err;
+      }
+      return false;
+    }
+  }
+  std::vector<uint8_t> buf = unit->SerializeByte();
+  rocksdb::WriteBatch batch;
+  rocksdb::Status status = batch.Put(
+     handle_validate_unit_,
+     rocksdb::Slice((const char*)unit->hash().bytes().data(), unit->hash().bytes().size()),
+     rocksdb::Slice((const char*)buf.data(), buf.size()));
+  assert(status.ok());
+  status = batch.Put(
+     handle_validate_unit_,
+     rocksdb::Slice(last_validate_key),
+     rocksdb::Slice((const char*)unit->hash().bytes().data(), unit->hash().bytes().size()));
+  assert(status.ok());
+  status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
+  assert(status.ok());
+  return true;
+}
+
+bool ambr::store::StoreManager::GetLastValidateUnit(core::UnitHash& hash){
+  std::string value_get;
+  rocksdb::Status status = db_unit_->Get(
+        rocksdb::ReadOptions(),
+        handle_validate_unit_,
+        rocksdb::Slice(last_validate_key), &value_get);
+  if(status.IsNotFound()){
+    return false;
+  }
+  assert(status.ok());
+  hash.set_bytes(value_get.data(), value_get.size());
+  return true;
+}
+
+std::list<std::shared_ptr<ambr::core::ValidatorUnit> > ambr::store::StoreManager::GetValidateHistory(size_t count){
+  std::list<std::shared_ptr<ambr::core::ValidatorUnit> > rtn;
+  core::UnitHash unit_hash;
+  if(!GetLastValidateUnit(unit_hash)){
+    return rtn;
+  }
+  for(size_t i = 0; i < count; i++){
+    std::shared_ptr<core::ValidatorUnit> unit = GetValidateUnit(unit_hash);
+    if(!unit){
+      return rtn;
+    }
+    rtn.push_back(unit);
+    if(unit->prev_unit().is_zero()){
+      return rtn;
+    }
+    unit_hash = unit->prev_unit();
+  }
+  return rtn;
 }
 
 bool ambr::store::StoreManager::GetLastUnitHashByPubKey(const ambr::core::PublicKey &pub_key, ambr::core::UnitHash& hash){
@@ -518,6 +631,25 @@ std::shared_ptr<ambr::store::ReceiveUnitStore> ambr::store::StoreManager::GetRec
     return rtn;
   }
   return std::shared_ptr<ambr::store::ReceiveUnitStore>();
+}
+
+std::shared_ptr<ambr::core::ValidatorUnit> ambr::store::StoreManager::GetValidateUnit(const ambr::core::UnitHash &hash){
+  std::shared_ptr<ambr::core::ValidatorUnit> rtn;
+  std::string string_readed;
+  rocksdb::Status status = db_unit_->Get(
+                                      rocksdb::ReadOptions(),
+                                      handle_validate_unit_,
+                                      rocksdb::Slice((const char*)hash.bytes().data(), hash.bytes().size()),
+                                      &string_readed);
+  if(status.IsNotFound()){
+    return rtn;
+  }
+  assert(status.ok());
+  rtn = std::make_shared<ambr::core::ValidatorUnit>();
+  if(rtn->DeSerializeByte(std::vector<uint8_t>(string_readed.begin(), string_readed.end()))){
+    return rtn;
+  }
+  return std::shared_ptr<ambr::core::ValidatorUnit>();
 }
 
 std::list<ambr::core::UnitHash> ambr::store::StoreManager::GetAccountListFromAccountForDebug(){

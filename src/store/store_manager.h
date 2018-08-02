@@ -22,9 +22,12 @@ namespace store {
 class StoreManager{
 public:
   void Init(const std::string& path);
-  bool AddUnit(std::shared_ptr<core::Unit> unit, std::string* err);
+  //bool AddUnit(std::shared_ptr<core::Unit> unit, std::string* err);
   bool AddSendUnit(std::shared_ptr<core::SendUnit> send_unit, std::string* err);
   bool AddReceiveUnit(std::shared_ptr<core::ReceiveUnit> receive_unit, std::string* err);
+  bool AddValidateUnit(std::shared_ptr<core::ValidatorUnit> unit, std::string* err);
+  bool GetLastValidateUnit(core::UnitHash& hash);
+  std::list<std::shared_ptr<core::ValidatorUnit>> GetValidateHistory(size_t count);
   bool GetLastUnitHashByPubKey(const core::PublicKey& pub_key, core::UnitHash& hash);
   bool GetBalanceByPubKey(const core::PublicKey& pub_key, core::Amount& balance);
   std::list<std::shared_ptr<store::UnitStore>>
@@ -45,10 +48,11 @@ public:
       std::shared_ptr<ambr::core::Unit>& unit_received,
       std::string* err);
   std::list<core::UnitHash> GetWaitForReceiveList(const core::PublicKey& pub_key);
-
+  //get unit(send_unit and receive_unit)
   std::shared_ptr<UnitStore> GetUnit(const core::UnitHash& hash);
   std::shared_ptr<SendUnitStore> GetSendUnit(const core::UnitHash& hash);
   std::shared_ptr<ReceiveUnitStore> GetReceiveUnit(const core::UnitHash& hash);
+  std::shared_ptr<core::ValidatorUnit> GetValidateUnit(const core::UnitHash& hash);
 public://for debug
   std::list<core::UnitHash> GetAccountListFromAccountForDebug();
   std::list<core::UnitHash> GetAccountListFromWaitForReceiveForDebug();
@@ -70,6 +74,7 @@ private:
   rocksdb::DB* db_unit_;
   rocksdb::ColumnFamilyHandle* handle_send_unit_;//unit_hash->SendUnitStore
   rocksdb::ColumnFamilyHandle* handle_receive_unit_;//unit_hash->ReceiveUnitStore
+  rocksdb::ColumnFamilyHandle* handle_validate_unit_;//validate unit
   rocksdb::ColumnFamilyHandle* handle_account_;//AcountPublicKey->LastUnitHash
   rocksdb::ColumnFamilyHandle* handle_wait_for_receive_;//AccountPublic->ReceiveList
 };

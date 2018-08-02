@@ -456,7 +456,7 @@ bool ambr::core::VoteUnit::DeSerializeByte(const std::vector<uint8_t> &buf, size
       memcpy(&type_, src, sizeof(type_));
       src += sizeof(type_);
 
-      if(type_ != UnitType::send){
+      if(type_ != UnitType::Vote){
         return false;
       }
 
@@ -549,8 +549,6 @@ std::string ambr::core::ValidatorUnit::SerializeJson() const{
   unit_pt.put("balance", balance_.encode_to_hex());
   unit_pt.put("hash", hash_.encode_to_hex());
   unit_pt.put("sign", sign_.encode_to_hex());
-  //unit_pt.put("dest", dest_.encode_to_hex());
-  //std::vector<UnitHash> check_list_;
   ::boost::property_tree::ptree pt_child;
   pt_child.clear();
   for(UnitHash hash:check_list_){
@@ -568,19 +566,21 @@ std::string ambr::core::ValidatorUnit::SerializeJson() const{
   }
   unit_pt.add_child("vote_hash_list", pt_child);
 
-  unit_pt.put("percent", percent_);
+
 
   pt_child.clear();
   for(VoteUnit unit:vote_list_){
     ::boost::property_tree::ptree tmp;
     ::boost::property_tree::ptree vote_tree;
-    std::istringstream istream(unit.SerializeJson());
-    ::boost::property_tree::read_json(istream, vote_tree);
-    tmp.put_child("", vote_tree);
+    //std::istringstream istream(unit.SerializeJson());
+    //::boost::property_tree::read_json(istream, vote_tree);
+    tmp.put("", unit.SerializeJson());
     pt_child.push_back(std::make_pair("", tmp));
   }
   unit_pt.add_child("vote_list", pt_child);
+  unit_pt.put("percent", percent_);
   unit_pt.put("time_stamp", time_stamp_);
+  unit_pt.put("nonce", nonce_);
   ::boost::property_tree::ptree pt;
   pt.add_child("unit", unit_pt);
   ::std::ostringstream stream;
@@ -621,6 +621,9 @@ bool ambr::core::ValidatorUnit::DeSerializeJson(const std::string& json){
       vote_unit.DeSerializeJson(child.second.data());
       vote_list_.push_back(vote_unit);
     }
+    percent_ = pt.get<uint32_t>("unit.percent");
+    time_stamp_ = pt.get<time_t>("unit.time_stamp");
+    nonce_ = pt.get<uint64_t>("unit.nonce");
     return true;
   }catch(::boost::property_tree::json_parser::json_parser_error& error){
     std::cout<<error.message();
@@ -635,7 +638,9 @@ std::vector<uint8_t> ambr::core::ValidatorUnit::SerializeByte( ) const {
         sizeof(uint32_t)+sizeof(UnitHash)*check_list_.size()+
         sizeof(uint32_t)+sizeof(UnitHash)*vote_hash_list_.size()+
         sizeof(percent_)+
-        sizeof(uint32_t)+(vote_list_.size()?(vote_list_[0].SerializeByte().size()*vote_list_.size()):0);
+        sizeof(uint32_t)+(vote_list_.size()?(vote_list_[0].SerializeByte().size()*vote_list_.size()):0)+
+        sizeof(time_stamp_)+
+        sizeof(nonce_);
     buf.resize(len);
 
     uint8_t* dest = buf.data();
@@ -663,6 +668,8 @@ std::vector<uint8_t> ambr::core::ValidatorUnit::SerializeByte( ) const {
     uint32_t tmp_len;
     tmp_len = check_list_.size();
     memcpy(dest, &tmp_len, sizeof(tmp_len));
+    dest += sizeof(tmp_len);
+
     for(UnitHash hash: check_list_){
       memcpy(dest, &hash, sizeof(hash));
       dest += sizeof(hash);
@@ -670,6 +677,8 @@ std::vector<uint8_t> ambr::core::ValidatorUnit::SerializeByte( ) const {
 
     tmp_len = vote_hash_list_.size();
     memcpy(dest, &tmp_len, sizeof(tmp_len));
+    dest += sizeof(tmp_len);
+
     for(UnitHash hash: vote_hash_list_){
       memcpy(dest, &hash, sizeof(hash));
       dest += sizeof(hash);
@@ -689,6 +698,9 @@ std::vector<uint8_t> ambr::core::ValidatorUnit::SerializeByte( ) const {
 
     memcpy(dest, &time_stamp_, sizeof(time_stamp_));
     dest += sizeof(time_stamp_);
+
+    memcpy(dest, &nonce_, sizeof(nonce_));
+    dest += sizeof(nonce_);
   }
   return buf;
 }
@@ -708,7 +720,7 @@ bool ambr::core::ValidatorUnit::DeSerializeByte(const std::vector<uint8_t> &buf,
       memcpy(&type_, src, sizeof(type_));
       src += sizeof(type_);
 
-      if(type_ != UnitType::send){
+      if(type_ != UnitType::Validator){
         return false;
       }
 
@@ -739,6 +751,7 @@ bool ambr::core::ValidatorUnit::DeSerializeByte(const std::vector<uint8_t> &buf,
         UnitHash hash;
         memcpy(&hash, src, sizeof(hash));
         src += sizeof(hash);
+        check_list_.push_back(hash);
       }
 
       if(end_point - src < (uint32_t)sizeof(uint32_t)){
@@ -755,6 +768,7 @@ bool ambr::core::ValidatorUnit::DeSerializeByte(const std::vector<uint8_t> &buf,
         UnitHash hash;
         memcpy(&hash, src, sizeof(hash));
         src += sizeof(hash);
+        vote_hash_list_.push_back(hash);
       }
 
       if(end_point - src < (uint32_t)sizeof(percent_)){
@@ -767,9 +781,10 @@ bool ambr::core::ValidatorUnit::DeSerializeByte(const std::vector<uint8_t> &buf,
         return false;
       }
       memcpy(&len, src, sizeof(len));
-      if(!len)return true;
+      src += sizeof(len);
 
       VoteUnit tmp;
+      tmp.set_version(0x00000001);
       uint32_t vote_unit_size = tmp.SerializeByte().size();
       if(end_point - src < vote_unit_size*len){
         return false;
@@ -781,11 +796,16 @@ bool ambr::core::ValidatorUnit::DeSerializeByte(const std::vector<uint8_t> &buf,
         if(!tmp.DeSerializeByte(buf)){
           return false;
         }
+        vote_list_.push_back(tmp);
         src += vote_unit_size;
       }
 
       memcpy(&time_stamp_, src, sizeof(time_stamp_));
       src += sizeof(time_stamp_);
+
+      memcpy(&nonce_, src, sizeof(nonce_));
+      src += sizeof(nonce_);
+
       if(used_size)*used_size=len;
       return true;
     }
@@ -807,7 +827,12 @@ ambr::core::UnitHash ambr::core::ValidatorUnit::CalcHash() const {
   for(UnitHash hash:vote_hash_list_){
     hasher.process(hash);
   }
+  for(VoteUnit unit:vote_list_){
+    hasher.process(unit.hash());
+  }
   hasher.process(percent_);
+  hasher.process(time_stamp_);
+  hasher.process(nonce_);
   hasher.finish();
   UnitHash::ArrayType array;
   hasher.get_hash_bytes(array.begin(), array.end());
