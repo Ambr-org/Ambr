@@ -26,6 +26,9 @@ public:
   bool AddSendUnit(std::shared_ptr<core::SendUnit> send_unit, std::string* err);
   bool AddReceiveUnit(std::shared_ptr<core::ReceiveUnit> receive_unit, std::string* err);
   bool AddValidateUnit(std::shared_ptr<core::ValidatorUnit> unit, std::string* err);
+  bool AddEnterValidatorSetUnit(std::shared_ptr<core::EnterValidateSetUint> unit, std::string* err);
+  bool AddLeaveValidatorSetUnit(std::shared_ptr<core::LeaveValidateSetUint> unit, std::string* err);
+
   bool GetLastValidateUnit(core::UnitHash& hash);
   std::list<std::shared_ptr<core::ValidatorUnit>> GetValidateHistory(size_t count);
   bool GetLastUnitHashByPubKey(const core::PublicKey& pub_key, core::UnitHash& hash);
@@ -47,12 +50,24 @@ public:
       core::UnitHash* tx_hash,
       std::shared_ptr<ambr::core::Unit>& unit_received,
       std::string* err);
+  bool JoinValidatorSet(const core::PrivateKey& pri_key,
+                        const core::Amount& count,
+                        core::UnitHash* tx_hash,
+                        std::shared_ptr<ambr::core::EnterValidateSetUint>& unit_join,
+                        std::string* err);
+  bool LeaveValidatorSet(const core::PrivateKey& pri_key,
+                         const core::Amount& count,
+                         core::UnitHash* tx_hash,
+                         std::shared_ptr<ambr::core::LeaveValidateSetUint>& unit_leave,
+                         std::string* err);
   std::list<core::UnitHash> GetWaitForReceiveList(const core::PublicKey& pub_key);
   //get unit(send_unit and receive_unit)
   std::shared_ptr<UnitStore> GetUnit(const core::UnitHash& hash);
   std::shared_ptr<SendUnitStore> GetSendUnit(const core::UnitHash& hash);
   std::shared_ptr<ReceiveUnitStore> GetReceiveUnit(const core::UnitHash& hash);
   std::shared_ptr<core::ValidatorUnit> GetValidateUnit(const core::UnitHash& hash);
+  std::shared_ptr<EnterValidatorSetUnitStore> GetEnterValidatorSetUnit(const core::UnitHash& hash);
+  std::shared_ptr<LeaveValidatorSetUnitStore> GetLeaveValidatorSetUnit(const core::UnitHash& hash);
 public://for debug
   std::list<core::UnitHash> GetAccountListFromAccountForDebug();
   std::list<core::UnitHash> GetAccountListFromWaitForReceiveForDebug();
@@ -74,9 +89,11 @@ private:
   rocksdb::DB* db_unit_;
   rocksdb::ColumnFamilyHandle* handle_send_unit_;//unit_hash->SendUnitStore
   rocksdb::ColumnFamilyHandle* handle_receive_unit_;//unit_hash->ReceiveUnitStore
-  rocksdb::ColumnFamilyHandle* handle_validate_unit_;//validate unit
   rocksdb::ColumnFamilyHandle* handle_account_;//AcountPublicKey->LastUnitHash
   rocksdb::ColumnFamilyHandle* handle_wait_for_receive_;//AccountPublic->ReceiveList
+  rocksdb::ColumnFamilyHandle* handle_validator_unit_;//unit_hash->validate unit
+  rocksdb::ColumnFamilyHandle* handle_enter_validator_unit_;//unit_hash->EnterValidatorUnitStore
+  rocksdb::ColumnFamilyHandle* handle_leave_validator_unit_;//unit_hash->LeaveValidatorUnitStore
 };
 
 inline std::shared_ptr<StoreManager> GetStoreManager(){

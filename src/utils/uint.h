@@ -69,6 +69,24 @@ public:
   bool operator< (uint_tool<T, size> const& it) const{
     return data() < it.data();
   }
+  uint_tool<T, size> operator -=(uint_tool<T, size> const& it){
+    set_data(data() - it.data());
+    return *this;
+  }
+  uint_tool<T, size> operator +=(uint_tool<T, size> const& it){
+    set_data(data() + it.data());
+    return *this;
+  }
+  uint_tool<T, size> operator + (uint_tool<T, size> const& it)const{
+    uint_tool<T, size> rtn;
+    rtn.set_data(data() + it.data());
+    return rtn;
+  }
+  uint_tool<T, size> operator - (uint_tool<T, size> const& it)const{
+    uint_tool<T, size> rtn;
+    rtn.set_data(data() - it.data());
+    return rtn;
+  }
 
   std::string encode_to_hex () const{
     std::ostringstream stream;

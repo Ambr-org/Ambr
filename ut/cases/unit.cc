@@ -141,6 +141,8 @@ TEST (UnitTest, LeaveValidateSetUint) {
   amount.set_data(123123123);
   SERIALIZE_EQ_TEST_VALUE(unit1, balance, amount);
   SERIALIZE_EQ_TEST_VALUE(unit1, hash, unit_hash_rand);
+  ambr::core::Amount unfreeze_count_tmp = (boost::multiprecision::uint128_t)12345;
+  SERIALIZE_EQ_TEST_VALUE(unit1, unfreeze_count, unfreeze_count_tmp);
   ambr::utils::uint512 sign_tmp;
   sign_tmp.set_bytes(ambr::crypto::Random::CreateRandomArray<512/8>());
   SERIALIZE_EQ_TEST_VALUE(unit1, sign, sign_tmp);

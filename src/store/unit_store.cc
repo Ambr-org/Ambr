@@ -234,4 +234,204 @@ std::shared_ptr<ambr::core::Unit> ambr::store::ReceiveUnitStore::GetUnit(){
   return unit_;
 }
 
+ambr::store::EnterValidatorSetUnitStore::EnterValidatorSetUnitStore(std::shared_ptr<core::EnterValidateSetUint> unit):
+  UnitStore(ST_EnterValidatorSet),
+  unit_(unit),
+  version_(0x00000001),
+  is_validate_(false){
+  //assert(unit);
+}
 
+std::shared_ptr<ambr::core::EnterValidateSetUint> ambr::store::EnterValidatorSetUnitStore::unit(){
+  return unit_;
+}
+
+uint32_t ambr::store::EnterValidatorSetUnitStore::version(){
+  return version_;
+}
+
+void ambr::store::EnterValidatorSetUnitStore::set_version(uint32_t version){
+  version_ = version;
+}
+
+uint8_t ambr::store::EnterValidatorSetUnitStore::is_validate(){
+  return is_validate_;
+}
+
+void ambr::store::EnterValidatorSetUnitStore::set_is_validate(uint8_t validate){
+  is_validate_ = validate;
+}
+
+std::string ambr::store::EnterValidatorSetUnitStore::SerializeJson() const{
+  assert(unit_);
+  boost::property_tree::ptree pt;
+  boost::property_tree::ptree store_pt;
+  std::stringstream stream(unit_->SerializeJson());
+  try{
+    boost::property_tree::read_json(stream, pt);
+    store_pt.put("version", version_);
+    store_pt.put("is_validate", is_validate_);
+    pt.add_child("store_addtion", store_pt);
+  }catch(...){
+    assert(1);
+  }
+  std::ostringstream out_stream;
+  boost::property_tree::write_json(out_stream, pt);
+  return out_stream.str();
+}
+
+bool ambr::store::EnterValidatorSetUnitStore::DeSerializeJson(const std::string &json){
+  boost::property_tree::ptree pt;
+  std::stringstream stream(json);
+  boost::property_tree::read_json(stream, pt);
+  try{
+    version_ = pt.get<uint32_t>("store_addtion.version");
+    if(version_ == 0x00000001){
+      //deserialize other addtion
+      is_validate_ = pt.get<uint8_t>("store_addtion.is_validate");
+    }
+    unit_ = std::make_shared<core::EnterValidateSetUint>();
+    if(!unit_->DeSerializeJson(json)){
+      return false;
+    }
+  }catch(...){
+    return false;
+  }
+  return true;
+}
+
+std::vector<uint8_t> ambr::store::EnterValidatorSetUnitStore::SerializeByte() const{
+  assert(unit_);
+  std::vector<uint8_t> rtn = unit_->SerializeByte();
+  rtn.insert(rtn.end(), (uint8_t*)&version_, (uint8_t*)&version_+sizeof(version_));
+  rtn.push_back(is_validate_);
+  return rtn;
+}
+
+bool ambr::store::EnterValidatorSetUnitStore::DeSerializeByte(const std::vector<uint8_t> &buf){
+  unit_ = std::make_shared<core::EnterValidateSetUint>();
+  size_t used_count = 0;
+  if(!unit_->DeSerializeByte(buf, &used_count)){
+    return false;
+  }
+  if(buf.size()-used_count < sizeof(version_)){
+    return false;
+  }
+  const uint8_t* src = &buf[used_count];
+  memcpy(&version_, src, sizeof(version_));
+  src += sizeof(version_);
+  if(version_ == 0x00000001){
+    if(buf.size()-used_count < sizeof(version_)+sizeof(is_validate_)){
+      return false;
+    }
+    memcpy(&is_validate_, src, sizeof(is_validate_));
+    //deserialize addtion
+    return true;
+  }//else if(other version)
+  return false;
+}
+
+std::shared_ptr<ambr::core::Unit> ambr::store::EnterValidatorSetUnitStore::GetUnit(){
+  return unit_;
+}
+
+ambr::store::LeaveValidatorSetUnitStore::LeaveValidatorSetUnitStore(std::shared_ptr<core::LeaveValidateSetUint> unit):
+  UnitStore(ST_LeaveValidatorSet),
+  unit_(unit),
+  version_(0x00000001),
+  is_validate_(false){
+  //assert(unit);
+}
+
+std::shared_ptr<ambr::core::LeaveValidateSetUint> ambr::store::LeaveValidatorSetUnitStore::unit(){
+  return unit_;
+}
+
+uint32_t ambr::store::LeaveValidatorSetUnitStore::version(){
+  return version_;
+}
+
+void ambr::store::LeaveValidatorSetUnitStore::set_version(uint32_t version){
+  version_ = version;
+}
+
+uint8_t ambr::store::LeaveValidatorSetUnitStore::is_validate(){
+  return is_validate_;
+}
+
+void ambr::store::LeaveValidatorSetUnitStore::set_is_validate(uint8_t validate){
+  is_validate_ = validate;
+}
+
+std::string ambr::store::LeaveValidatorSetUnitStore::SerializeJson() const{
+  assert(unit_);
+  boost::property_tree::ptree pt;
+  boost::property_tree::ptree store_pt;
+  std::stringstream stream(unit_->SerializeJson());
+  try{
+    boost::property_tree::read_json(stream, pt);
+    store_pt.put("version", version_);
+    store_pt.put("is_validate", is_validate_);
+    pt.add_child("store_addtion", store_pt);
+  }catch(...){
+    assert(1);
+  }
+  std::ostringstream out_stream;
+  boost::property_tree::write_json(out_stream, pt);
+  return out_stream.str();
+}
+
+bool ambr::store::LeaveValidatorSetUnitStore::DeSerializeJson(const std::string &json){
+  boost::property_tree::ptree pt;
+  std::stringstream stream(json);
+  boost::property_tree::read_json(stream, pt);
+  try{
+    version_ = pt.get<uint32_t>("store_addtion.version");
+    if(version_ == 0x00000001){
+      //deserialize other addtion
+      is_validate_ = pt.get<uint8_t>("store_addtion.is_validate");
+    }
+    unit_ = std::make_shared<core::LeaveValidateSetUint>();
+    if(!unit_->DeSerializeJson(json)){
+      return false;
+    }
+  }catch(...){
+    return false;
+  }
+  return true;
+}
+
+std::vector<uint8_t> ambr::store::LeaveValidatorSetUnitStore::SerializeByte() const{
+  assert(unit_);
+  std::vector<uint8_t> rtn = unit_->SerializeByte();
+  rtn.insert(rtn.end(), (uint8_t*)&version_, (uint8_t*)&version_+sizeof(version_));
+  rtn.push_back(is_validate_);
+  return rtn;
+}
+
+bool ambr::store::LeaveValidatorSetUnitStore::DeSerializeByte(const std::vector<uint8_t> &buf){
+  unit_ = std::make_shared<core::LeaveValidateSetUint>();
+  size_t used_count = 0;
+  if(!unit_->DeSerializeByte(buf, &used_count)){
+    return false;
+  }
+  if(buf.size()-used_count < sizeof(version_)){
+    return false;
+  }
+  const uint8_t* src = &buf[used_count];
+  memcpy(&version_, src, sizeof(version_));
+  src += sizeof(version_);
+  if(version_ == 0x00000001){
+    if(buf.size()-used_count < sizeof(version_)+sizeof(is_validate_)){
+      return false;
+    }
+    memcpy(&is_validate_, src, sizeof(is_validate_));
+    //deserialize addtion
+    return true;
+  }//else if(other version)
+  return false;
+}
+
+std::shared_ptr<ambr::core::Unit> ambr::store::LeaveValidatorSetUnitStore::GetUnit(){
+  return unit_;
+}

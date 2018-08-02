@@ -957,7 +957,7 @@ bool ambr::core::EnterValidateSetUint::DeSerializeByte(const std::vector<uint8_t
       memcpy(&type_, src, sizeof(type_));
       src += sizeof(type_);
 
-      if(type_ != UnitType::send){
+      if(type_ != UnitType::EnterValidateSet){
         return false;
       }
 
@@ -1041,6 +1041,7 @@ std::string ambr::core::LeaveValidateSetUint::SerializeJson() const{
   unit_pt.put("balance", balance_.encode_to_hex());
   unit_pt.put("hash", hash_.encode_to_hex());
   unit_pt.put("sign", sign_.encode_to_hex());
+  unit_pt.put("unfreeze_count", unfreeze_count_.encode_to_hex());
   ::boost::property_tree::ptree pt;
   pt.add_child("unit", unit_pt);
   ::std::ostringstream stream;
@@ -1060,6 +1061,7 @@ bool ambr::core::LeaveValidateSetUint::DeSerializeJson(const std::string& json){
     balance_.decode_from_hex(pt.get<std::string>("unit.balance"));
     hash_.decode_from_hex(pt.get<std::string>("unit.hash"));
     sign_.decode_from_hex(pt.get<std::string>("unit.sign"));
+    unfreeze_count_.decode_from_hex(pt.get<std::string>("unit.unfreeze_count"));
     return true;
   }catch(::boost::property_tree::json_parser::json_parser_error& error){
     std::cout<<error.message();
@@ -1070,7 +1072,9 @@ bool ambr::core::LeaveValidateSetUint::DeSerializeJson(const std::string& json){
 std::vector<uint8_t> ambr::core::LeaveValidateSetUint::SerializeByte( ) const {
   std::vector<uint8_t> buf;
   if(version_ == 0x00000001){
-    uint32_t len = sizeof(version_)+sizeof(type_)+sizeof(public_key_)+sizeof(prev_unit_)+sizeof(balance_)+sizeof(hash_)+sizeof(sign_);
+    uint32_t len = sizeof(version_)+sizeof(type_)+sizeof(public_key_)+
+        sizeof(prev_unit_)+sizeof(balance_)+sizeof(hash_)+
+        sizeof(sign_)+sizeof(unfreeze_count_);
     buf.resize(len);
 
     uint8_t* dest = buf.data();
@@ -1094,6 +1098,9 @@ std::vector<uint8_t> ambr::core::LeaveValidateSetUint::SerializeByte( ) const {
 
     memcpy(dest, &sign_, sizeof(sign_));
     dest += sizeof(sign_);
+
+    memcpy(dest, &unfreeze_count_, sizeof(unfreeze_count_));
+    dest += sizeof(unfreeze_count_);
   }
   return buf;
 }
@@ -1105,7 +1112,9 @@ bool ambr::core::LeaveValidateSetUint::DeSerializeByte(const std::vector<uint8_t
   const uint8_t* src = buf.data();
   memcpy(&version_, src, sizeof(version_));
   if(version_== 0x00000001){
-    uint32_t len = sizeof(version_) + sizeof(type_)+sizeof(public_key_)+sizeof(prev_unit_)+sizeof(balance_)+sizeof(hash_)+sizeof(sign_);
+    uint32_t len = sizeof(version_) + sizeof(type_)+sizeof(public_key_)+
+        sizeof(prev_unit_)+sizeof(balance_)+sizeof(hash_)+sizeof(sign_)+
+        sizeof(unfreeze_count_);
     if(buf.size() >= len){
       memcpy(&version_, src, sizeof(version_));
       src += sizeof(version_);
@@ -1113,7 +1122,7 @@ bool ambr::core::LeaveValidateSetUint::DeSerializeByte(const std::vector<uint8_t
       memcpy(&type_, src, sizeof(type_));
       src += sizeof(type_);
 
-      if(type_ != UnitType::send){
+      if(type_ != UnitType::LeaveValidateSet){
         return false;
       }
 
@@ -1131,6 +1140,9 @@ bool ambr::core::LeaveValidateSetUint::DeSerializeByte(const std::vector<uint8_t
 
       memcpy(&sign_, src, sizeof(sign_));
       src += sizeof(sign_);
+
+      memcpy(&unfreeze_count_, src, sizeof(unfreeze_count_));
+      src += sizeof(unfreeze_count_);
       if(used_size)*used_size=len;
       return true;
     }
@@ -1146,6 +1158,7 @@ ambr::core::UnitHash ambr::core::LeaveValidateSetUint::CalcHash() const {
   hasher.process(public_key_);
   hasher.process(prev_unit_);
   hasher.process(balance_);
+  hasher.process(unfreeze_count_);
   hasher.finish();
   UnitHash::ArrayType array;
   hasher.get_hash_bytes(array.begin(), array.end());
@@ -1181,6 +1194,14 @@ bool ambr::core::LeaveValidateSetUint::Validate(std::string *err) const{
     return false;
   }
   return true;
+}
+
+ambr::core::Amount ambr::core::LeaveValidateSetUint::unfreeze_count(){
+  return unfreeze_count_;
+}
+
+void ambr::core::LeaveValidateSetUint::set_unfreeze_count(const ambr::core::Amount& count){
+  unfreeze_count_ = count;
 }
 
 

@@ -26,6 +26,7 @@ StoreExampleMainWidget::StoreExampleMainWidget(QWidget *parent) :
   ui->tabMain->setTabEnabled(1, false);
   ui->tabDebugUp->setCurrentIndex(0);
   ui->tabDebugDown->setCurrentIndex(0);
+  ui->stackTranslate->setCurrentIndex(0);
 
   test_pri_key_list_.push_back("F49E1B9F671D0B244744E07289EA0807FAE09F8335F0C1B0629F1BF924CA64E1");
   test_pri_key_list_.push_back("29176270484F74852C5ABCBFEF26C4193FE4C2E4C522984D833329EDD502DC84");
@@ -475,6 +476,14 @@ void StoreExampleMainWidget::on_radioButton_9_clicked(){
   ui->stackTranslate->setCurrentIndex(0);
 }
 
+void StoreExampleMainWidget::on_radioButton_11_clicked(){
+  ui->stackTranslate->setCurrentIndex(2);
+}
+
+void StoreExampleMainWidget::on_radioButton_12_clicked(){
+  ui->stackTranslate->setCurrentIndex(3);
+}
+
 void StoreExampleMainWidget::on_btnTranslateSend_clicked(){
   ambr::core::PrivateKey pri_key = ambr::core::PrivateKey(ui->edtTSPrivate->text().toStdString());
   //ambr::core::PublicKey pub_key = ambr::core::GetPublicKeyByPrivateKey(pri_key);
@@ -742,5 +751,37 @@ void StoreExampleMainWidget::on_btnPVValidatorUnit_clicked(){
     ui->edtPVLOG->setPlainText(QString("Add validator unit success:")+unit->SerializeJson().c_str());
   }else{
     ui->edtPVLOG->setPlainText(QString("Add validator unit faild:")+str_err.c_str());
+  }
+}
+
+void StoreExampleMainWidget::on_btnTranslateCashDisposite_clicked(){
+  ambr::core::PrivateKey pri_key;
+  pri_key.decode_from_hex(ui->edtTCPrivate->text().toStdString());
+  ambr::core::Amount amount;
+  amount.set_data((boost::multiprecision::uint128_t)ui->edtTCAmount->text().toULongLong());
+
+  ambr::core::UnitHash tx_hash;
+  std::shared_ptr<ambr::core::EnterValidateSetUint> unit;
+  std::string str_err;
+  if(ambr::store::GetStoreManager()->JoinValidatorSet(pri_key, amount, &tx_hash, unit, &str_err)){
+    ui->edtTCPlainEdit->setPlainText(QString("Send success:")+unit->SerializeJson().c_str());
+  }else{
+    ui->edtTCPlainEdit->setPlainText(QString("Send Faild:")+str_err.c_str());
+  }
+}
+
+void StoreExampleMainWidget::on_btnTranslateUnfreeze_clicked(){
+  ambr::core::PrivateKey pri_key;
+  pri_key.decode_from_hex(ui->edtTUPrivate->text().toStdString());
+  ambr::core::Amount amount;
+  amount.set_data((boost::multiprecision::uint128_t)ui->edtTUAmount->text().toULongLong());
+
+  ambr::core::UnitHash tx_hash;
+  std::shared_ptr<ambr::core::LeaveValidateSetUint> unit;
+  std::string str_err;
+  if(ambr::store::GetStoreManager()->LeaveValidatorSet(pri_key, amount, &tx_hash, unit, &str_err)){
+    ui->edtTCPlainEdit->setPlainText(QString("Send success:")+unit->SerializeJson().c_str());
+  }else{
+    ui->edtTCPlainEdit->setPlainText(QString("Send Faild:")+str_err.c_str());
   }
 }

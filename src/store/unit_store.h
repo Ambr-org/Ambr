@@ -13,6 +13,8 @@ namespace core{
   class Unit;
   class SendUnit;
   class ReceiveUnit;
+  class EnterValidateSetUint;
+  class LeaveValidateSetUint;
 }
 namespace store{
 
@@ -22,7 +24,9 @@ public:
 public:
   enum StoreType{
     ST_SendUnit = 1,
-    ST_ReceiveUnit = 2
+    ST_ReceiveUnit = 2,
+    ST_EnterValidatorSet = 3,
+    ST_LeaveValidatorSet = 4
   };
   virtual std::string SerializeJson () const = 0;
   virtual bool DeSerializeJson(const std::string& json) = 0;
@@ -81,6 +85,50 @@ public:
   virtual std::shared_ptr<ambr::core::Unit> GetUnit() override;
 private:
   std::shared_ptr<core::ReceiveUnit> unit_;
+  uint32_t version_;
+  uint8_t is_validate_;
+};
+
+
+class EnterValidatorSetUnitStore:public UnitStore{
+public:
+  EnterValidatorSetUnitStore(std::shared_ptr<core::EnterValidateSetUint> unit = nullptr);
+public:
+  std::shared_ptr<core::EnterValidateSetUint> unit();
+  uint32_t version();
+  void set_version(uint32_t version);
+  uint8_t is_validate();//is validate by validator set
+  void set_is_validate(uint8_t validate);
+public:
+  virtual std::string SerializeJson() const override;
+  virtual bool DeSerializeJson(const std::string& json) override;
+  virtual std::vector<uint8_t> SerializeByte() const override;
+  virtual bool DeSerializeByte(const std::vector<uint8_t>& buf) override;
+  virtual std::shared_ptr<ambr::core::Unit> GetUnit() override;
+private:
+  std::shared_ptr<core::EnterValidateSetUint> unit_;
+  uint32_t version_;
+  uint8_t is_validate_;
+};
+
+
+class LeaveValidatorSetUnitStore:public UnitStore{
+public:
+  LeaveValidatorSetUnitStore(std::shared_ptr<core::LeaveValidateSetUint> unit = nullptr);
+public:
+  std::shared_ptr<core::LeaveValidateSetUint> unit();
+  uint32_t version();
+  void set_version(uint32_t version);
+  uint8_t is_validate();//is validate by validator set
+  void set_is_validate(uint8_t validate);
+public:
+  virtual std::string SerializeJson() const override;
+  virtual bool DeSerializeJson(const std::string& json) override;
+  virtual std::vector<uint8_t> SerializeByte() const override;
+  virtual bool DeSerializeByte(const std::vector<uint8_t>& buf) override;
+  virtual std::shared_ptr<ambr::core::Unit> GetUnit() override;
+private:
+  std::shared_ptr<core::LeaveValidateSetUint> unit_;
   uint32_t version_;
   uint8_t is_validate_;
 };
