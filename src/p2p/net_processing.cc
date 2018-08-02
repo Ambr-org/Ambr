@@ -837,10 +837,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         AddTimeData(pfrom->addr, nTimeOffset);
 
         // Feeler connections exist only to verify if address is online.
+        /*
         if (pfrom->fFeeler) {
             assert(pfrom->fInbound == false);
             pfrom->fDisconnect = true;
         }
+        */
         return true;
     }
 
@@ -956,7 +958,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         connman->AddNewAddresses(vAddrOk, pfrom->addr, 2 * 60 * 60);
         auto s =connman->GetAddresses();
         for(auto i:s){
-            std::cout << i.ToString() << std::endl;
+            std::cout <<"addr is " <<  i.ToString() << std::endl;
         }
         
         if (vAddr.size() < 1000)

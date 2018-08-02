@@ -474,6 +474,7 @@ CNode* CConnman::ConnectNode(CAddress addrConnect, const char *pszDest, bool fCo
     CAddress addr_bind = GetBindAddress(hSocket);
     CNode* pnode = new CNode(id, nLocalServices, GetBestHeight(), hSocket, addrConnect, CalculateKeyedNetGroup(addrConnect), nonce, addr_bind, pszDest ? pszDest : "", false);
     pnode->AddRef();
+    bindMaps[pnode] == addrConnect;
 
     return pnode;
 }
@@ -1775,7 +1776,7 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
 
     // Minimum time before next feeler connection (in microseconds).
   
-    int64_t nNextFeeler = PoissonNextSend(nStart*1000*1000, FEELER_INTERVAL); 
+    int64_t nNextFeeler = PoissonNextSend(nStart, FEELER_INTERVAL); 
     bool fFeeler = true;
     while (!interruptNet)
     {
@@ -1838,12 +1839,11 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
         //  * Only make a feeler connection once every few minutes.
         //
        
-        if (nOutbound >= nMaxOutbound && !GetTryNewOutboundPeer()) {
+        if (nOutbound < nMaxOutbound) {
             int64_t nTime = GetTimeMicros(); // The current time right now (in microseconds).
             if (nTime > nNextFeeler) {
                 nNextFeeler = PoissonNextSend(nTime, FEELER_INTERVAL);
 
-                std::cout << "nNextFeeler = " << nNextFeeler - nTime << std::endl;
                 fFeeler = true;
             } else {
                 continue;
@@ -1863,7 +1863,7 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
                 addr = addrman.Select(fFeeler);
             }
             // if we selected an invalid address, restart
-            if (!addr.IsValid() || setConnected.count(addr.GetGroup()) || IsLocal(addr))
+            if (!addr.IsValid()  || IsLocal(addr))
                 break;
 
             // If we didn't find an appropriate destination after trying 100 addresses fetched from addrman,
@@ -1876,14 +1876,15 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
             if (IsLimited(addr))
                 continue;
 
-            // only consider very recently tried nodes after 30 failed attempts
-            if (nANow - addr.nLastTry < 600 && nTries < 30)
+            if (!fFeeler){
                 continue;
+            }
 
             // for non-feelers, require all the services we'll want,
             // for feelers, only require they be a full node (only because most
             // SPV clients don't have a good address DB available)
-
+            
+            /*
 
             if (!fFeeler && !HasAllDesirableServiceFlags(addr.nServices)) {
                 continue;
@@ -1894,6 +1895,7 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
             // do not allow non-default ports, unless after 50 invalid addresses selected already
             if (addr.GetPort() != Params().GetDefaultPort() && nTries < 50)
                 continue;
+            */
 
             addrConnect = addr;
             break;
@@ -1904,11 +1906,11 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
             if (fFeeler) {
                 // Add small amount of random noise before connection to avoid synchronization.
                 int randsleep = ambr::p2p::GetRandInt(FEELER_SLEEP_WINDOW * 1000);
-                //TODO
                 if (!interruptNet.sleep_for(std::chrono::milliseconds(randsleep)))
                     return;
                 LogPrint(BCLog::NET, "Making feeler connection to %s\n", addrConnect.ToString());
             }
+
             OpenNetworkConnection(addrConnect, (int)setConnected.size() >= std::min(nMaxConnections - 1, 2), &grant, nullptr, false, fFeeler);
         }
     }
@@ -2924,7 +2926,7 @@ int64_t PoissonNextSend(int64_t now, int average_interval_seconds)
 {
     // // TODO: find the reason why the next function will block
    // return now + (int64_t)(log1p(ambr::p2p::GetRand(1ULL << 48) * -0.0000000000000035527136788 /* -1/2^48 */) * average_interval_seconds * -1000000.0 + 0.5);
-     return now + 100000000;
+     return now + 10 * 1000 * 1000;
 }
 
 CSipHasher CConnman::GetDeterministicRandomizer(uint64_t id) const
