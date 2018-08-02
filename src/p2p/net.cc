@@ -341,7 +341,9 @@ CNode* CConnman::FindNode(const CService& addr)
 {
     LOCK(cs_vNodes);
     for (CNode* pnode : vNodes) {
-        if (static_cast<CService>(pnode->addr) == addr) {
+        //for testing
+      //  if (static_cast<CService>(pnode->addr) == addr  ) {
+          if (static_cast<CService>(pnode->addr) == addr  || (bindMaps[pnode] == addr) ) {
             return pnode;
         }
     }
@@ -1773,16 +1775,13 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
 
     // Minimum time before next feeler connection (in microseconds).
   
-   int64_t nNextFeeler = PoissonNextSend(nStart*1000*1000, FEELER_INTERVAL); 
- 
+    int64_t nNextFeeler = PoissonNextSend(nStart*1000*1000, FEELER_INTERVAL); 
+    bool fFeeler = true;
     while (!interruptNet)
     {
         ProcessOneShot();
-        /*
         if (!interruptNet.sleep_for(std::chrono::milliseconds(500)))
             return;
-            */
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
         CSemaphoreGrant grant(*semOutbound);
         if (interruptNet)
@@ -1838,8 +1837,7 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
         //    connections.
         //  * Only make a feeler connection once every few minutes.
         //
-        bool fFeeler = false;
-
+       
         if (nOutbound >= nMaxOutbound && !GetTryNewOutboundPeer()) {
             int64_t nTime = GetTimeMicros(); // The current time right now (in microseconds).
             if (nTime > nNextFeeler) {
@@ -1907,13 +1905,10 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
                 // Add small amount of random noise before connection to avoid synchronization.
                 int randsleep = ambr::p2p::GetRandInt(FEELER_SLEEP_WINDOW * 1000);
                 //TODO
-              //  if (!interruptNet.sleep_for(std::chrono::milliseconds(randsleep)))
-               //     return;
-                std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
+                if (!interruptNet.sleep_for(std::chrono::milliseconds(randsleep)))
+                    return;
                 LogPrint(BCLog::NET, "Making feeler connection to %s\n", addrConnect.ToString());
             }
-
             OpenNetworkConnection(addrConnect, (int)setConnected.size() >= std::min(nMaxConnections - 1, 2), &grant, nullptr, false, fFeeler);
         }
     }
@@ -2015,7 +2010,9 @@ void CConnman::OpenNetworkConnection(const CAddress& addrConnect, bool fCountFai
     }
     if (!pszDest) {
         if (IsLocal(addrConnect) ||
+        //TODO for testing
         //    FindNode(static_cast<CNetAddr>(addrConnect)) ||
+        FindNode(static_cast<CService>(addrConnect)) ||
          IsBanned(addrConnect) ||
             FindNode(addrConnect.ToStringIPPort()))
             return;
@@ -2788,27 +2785,19 @@ const static std::string allNetMessageTypes[] = {
     NetMsgType::ADDR,
     NetMsgType::INV,
     NetMsgType::GETDATA,
-    NetMsgType::MERKLEBLOCK,
-    NetMsgType::GETBLOCKS,
-    NetMsgType::GETHEADERS,
-    NetMsgType::TX,
     NetMsgType::HEADERS,
-    NetMsgType::BLOCK,
     NetMsgType::GETADDR,
-    NetMsgType::MEMPOOL,
     NetMsgType::PING,
     NetMsgType::PONG,
     NetMsgType::NOTFOUND,
-    NetMsgType::FILTERLOAD,
-    NetMsgType::FILTERADD,
-    NetMsgType::FILTERCLEAR,
     NetMsgType::REJECT,
     NetMsgType::SENDHEADERS,
     NetMsgType::FEEFILTER,
     NetMsgType::SENDCMPCT,
     NetMsgType::CMPCTBLOCK,
     NetMsgType::GETBLOCKTXN,
-    NetMsgType::BLOCKTXN,
+    NetMsgType::GETLISTENPORT,
+    NetMsgType::LISTENPORT
 };
 const static std::vector<std::string> NetMessageTypes(allNetMessageTypes, allNetMessageTypes+ARRAYLEN(allNetMessageTypes));
 //end add

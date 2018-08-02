@@ -761,6 +761,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             PushNodeVersion(pfrom, connman, GetAdjustedTime());
 
         connman->PushMessage(pfrom, CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::VERACK));
+        connman->PushMessage(pfrom, CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::GETLISTENPORT));
 
         pfrom->nServices = nServices;
         pfrom->SetAddrLocal(addrMe);
@@ -870,6 +871,8 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
         pfrom->fSuccessfullyConnected = true;
     }
+
+
 
     else if (!pfrom->fSuccessfullyConnected)
     {
@@ -1074,6 +1077,18 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             pfrom->nPingNonceSent = 0;
         }
     }
+
+    else if (strCommand == NetMsgType::GETLISTENPORT){
+       connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::LISTENPORT, Params().GetDefaultPort()));
+    }
+
+    else if (strCommand == NetMsgType::LISTENPORT){
+        int nListenPort ;
+        vRecv >> nListenPort;
+        auto addr = pfrom->addr;
+        connman->bindMaps[pfrom] = CService(static_cast<CNetAddr>(addr), nListenPort);        
+    }
+
 
     else if (strCommand == NetMsgType::NOTFOUND) {
         // We do not care about the NOTFOUND message, but logging an Unknown Command

@@ -118,6 +118,9 @@ class CConnman
 {
 public:
 
+    //for tesing ,add
+    std::map<CNode*, CService> bindMaps;
+
     enum NumConnections {
         CONNECTIONS_NONE = 0,
         CONNECTIONS_IN = (1U << 0),
@@ -406,6 +409,7 @@ private:
     std::vector<std::string> vAddedNodes GUARDED_BY(cs_vAddedNodes);
     CCriticalSection cs_vAddedNodes;
     std::vector<CNode*> vNodes;
+
     std::list<CNode*> vNodesDisconnected;
     mutable CCriticalSection cs_vNodes;
     std::atomic<NodeId> nLastNodeId;
