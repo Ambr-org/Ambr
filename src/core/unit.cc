@@ -1026,3 +1026,161 @@ bool ambr::core::EnterValidateSetUint::Validate(std::string *err) const{
   }
   return true;
 }
+
+
+ambr::core::LeaveValidateSetUint::LeaveValidateSetUint():Unit(){
+
+}
+
+std::string ambr::core::LeaveValidateSetUint::SerializeJson() const{
+  ::boost::property_tree::ptree unit_pt;
+  unit_pt.put("version", version_);
+  unit_pt.put("type", (uint8_t)type_);
+  unit_pt.put("public_key", public_key_.encode_to_hex());
+  unit_pt.put("prev_unit", prev_unit_.encode_to_hex());
+  unit_pt.put("balance", balance_.encode_to_hex());
+  unit_pt.put("hash", hash_.encode_to_hex());
+  unit_pt.put("sign", sign_.encode_to_hex());
+  ::boost::property_tree::ptree pt;
+  pt.add_child("unit", unit_pt);
+  ::std::ostringstream stream;
+  ::boost::property_tree::write_json(stream, pt);
+  return stream.str();
+}
+
+bool ambr::core::LeaveValidateSetUint::DeSerializeJson(const std::string& json){
+  try{
+    ::boost::property_tree::ptree pt;
+    std::istringstream stream(json.c_str());
+    ::boost::property_tree::read_json(stream, pt);
+    version_ = pt.get<uint32_t>("unit.version");
+    type_ = (UnitType)pt.get<uint8_t>("unit.type");
+    public_key_.decode_from_hex(pt.get<std::string>("unit.public_key"));
+    prev_unit_.decode_from_hex(pt.get<std::string>("unit.prev_unit"));
+    balance_.decode_from_hex(pt.get<std::string>("unit.balance"));
+    hash_.decode_from_hex(pt.get<std::string>("unit.hash"));
+    sign_.decode_from_hex(pt.get<std::string>("unit.sign"));
+    return true;
+  }catch(::boost::property_tree::json_parser::json_parser_error& error){
+    std::cout<<error.message();
+    return false;
+  }
+}
+
+std::vector<uint8_t> ambr::core::LeaveValidateSetUint::SerializeByte( ) const {
+  std::vector<uint8_t> buf;
+  if(version_ == 0x00000001){
+    uint32_t len = sizeof(version_)+sizeof(type_)+sizeof(public_key_)+sizeof(prev_unit_)+sizeof(balance_)+sizeof(hash_)+sizeof(sign_);
+    buf.resize(len);
+
+    uint8_t* dest = buf.data();
+    memcpy(dest, &version_, sizeof(version_));
+    dest += sizeof(version_);
+
+    memcpy(dest, &type_, sizeof(type_));
+    dest += sizeof(type_);
+
+    memcpy(dest, &public_key_, sizeof(public_key_));
+    dest += sizeof(public_key_);
+
+    memcpy(dest, &prev_unit_, sizeof(prev_unit_));
+    dest += sizeof(prev_unit_);
+
+    memcpy(dest, &balance_, sizeof(balance_));
+    dest += sizeof(balance_);
+
+    memcpy(dest, &hash_, sizeof(hash_));
+    dest += sizeof(hash_);
+
+    memcpy(dest, &sign_, sizeof(sign_));
+    dest += sizeof(sign_);
+  }
+  return buf;
+}
+
+bool ambr::core::LeaveValidateSetUint::DeSerializeByte(const std::vector<uint8_t> &buf, size_t* used_size){
+  if(buf.size() < sizeof(version_)){
+    return false;
+  }
+  const uint8_t* src = buf.data();
+  memcpy(&version_, src, sizeof(version_));
+  if(version_== 0x00000001){
+    uint32_t len = sizeof(version_) + sizeof(type_)+sizeof(public_key_)+sizeof(prev_unit_)+sizeof(balance_)+sizeof(hash_)+sizeof(sign_);
+    if(buf.size() >= len){
+      memcpy(&version_, src, sizeof(version_));
+      src += sizeof(version_);
+
+      memcpy(&type_, src, sizeof(type_));
+      src += sizeof(type_);
+
+      if(type_ != UnitType::send){
+        return false;
+      }
+
+      memcpy(&public_key_, src, sizeof(public_key_));
+      src += sizeof(public_key_);
+
+      memcpy(&prev_unit_, src, sizeof(prev_unit_));
+      src += sizeof(prev_unit_);
+
+      memcpy(&balance_, src, sizeof(balance_));
+      src += sizeof(balance_);
+
+      memcpy(&hash_, src, sizeof(hash_));
+      src += sizeof(hash_);
+
+      memcpy(&sign_, src, sizeof(sign_));
+      src += sizeof(sign_);
+      if(used_size)*used_size=len;
+      return true;
+    }
+  }
+  return false;
+}
+
+ambr::core::UnitHash ambr::core::LeaveValidateSetUint::CalcHash() const {
+  crypto::SHA256OneByOneHasher hasher;
+  hasher.init();
+  hasher.process(version_);
+  hasher.process(type_);
+  hasher.process(public_key_);
+  hasher.process(prev_unit_);
+  hasher.process(balance_);
+  hasher.finish();
+  UnitHash::ArrayType array;
+  hasher.get_hash_bytes(array.begin(), array.end());
+  return UnitHash(array);
+}
+
+void ambr::core::LeaveValidateSetUint::CalcHashAndFill(){
+  hash_ = CalcHash();
+}
+
+bool ambr::core::LeaveValidateSetUint::SignatureAndFill(const ambr::core::PrivateKey &key){
+  sign_ = GetSignByPrivateKey(hash_.bytes().data(), hash_.bytes().size(), key);
+  return true;
+}
+
+bool ambr::core::LeaveValidateSetUint::Validate(std::string *err) const{
+  //check version
+  if(version_ != 0x00000001){
+    if(err){
+      *err = "error version";
+    }
+    return false;
+  }
+  //check hash
+  if(hash_ != CalcHash()){
+    if(err){
+      *err = "error hash";
+    }
+    return false;
+  }
+  if(!ambr::core::SignIsValidate(hash_.bytes().data(), hash_.bytes().size(), public_key_, sign_)){
+    *err = "error signature";
+    return false;
+  }
+  return true;
+}
+
+
