@@ -79,8 +79,10 @@ static const uint64_t RANDOMIZER_ID_LOCALHOSTNONCE = 0xd93e69e2bbfa5735ULL; // S
 bool fDiscover = true;
 bool fListen = true;
 bool fRelayTxes = true;
-CCriticalSection cs_mapLocalHost;
-std::map<CNetAddr, LocalServiceInfo> mapLocalHost;
+CCriticalSection cs_mapLocalHost; 
+//TODO for testing,replace CNetAddr to CService
+//std::map<CNetAddr, LocalServiceInfo> mapLocalHost;
+std::map<CService, LocalServiceInfo> mapLocalHost;
 static bool vfLimited[NET_MAX] = {};
 std::string strSubVersion;
 
@@ -155,8 +157,8 @@ CAddress GetLocalAddress(const CNetAddr *paddrPeer, ServiceFlags nLocalServices)
         std::cerr << "convert failed" << std::endl;
         exit(1);
     }
-    CAddress ret(CService(addr_ ,GetListenPort()), nLocalServices);
-    //CAddress ret(CService(CNetAddr(),GetListenPort()), nLocalServices);
+    //CAddress ret(CService(addr_ ,GetListenPort()), nLocalServices);
+    CAddress ret(CService(CNetAddr(),GetListenPort()), nLocalServices);
     CService addr;
     if (GetLocal(addr, paddrPeer))
     {
