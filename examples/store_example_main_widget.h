@@ -67,6 +67,9 @@ protected:
   bool eventFilter(QObject *target, QEvent *event);
 
 
+private slots:
+  void on_btnFlushValidatorSet_clicked();
+
 private:
   Ui::StoreExampleMainWidget *ui;
   QStringList test_pri_key_list_;

@@ -38,6 +38,12 @@ public:
     }
   }
 
+  template<class ConstructT>
+  uint_tool (const ConstructT& it){
+    T num = it;
+    set_data(num);
+  }
+
   uint_tool (const ArrayType& bytes){
     bytes_ = bytes;
   }

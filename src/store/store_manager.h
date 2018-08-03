@@ -36,7 +36,7 @@ public:
   std::list<std::shared_ptr<store::UnitStore>>
     GetTradeHistoryByPubKey(const core::PublicKey& pub_key, size_t count);
   bool GetSendAmount(const ambr::core::UnitHash &unit_hash, core::Amount& amount, std::string* err);
-
+  std::shared_ptr<store::ValidatorSetStore> GetValidatorSet();
   bool SendToAddress(
       const core::PublicKey pub_key_to,
       const core::Amount& count,
@@ -94,6 +94,7 @@ private:
   rocksdb::ColumnFamilyHandle* handle_validator_unit_;//unit_hash->validate unit
   rocksdb::ColumnFamilyHandle* handle_enter_validator_unit_;//unit_hash->EnterValidatorUnitStore
   rocksdb::ColumnFamilyHandle* handle_leave_validator_unit_;//unit_hash->LeaveValidatorUnitStore
+  rocksdb::ColumnFamilyHandle* handle_validator_set_;//unit_hash->validator_set
 };
 
 inline std::shared_ptr<StoreManager> GetStoreManager(){

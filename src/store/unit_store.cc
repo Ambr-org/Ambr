@@ -435,3 +435,148 @@ bool ambr::store::LeaveValidatorSetUnitStore::DeSerializeByte(const std::vector<
 std::shared_ptr<ambr::core::Unit> ambr::store::LeaveValidatorSetUnitStore::GetUnit(){
   return unit_;
 }
+
+std::string ambr::store::ValidatorItem::SerializeJson() const{
+  boost::property_tree::ptree pt;
+  boost::property_tree::ptree child_pt;
+  try{
+    child_pt.put("validator_hash", validator_public_key_.encode_to_hex());
+    child_pt.put("balance", balance_.encode_to_hex());
+    child_pt.put("enter_nonce", enter_nonce_);
+    child_pt.put("leave_nonce", leave_nonce_);
+    pt.put_child("ValidatorItem", child_pt);
+  }catch(...){
+    assert(1);
+  }
+  std::ostringstream out_stream;
+  boost::property_tree::write_json(out_stream, pt);
+  return out_stream.str();
+}
+
+bool ambr::store::ValidatorItem::DeSerializeJson(const std::string &json){
+  try{
+    boost::property_tree::ptree pt;
+    std::stringstream stream(json);
+    boost::property_tree::read_json(stream, pt);
+    validator_public_key_.decode_from_hex(pt.get<std::string>("ValidatorItem.validator_hash"));
+    balance_.decode_from_hex(pt.get<std::string>("ValidatorItem.balance"));
+    enter_nonce_ = pt.get<uint64_t>("ValidatorItem.enter_nonce");
+    leave_nonce_ = pt.get<uint64_t>("ValidatorItem.leave_nonce");
+    return true;
+  }catch(...){
+    return false;
+  }
+}
+
+bool ambr::store::ValidatorItem::operator ==(const ambr::store::ValidatorItem &it) const{
+  if(memcmp(this, &it, sizeof(ambr::store::ValidatorItem))){
+    return false;
+  }
+  return true;
+}
+
+uint32_t ambr::store::ValidatorSetStore::version() const{
+  return version_;
+}
+
+void ambr::store::ValidatorSetStore::set_version(uint32_t version){
+  version_ = version;
+}
+
+std::list<ambr::store::ValidatorItem> ambr::store::ValidatorSetStore::validator_list() const{
+  return validator_list_;
+}
+
+void ambr::store::ValidatorSetStore::set_validator_list(const std::list<ambr::store::ValidatorItem> &item){
+  validator_list_ = item;
+  validator_map_.clear();
+  for(const ValidatorItem &item: validator_list_){
+    validator_map_[item.validator_public_key_] = item;
+  }
+}
+
+bool ambr::store::ValidatorSetStore::validator_get(const ambr::core::PublicKey &pub_key, ambr::store::ValidatorItem &item){
+  auto iter = validator_map_.find(pub_key);
+  if(iter != validator_map_.end()){
+    item = iter->second;
+    return true;
+  }
+  return false;
+}
+
+std::string ambr::store::ValidatorSetStore::SerializeJson() const{
+  boost::property_tree::ptree pt;
+  try{
+    boost::property_tree::ptree pt_child;
+    for(ValidatorItem item: validator_list_){
+      boost::property_tree::ptree pt_tmp;
+      std::string str_tmp = item.SerializeJson();
+      pt_tmp.put("",str_tmp);
+      pt_child.push_back(std::make_pair("", pt_tmp));
+    }
+    pt.put("version", version_);
+    pt.put_child("Validators", pt_child);
+  }catch(...){
+    assert(1);
+  }
+  std::ostringstream out_stream;
+  boost::property_tree::write_json(out_stream, pt);
+  return out_stream.str();
+}
+
+bool ambr::store::ValidatorSetStore::DeSerializeJson(const std::string &json){
+  validator_list_.clear();
+  validator_map_.clear();
+  try{
+    ::boost::property_tree::ptree pt;
+    std::istringstream stream(json.c_str());
+    ::boost::property_tree::read_json(stream, pt);
+    ::boost::property_tree::ptree pt_array;
+    version_ = pt.get<uint32_t>("version");
+    pt_array = pt.get_child("Validators");
+    for(auto child: pt_array){
+      ValidatorItem item;
+      item.DeSerializeJson(child.second.data());
+      validator_list_.push_back(item);
+    }
+  }catch(...){
+    return false;
+  }
+  return true;
+}
+
+std::vector<uint8_t> ambr::store::ValidatorSetStore::SerializeByte() const{
+  size_t len = sizeof(version_) +validator_list_.size()*sizeof(ValidatorItem);
+  std::vector<uint8_t> rtn(len);
+  uint8_t* dest = rtn.data();
+
+  memcpy(dest, &version_, sizeof(version_));
+  dest += sizeof(version_);
+
+  for(ValidatorItem item: validator_list_){
+    memcpy(dest, &item, sizeof(item));
+    dest += sizeof(item);
+  }
+  return rtn;
+}
+
+bool ambr::store::ValidatorSetStore::DeSerializeByte(const std::vector<uint8_t> &buf){
+  validator_list_.clear();
+  validator_map_.clear();
+  if(buf.size() < 4 || (buf.size()-4)%sizeof(ValidatorItem) != 0){
+    return false;
+  }
+  size_t item_size = (buf.size()-4)/sizeof(ValidatorItem);
+  const uint8_t* src = buf.data();
+  memcpy(&version_, src, sizeof(version_));
+  src += sizeof(version_);
+  for(size_t i = 0; i < item_size; i++){
+    ValidatorItem item;
+    memcpy(&item, src, sizeof(item));
+    src+= sizeof(item);
+    validator_list_.push_back(item);
+  }
+  return true;
+}
+
+

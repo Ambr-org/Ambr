@@ -592,6 +592,7 @@ void StoreExampleMainWidget::on_btnInitDataBase_clicked(){
   ambr::store::GetStoreManager()->Init(ui->edtDatabasePath->text().toStdString());
   ui->tabMain->setTabEnabled(0, true);
   ui->tabMain->setTabEnabled(1, true);
+  ui->btnInitDataBase->setEnabled(false);
 }
 
 void StoreExampleMainWidget::DealConnect(std::shared_ptr<ambr::net::Peer> peer){
@@ -783,5 +784,18 @@ void StoreExampleMainWidget::on_btnTranslateUnfreeze_clicked(){
     ui->edtTCPlainEdit->setPlainText(QString("Send success:")+unit->SerializeJson().c_str());
   }else{
     ui->edtTCPlainEdit->setPlainText(QString("Send Faild:")+str_err.c_str());
+  }
+}
+
+void StoreExampleMainWidget::on_btnFlushValidatorSet_clicked(){
+  std::shared_ptr<ambr::store::ValidatorSetStore> validator_set =
+      ambr::store::GetStoreManager()->GetValidatorSet();
+  assert(validator_set);
+  for(const ambr::store::ValidatorItem& item: validator_set->validator_list()){
+    ui->tbValidatorSet->insertRow(0);
+    ui->tbValidatorSet->setItem(0,0, new QTableWidgetItem(item.validator_public_key_.encode_to_hex().c_str()));
+    ui->tbValidatorSet->setItem(0,1,new QTableWidgetItem(item.balance_.encode_to_dec().c_str()));
+    ui->tbValidatorSet->setItem(0,2, new QTableWidgetItem(QString::number(item.enter_nonce_)));
+    ui->tbValidatorSet->setItem(0,3, new QTableWidgetItem(QString::number(item.leave_nonce_)));
   }
 }

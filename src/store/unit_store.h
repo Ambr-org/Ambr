@@ -8,6 +8,8 @@
 #include <memory>
 #include <core/key.h>
 #include <vector>
+#include <list>
+#include <unordered_map>
 namespace ambr{
 namespace core{
   class Unit;
@@ -133,6 +135,35 @@ private:
   uint8_t is_validate_;
 };
 
+class ValidatorItem{
+public:// boost const deal byte json
+  std::string SerializeJson() const;
+  bool DeSerializeJson(const std::string& json);
+  bool operator == (const ValidatorItem& it) const;
+public:
+  core::PublicKey validator_public_key_;
+  core::Amount balance_;
+  uint64_t enter_nonce_;
+  uint64_t leave_nonce_;// this nonce will leave nonce_
+};
+
+struct ValidatorSetStore{
+public:
+  uint32_t version() const;
+  void set_version(uint32_t version);
+  std::list<ValidatorItem> validator_list() const;
+  void set_validator_list(const std::list<ValidatorItem>& item);
+  bool validator_get(const core::PublicKey& pub_key, ValidatorItem& item);
+public:
+  std::string SerializeJson() const;
+  bool DeSerializeJson(const std::string& json);
+  std::vector<uint8_t> SerializeByte() const;
+  bool DeSerializeByte(const std::vector<uint8_t>& buf);
+private:
+  uint32_t version_;
+  std::list<ValidatorItem> validator_list_;
+  std::unordered_map<core::PublicKey, ValidatorItem> validator_map_;
+};
 }//ambr
 }//store
 

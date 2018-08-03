@@ -150,3 +150,26 @@ TEST (UnitTest, LeaveValidateSetUint) {
   unit1->SignatureAndFill(pri_key);
   EXPECT_TRUE(unit1->Validate(nullptr));
 }
+
+TEST (UnitTest, ValidatorSetStore) {
+  ambr::core::PrivateKey pri_key = ambr::core::CreateRandomPrivateKey();
+  ambr::core::PublicKey pub_key = ambr::core::GetPublicKeyByPrivateKey(pri_key);
+  std::shared_ptr<ambr::store::ValidatorSetStore> unit1 = std::make_shared<ambr::store::ValidatorSetStore>();
+  SERIALIZE_EQ_TEST(unit1);
+  SERIALIZE_EQ_TEST_VALUE(unit1, version, (uint32_t)0x00000001);
+
+  std::list<ambr::store::ValidatorItem> list_tmp;
+  ambr::store::ValidatorItem item_tmp;
+  item_tmp.balance_ = 1;
+  item_tmp.enter_nonce_ = 11;
+  item_tmp.leave_nonce_ = 111;
+  item_tmp.validator_public_key_ = pub_key;
+  list_tmp.push_back(item_tmp);
+  item_tmp.balance_ = 2;
+  item_tmp.enter_nonce_ = 22;
+  item_tmp.leave_nonce_ = 222;
+  item_tmp.validator_public_key_ = pub_key;
+  list_tmp.push_back(item_tmp);
+  SERIALIZE_EQ_TEST_VALUE(unit1, validator_list, list_tmp);
+
+}

@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabMain">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_7">
       <attribute name="title">
@@ -1439,6 +1439,51 @@
                </widget>
               </item>
              </layout>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_40">
+              <property name="text">
+               <string>验证者集合</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="tbValidatorSet">
+              <column>
+               <property name="text">
+                <string>ValidatorHash</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Balance</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>New Column</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>LeaveNonce</string>
+               </property>
+              </column>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btnFlushValidatorSet">
+              <property name="text">
+               <string>刷新</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="Line" name="line_13">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QPlainTextEdit" name="edtShowJson"/>
