@@ -739,6 +739,13 @@ void StoreExampleMainWidget::on_btnPVValidatorUnit_clicked(){
   unit->SignatureAndFill(pri_key);
   std::string str_err;
   if(ambr::store::GetStoreManager()->AddValidateUnit(unit, &str_err)){
+    std::shared_ptr<ambr::net::NetMessage> msg = std::make_shared<ambr::net::NetMessage>();
+    std::vector<uint8_t> buf = unit->SerializeByte();
+    msg->version_ = 0x00000001;
+    msg->command_ = ambr::net::MC_NEW_UNIT;
+    msg->len_ = buf.size();
+    msg->str_msg_.assign(buf.begin(), buf.end());
+    ambr::net::GetNetManager()->BoardcastMessage(msg, nullptr);
     ui->edtPVLOG->setPlainText(QString("Add validator unit success:")+unit->SerializeJson().c_str());
   }else{
     ui->edtPVLOG->setPlainText(QString("Add validator unit faild:")+str_err.c_str());
