@@ -37,6 +37,8 @@ private slots:
   void on_btnTranslateSend_clicked();
   void on_radioButton_9_clicked();
   void on_radioButton_10_clicked();
+  void on_radioButton_12_clicked();
+  void on_radioButton_11_clicked();
   void on_btnTranslateHistory_clicked();
   void on_btnUnReceived_clicked();
   void on_btnAccountList_clicked();
@@ -55,12 +57,18 @@ private slots:
   void on_btnPVAddCheck_clicked();
   void on_pushButton_clicked();
   void on_btnPVValidatorUnit_clicked();
+  void on_btnTranslateUnfreeze_clicked();
+  void on_btnTranslateCashDisposite_clicked();
 
   void DealConnect(std::shared_ptr<ambr::net::Peer> peer);
   void DealAccept(std::shared_ptr<ambr::net::Peer> peer);
   void DealDisconnected(std::shared_ptr<ambr::net::Peer> peer);
 protected:
   bool eventFilter(QObject *target, QEvent *event);
+
+
+private slots:
+  void on_btnFlushValidatorSet_clicked();
 
 private:
   Ui::StoreExampleMainWidget *ui;

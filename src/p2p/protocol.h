@@ -231,12 +231,9 @@ extern const char *CMPCTBLOCK;
  * @since protocol version 70014 as described by BIP 152
  */
 extern const char *GETBLOCKTXN;
-/**
- * Contains a BlockTransactions.
- * Sent in response to a "getblocktxn" message.
- * @since protocol version 70014 as described by BIP 152
- */
-extern const char *BLOCKTXN;
+
+extern const char *GETLISTENPORT;
+extern const char *LISTENPORT;
 };
 
 /* Get a vector of all valid message types (see above) */

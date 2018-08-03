@@ -761,6 +761,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             PushNodeVersion(pfrom, connman, GetAdjustedTime());
 
         connman->PushMessage(pfrom, CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::VERACK));
+        connman->PushMessage(pfrom, CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::GETLISTENPORT));
 
         pfrom->nServices = nServices;
         pfrom->SetAddrLocal(addrMe);
@@ -836,10 +837,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         AddTimeData(pfrom->addr, nTimeOffset);
 
         // Feeler connections exist only to verify if address is online.
+        /*
         if (pfrom->fFeeler) {
             assert(pfrom->fInbound == false);
             pfrom->fDisconnect = true;
         }
+        */
         return true;
     }
 
@@ -870,6 +873,8 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
         pfrom->fSuccessfullyConnected = true;
     }
+
+
 
     else if (!pfrom->fSuccessfullyConnected)
     {
@@ -953,7 +958,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         connman->AddNewAddresses(vAddrOk, pfrom->addr, 2 * 60 * 60);
         auto s =connman->GetAddresses();
         for(auto i:s){
-            std::cout << i.ToString() << std::endl;
+            std::cout <<"addr is " <<  i.ToString() << std::endl;
         }
         
         if (vAddr.size() < 1000)
@@ -1074,6 +1079,18 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             pfrom->nPingNonceSent = 0;
         }
     }
+
+    else if (strCommand == NetMsgType::GETLISTENPORT){
+       connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::LISTENPORT, Params().GetDefaultPort()));
+    }
+
+    else if (strCommand == NetMsgType::LISTENPORT){
+        int nListenPort ;
+        vRecv >> nListenPort;
+        auto addr = pfrom->addr;
+        connman->bindMaps[pfrom] = CService(static_cast<CNetAddr>(addr), nListenPort);        
+    }
+
 
     else if (strCommand == NetMsgType::NOTFOUND) {
         // We do not care about the NOTFOUND message, but logging an Unknown Command

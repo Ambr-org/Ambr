@@ -8,6 +8,7 @@
 #include <hash.h>
 #include <serialize.h>
 #include <streams.h>
+#include <chainparams.h>
 
 int CAddrInfo::GetTriedBucket(const uint256& nKey) const
 {
@@ -260,6 +261,10 @@ bool CAddrMan::Add_(const CAddress& addr, const CNetAddr& source, int64_t nTimeP
   //  if (!addr.IsRoutable())
     if (!addr.IsValid())
         return false;
+        
+    if(addr.IsLocal() && addr.GetPort() == Params().GetDefaultPort()){
+        return false;
+    }
     bool fNew = false;
     int nId;
     CAddrInfo* pinfo = Find(addr, &nId);
@@ -287,7 +292,7 @@ bool CAddrMan::Add_(const CAddress& addr, const CNetAddr& source, int64_t nTimeP
         if (pinfo->fInTried)
             return false;
 
-        // do not update if the max reference count is reached
+        // do not update if the max referencenNew++ched
         if (pinfo->nRefCount == ADDRMAN_NEW_BUCKETS_PER_ADDRESS)
             return false;
 

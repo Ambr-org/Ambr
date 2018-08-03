@@ -307,6 +307,11 @@ public:
   virtual void CalcHashAndFill() override;
   virtual bool SignatureAndFill(const PrivateKey& key) override;
   virtual bool Validate(std::string* err) const override;
+public:
+  ambr::core::Amount unfreeze_count();
+  void set_unfreeze_count(const ambr::core::Amount& count);
+private:
+  ambr::core::Amount unfreeze_count_;
 };
 
 }
