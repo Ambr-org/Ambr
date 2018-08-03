@@ -364,6 +364,12 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
     }
     return false;
   }
+  if(GetValidateUnit(unit->hash())){
+    if(err){
+      *err = "Validator unit already exist";
+    }
+    return false;
+  }
   for(core::UnitHash hash:unit->check_list()){
     if(!GetUnit(hash)){
       if(err){
