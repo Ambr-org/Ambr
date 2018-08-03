@@ -503,26 +503,6 @@ bool ConnectSocketDirectly(const CService &addrConnect, const SOCKET& hSocket, i
         return false;
     }
     
-    //testing code, if use hSocket, connect will return -1
-
-    /*
-    int hsocket;
-    hsocket = socket(AF_INET, SOCK_STREAM, 0);
-    if (hsocket < 0){
-        return false;
-    }
-    */
-    /*
-    struct sockaddr_in *paddrin = (struct sockaddr_in*)&sockaddr;
-        memset(paddrin, 0, len);
-        if (inet_pton(AF_INET, "localhost", &paddrin->sin_addr) < 0){
-            std::cerr << "address error " << std::endl;
-        }
-
-        paddrin->sin_family = AF_INET;
-        paddrin->sin_port = htons(8333);
-    */
-
     if (connect(hSocket, (struct sockaddr*)&sockaddr, len) == SOCKET_ERROR)
     {
         int nErr = WSAGetLastError();

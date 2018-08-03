@@ -801,9 +801,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             {
                 CAddress addr = GetLocalAddress(&pfrom->addr, pfrom->GetLocalServices());
                 ambr::p2p::FastRandomContext insecure_rand;
-               //for testing ,set true
-               // if (addr.IsRoutable())
-                if (true)
+                if (addr.IsRoutable())
                 {
                     LogPrint(BCLog::NET, "ProcessMessages: advertising address %s\n", addr.ToString());
                     pfrom->PushAddress(addr, insecure_rand);
