@@ -83,7 +83,13 @@ void ambr::store::StoreManager::Init(const std::string& path){
       unit_validate->set_type(core::UnitType::Validator);
       unit_validate->set_public_key(unit->public_key());
       unit_validate->set_balance(init_validate);
+      unit_validate->add_check_list(unit->hash());
+      unit_validate->set_time_stamp(32);
+      unit_validate->set_percent(32);
+      unit_validate->set_nonce(32);
+
       unit_validate->add_check_list(enter_unit->hash());
+
       unit_validate->CalcHashAndFill();
       unit_validate->SignatureAndFill(core::PrivateKey("25E25210DCE702D4E36B6C8A17E18DC1D02A9E4F0D1D31C4AEE77327CF1641CC"));
       unit_validate->Validate(nullptr);
@@ -761,6 +767,24 @@ std::list<ambr::core::UnitHash> ambr::store::StoreManager::GetWaitForReceiveList
 }
 
 std::shared_ptr<ambr::store::UnitStore> ambr::store::StoreManager::GetUnit(const ambr::core::UnitHash &hash){
+  std::shared_ptr<ambr::store::SendUnitStore> send_unit = GetSendUnit(hash);
+  if(send_unit){
+    return send_unit;
+  }
+  else{
+    std::shared_ptr<ambr::store::ReceiveUnitStore> receive_unit = GetReceiveUnit(hash);
+    if(receive_unit){
+      return receive_unit;
+    }
+    else{
+        std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = GetValidateUnit(hash);
+        if(validator_unit){
+          auto validator_unit_store = std::make_shared<ambr::store::ValidatorUnitStore>(validator_unit);
+          return validator_unit_store;
+        }
+    }
+  }
+
   std::shared_ptr<ambr::store::UnitStore> unit;
   if(unit = GetSendUnit(hash)){
     return unit;
@@ -778,11 +802,7 @@ std::shared_ptr<ambr::store::UnitStore> ambr::store::StoreManager::GetUnit(const
 std::shared_ptr<ambr::store::SendUnitStore> ambr::store::StoreManager::GetSendUnit(const ambr::core::UnitHash &hash){
   std::shared_ptr<ambr::store::SendUnitStore> rtn;
   std::string string_readed;
-  rocksdb::Status status = db_unit_->Get(
-                                      rocksdb::ReadOptions(),
-                                      handle_send_unit_,
-                                      rocksdb::Slice((const char*)hash.bytes().data(), hash.bytes().size()),
-                                      &string_readed);
+  rocksdb::Status status = db_unit_->Get(rocksdb::ReadOptions(), handle_send_unit_, rocksdb::Slice((const char*)hash.bytes().data(), hash.bytes().size()), &string_readed);
   if(status.IsNotFound()){
     return rtn;
   }

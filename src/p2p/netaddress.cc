@@ -218,7 +218,9 @@ bool CNetAddr::IsValid() const
 
 bool CNetAddr::IsRoutable() const
 {
-    return IsValid() && !(IsRFC1918() || IsRFC2544() || IsRFC3927() || IsRFC4862() || IsRFC6598() || IsRFC5737() || (IsRFC4193() && !IsTor()) || IsRFC4843() || IsLocal() || IsInternal());
+   //TODO for tesing,RFC1918 is private network
+    //return IsValid() && !(IsRFC1918() || IsRFC2544() || IsRFC3927() || IsRFC4862() || IsRFC6598() || IsRFC5737() || (IsRFC4193() && !IsTor()) || IsRFC4843() || IsLocal() || IsInternal());
+    return IsValid() && !(IsRFC2544() || IsRFC3927() || IsRFC4862() || IsRFC6598() || IsRFC5737() || (IsRFC4193() && !IsTor()) || IsRFC4843() || IsLocal() || IsInternal());
 }
 
 bool CNetAddr::IsInternal() const
@@ -284,13 +286,11 @@ bool operator<(const CNetAddr& a, const CNetAddr& b)
 
 bool CNetAddr::GetInAddr(struct in_addr* pipv4Addr) const
 {
-    //TODO : can not use ,replace
-    //Testing
-   // if (!IsIPv4())
-   //     return false;
-   // memcpy(pipv4Addr, ip+12, 4);
-   // return true;
-   return inet_pton(AF_INET, "localhost", &pipv4Addr) < 0;
+    if (!IsIPv4())
+        return false;
+    memcpy(pipv4Addr, ip+12, 4);
+    return true;
+   // return inet_pton(AF_INET, "localhost", &pipv4Addr) < 0;
 }
 
 bool CNetAddr::GetIn6Addr(struct in6_addr* pipv6Addr) const
@@ -522,7 +522,7 @@ bool CService::GetSockAddr(struct sockaddr* paddr, socklen_t *addrlen) const
         struct sockaddr_in *paddrin = (struct sockaddr_in*)paddr;
         memset(paddrin, 0, *addrlen);
      
-       if (GetInAddr(&paddrin->sin_addr))
+       if (!GetInAddr(&paddrin->sin_addr))
             return false;
        
 
