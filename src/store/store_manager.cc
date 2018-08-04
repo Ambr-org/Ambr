@@ -767,24 +767,6 @@ std::list<ambr::core::UnitHash> ambr::store::StoreManager::GetWaitForReceiveList
 }
 
 std::shared_ptr<ambr::store::UnitStore> ambr::store::StoreManager::GetUnit(const ambr::core::UnitHash &hash){
-  std::shared_ptr<ambr::store::SendUnitStore> send_unit = GetSendUnit(hash);
-  if(send_unit){
-    return send_unit;
-  }
-  else{
-    std::shared_ptr<ambr::store::ReceiveUnitStore> receive_unit = GetReceiveUnit(hash);
-    if(receive_unit){
-      return receive_unit;
-    }
-    else{
-        std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = GetValidateUnit(hash);
-        if(validator_unit){
-          auto validator_unit_store = std::make_shared<ambr::store::ValidatorUnitStore>(validator_unit);
-          return validator_unit_store;
-        }
-    }
-  }
-
   std::shared_ptr<ambr::store::UnitStore> unit;
   if(unit = GetSendUnit(hash)){
     return unit;
