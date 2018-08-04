@@ -35,7 +35,35 @@ static void HandleSIGTERM(int)
 }
 #endif
 
+void ambr::p2p::Interrupt(){
+  if (g_connman)
+    g_connman->Interrupt();
+}
 
+void ambr::p2p::WaitForShutdown(){
+  while (!ShutdownRequested()){  
+    MilliSleep(200);
+  }
+
+  Interrupt();
+}
+
+void ambr::p2p::Shutdown(){
+  LogPrintf("%s: In progress...\n", __func__);
+  static CCriticalSection cs_Shutdown;
+
+  TRY_LOCK(cs_Shutdown, lockShutdown);
+
+   // StopRPC();
+   // StopHTTPServer();
+
+
+    // Because these depend on each-other, we make sure that neither can be
+    // using the other before destroying them.
+  if (g_connman) g_connman->Stop();
+    //peerLogic.reset();
+  g_connman.reset();
+}
 
 bool ambr::p2p::init(CConnman::Options&& connOptions){
     /*TODO import config from some class or files
@@ -59,11 +87,11 @@ bool ambr::p2p::init(CConnman::Options&& connOptions){
         for (const std::string& snet : gArgs.GetArgs("-onlynet")) {
             enum Network net = ParseNetwork(snet);
             if (net == NET_UNROUTABLE){
-				strprintf(_("Unknown network specified in -onlynet: '%s'"), snet);
-				std::cerr << snet << std::endl;
-				return false;
-			}
-                
+                strprintf(_("Unknown network specified in -onlynet: '%s'"), snet);
+                std::cerr << snet << std::endl;
+                return false;
+            }
+
             nets.insert(net);
         }
         for (int n = 0; n < NET_MAX; n++) {
@@ -75,10 +103,10 @@ bool ambr::p2p::init(CConnman::Options&& connOptions){
 
    // Check for -testnet or -regtest parameter (Params() calls are only valid after this clause)
     try {
-            SelectParams(gArgs.GetChainName(), connOptions.nPort);
-        } catch (const std::exception& e) {
-            fprintf(stderr, "Error: %s\n", e.what());
-            return false;
+        SelectParams(gArgs.GetChainName(), connOptions.nListenPort);
+    } catch (const std::exception& e) {
+        fprintf(stderr, "Error: %s\n", e.what());
+        return false;
     }
     // Check for host lookup allowed before parsing any network related parameters
     fNameLookup = gArgs.GetBoolArg("-dns", DEFAULT_NAME_LOOKUP);
@@ -91,22 +119,22 @@ bool ambr::p2p::init(CConnman::Options&& connOptions){
     if (proxyArg != "" && proxyArg != "0") {
         CService proxyAddr;
         if (!Lookup(proxyArg.c_str(), proxyAddr, 9050, fNameLookup)) {
-			std::cerr <<"Invalid -proxy address or hostname:" << proxyArg << std::endl;
-			return false;
-        }
+         std::cerr <<"Invalid -proxy address or hostname:" << proxyArg << std::endl;
+         return false;
+     }
 
-        proxyType addrProxy = proxyType(proxyAddr, proxyRandomize);
-        if (!addrProxy.IsValid()){
-			std::cerr << "Invalid -proxy address or hostname:" << proxyArg << std::endl;
-			return false;
-		}
+     proxyType addrProxy = proxyType(proxyAddr, proxyRandomize);
+     if (!addrProxy.IsValid()){
+         std::cerr << "Invalid -proxy address or hostname:" << proxyArg << std::endl;
+         return false;
+     }
 
-        SetProxy(NET_IPV4, addrProxy);
-        SetProxy(NET_IPV6, addrProxy);
-        SetProxy(NET_ONION, addrProxy);
-        SetNameProxy(addrProxy);
+     SetProxy(NET_IPV4, addrProxy);
+     SetProxy(NET_IPV6, addrProxy);
+     SetProxy(NET_ONION, addrProxy);
+     SetNameProxy(addrProxy);
         SetLimited(NET_ONION, false); // by default, -proxy sets onion as reachable, unless -noonion later
-	}
+    }
     Discover();
 
     // Map ports with UPnP
@@ -114,7 +142,7 @@ bool ambr::p2p::init(CConnman::Options&& connOptions){
         StartMapPort();
     }
 
-	assert(!g_connman);
+    assert(!g_connman);
     g_connman = std::unique_ptr<CConnman>(new CConnman(ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max()), ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max())));
     CConnman& connman = *g_connman;
     peerLogic = (new PeerLogicValidation(&connman, scheduler, false));
@@ -134,8 +162,8 @@ bool ambr::p2p::init(CConnman::Options&& connOptions){
     for (const std::string& strBind : connOptions.vBindAddress) {
         CService addrBind;
         if (!Lookup(strBind.c_str(), addrBind, GetListenPort(), false)) {
-			std::cerr <<"Invalid -bind address or hostname: " << strBind << std::endl;
-			return false;
+            std::cerr <<"Invalid -bind address or hostname: " << strBind << std::endl;
+            return false;
         }
         connOptions.vBinds.push_back(addrBind);
     }
@@ -143,44 +171,44 @@ bool ambr::p2p::init(CConnman::Options&& connOptions){
     for (const std::string& strBind : gArgs.GetArgs("-whitebind")) {
         CService addrBind;
         if (!Lookup(strBind.c_str(), addrBind, 0, false)) {
-			std::cerr <<"Invalid -whitebind address or hostname: " << strBind << std::endl;
-			return false;
-        }
-        if (addrBind.GetPort() == 0) {
-			std::cerr <<"Invalid -whitebind address or hostname: "  << std::endl;
-			return false;
-        }
-        connOptions.vWhiteBinds.push_back(addrBind);
-    }
+         std::cerr <<"Invalid -whitebind address or hostname: " << strBind << std::endl;
+         return false;
+     }
+     if (addrBind.GetPort() == 0) {
+         std::cerr <<"Invalid -whitebind address or hostname: "  << std::endl;
+         return false;
+     }
+     connOptions.vWhiteBinds.push_back(addrBind);
+ }
 
-    for (const auto& net : gArgs.GetArgs("-whitelist")) {
-        CSubNet subnet;
-        LookupSubNet(net.c_str(), subnet);
-        if (!subnet.IsValid()){
-			std::cerr <<"Invalid netmask specified in -whitelist: "  << net << std::endl;
-			return false;
-		}
-           
-        connOptions.vWhitelistedRange.push_back(subnet);
-    }
+ for (const auto& net : gArgs.GetArgs("-whitelist")) {
+    CSubNet subnet;
+    LookupSubNet(net.c_str(), subnet);
+    if (!subnet.IsValid()){
+     std::cerr <<"Invalid netmask specified in -whitelist: "  << net << std::endl;
+     return false;
+ }
 
-    connOptions.vSeedNodes = gArgs.GetArgs("-seednode");
+ connOptions.vWhitelistedRange.push_back(subnet);
+}
+
+connOptions.vSeedNodes = gArgs.GetArgs("-seednode");
 
     // Initiate outbound connections unless connect=0
 
-    connOptions.m_use_addrman_outgoing = !gArgs.IsArgSet("-connect");
-    if (!connOptions.m_use_addrman_outgoing) {
-        const auto connect = gArgs.GetArgs("-connect");
-        if (connect.size() != 1 || connect[0] != "0") {
-            connOptions.m_specified_outgoing = connect;
-        }
+connOptions.m_use_addrman_outgoing = !gArgs.IsArgSet("-connect");
+if (!connOptions.m_use_addrman_outgoing) {
+    const auto connect = gArgs.GetArgs("-connect");
+    if (connect.size() != 1 || connect[0] != "0") {
+        connOptions.m_specified_outgoing = connect;
     }
+}
 
     // Clean shutdown on SIGTERM
     #ifndef WIN32
-    registerSignalHandler(SIGTERM, HandleSIGTERM);
-    registerSignalHandler(SIGINT, HandleSIGTERM);
+registerSignalHandler(SIGTERM, HandleSIGTERM);
+registerSignalHandler(SIGINT, HandleSIGTERM);
     #endif
 
-    return connman.Start(scheduler, connOptions);  
+return connman.Start(scheduler, connOptions);  
 }

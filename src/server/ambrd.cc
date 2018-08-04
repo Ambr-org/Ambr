@@ -20,40 +20,6 @@ extern PeerLogicValidation *peerLogic;
 
 namespace ambr {
 namespace server {
-
-void Interrupt()
-  {
-    if (g_connman)
-        g_connman->Interrupt();
-  }
-
-void WaitForShutdown()
-{
-    while (!ShutdownRequested())
-    {  
-        MilliSleep(200);
-    }
-    Interrupt();
-}
-
-void Shutdown()
-{
-    LogPrintf("%s: In progress...\n", __func__);
-    static CCriticalSection cs_Shutdown;
-
-    TRY_LOCK(cs_Shutdown, lockShutdown);
-   
-   // StopRPC();
-   // StopHTTPServer();
-
-
-    // Because these depend on each-other, we make sure that neither can be
-    // using the other before destroying them.
-    if (g_connman) g_connman->Stop();
-    //peerLogic.reset();
-    g_connman.reset();
-}
-
 int DoServer() {
     /*
     crow::SimpleApp app;
@@ -82,15 +48,15 @@ int DoServer() {
     app.port(8080).multithreaded().run();
     */
    CConnman::Options options;
-    options.nPort = 8090;
+    options.nListenPort = 8090;
     auto ret =ambr::p2p::init(std::move(options));
 	if (!ret)
     {
-        Interrupt();
+        ambr::p2p::Interrupt();
     } else {
-       WaitForShutdown();
+       ambr::p2p::WaitForShutdown();
     }
-    Shutdown(); 
+    ambr::p2p::Shutdown(); 
 
     return 0;
 }
