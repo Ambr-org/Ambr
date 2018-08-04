@@ -32,6 +32,7 @@ void ambr::store::StoreManager::Init(const std::string& path){
   column_families.push_back(rocksdb::ColumnFamilyDescriptor("send_unit", rocksdb::ColumnFamilyOptions()));
   column_families.push_back(rocksdb::ColumnFamilyDescriptor("receive_unit", rocksdb::ColumnFamilyOptions()));
   column_families.push_back(rocksdb::ColumnFamilyDescriptor("account", rocksdb::ColumnFamilyOptions()));
+  column_families.push_back(rocksdb::ColumnFamilyDescriptor("new_accout", rocksdb::ColumnFamilyOptions()));
   column_families.push_back(rocksdb::ColumnFamilyDescriptor("handle_wait_for_receive", rocksdb::ColumnFamilyOptions()));
   column_families.push_back(rocksdb::ColumnFamilyDescriptor("validator_unit", rocksdb::ColumnFamilyOptions()));
   column_families.push_back(rocksdb::ColumnFamilyDescriptor("enter_validator_unit", rocksdb::ColumnFamilyOptions()));
@@ -42,11 +43,12 @@ void ambr::store::StoreManager::Init(const std::string& path){
   handle_send_unit_ = column_families_handle[0];
   handle_receive_unit_ = column_families_handle[1];
   handle_account_ = column_families_handle[2];
-  handle_wait_for_receive_ = column_families_handle[3];
-  handle_validator_unit_ = column_families_handle[4];
-  handle_enter_validator_unit_ = column_families_handle[5];
-  handle_leave_validator_unit_ = column_families_handle[6];
-  handle_validator_set_ = column_families_handle[7];
+  handle_new_account_ = column_families_handle[3];
+  handle_wait_for_receive_ = column_families_handle[4];
+  handle_validator_unit_ = column_families_handle[5];
+  handle_enter_validator_unit_ = column_families_handle[6];
+  handle_leave_validator_unit_ = column_families_handle[7];
+  handle_validator_set_ = column_families_handle[8];
 
   {//first time init db
     core::Amount balance = core::Amount();
@@ -71,7 +73,7 @@ void ambr::store::StoreManager::Init(const std::string& path){
       enter_unit->set_type(core::UnitType::EnterValidateSet);
       enter_unit->set_public_key(unit->public_key());
       enter_unit->set_prev_unit(unit->hash());
-      enter_unit->set_balance(init_validate);
+      enter_unit->set_balance(init_balance-init_validate);
       enter_unit->CalcHashAndFill();
       enter_unit->SignatureAndFill(core::PrivateKey("25E25210DCE702D4E36B6C8A17E18DC1D02A9E4F0D1D31C4AEE77327CF1641CC"));
 
@@ -90,7 +92,7 @@ void ambr::store::StoreManager::Init(const std::string& path){
 
       unit_validate->CalcHashAndFill();
       unit_validate->SignatureAndFill(core::PrivateKey("25E25210DCE702D4E36B6C8A17E18DC1D02A9E4F0D1D31C4AEE77327CF1641CC"));
-
+      unit_validate->Validate(nullptr);
       //construct validator set of genesis
       std::shared_ptr<store::ValidatorSetStore> validator_store = std::make_shared<store::ValidatorSetStore>();
       validator_store->set_version(0x00000001);
@@ -142,98 +144,6 @@ void ambr::store::StoreManager::Init(const std::string& path){
     }
   }
 }
-/*
-bool ambr::store::StoreManager::AddUnit(std::shared_ptr<ambr::core::Unit> unit, std::string *err){
-  if(!unit){
-    if(err)*err = "Unit ptr is null.";
-    return false;
-  }
-  if(unit->type() == ambr::core::UnitType::send){
-    //param check
-    std::shared_ptr<ambr::core::SendUnit> send_unit = std::dynamic_pointer_cast<ambr::core::SendUnit>(unit);
-    if(!send_unit){
-      if(err)*err = "Unit cast to SendUnit error.";
-      return false;
-    }
-    if(!send_unit->Validate(err)){
-      return false;
-    }
-    //check account address
-    {
-      core::UnitHash hash;
-      if(!GetLastUnitHashByPubKey(unit->public_key(), hash)){
-        if(err){
-          *err = "Con't find account address";
-        }
-        return false;
-      }
-    }
-    //check balance
-    {
-      core::Amount balance;
-      if(!GetBalanceByPubKey(send_unit->public_key(), balance)){
-        if(err){
-          *err = "Can't get balance count!";
-        }
-        return false;
-      }
-      if(send_unit->balance().data() >= balance.data()){
-        if(err){
-          *err = "Insufficient balance!";
-        }
-        return false;
-      }
-    }
-    //write to db
-    rocksdb::WriteBatch batch;
-    std::vector<uint8_t> bytes = unit->SerializeByte();
-    std::array<uint8_t,sizeof(ambr::core::UnitHash::ArrayType)> hash_bytes = send_unit->hash().bytes();
-    batch.Put(handle_send_unit_, rocksdb::Slice((const char*)hash_bytes.data(), hash_bytes.size()),
-              rocksdb::Slice((const char*)bytes.data(), bytes.size()));
-    batch.Put(handle_account_, rocksdb::Slice((const char*)send_unit->public_key().bytes().data(), send_unit->public_key().bytes().size()),
-              rocksdb::Slice((const char*)send_unit->hash().bytes().data(), send_unit->hash().bytes().size()));
-    AddWaitForReceiveUnit(send_unit->dest(), send_unit->hash(), &batch);
-
-    if(use_log){//TODO:use log module
-      std::cout<<"Add unit for send!"<<std::endl;
-      std::cout<<unit->hash().encode_to_hex()<<std::endl;
-      std::cout<<unit->SerializeJson()<<std::endl;
-      std::cout<<"address:"<<ambr::core::GetAddressStringByPublicKey(send_unit->public_key())
-              <<"'s last unit change to "<<send_unit->hash().encode_to_hex();
-    }
-    rocksdb::Status status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
-
-    assert(status.ok());
-    return true;
-  }else if(unit->type() == ambr::core::UnitType::receive){
-    std::shared_ptr<ambr::core::ReceiveUnit> receive_unit = std::dynamic_pointer_cast<ambr::core::ReceiveUnit>(unit);
-    if(!receive_unit){
-      if(err)*err = "Unit cast to ReceiveUnit error.";
-      return false;
-    }
-    if(!receive_unit->Validate(err)){
-      return false;
-    }
-    //chain check
-    //TODO:
-    //write to db
-    rocksdb::WriteBatch batch;
-    std::vector<uint8_t> bytes = unit->SerializeByte();
-    std::array<uint8_t,sizeof(ambr::core::UnitHash::ArrayType)> hash_bytes = receive_unit->hash().bytes();
-    batch.Put(handle_receive_unit_, rocksdb::Slice((const char*)hash_bytes.data(), hash_bytes.size()),
-              rocksdb::Slice((const char*)bytes.data(), bytes.size()));
-    batch.Put(handle_account_, ambr::core::GetAddressStringByPublicKey(receive_unit->public_key()),
-              rocksdb::Slice((const char*)receive_unit->hash().bytes().data(), receive_unit->hash().bytes().size()));
-    rocksdb::Status status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
-    assert(status.ok());
-    return true;
-  }
-  else{
-    if(err)*err = "Unit type is error.";
-    return false;
-  }
-  return true;
-}*/
 
 bool ambr::store::StoreManager::AddSendUnit(std::shared_ptr<ambr::core::SendUnit> send_unit, std::string *err){
   if(!send_unit){
@@ -277,6 +187,8 @@ bool ambr::store::StoreManager::AddSendUnit(std::shared_ptr<ambr::core::SendUnit
   batch.Put(handle_send_unit_, rocksdb::Slice((const char*)hash_bytes.data(), hash_bytes.size()),
             rocksdb::Slice((const char*)bytes.data(), bytes.size()));
   batch.Put(handle_account_, rocksdb::Slice((const char*)send_unit->public_key().bytes().data(), send_unit->public_key().bytes().size()),
+            rocksdb::Slice((const char*)send_unit->hash().bytes().data(), send_unit->hash().bytes().size()));
+  batch.Put(handle_new_account_, rocksdb::Slice((const char*)send_unit->public_key().bytes().data(), send_unit->public_key().bytes().size()),
             rocksdb::Slice((const char*)send_unit->hash().bytes().data(), send_unit->hash().bytes().size()));
   AddWaitForReceiveUnit(send_unit->dest(), send_unit->hash(), &batch);
   if(use_log){//TODO:use log module
@@ -583,6 +495,12 @@ bool ambr::store::StoreManager::GetBalanceByPubKey(const ambr::core::PublicKey &
       }
       balance = receive_store->unit()->balance();
       return true;
+    }else if(store->type() == UnitStore::ST_EnterValidatorSet){
+      balance = store->GetUnit()->balance();
+      return true;
+    }else if(store->type() == UnitStore::ST_LeaveValidatorSet){
+      balance = store->GetUnit()->balance();
+      return true;
     }
   }
   return false;
@@ -849,17 +767,6 @@ std::list<ambr::core::UnitHash> ambr::store::StoreManager::GetWaitForReceiveList
 }
 
 std::shared_ptr<ambr::store::UnitStore> ambr::store::StoreManager::GetUnit(const ambr::core::UnitHash &hash){
-  std::shared_ptr<ambr::store::SendUnitStore> send_unit = GetSendUnit(hash);
-  if(send_unit){
-    return send_unit;
-  }
-  else{
-    std::shared_ptr<ambr::store::ReceiveUnitStore> receive_unit = GetReceiveUnit(hash);
-    if(receive_unit){
-      return receive_unit;
-    }
-  }
-
   std::shared_ptr<ambr::store::UnitStore> unit;
   if(unit = GetSendUnit(hash)){
     return unit;

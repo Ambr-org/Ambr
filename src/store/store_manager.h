@@ -89,7 +89,8 @@ private:
   rocksdb::DB* db_unit_;
   rocksdb::ColumnFamilyHandle* handle_send_unit_;//unit_hash->SendUnitStore
   rocksdb::ColumnFamilyHandle* handle_receive_unit_;//unit_hash->ReceiveUnitStore
-  rocksdb::ColumnFamilyHandle* handle_account_;//AcountPublicKey->LastUnitHash
+  rocksdb::ColumnFamilyHandle* handle_account_;//AccoutPublicKey->LastUnitHash
+  rocksdb::ColumnFamilyHandle* handle_new_account_;//AccoutPublic(not validated by validator set)->last unit hash
   rocksdb::ColumnFamilyHandle* handle_wait_for_receive_;//AccountPublic->ReceiveList
   rocksdb::ColumnFamilyHandle* handle_validator_unit_;//unit_hash->validate unit
   rocksdb::ColumnFamilyHandle* handle_enter_validator_unit_;//unit_hash->EnterValidatorUnitStore
