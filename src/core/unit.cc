@@ -11,11 +11,16 @@
 
 std::shared_ptr<ambr::core::Unit> ambr::core::Unit::CreateUnitByByte(const std::vector<uint8_t> &buf){
   //MakeShared TODO
-  std::shared_ptr<ReceiveUnit> receive_unit = std::shared_ptr<ReceiveUnit>(new ReceiveUnit());
-  std::shared_ptr<SendUnit> send_unit = std::shared_ptr<SendUnit>(new SendUnit());
-  if(receive_unit->DeSerializeByte(buf)){
+  auto validator_unit = std::make_shared<ValidatorUnit>();
+  auto receive_unit = std::make_shared<ReceiveUnit>();
+  auto send_unit = std::make_shared<SendUnit>();
+  if(validator_unit->DeSerializeByte(buf)){
+    return validator_unit;
+  }
+  else if(receive_unit->DeSerializeByte(buf)){
     return receive_unit;
-  }else if(send_unit->DeSerializeByte(buf)){
+  }
+  else if(send_unit->DeSerializeByte(buf)){
     return send_unit;
   }
   return std::shared_ptr<ambr::core::Unit>();
@@ -864,7 +869,9 @@ bool ambr::core::ValidatorUnit::Validate(std::string *err) const{
     return false;
   }
   if(!ambr::core::SignIsValidate(hash_.bytes().data(), hash_.bytes().size(), public_key_, sign_)){
-    *err = "error signature";
+    if(err){
+        *err = "error signature";
+    }
     return false;
   }
   return true;

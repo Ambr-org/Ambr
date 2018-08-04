@@ -858,13 +858,6 @@ std::shared_ptr<ambr::store::UnitStore> ambr::store::StoreManager::GetUnit(const
     if(receive_unit){
       return receive_unit;
     }
-    else{
-        std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = GetValidateUnit(hash);
-        if(validator_unit){
-          auto validator_unit_store = std::make_shared<ambr::store::ValidatorUnitStore>(validator_unit);
-          return validator_unit_store;
-        }
-    }
   }
 
   std::shared_ptr<ambr::store::UnitStore> unit;

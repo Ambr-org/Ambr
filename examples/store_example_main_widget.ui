@@ -900,9 +900,9 @@
                     <property name="geometry">
                      <rect>
                       <x>0</x>
-                      <y>0</y>
+                      <y>-255</y>
                       <width>609</width>
-                      <height>763</height>
+                      <height>721</height>
                      </rect>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_31">
@@ -1382,7 +1382,7 @@
               <x>0</x>
               <y>0</y>
               <width>840</width>
-              <height>815</height>
+              <height>823</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_22">
@@ -1604,14 +1604,14 @@
               <item>
                <widget class="QLineEdit" name="edtP2PSeedAddr">
                 <property name="text">
-                 <string>192.168.31.90:9991</string>
+                 <string>127.0.0.1:9991</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QLineEdit" name="edtP2PListenPort">
                 <property name="text">
-                 <string>9991</string>
+                 <string>9992</string>
                 </property>
                </widget>
               </item>
