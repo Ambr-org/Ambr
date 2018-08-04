@@ -7,6 +7,7 @@
 #define AMBR_STORE_STORE_MANAGER_H_
 #include <memory>
 #include <list>
+#include <unordered_map>
 #include <core/unit.h>
 #include <core/key.h>
 #include <store/unit_store.h>
@@ -25,9 +26,9 @@ public:
   //bool AddUnit(std::shared_ptr<core::Unit> unit, std::string* err);
   bool AddSendUnit(std::shared_ptr<core::SendUnit> send_unit, std::string* err);
   bool AddReceiveUnit(std::shared_ptr<core::ReceiveUnit> receive_unit, std::string* err);
-  bool AddValidateUnit(std::shared_ptr<core::ValidatorUnit> unit, std::string* err);
   bool AddEnterValidatorSetUnit(std::shared_ptr<core::EnterValidateSetUint> unit, std::string* err);
   bool AddLeaveValidatorSetUnit(std::shared_ptr<core::LeaveValidateSetUint> unit, std::string* err);
+  bool AddValidateUnit(std::shared_ptr<core::ValidatorUnit> unit, std::string* err);
 
   bool GetLastValidateUnit(core::UnitHash& hash);
   std::list<std::shared_ptr<core::ValidatorUnit>> GetValidateHistory(size_t count);
@@ -36,6 +37,9 @@ public:
   std::list<std::shared_ptr<store::UnitStore>>
     GetTradeHistoryByPubKey(const core::PublicKey& pub_key, size_t count);
   bool GetSendAmount(const ambr::core::UnitHash &unit_hash, core::Amount& amount, std::string* err);
+  //get all new unit map at lastest of account  which is not validated by validator set
+  std::unordered_map<ambr::core::PublicKey, ambr::core::UnitHash>
+    GetNewUnitMap();
   std::shared_ptr<store::ValidatorSetStore> GetValidatorSet();
   bool SendToAddress(
       const core::PublicKey pub_key_to,
@@ -60,6 +64,12 @@ public:
                          core::UnitHash* tx_hash,
                          std::shared_ptr<ambr::core::LeaveValidateSetUint>& unit_leave,
                          std::string* err);
+  //add ValidatorUnit auto Validate Unit
+  bool PublishValidator(const core::PrivateKey& pri_key,
+                        core::UnitHash* tx_hash,
+                        std::shared_ptr<ambr::core::ValidatorUnit>& unit_validator,
+                        std::string* err);
+
   std::list<core::UnitHash> GetWaitForReceiveList(const core::PublicKey& pub_key);
   //get unit(send_unit and receive_unit)
   std::shared_ptr<UnitStore> GetUnit(const core::UnitHash& hash);

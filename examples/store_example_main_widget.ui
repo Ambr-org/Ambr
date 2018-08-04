@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabMain">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab_7">
       <attribute name="title">
@@ -128,6 +128,55 @@
                  </item>
                 </layout>
                </widget>
+               <widget class="QWidget" name="tab_11">
+                <attribute name="title">
+                 <string>未验证列表查询</string>
+                </attribute>
+                <layout class="QVBoxLayout" name="verticalLayout_38">
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_37">
+                   <item>
+                    <widget class="QLabel" name="label_41">
+                     <property name="text">
+                      <string>账户列表查询</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="Line" name="line_14">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QTableWidget" name="tbAccountNew">
+                     <column>
+                      <property name="text">
+                       <string>账户公钥</string>
+                      </property>
+                     </column>
+                     <column>
+                      <property name="text">
+                       <string>最新交易单元</string>
+                      </property>
+                     </column>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="btnAccountNew">
+                     <property name="text">
+                      <string>flush</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </widget>
                <widget class="QWidget" name="tab_3">
                 <attribute name="title">
                  <string>账户余额查询</string>
@@ -212,7 +261,7 @@
              <item>
               <widget class="QTabWidget" name="tabDebugDown">
                <property name="currentIndex">
-                <number>2</number>
+                <number>3</number>
                </property>
                <widget class="QWidget" name="tab_4">
                 <attribute name="title">
@@ -900,9 +949,9 @@
                     <property name="geometry">
                      <rect>
                       <x>0</x>
-                      <y>0</y>
+                      <y>-749</y>
                       <width>609</width>
-                      <height>763</height>
+                      <height>1218</height>
                      </rect>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_31">
@@ -1156,7 +1205,73 @@
                              </widget>
                             </item>
                             <item>
-                             <widget class="QPlainTextEdit" name="edtPVLOG"/>
+                             <widget class="QPlainTextEdit" name="edtPVLOG">
+                              <property name="minimumSize">
+                               <size>
+                                <width>0</width>
+                                <height>200</height>
+                               </size>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <layout class="QVBoxLayout" name="verticalLayout_39">
+                              <item>
+                               <widget class="Line" name="line_16">
+                                <property name="orientation">
+                                 <enum>Qt::Horizontal</enum>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QLabel" name="label_43">
+                                <property name="text">
+                                 <string>添加简易验证单元</string>
+                                </property>
+                                <property name="alignment">
+                                 <set>Qt::AlignCenter</set>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <layout class="QHBoxLayout" name="horizontalLayout_54">
+                                <item>
+                                 <widget class="QLabel" name="label_42">
+                                  <property name="text">
+                                   <string>私钥</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QLineEdit" name="edtSVPriKey"/>
+                                </item>
+                               </layout>
+                              </item>
+                              <item>
+                               <widget class="QPushButton" name="btnAddSV">
+                                <property name="text">
+                                 <string>快捷添加验证单元</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QPlainTextEdit" name="edtSVLOG">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>0</width>
+                                  <height>200</height>
+                                 </size>
+                                </property>
+                               </widget>
+                              </item>
+                             </layout>
+                            </item>
+                            <item>
+                             <widget class="Line" name="line_15">
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                             </widget>
                             </item>
                            </layout>
                           </item>

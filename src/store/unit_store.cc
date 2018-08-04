@@ -542,6 +542,9 @@ bool ambr::store::ValidatorSetStore::DeSerializeJson(const std::string &json){
   }catch(...){
     return false;
   }
+  for(const ValidatorItem &item: validator_list_){
+    validator_map_[item.validator_public_key_] = item;
+  }
   return true;
 }
 
@@ -575,6 +578,9 @@ bool ambr::store::ValidatorSetStore::DeSerializeByte(const std::vector<uint8_t> 
     memcpy(&item, src, sizeof(item));
     src+= sizeof(item);
     validator_list_.push_back(item);
+  }
+  for(const ValidatorItem &item: validator_list_){
+    validator_map_[item.validator_public_key_] = item;
   }
   return true;
 }

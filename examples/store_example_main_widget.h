@@ -59,17 +59,15 @@ private slots:
   void on_btnPVValidatorUnit_clicked();
   void on_btnTranslateUnfreeze_clicked();
   void on_btnTranslateCashDisposite_clicked();
+  void on_btnAccountNew_clicked();
+  void on_btnFlushValidatorSet_clicked();
+  void on_btnAddSV_clicked();
 
   void DealConnect(std::shared_ptr<ambr::net::Peer> peer);
   void DealAccept(std::shared_ptr<ambr::net::Peer> peer);
   void DealDisconnected(std::shared_ptr<ambr::net::Peer> peer);
 protected:
   bool eventFilter(QObject *target, QEvent *event);
-
-
-private slots:
-  void on_btnFlushValidatorSet_clicked();
-
 private:
   Ui::StoreExampleMainWidget *ui;
   QStringList test_pri_key_list_;
