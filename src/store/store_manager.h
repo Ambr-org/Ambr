@@ -29,6 +29,8 @@ public:
   bool AddEnterValidatorSetUnit(std::shared_ptr<core::EnterValidateSetUint> unit, std::string* err);
   bool AddLeaveValidatorSetUnit(std::shared_ptr<core::LeaveValidateSetUint> unit, std::string* err);
   bool AddValidateUnit(std::shared_ptr<core::ValidatorUnit> unit, std::string* err);
+  bool AddVote(std::shared_ptr<core::VoteUnit> unit, std::string* err);
+  void ClearVote();
 
   bool GetLastValidateUnit(core::UnitHash& hash);
   std::list<std::shared_ptr<core::ValidatorUnit>> GetValidateHistory(size_t count);
@@ -69,7 +71,10 @@ public:
                         core::UnitHash* tx_hash,
                         std::shared_ptr<ambr::core::ValidatorUnit>& unit_validator,
                         std::string* err);
-
+  bool PublishVote(const core::PrivateKey& pri_key,
+                   bool accept,
+                   std::shared_ptr<ambr::core::VoteUnit>& unit_vote,
+                   std::string* err);
   std::list<core::UnitHash> GetWaitForReceiveList(const core::PublicKey& pub_key);
   //get unit(send_unit and receive_unit)
   std::shared_ptr<UnitStore> GetUnit(const core::UnitHash& hash);
@@ -78,6 +83,7 @@ public:
   std::shared_ptr<core::ValidatorUnit> GetValidateUnit(const core::UnitHash& hash);
   std::shared_ptr<EnterValidatorSetUnitStore> GetEnterValidatorSetUnit(const core::UnitHash& hash);
   std::shared_ptr<LeaveValidatorSetUnitStore> GetLeaveValidatorSetUnit(const core::UnitHash& hash);
+  std::list<std::shared_ptr<core::VoteUnit>> GetVoteList();
 public://for debug
   std::list<core::UnitHash> GetAccountListFromAccountForDebug();
   std::list<core::UnitHash> GetAccountListFromWaitForReceiveForDebug();
@@ -106,6 +112,7 @@ private:
   rocksdb::ColumnFamilyHandle* handle_enter_validator_unit_;//unit_hash->EnterValidatorUnitStore
   rocksdb::ColumnFamilyHandle* handle_leave_validator_unit_;//unit_hash->LeaveValidatorUnitStore
   rocksdb::ColumnFamilyHandle* handle_validator_set_;//unit_hash->validator_set
+  std::list<std::shared_ptr<core::VoteUnit>> vote_list_;
 };
 
 inline std::shared_ptr<StoreManager> GetStoreManager(){

@@ -20,6 +20,7 @@ static const std::string last_validate_key = "lv";
 static const std::string validate_set_key = "validate_set_key";
 static const ambr::core::Amount min_validator_balance = (boost::multiprecision::uint128_t)100000000*1000;
 //TODO: db sync
+
 void ambr::store::StoreManager::Init(const std::string& path){
 
   rocksdb::DBOptions options;
@@ -85,7 +86,7 @@ void ambr::store::StoreManager::Init(const std::string& path){
       unit_validate->set_balance(init_validate);
       unit_validate->set_time_stamp(32);
       unit_validate->set_percent(32);
-      unit_validate->set_nonce(32);
+      unit_validate->set_nonce(0);
 
       unit_validate->add_check_list(enter_unit->hash());
 
@@ -455,7 +456,56 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
   assert(status.ok());
   status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
   assert(status.ok());
+  ClearVote();
   return true;
+}
+
+bool ambr::store::StoreManager::AddVote(std::shared_ptr<ambr::core::VoteUnit> unit, std::string *err){
+  if(!unit){
+    if(err){
+      *err = "Vote Unit is null";
+    }
+    return false;
+  }
+  if(!unit->Validate(err)){
+    return false;
+  }
+  core::UnitHash last_validate_unit_hash;
+  if(!GetLastValidateUnit(last_validate_unit_hash) || unit->validator_unit_hash() != last_validate_unit_hash){
+    if(err){
+      *err = "Hash is not right which is vote for.";
+    }
+    return false;
+  }
+  std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = GetValidateUnit(last_validate_unit_hash);
+  if(!validator_unit){
+    if(err){
+      *err = "last validator unit is not found";
+    }
+    return false;
+  }
+  std::shared_ptr<ambr::store::ValidatorSetStore> validator_set = GetValidatorSet();
+  ValidatorItem item;
+  if(!validator_set->validator_get(unit->public_key(), item) || item.enter_nonce_ < validator_unit->nonce() || (item.leave_nonce_ >= validator_unit->nonce() && item.leave_nonce_ != 0)){
+    if(err){
+      *err = "Voter is not in validator_set";
+    }
+    return false;
+  }
+  for(std::shared_ptr<core::VoteUnit> vote_unit:vote_list_){
+    if(vote_unit->public_key() == unit->public_key()){
+      if(err){
+        *err = "Voter was voted";
+      }
+      return false;
+    }
+  }
+  vote_list_.push_back(unit);
+  return true;
+}
+
+void ambr::store::StoreManager::ClearVote(){
+  vote_list_.clear();
 }
 
 
@@ -823,7 +873,12 @@ bool ambr::store::StoreManager::PublishValidator(
     unit->add_check_list(item.second);
   }
 
-
+  //add vote
+  std::list<std::shared_ptr<ambr::core::VoteUnit>> vote_list = GetVoteList();
+  for(std::shared_ptr<ambr::core::VoteUnit> vote_item:vote_list){
+    unit->add_vote_hash_list(vote_item->hash());
+    unit->add_vote_list(*vote_item);
+  }
   unit->set_balance(validator_item.balance_);
   unit->CalcHashAndFill();
   unit->SignatureAndFill(pri_key);
@@ -833,6 +888,48 @@ bool ambr::store::StoreManager::PublishValidator(
   }
   *tx_hash = unit->hash();
   unit_validator = unit;
+  return true;
+}
+
+bool ambr::store::StoreManager::PublishVote(const core::PrivateKey& pri_key,
+                                            bool accept,
+                                            std::shared_ptr<ambr::core::VoteUnit>& unit_vote,
+                                            std::string* err){
+  std::shared_ptr<core::VoteUnit> unit = std::make_shared<core::VoteUnit>();
+  unit->set_version(0x00000001);
+  unit->set_type(core::UnitType::Vote);
+  unit->set_public_key(core::GetPublicKeyByPrivateKey(pri_key));
+  //unit->set_prev_unit;
+  std::shared_ptr<ambr::store::ValidatorSetStore> validator_set = GetValidatorSet();
+  if(!validator_set){
+    if(err){
+      *err = "Can't find validator set";
+    }
+    return false;
+  }
+  ValidatorItem validator_item;
+  if(!validator_set->validator_get(core::GetPublicKeyByPrivateKey(pri_key), validator_item)){
+    if(err){
+      *err = "This account is not in validator-set";
+    }
+    return false;
+  }
+  unit->set_balance(validator_item.balance_);
+  unit->set_accept(accept);
+  core::UnitHash last_validator_hash;
+  if(!GetLastValidateUnit(last_validator_hash)){
+    if(err){
+      *err = "Con't find last validator-unit hash";
+    }
+    return false;
+  }
+  unit->set_validator_unit_hash(last_validator_hash);
+  unit->CalcHashAndFill();
+  unit->SignatureAndFill(pri_key);
+  if(!AddVote(unit, err)){
+    return false;
+  }
+  unit_vote = unit;
   return true;
 }
 
@@ -962,6 +1059,10 @@ std::shared_ptr<ambr::store::LeaveValidatorSetUnitStore> ambr::store::StoreManag
     return rtn;
   }
   return std::shared_ptr<ambr::store::LeaveValidatorSetUnitStore>();
+}
+
+std::list<std::shared_ptr<ambr::core::VoteUnit>> ambr::store::StoreManager::GetVoteList(){
+  return vote_list_;
 }
 
 std::list<ambr::core::UnitHash> ambr::store::StoreManager::GetAccountListFromAccountForDebug(){

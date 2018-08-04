@@ -182,13 +182,13 @@ public:
   virtual bool SignatureAndFill(const PrivateKey& key) override;
   virtual bool Validate(std::string* err) const override;
 public:
-  void SetValidatorUnitHash(const UnitHash& hash){
+  void set_validator_unit_hash(const UnitHash& hash){
     validator_unit_hash_ = hash;
   }
-  UnitHash ValidatorUnitHash(){
+  UnitHash validator_unit_hash(){
     return validator_unit_hash_;
   }
-  void SetAccept(bool accept){
+  void set_accept(bool accept){
     accept_ = accept;
   }
   bool accept(){

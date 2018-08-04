@@ -94,6 +94,17 @@ public:
     return rtn;
   }
 
+  uint_tool<T, size> operator / (uint_tool<T, size> const& it)const{
+    uint_tool<T, size> rtn;
+    rtn.set_data(data() / it.data());
+    return rtn;
+  }
+  uint_tool<T, size> operator * (uint_tool<T, size> const& it)const{
+    uint_tool<T, size> rtn;
+    rtn.set_data(data() * it.data());
+    return rtn;
+  }
+
   std::string encode_to_hex () const{
     std::ostringstream stream;
     stream << std::hex << std::noshowbase << std::setw (bytes_.size()*2) << std::setfill ('0');

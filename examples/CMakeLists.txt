@@ -66,33 +66,32 @@ SET(CMAKE_C_COMPILER gcc)
 set(CMAKE_CXX_FLAGS "-std=c++14 -Wall")
 set(CMAKE_CXX_FLAGS "-Wall")
 
-  set(CMAKE_INCLUDE_CURRENT_DIR ON)
-  set(CMAKE_AUTOMOC ON)
-  set(CMAKE_AUTOUIC ON)
-  set(CMAKE_AUTORCC ON)
-
-  find_package(Qt5 REQUIRED Widgets)
-  qt5_wrap_cpp( MOC ${CUR_DIR}/examples/store_example_main_widget.h)
-  qt5_wrap_ui( UIC ${CUR_DIR}/examples/store_example_main_widget.ui)
-  set(QT_SRC
-    ${CUR_DIR}/examples/store_example_main_widget.cc
-    ${CUR_DIR}/examples/store_example_main_widget.h
-    ${CUR_DIR}/examples/store_example_main_widget.ui)
-  add_executable(unit_store_example
-    ${DIR_ARCH_SRCS}
-    ${DIR_CORE_SRCS}
-    ${DIR_NET_SRCS}
-    ${DIR_SERVER_SRCS}
-    ${DIR_STORE_SRCS}
-    ${DIR_UTILS_SRCS}
-    ${DIR_WALLET_SRCS}
-    ${DIR_BLAKE2_SRCS}
-    ${DIR_CRYPTOPP_SRCS}
-    ${DIR_P2P_SRCS}
-    ${CUR_DIR}/libs/ed25519-donna/ed25519.c
-    ${CUR_DIR}/examples/unit_store.cc
-    ${CUR_DIR}/examples/net_test.cc
-    ${QT_SRC}
-    )
-  target_link_libraries(unit_store_example Qt5::Widgets)
+find_package(Qt5 REQUIRED Widgets)
+#qt5_wrap_cpp( MOC ${CUR_DIR}/examples/store_example_main_widget.h)
+qt5_wrap_ui( UIC ${CUR_DIR}/examples/store_example_main_widget.ui)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
+set(QT_SRC
+  ${CUR_DIR}/examples/store_example_main_widget.cc
+  ${CUR_DIR}/examples/store_example_main_widget.h
+  ${CUR_DIR}/examples/store_example_main_widget.ui)
+add_executable(unit_store_example
+  ${DIR_ARCH_SRCS}
+  ${DIR_CORE_SRCS}
+  ${DIR_NET_SRCS}
+  ${DIR_SERVER_SRCS}
+  ${DIR_STORE_SRCS}
+  ${DIR_UTILS_SRCS}
+  ${DIR_WALLET_SRCS}
+  ${DIR_BLAKE2_SRCS}
+  ${DIR_CRYPTOPP_SRCS}
+  ${DIR_P2P_SRCS}
+  ${CUR_DIR}/libs/ed25519-donna/ed25519.c
+  ${CUR_DIR}/examples/unit_store.cc
+  ${CUR_DIR}/examples/net_test.cc
+  ${QT_SRC}
+  )
+target_link_libraries(unit_store_example Qt5::Widgets)
 

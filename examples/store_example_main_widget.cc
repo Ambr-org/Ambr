@@ -638,6 +638,19 @@ void StoreExampleMainWidget::on_btnAddSV_clicked(){
 
 }
 
+void StoreExampleMainWidget::on_btnVote_clicked(){
+  ambr::core::PrivateKey pri_key;
+  pri_key = ui->edtVotePri->text().toStdString();
+  bool accept = ui->cbAccept->isChecked();
+  std::string str_err;
+  std::shared_ptr<ambr::core::VoteUnit> unit;
+  if(!ambr::store::GetStoreManager()->PublishVote(pri_key, accept, unit, &str_err)){
+    ui->edtVoteLOG->setPlainText(("Vote faild:"+str_err).c_str());
+  }else{
+    ui->edtVoteLOG->setPlainText(("Vote success:"+unit->SerializeJson()).c_str());
+  }
+}
+
 void StoreExampleMainWidget::DealConnect(std::shared_ptr<ambr::net::Peer> peer){
   ui->tbP2PConnectionOut->insertRow(0);
   ui->tbP2PConnectionOut->setItem(0,0, new QTableWidgetItem(peer->end_point_.address().to_string().c_str()));
@@ -739,8 +752,8 @@ void StoreExampleMainWidget::on_btnPVAddVote_clicked(){
     ui->edtPVLOG->setPlainText("validator unit hash decode error");
     return;
   }
-  unit.SetAccept(accept);
-  unit.SetValidatorUnitHash(validator_unit_hash);
+  unit.set_accept(accept);
+  unit.set_validator_unit_hash(validator_unit_hash);
   unit.CalcHashAndFill();
   unit.SignatureAndFill(pri_key);
   ui->lstPVVote->addItem(unit.SerializeJson().c_str());
@@ -838,5 +851,26 @@ void StoreExampleMainWidget::on_btnTranslateUnfreeze_clicked(){
 }
 
 
-
-
+#include <QTableWidget>
+void StoreExampleMainWidget::on_btnFlushVote_clicked(){
+  while(ui->tbVote->rowCount()){
+    ui->tbVote->removeRow(0);
+  }
+  std::list<std::shared_ptr<ambr::core::VoteUnit>> vote_list = ambr::store::GetStoreManager()->GetVoteList();
+  ambr::core::Amount all_balance, accept_balance;
+  for(std::shared_ptr<ambr::core::VoteUnit> unit: vote_list){
+    ui->tbVote->insertRow(0);
+    ui->tbVote->setItem(0,0, new QTableWidgetItem(unit->validator_unit_hash().encode_to_hex().c_str()));
+    ui->tbVote->setItem(0,1, new QTableWidgetItem(unit->balance().encode_to_hex().c_str()));
+    ui->tbVote->setItem(0,2, new QTableWidgetItem(unit->accept()?"true":"false"));
+    all_balance += unit->balance();
+    if(unit->accept()){
+      accept_balance += unit->balance();
+    }
+  }
+  QString str;
+  str += "All Cash deposit is ";
+  str += all_balance.encode_to_dec().c_str();
+  str += QString(". accept percent is ")+(accept_balance*100/all_balance).encode_to_dec().c_str()+"%";
+  ui->lblVote->setPlainText(str);
+}

@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabMain">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_7">
       <attribute name="title">
@@ -949,9 +949,9 @@
                     <property name="geometry">
                      <rect>
                       <x>0</x>
-                      <y>-255</y>
+                      <y>0</y>
                       <width>609</width>
-                      <height>721</height>
+                      <height>1552</height>
                      </rect>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_31">
@@ -1273,6 +1273,54 @@
                               </property>
                              </widget>
                             </item>
+                            <item>
+                             <widget class="QLabel" name="label_45">
+                              <property name="text">
+                               <string>快捷投票</string>
+                              </property>
+                              <property name="alignment">
+                               <set>Qt::AlignCenter</set>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <layout class="QHBoxLayout" name="horizontalLayout_56">
+                              <item>
+                               <widget class="QLabel" name="label_46">
+                                <property name="text">
+                                 <string>私钥</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QLineEdit" name="edtVotePri"/>
+                              </item>
+                             </layout>
+                            </item>
+                            <item>
+                             <widget class="QCheckBox" name="cbAccept">
+                              <property name="text">
+                               <string>accept</string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QPushButton" name="btnVote">
+                              <property name="text">
+                               <string>快捷投票</string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QPlainTextEdit" name="edtVoteLOG">
+                              <property name="minimumSize">
+                               <size>
+                                <width>0</width>
+                                <height>200</height>
+                               </size>
+                              </property>
+                             </widget>
+                            </item>
                            </layout>
                           </item>
                          </layout>
@@ -1497,7 +1545,7 @@
               <x>0</x>
               <y>0</y>
               <width>840</width>
-              <height>823</height>
+              <height>815</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_22">
@@ -1597,6 +1645,49 @@
              <widget class="Line" name="line_13">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_44">
+              <property name="text">
+               <string>当前投票状态</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="tbVote">
+              <column>
+               <property name="text">
+                <string>VoteTo</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Balance</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Accept</string>
+               </property>
+              </column>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPlainTextEdit" name="lblVote">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>100</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btnFlushVote">
+              <property name="text">
+               <string>刷新</string>
               </property>
              </widget>
             </item>
