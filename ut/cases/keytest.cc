@@ -23,7 +23,7 @@ return;
   ambr::core::Signature sign = ambr::core::GetSignByPrivateKey(tmp, strlen((char*)tmp), pri);
   std::cout << "signature: "  << sign.encode_to_hex() <<std::endl <<std::endl;
 
-  bool ret = ambr::core::SignIsValidate(tmp, strlen((char*)tmp), pri, sign);
+  bool ret = ambr::core::SignIsValidate(tmp, strlen((char*)tmp), pub, sign);
 
   ambr::utils::uint256 test;
   bool ret2 = ambr::core::SymEncrypting(pri, "sagsgsgs", test);

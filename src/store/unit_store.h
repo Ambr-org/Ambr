@@ -69,7 +69,6 @@ private:
   uint8_t is_validate_;
 };
 
-
 class ReceiveUnitStore:public UnitStore{
 public:
   ReceiveUnitStore(std::shared_ptr<core::ReceiveUnit> unit = nullptr);

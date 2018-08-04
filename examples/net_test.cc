@@ -6,47 +6,10 @@
 #include <boost/thread.hpp>
 #include <boost/threadpool.hpp>
 #include <store/store_manager.h>
-std::shared_ptr<ambr::net::NetManager> ambr::net::NetManager::instance;
-class ambr::net::NetManager::Impl{
-public:
-  Impl();
-  bool init(const NetManagerConfig& config);
-  void SetOnReceive(std::function<void(std::shared_ptr<NetMessage> msg,  std::shared_ptr<Peer> peer)> func);
-  void SendMessage(std::shared_ptr<NetMessage> msg, std::shared_ptr<Peer> peer);
-  void BoardcastMessage(std::shared_ptr<NetMessage> msg, std::shared_ptr<Peer> peer);
-  void SetOnDisconnect(std::function<void(std::shared_ptr<Peer>)> func);
-  void SetOnAccept(std::function<void(std::shared_ptr<Peer>)> func);
-  void SetOnConnected(std::function<void(std::shared_ptr<Peer>)> func);
-  void RemovePeer(std::shared_ptr<Peer> peer, uint32_t second);
-public:
-  void OnAccept(std::shared_ptr<boost::asio::ip::tcp::socket> socket, std::shared_ptr<boost::asio::ip::tcp::acceptor> acc, const boost::system::error_code& ec);
-  void OnConnected(std::shared_ptr<boost::asio::ip::tcp::socket> socket, const boost::system::error_code& ec);
 
-private:
-  void ThreadSocketHandle();
-  void OnDisconnect(std::shared_ptr<Peer> peer);
-  void OnReceive(std::shared_ptr<NetMessage> msg,  std::shared_ptr<Peer> peer);
-private:
-  std::vector<boost::asio::ip::address_v4> GetLocalIPs();
-  std::vector<boost::asio::ip::address_v4> LookupPublicIPs();
-private:
-  std::shared_ptr<boost::asio::ip::tcp::acceptor> accept_;
-  ambr::net::NetManagerConfig config_;
-  std::list<std::shared_ptr<Peer>> in_peers_;
-  std::list<std::shared_ptr<Peer>> out_peers_;
-  std::list<std::shared_ptr<Peer>> in_peers_wait_;
-  std::list<std::shared_ptr<Peer>> out_peers_wait_;
-  std::list<boost::asio::ip::tcp::endpoint> server_list_;
-private:
-  boost::asio::io_service ios_;
-  std::thread ios_thread_;
-  boost::threadpool::pool thread_pool_;
-  std::function<void(std::shared_ptr<NetMessage> msg,  std::shared_ptr<Peer> peer)> on_receive_func_;
-  std::function<void(std::shared_ptr<Peer>)> on_disconnect_func_;
-  std::function<void(std::shared_ptr<Peer>)> on_accept_func_;
-  std::function<void(std::shared_ptr<Peer>)> on_connect_func_;
-  bool exit_;
-};
+using Ptr_UnitStore = std::shared_ptr<ambr::store::UnitStore>;
+
+std::shared_ptr<ambr::net::NetManager> ambr::net::NetManager::instance;
 
 ambr::net::NetManager::Impl::Impl():thread_pool_(std::thread::hardware_concurrency()),exit_(false){
   std::vector<boost::asio::ip::address_v4> ips = LookupPublicIPs();
@@ -54,7 +17,6 @@ ambr::net::NetManager::Impl::Impl():thread_pool_(std::thread::hardware_concurren
     server_list_.push_back(boost::asio::ip::tcp::endpoint(ips[0], config_.listen_port_));
   }
 }
-
 
 bool ambr::net::NetManager::Impl::init(const NetManagerConfig &config){
   std::vector<boost::asio::ip::address_v4> ips =  LookupPublicIPs();
@@ -296,26 +258,145 @@ void ambr::net::NetManager::Impl::OnReceive(std::shared_ptr<NetMessage> msg, std
     }else{
       //TODO
     }
-  }else if(msg->command_ == MC_NEW_UNIT){
+  }
+  else if(msg->command_ == MC_NEW_UNIT){
     std::vector<uint8_t> buf;
     buf.assign(msg->str_msg_.begin(), msg->str_msg_.end());
-    std::shared_ptr<ambr::core::Unit> unit = ambr::core::Unit::CreateUnitByByte(buf);
+    Ptr_Unit unit = ambr::core::Unit::CreateUnitByByte(buf);
     if(unit){
-      LOG(INFO)<<"Get new unit:"<<unit->SerializeJson();
-    }
-    if(unit->type() == ambr::core::UnitType::send){
-      std::shared_ptr<ambr::core::SendUnit> send_unit = std::dynamic_pointer_cast<ambr::core::SendUnit>(unit);
-      if(send_unit && ambr::store::GetStoreManager()->AddSendUnit(send_unit, nullptr)){
-        BoardcastMessage(msg, peer);
+      if(!unit->prev_unit().is_zero() && nullptr == ambr::store::GetStoreManager()->GetUnit(unit->prev_unit()) && nullptr == ambr::store::GetStoreManager()->GetValidateUnit(unit->prev_unit())){
+        ambr::core::UnitHash hash;
+        LOG(INFO)<<"No last unit:"<<unit->SerializeJson();
+        if(ambr::core::UnitType::Validator == unit->type()){
+          ambr::store::GetStoreManager()->GetLastValidateUnit(hash);
+        }
+        else{
+          ambr::store::GetStoreManager()->GetLastUnitHashByPubKey(unit->public_key(), hash);
+        }
+        auto ptr_msg = std::make_shared<NetMessage>();
+        ptr_msg->version_ = 0x00000001;
+        ptr_msg->command_ = MC_NEW_SECTION;
+        ptr_msg->str_msg_ = hash.encode_to_hex() + ":" + unit->hash().encode_to_hex();
+        ptr_msg->len_ = ptr_msg->str_msg_.size();
+        BoardcastMessage(ptr_msg, peer);
       }
-    }else if(unit->type() == ambr::core::UnitType::receive){
-      std::shared_ptr<ambr::core::ReceiveUnit> receive_unit = std::dynamic_pointer_cast<ambr::core::ReceiveUnit>(unit);
-      if(receive_unit && ambr::store::GetStoreManager()->AddReceiveUnit(receive_unit, nullptr)){
-        BoardcastMessage(msg, peer);
+      else if(unit->type() == ambr::core::UnitType::send){
+        LOG(INFO)<<"Get send unit:"<<unit->SerializeJson();
+        std::shared_ptr<ambr::core::SendUnit> send_unit = std::dynamic_pointer_cast<ambr::core::SendUnit>(unit);
+        if(send_unit && ambr::store::GetStoreManager()->AddSendUnit(send_unit, nullptr)){
+          BoardcastMessage(msg, peer);
+        }
+      }
+      else if(unit->type() == ambr::core::UnitType::receive){
+        LOG(INFO)<<"Get receive unit:"<<unit->SerializeJson();
+        std::shared_ptr<ambr::core::ReceiveUnit> receive_unit = std::dynamic_pointer_cast<ambr::core::ReceiveUnit>(unit);
+        if(receive_unit && ambr::store::GetStoreManager()->AddReceiveUnit(receive_unit, nullptr)){
+          BoardcastMessage(msg, peer);
+        }
+      }
+      else if(unit->type() == ambr::core::UnitType::Validator){
+          LOG(INFO)<<"Get validator unit:"<<unit->SerializeJson();
+        std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = std::dynamic_pointer_cast<ambr::core::ValidatorUnit>(unit);
+        if(validator_unit && ambr::store::GetStoreManager()->AddValidateUnit(validator_unit, nullptr)){
+          BoardcastMessage(msg, peer);
+        }
       }
     }
-    //ambr::store::GetStoreManager()->AddUnit()
-  }else{
+  }
+  else if(msg->command_ == MC_NEW_SECTION){
+    LOG(INFO)<<"Get New Section:"<< msg->str_msg_;
+    ambr::core::UnitHash firsthash, lasthash;
+    size_t num_pos = msg->str_msg_.find(':');
+    if(num_pos != std::string::npos){
+      firsthash.decode_from_hex(msg->str_msg_.substr(0, num_pos - 1));
+      lasthash.decode_from_hex(msg->str_msg_.substr(num_pos + 1, 64));
+
+      std::list<Ptr_Unit> list_p_unit;
+      while(firsthash != lasthash){
+        Ptr_UnitStore p_unitstore = ambr::store::GetStoreManager()->GetUnit(lasthash);
+
+        Ptr_Unit p_unit;
+        if(p_unitstore){
+          p_unit = p_unitstore->GetUnit();
+        }
+        else{
+          p_unit = ambr::store::GetStoreManager()->GetValidateUnit(lasthash);
+        }
+
+        if(p_unit){
+            list_p_unit.push_front(p_unit);
+        }
+        else{
+            break;
+        }
+
+        Ptr_UnitStore p_prevunitstore = ambr::store::GetStoreManager()->GetUnit(p_unit->prev_unit());
+
+        Ptr_Unit p_prevunit;
+        if(p_prevunitstore){
+          p_prevunit = p_prevunitstore->GetUnit();
+        }
+        else{
+          p_prevunit = ambr::store::GetStoreManager()->GetValidateUnit(p_unit->prev_unit());
+        }
+
+        if(p_prevunit){
+          lasthash = p_prevunit->hash();
+        }
+        else{
+          break;
+        }
+      }
+
+      for(auto& it:list_p_unit){
+        std::vector<uint8_t>&& buf = it->SerializeByte();
+        auto ptr_msg = std::make_shared<NetMessage>();
+
+        ptr_msg->version_ = 0x00000001;
+        ptr_msg->command_ = MC_NEW_SECTION_UNIT;
+        ptr_msg->str_msg_.assign(buf.begin(), buf.end());
+        ptr_msg->len_ = ptr_msg->str_msg_.size();
+        BoardcastMessage(ptr_msg, peer);
+      }
+    }
+  }
+  else if(msg->command_ == MC_NEW_SECTION_UNIT){
+      std::vector<uint8_t> buf;
+      buf.assign(msg->str_msg_.begin(), msg->str_msg_.end());
+      Ptr_Unit unit = ambr::core::Unit::CreateUnitByByte(buf);
+      switch (unit->type()) {
+      case ambr::core::UnitType::send:
+      {
+        LOG(INFO)<<"Get send section unit:"<<unit->SerializeJson();
+        std::shared_ptr<ambr::core::SendUnit> send_unit = std::dynamic_pointer_cast<ambr::core::SendUnit>(unit);
+        if(send_unit && ambr::store::GetStoreManager()->AddSendUnit(send_unit, nullptr)){
+          //BoardcastMessage(msg, peer);
+        }
+      }
+      break;
+      case ambr::core::UnitType::receive:
+      {
+          LOG(INFO)<<"Get receive section unit:"<<unit->SerializeJson();
+          std::shared_ptr<ambr::core::ReceiveUnit> receive_unit = std::dynamic_pointer_cast<ambr::core::ReceiveUnit>(unit);
+          if(receive_unit && ambr::store::GetStoreManager()->AddReceiveUnit(receive_unit, nullptr)){
+            //BoardcastMessage(msg, peer);
+          }
+      }
+      break;
+      case ambr::core::UnitType::Validator:
+      {
+          LOG(INFO)<<"Get validator section unit:"<<unit->SerializeJson();
+          std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = std::dynamic_pointer_cast<ambr::core::ValidatorUnit>(unit);
+          if(validator_unit && ambr::store::GetStoreManager()->AddValidateUnit(validator_unit, nullptr)){
+            //BoardcastMessage(msg, peer);
+          }
+      }
+      break;
+      default:
+      break;
+      }
+  }
+  else{
     thread_pool_.schedule(boost::bind(on_receive_func_, msg, peer));
   }
 }
@@ -367,11 +448,6 @@ std::vector<boost::asio::ip::address_v4> ambr::net::NetManager::Impl::LookupPubl
   }
   return public_ip;
 }
-
-
-
-
-
 
 ambr::net::NetManager::NetManager(){
   impl_ = new Impl();
