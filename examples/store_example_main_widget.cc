@@ -708,8 +708,7 @@ void StoreExampleMainWidget::on_btnP2PStart_clicked(){
   config.heart_time_ = 88;//second of heart interval
   ambr::net::GetNetManager()->init(config);
 }
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
+
 void StoreExampleMainWidget::on_pushButton_clicked(){
   //CheckValidatorUnit();
   CreateDebugInitChain();
@@ -861,12 +860,22 @@ void StoreExampleMainWidget::on_btnFlushVote_clicked(){
   for(std::shared_ptr<ambr::core::VoteUnit> unit: vote_list){
     ui->tbVote->insertRow(0);
     ui->tbVote->setItem(0,0, new QTableWidgetItem(unit->validator_unit_hash().encode_to_hex().c_str()));
-    ui->tbVote->setItem(0,1, new QTableWidgetItem(unit->balance().encode_to_hex().c_str()));
+    ui->tbVote->setItem(0,1, new QTableWidgetItem(unit->balance().encode_to_dec().c_str()));
     ui->tbVote->setItem(0,2, new QTableWidgetItem(unit->accept()?"true":"false"));
-    all_balance += unit->balance();
     if(unit->accept()){
       accept_balance += unit->balance();
     }
+  }
+  std::shared_ptr<ambr::store::ValidatorSetStore> validator_set_list = ambr::store::GetStoreManager()->GetValidatorSet();
+  if(!validator_set_list){
+    return;
+  }
+  std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = ambr::store::GetStoreManager()->GetLastestValidateUnit();
+  if(!validator_unit){
+    return;
+  }
+  for(ambr::store::ValidatorItem validator_item: validator_set_list->validator_list()){
+    all_balance = all_balance+validator_item.balance_;
   }
   QString str;
   str += "All Cash deposit is ";

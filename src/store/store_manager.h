@@ -81,6 +81,7 @@ public:
   std::shared_ptr<SendUnitStore> GetSendUnit(const core::UnitHash& hash);
   std::shared_ptr<ReceiveUnitStore> GetReceiveUnit(const core::UnitHash& hash);
   std::shared_ptr<core::ValidatorUnit> GetValidateUnit(const core::UnitHash& hash);
+  std::shared_ptr<core::ValidatorUnit> GetLastestValidateUnit();
   std::shared_ptr<EnterValidatorSetUnitStore> GetEnterValidatorSetUnit(const core::UnitHash& hash);
   std::shared_ptr<LeaveValidatorSetUnitStore> GetLeaveValidatorSetUnit(const core::UnitHash& hash);
   std::list<std::shared_ptr<core::VoteUnit>> GetVoteList();

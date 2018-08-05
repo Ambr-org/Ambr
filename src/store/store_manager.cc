@@ -456,6 +456,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
   assert(status.ok());
   status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
   assert(status.ok());
+  //clear old vote and vote now
   ClearVote();
   return true;
 }
@@ -486,7 +487,9 @@ bool ambr::store::StoreManager::AddVote(std::shared_ptr<ambr::core::VoteUnit> un
   }
   std::shared_ptr<ambr::store::ValidatorSetStore> validator_set = GetValidatorSet();
   ValidatorItem item;
-  if(!validator_set->validator_get(unit->public_key(), item) || item.enter_nonce_ < validator_unit->nonce() || (item.leave_nonce_ >= validator_unit->nonce() && item.leave_nonce_ != 0)){
+  if(!validator_set->validator_get(unit->public_key(), item) ||
+     validator_unit->nonce() < item.enter_nonce_ ||
+     (validator_unit->nonce() >= item.leave_nonce_ && item.leave_nonce_ != 0)){
     if(err){
       *err = "Voter is not in validator_set";
     }
@@ -888,6 +891,11 @@ bool ambr::store::StoreManager::PublishValidator(
   }
   *tx_hash = unit->hash();
   unit_validator = unit;
+  // add ValidatorUnit success, publish vote
+  std::shared_ptr<ambr::core::VoteUnit> tmp_unit;
+  if(!PublishVote(pri_key, true, tmp_unit, err)){
+    return false;
+  }
   return true;
 }
 
@@ -1021,6 +1029,18 @@ std::shared_ptr<ambr::core::ValidatorUnit> ambr::store::StoreManager::GetValidat
     return rtn;
   }
   return std::shared_ptr<ambr::core::ValidatorUnit>();
+}
+
+std::shared_ptr<ambr::core::ValidatorUnit> ambr::store::StoreManager::GetLastestValidateUnit(){
+  core::UnitHash last_validate_unit_hash;
+  if(!GetLastValidateUnit(last_validate_unit_hash)){
+    return nullptr;
+  }
+  std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = GetValidateUnit(last_validate_unit_hash);
+  if(!validator_unit){
+    return nullptr;
+  }
+  return validator_unit;
 }
 
 std::shared_ptr<ambr::store::EnterValidatorSetUnitStore> ambr::store::StoreManager::GetEnterValidatorSetUnit(const ambr::core::UnitHash &hash){
