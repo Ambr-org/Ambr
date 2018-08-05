@@ -76,6 +76,7 @@ private slots:
 private:
   Ui::StoreExampleMainWidget *ui;
   QStringList test_pri_key_list_;
+  QString root_pri_key_;
 private://For paint
   void DrawChain();
   void DrawUnit(QPainter& pt);

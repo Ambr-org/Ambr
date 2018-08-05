@@ -157,8 +157,22 @@ bool ambr::store::StoreManager::AddSendUnit(std::shared_ptr<ambr::core::SendUnit
   if(!send_unit->Validate(err)){
     return false;
   }
-  //check account address
-  {
+  {//check prv unit
+    core::UnitHash last_hash;
+    if(!GetLastUnitHashByPubKey(send_unit->public_key(), last_hash)){
+      if(err){
+        *err = "Public key is not exist";
+      }
+      return false;
+    }
+    if(last_hash != send_unit->prev_unit()){
+      if(err){
+        *err = "Prv unit is not last unit of account";
+      }
+      return false;
+    }
+  }
+  {//check account address
     core::UnitHash hash;
     if(!GetLastUnitHashByPubKey(send_unit->public_key(), hash)){
       if(err){
@@ -219,7 +233,21 @@ bool ambr::store::StoreManager::AddReceiveUnit(std::shared_ptr<ambr::core::Recei
     if(err)*err = "receive_unit  is invalidate.";
     return false;
   }
-
+  {//check prv unit
+    core::UnitHash last_hash;
+    if(!GetLastUnitHashByPubKey(receive_unit->public_key(), last_hash)){
+      if(err){
+        *err = "Public key is not exist";
+      }
+      return false;
+    }
+    if(last_hash != receive_unit->prev_unit()){
+      if(err){
+        *err = "Prv unit is not last unit of account";
+      }
+      return false;
+    }
+  }
   //chain check
   std::shared_ptr<SendUnitStore> send_unit_store = GetSendUnit(receive_unit->from());
   if(!send_unit_store){

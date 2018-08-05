@@ -27,7 +27,7 @@ StoreExampleMainWidget::StoreExampleMainWidget(QWidget *parent) :
   ui->tabDebugUp->setCurrentIndex(0);
   ui->tabDebugDown->setCurrentIndex(0);
   ui->stackTranslate->setCurrentIndex(0);
-
+  root_pri_key_ = "25E25210DCE702D4E36B6C8A17E18DC1D02A9E4F0D1D31C4AEE77327CF1641CC";
   test_pri_key_list_.push_back("F49E1B9F671D0B244744E07289EA0807FAE09F8335F0C1B0629F1BF924CA64E1");
   test_pri_key_list_.push_back("29176270484F74852C5ABCBFEF26C4193FE4C2E4C522984D833329EDD502DC84");
   test_pri_key_list_.push_back("9812383BF3CE164A3D968186BEBA1CCFF299C9C59448A19BF3C0582336E01301");
@@ -345,15 +345,85 @@ void StoreExampleMainWidget::CheckValidatorUnit(){
 }
 
 void StoreExampleMainWidget::CreateDebugInitChain(){
-  ambr::core::PrivateKey create_key("25E25210DCE702D4E36B6C8A17E18DC1D02A9E4F0D1D31C4AEE77327CF1641CC");
-  ambr::core::PublicKey send_to("6C300AF488B768B4F4E8DB76E695D4662FDA864445B64931597A943B811BB978");
-  ambr::core::UnitHash tx_hash;
+  ambr::core::UnitHash tx_hash[10];
   std::shared_ptr<ambr::core::Unit> unit_sended;
-  ambr::store::GetStoreManager()->SendToAddress(send_to, "1", create_key, &tx_hash, unit_sended, nullptr);
-  ambr::store::GetStoreManager()->SendToAddress(send_to, "2", create_key, &tx_hash, unit_sended, nullptr);
-  ambr::store::GetStoreManager()->SendToAddress(send_to, "3", create_key, &tx_hash, unit_sended, nullptr);
-  ambr::store::GetStoreManager()->SendToAddress(send_to, "4", create_key, &tx_hash, unit_sended, nullptr);
-  ambr::store::GetStoreManager()->SendToAddress(send_to, "5", create_key, &tx_hash, unit_sended, nullptr);
+
+  //send
+  /*ambr::store::GetStoreManager()->SendToAddress(ambr::core::PrivateKey(
+    ambr::core::GetPublicKeyByPrivateKey(test_pri_key_list_[0].toStdString())),
+    "10000000",
+    ambr::core::PrivateKey(root_pri_key_.toStdString()),
+    &tx_hash[0],
+    unit_sended,
+    nullptr
+  );
+  ambr::store::GetStoreManager()->SendToAddress(ambr::core::PrivateKey(
+    ambr::core::GetPublicKeyByPrivateKey(test_pri_key_list_[1].toStdString())),
+    "10000000",
+    ambr::core::PrivateKey(root_pri_key_.toStdString()),
+    &tx_hash[1],
+    unit_sended,
+    nullptr
+  );
+  ambr::store::GetStoreManager()->SendToAddress(ambr::core::PrivateKey(
+    ambr::core::GetPublicKeyByPrivateKey(test_pri_key_list_[2].toStdString())),
+    "10000000",
+    ambr::core::PrivateKey(root_pri_key_.toStdString()),
+    &tx_hash[2],
+    unit_sended,
+    nullptr
+  );
+  ambr::store::GetStoreManager()->SendToAddress(ambr::core::PrivateKey(
+    ambr::core::GetPublicKeyByPrivateKey(test_pri_key_list_[3].toStdString())),
+    "10000000",
+    ambr::core::PrivateKey(root_pri_key_.toStdString()),
+    &tx_hash[3],
+    unit_sended,
+    nullptr
+  );
+  ambr::store::GetStoreManager()->SendToAddress(ambr::core::PrivateKey(
+    ambr::core::GetPublicKeyByPrivateKey(test_pri_key_list_[4].toStdString())),
+    "10000000",
+    ambr::core::PrivateKey(root_pri_key_.toStdString()),
+    &tx_hash[4],
+    unit_sended,
+    nullptr
+  );
+  //receive
+  ambr::store::GetStoreManager()->ReceiveFromUnitHash(
+    tx_hash[0],
+    ambr::core::PrivateKey(test_pri_key_list_[0].toStdString()),
+    &tx_hash[9],
+    unit_sended,
+    nullptr);
+  ambr::store::GetStoreManager()->ReceiveFromUnitHash(
+    tx_hash[1],
+    ambr::core::PrivateKey(test_pri_key_list_[1].toStdString()),
+    &tx_hash[9],
+    unit_sended,
+    nullptr);
+  ambr::store::GetStoreManager()->ReceiveFromUnitHash(
+    tx_hash[2],
+    ambr::core::PrivateKey(test_pri_key_list_[2].toStdString()),
+    &tx_hash[2],
+    unit_sended,
+    nullptr);
+  ambr::store::GetStoreManager()->ReceiveFromUnitHash(
+    tx_hash[3],
+    ambr::core::PrivateKey(test_pri_key_list_[3].toStdString()),
+    &tx_hash[9],
+    unit_sended,
+    nullptr);
+  ambr::store::GetStoreManager()->ReceiveFromUnitHash(
+    tx_hash[4],
+    ambr::core::PrivateKey(test_pri_key_list_[4].toStdString()),
+    &tx_hash[9],
+    unit_sended,
+    nullptr);
+  ambr::store::GetStoreManager()->JoinValidatorSet(
+    ambr::core::PrivateKey(test_pri_key_list_[0].toStdString()),
+    "1000000")*/
+
 }
 
 void StoreExampleMainWidget::on_btnPriKey2PubKey_clicked(){
