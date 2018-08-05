@@ -42,6 +42,7 @@ protected:
   UnitStore(StoreType type):type_(type){}
 private:
   StoreType type_;
+
 };
 
 
@@ -67,6 +68,7 @@ private:
   uint32_t version_;
   core::UnitHash receive_unit_hash_;
   uint8_t is_validate_;
+
 };
 
 class ReceiveUnitStore:public UnitStore{

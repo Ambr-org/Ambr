@@ -349,7 +349,7 @@ void StoreExampleMainWidget::CreateDebugInitChain(){
   std::shared_ptr<ambr::core::Unit> unit_sended;
 
   //send
-  /*ambr::store::GetStoreManager()->SendToAddress(ambr::core::PrivateKey(
+  ambr::store::GetStoreManager()->SendToAddress(ambr::core::PrivateKey(
     ambr::core::GetPublicKeyByPrivateKey(test_pri_key_list_[0].toStdString())),
     "10000000",
     ambr::core::PrivateKey(root_pri_key_.toStdString()),
@@ -422,7 +422,19 @@ void StoreExampleMainWidget::CreateDebugInitChain(){
     nullptr);
   ambr::store::GetStoreManager()->JoinValidatorSet(
     ambr::core::PrivateKey(test_pri_key_list_[0].toStdString()),
-    "1000000")*/
+    "1000000",&tx_hash[9],unit_sended,nullptr);
+  ambr::store::GetStoreManager()->JoinValidatorSet(
+    ambr::core::PrivateKey(test_pri_key_list_[1].toStdString()),
+    "1000000",&tx_hash[9],unit_sended,nullptr);
+  ambr::store::GetStoreManager()->JoinValidatorSet(
+    ambr::core::PrivateKey(test_pri_key_list_[2].toStdString()),
+    "1000000",&tx_hash[9],unit_sended,nullptr);
+  ambr::store::GetStoreManager()->JoinValidatorSet(
+    ambr::core::PrivateKey(test_pri_key_list_[3].toStdString()),
+    "1000000",&tx_hash[9],unit_sended,nullptr);
+  ambr::store::GetStoreManager()->JoinValidatorSet(
+    ambr::core::PrivateKey(test_pri_key_list_[4].toStdString()),
+    "1000000",&tx_hash[9],unit_sended,nullptr);
 
 }
 
@@ -638,7 +650,7 @@ void StoreExampleMainWidget::on_btnTranslateReceive_clicked(){
     assert(ambr::store::GetStoreManager()->GetSendAmount(from, amount, &err));
     str = str + "Receive " + amount.encode_to_dec().c_str() + "success.tx_hash:" + hash.encode_to_hex().c_str();
   }else{
-    str = str + "Receive faild. tx_hash:" + hash.encode_to_hex().c_str();
+    str = str + "Receive faild. tx_hash:" + err.c_str();
   }
   ui->edtTRPlaintEdit->setPlainText(str);
 }
@@ -894,7 +906,7 @@ void StoreExampleMainWidget::on_btnTranslateCashDisposite_clicked(){
   amount.set_data((boost::multiprecision::uint128_t)ui->edtTCAmount->text().toULongLong());
 
   ambr::core::UnitHash tx_hash;
-  std::shared_ptr<ambr::core::EnterValidateSetUint> unit;
+  std::shared_ptr<ambr::core::Unit> unit;
   std::string str_err;
   if(ambr::store::GetStoreManager()->JoinValidatorSet(pri_key, amount, &tx_hash, unit, &str_err)){
     ui->edtTCPlainEdit->setPlainText(QString("Send success:")+unit->SerializeJson().c_str());
@@ -910,7 +922,7 @@ void StoreExampleMainWidget::on_btnTranslateUnfreeze_clicked(){
   amount.set_data((boost::multiprecision::uint128_t)ui->edtTUAmount->text().toULongLong());
 
   ambr::core::UnitHash tx_hash;
-  std::shared_ptr<ambr::core::LeaveValidateSetUint> unit;
+  std::shared_ptr<ambr::core::Unit> unit;
   std::string str_err;
   if(ambr::store::GetStoreManager()->LeaveValidatorSet(pri_key, amount, &tx_hash, unit, &str_err)){
     ui->edtTCPlainEdit->setPlainText(QString("Send success:")+unit->SerializeJson().c_str());
@@ -919,8 +931,6 @@ void StoreExampleMainWidget::on_btnTranslateUnfreeze_clicked(){
   }
 }
 
-
-#include <QTableWidget>
 void StoreExampleMainWidget::on_btnFlushVote_clicked(){
   while(ui->tbVote->rowCount()){
     ui->tbVote->removeRow(0);
@@ -945,7 +955,10 @@ void StoreExampleMainWidget::on_btnFlushVote_clicked(){
     return;
   }
   for(ambr::store::ValidatorItem validator_item: validator_set_list->validator_list()){
-    all_balance = all_balance+validator_item.balance_;
+    if(validator_unit->nonce() >= validator_item.enter_nonce_ ||
+    (validator_unit->nonce() <= validator_item.leave_nonce_ || validator_item.leave_nonce_ != 0)){
+      all_balance = all_balance+validator_item.balance_;
+    }
   }
   QString str;
   str += "All Cash deposit is ";
