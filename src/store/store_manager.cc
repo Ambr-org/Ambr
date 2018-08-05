@@ -236,16 +236,12 @@ bool ambr::store::StoreManager::AddReceiveUnit(std::shared_ptr<ambr::core::Recei
   {//check prv unit
     core::UnitHash last_hash;
     if(!GetLastUnitHashByPubKey(receive_unit->public_key(), last_hash)){
-      if(err){
-        *err = "Public key is not exist";
+      if(!receive_unit->prev_unit().is_zero()){
+        if(err){
+          *err = "Prv unit is not last unit of account";
+        }
+        return false;
       }
-      return false;
-    }
-    if(last_hash != receive_unit->prev_unit()){
-      if(err){
-        *err = "Prv unit is not last unit of account";
-      }
-      return false;
     }
   }
   //chain check
