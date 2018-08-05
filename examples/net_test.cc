@@ -308,7 +308,7 @@ void ambr::net::NetManager::Impl::OnReceive(std::shared_ptr<NetMessage> msg, std
     ambr::core::UnitHash firsthash, lasthash;
     size_t num_pos = msg->str_msg_.find(':');
     if(num_pos != std::string::npos){
-      firsthash.decode_from_hex(msg->str_msg_.substr(0, num_pos - 1));
+      firsthash.decode_from_hex(msg->str_msg_.substr(0, num_pos));
       lasthash.decode_from_hex(msg->str_msg_.substr(num_pos + 1, 64));
 
       std::list<Ptr_Unit> list_p_unit;
@@ -364,36 +364,38 @@ void ambr::net::NetManager::Impl::OnReceive(std::shared_ptr<NetMessage> msg, std
       std::vector<uint8_t> buf;
       buf.assign(msg->str_msg_.begin(), msg->str_msg_.end());
       Ptr_Unit unit = ambr::core::Unit::CreateUnitByByte(buf);
-      switch (unit->type()) {
-      case ambr::core::UnitType::send:
-      {
-        LOG(INFO)<<"Get send section unit:"<<unit->SerializeJson();
-        std::shared_ptr<ambr::core::SendUnit> send_unit = std::dynamic_pointer_cast<ambr::core::SendUnit>(unit);
-        if(send_unit && ambr::store::GetStoreManager()->AddSendUnit(send_unit, nullptr)){
-          //BoardcastMessage(msg, peer);
+      if(unit){
+        switch (unit->type()) {
+        case ambr::core::UnitType::send:
+        {
+          LOG(INFO)<<"Get send section unit:"<<unit->SerializeJson();
+          std::shared_ptr<ambr::core::SendUnit> send_unit = std::dynamic_pointer_cast<ambr::core::SendUnit>(unit);
+          if(send_unit && ambr::store::GetStoreManager()->AddSendUnit(send_unit, nullptr)){
+            //BoardcastMessage(msg, peer);
+          }
         }
-      }
-      break;
-      case ambr::core::UnitType::receive:
-      {
-          LOG(INFO)<<"Get receive section unit:"<<unit->SerializeJson();
-          std::shared_ptr<ambr::core::ReceiveUnit> receive_unit = std::dynamic_pointer_cast<ambr::core::ReceiveUnit>(unit);
-          if(receive_unit && ambr::store::GetStoreManager()->AddReceiveUnit(receive_unit, nullptr)){
-            //BoardcastMessage(msg, peer);
-          }
-      }
-      break;
-      case ambr::core::UnitType::Validator:
-      {
-          LOG(INFO)<<"Get validator section unit:"<<unit->SerializeJson();
-          std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = std::dynamic_pointer_cast<ambr::core::ValidatorUnit>(unit);
-          if(validator_unit && ambr::store::GetStoreManager()->AddValidateUnit(validator_unit, nullptr)){
-            //BoardcastMessage(msg, peer);
-          }
-      }
-      break;
-      default:
-      break;
+        break;
+        case ambr::core::UnitType::receive:
+        {
+            LOG(INFO)<<"Get receive section unit:"<<unit->SerializeJson();
+            std::shared_ptr<ambr::core::ReceiveUnit> receive_unit = std::dynamic_pointer_cast<ambr::core::ReceiveUnit>(unit);
+            if(receive_unit && ambr::store::GetStoreManager()->AddReceiveUnit(receive_unit, nullptr)){
+              //BoardcastMessage(msg, peer);
+            }
+        }
+        break;
+        case ambr::core::UnitType::Validator:
+        {
+            LOG(INFO)<<"Get validator section unit:"<<unit->SerializeJson();
+            std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = std::dynamic_pointer_cast<ambr::core::ValidatorUnit>(unit);
+            if(validator_unit && ambr::store::GetStoreManager()->AddValidateUnit(validator_unit, nullptr)){
+              //BoardcastMessage(msg, peer);
+            }
+        }
+        break;
+        default:
+        break;
+        }
       }
   }
   else{
