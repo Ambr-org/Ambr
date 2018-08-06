@@ -261,7 +261,7 @@
              <item>
               <widget class="QTabWidget" name="tabDebugDown">
                <property name="currentIndex">
-                <number>3</number>
+                <number>2</number>
                </property>
                <widget class="QWidget" name="tab_4">
                 <attribute name="title">
@@ -480,7 +480,7 @@
                    <item>
                     <widget class="QStackedWidget" name="stackTranslate">
                      <property name="currentIndex">
-                      <number>2</number>
+                      <number>1</number>
                      </property>
                      <widget class="QWidget" name="page">
                       <layout class="QVBoxLayout" name="verticalLayout_8">

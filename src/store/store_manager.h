@@ -31,6 +31,7 @@ public:
   bool AddValidateUnit(std::shared_ptr<core::ValidatorUnit> unit, std::string* err);
   bool AddVote(std::shared_ptr<core::VoteUnit> unit, std::string* err);
   void ClearVote();
+  void UpdateNewUnitMap(const std::vector<core::UnitHash>& validator_check_list);
 
   bool GetLastValidateUnit(core::UnitHash& hash);
   std::list<std::shared_ptr<core::ValidatorUnit>> GetValidateHistory(size_t count);
@@ -59,12 +60,12 @@ public:
   bool JoinValidatorSet(const core::PrivateKey& pri_key,
                         const core::Amount& count,
                         core::UnitHash* tx_hash,
-                        std::shared_ptr<ambr::core::EnterValidateSetUint>& unit_join,
+                        std::shared_ptr<ambr::core::Unit>& unit_join,
                         std::string* err);
   bool LeaveValidatorSet(const core::PrivateKey& pri_key,
                          const core::Amount& count,
                          core::UnitHash* tx_hash,
-                         std::shared_ptr<ambr::core::LeaveValidateSetUint>& unit_leave,
+                         std::shared_ptr<ambr::core::Unit>& unit_leave,
                          std::string* err);
   //add ValidatorUnit auto Validate Unit
   bool PublishValidator(const core::PrivateKey& pri_key,
