@@ -295,9 +295,23 @@ void ambr::net::NetManager::Impl::OnReceive(std::shared_ptr<NetMessage> msg, std
         }
       }
       else if(unit->type() == ambr::core::UnitType::Validator){
-          LOG(INFO)<<"Get validator unit:"<<unit->SerializeJson();
+        LOG(INFO)<<"Get validator unit:"<<unit->SerializeJson();
         std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = std::dynamic_pointer_cast<ambr::core::ValidatorUnit>(unit);
         if(validator_unit && ambr::store::GetStoreManager()->AddValidateUnit(validator_unit, nullptr)){
+          BoardcastMessage(msg, peer);
+        }
+      }
+      else if(unit->type() == ambr::core::UnitType::EnterValidateSet){
+        LOG(INFO)<<"Get enter validator unit:"<<unit->SerializeJson();
+        std::shared_ptr<ambr::core::EnterValidateSetUint> enter_validator_unit = std::dynamic_pointer_cast<ambr::core::EnterValidateSetUint>(unit);
+        if(enter_validator_unit && ambr::store::GetStoreManager()->AddEnterValidatorSetUnit(enter_validator_unit, nullptr)){
+          BoardcastMessage(msg, peer);
+        }
+      }
+      else if(unit->type() == ambr::core::UnitType::LeaveValidateSet){
+        LOG(INFO)<<"Get leave validator unit:"<<unit->SerializeJson();
+        std::shared_ptr<ambr::core::LeaveValidateSetUint> leave_validator_unit = std::dynamic_pointer_cast<ambr::core::LeaveValidateSetUint>(unit);
+        if(leave_validator_unit && ambr::store::GetStoreManager()->AddLeaveValidatorSetUnit(leave_validator_unit, nullptr)){
           BoardcastMessage(msg, peer);
         }
       }
@@ -389,6 +403,24 @@ void ambr::net::NetManager::Impl::OnReceive(std::shared_ptr<NetMessage> msg, std
             LOG(INFO)<<"Get validator section unit:"<<unit->SerializeJson();
             std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = std::dynamic_pointer_cast<ambr::core::ValidatorUnit>(unit);
             if(validator_unit && ambr::store::GetStoreManager()->AddValidateUnit(validator_unit, nullptr)){
+              //BoardcastMessage(msg, peer);
+            }
+        }
+        break;
+        case ambr::core::UnitType::EnterValidateSet:
+        {
+            LOG(INFO)<<"Get enter validator section unit:"<<unit->SerializeJson();
+            std::shared_ptr<ambr::core::EnterValidateSetUint> enter_validator_unit = std::dynamic_pointer_cast<ambr::core::EnterValidateSetUint>(unit);
+            if(enter_validator_unit && ambr::store::GetStoreManager()->AddEnterValidatorSetUnit(enter_validator_unit, nullptr)){
+              //BoardcastMessage(msg, peer);
+            }
+        }
+        break;
+        case ambr::core::UnitType::LeaveValidateSet:
+        {
+            LOG(INFO)<<"Get leave validator section unit:"<<unit->SerializeJson();
+            std::shared_ptr<ambr::core::LeaveValidateSetUint> leave_validator_unit = std::dynamic_pointer_cast<ambr::core::LeaveValidateSetUint>(unit);
+            if(leave_validator_unit && ambr::store::GetStoreManager()->AddLeaveValidatorSetUnit(leave_validator_unit, nullptr)){
               //BoardcastMessage(msg, peer);
             }
         }
