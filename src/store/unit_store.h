@@ -154,16 +154,22 @@ public:
   void set_version(uint32_t version);
   std::list<ValidatorItem> validator_list() const;
   void set_validator_list(const std::list<ValidatorItem>& item);
-  bool validator_get(const core::PublicKey& pub_key, ValidatorItem& item);
+public:
+  void JoinValidator(const ValidatorItem& item);
+  void LeaveValidator(const core::PublicKey& pub_key, uint64_t leave_nonce);
+  bool GetValidator(const core::PublicKey& pub_key, ValidatorItem& item);
+  bool IsValidator(const core::PublicKey& pub_key, uint64_t now_nonce);
+  bool IsValidator(const core::PublicKey& pub_key);
+  void Update(uint64_t now_nonce);
 public:
   std::string SerializeJson() const;
   bool DeSerializeJson(const std::string& json);
   std::vector<uint8_t> SerializeByte() const;
   bool DeSerializeByte(const std::vector<uint8_t>& buf);
 private:
+
   uint32_t version_;
   std::list<ValidatorItem> validator_list_;
-  std::unordered_map<core::PublicKey, ValidatorItem> validator_map_;
 };
 }//ambr
 }//store

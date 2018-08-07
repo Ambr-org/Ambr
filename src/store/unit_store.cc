@@ -489,17 +489,52 @@ std::list<ambr::store::ValidatorItem> ambr::store::ValidatorSetStore::validator_
 
 void ambr::store::ValidatorSetStore::set_validator_list(const std::list<ambr::store::ValidatorItem> &item){
   validator_list_ = item;
-  validator_map_.clear();
-  for(const ValidatorItem &item: validator_list_){
-    validator_map_[item.validator_public_key_] = item;
+}
+
+void ambr::store::ValidatorSetStore::JoinValidator(const ambr::store::ValidatorItem &item){
+  validator_list_.push_back(item);
+}
+
+void ambr::store::ValidatorSetStore::LeaveValidator(const ambr::core::PublicKey &pub_key, uint64_t leave_nonce){
+  for(std::list<ValidatorItem>::iterator iter = validator_list_.begin();
+    iter != validator_list_.end(); iter++){
+    if(iter->validator_public_key_ == pub_key){
+      iter->leave_nonce_ = leave_nonce+2;
+    }
   }
 }
 
-bool ambr::store::ValidatorSetStore::validator_get(const ambr::core::PublicKey &pub_key, ambr::store::ValidatorItem &item){
-  auto iter = validator_map_.find(pub_key);
-  if(iter != validator_map_.end()){
-    item = iter->second;
-    return true;
+bool ambr::store::ValidatorSetStore::GetValidator(const ambr::core::PublicKey &pub_key, ambr::store::ValidatorItem &item){
+  for(ValidatorItem validator_item: validator_list_){
+    if(validator_item.validator_public_key_ == pub_key){
+      item = validator_item;
+      return true;
+    }
+  }
+  return false;
+}
+
+bool ambr::store::ValidatorSetStore::IsValidator(const ambr::core::PublicKey &pub_key, uint64_t now_nonce){
+  //std::list<ValidatorItem> validator_list_;
+  for(const ValidatorItem& item: validator_list_){
+    if(item.validator_public_key_ == pub_key &&
+       item.enter_nonce_ <= now_nonce &&
+       (item.leave_nonce_ > now_nonce || item.leave_nonce_ == 0)){
+      return true;
+    }
+    std::cout<<"========="<<(item.validator_public_key_ == pub_key)<<"|"<<
+               (item.enter_nonce_ >= now_nonce)<<"|"<<
+               ((item.leave_nonce_ < now_nonce || item.leave_nonce_ == 0))<<std::endl;
+  }
+  return false;
+}
+
+bool ambr::store::ValidatorSetStore::IsValidator(const ambr::core::PublicKey &pub_key)
+{
+  for(const ValidatorItem& item: validator_list_){
+    if(item.validator_public_key_ == pub_key){
+      return true;
+    }
   }
   return false;
 }
@@ -526,7 +561,6 @@ std::string ambr::store::ValidatorSetStore::SerializeJson() const{
 
 bool ambr::store::ValidatorSetStore::DeSerializeJson(const std::string &json){
   validator_list_.clear();
-  validator_map_.clear();
   try{
     ::boost::property_tree::ptree pt;
     std::istringstream stream(json.c_str());
@@ -541,9 +575,6 @@ bool ambr::store::ValidatorSetStore::DeSerializeJson(const std::string &json){
     }
   }catch(...){
     return false;
-  }
-  for(const ValidatorItem &item: validator_list_){
-    validator_map_[item.validator_public_key_] = item;
   }
   return true;
 }
@@ -565,7 +596,6 @@ std::vector<uint8_t> ambr::store::ValidatorSetStore::SerializeByte() const{
 
 bool ambr::store::ValidatorSetStore::DeSerializeByte(const std::vector<uint8_t> &buf){
   validator_list_.clear();
-  validator_map_.clear();
   if(buf.size() < 4 || (buf.size()-4)%sizeof(ValidatorItem) != 0){
     return false;
   }
@@ -579,10 +609,20 @@ bool ambr::store::ValidatorSetStore::DeSerializeByte(const std::vector<uint8_t> 
     src+= sizeof(item);
     validator_list_.push_back(item);
   }
-  for(const ValidatorItem &item: validator_list_){
-    validator_map_[item.validator_public_key_] = item;
-  }
   return true;
+}
+
+void ambr::store::ValidatorSetStore::Update(uint64_t now_nonce){
+  //std::list<ValidatorItem> validator_list_;
+  std::list<std::list<ValidatorItem>::iterator> rm_list;
+  for(std::list<ValidatorItem>::iterator iter = validator_list_.begin(); iter != validator_list_.end(); iter++){
+    if(iter->leave_nonce_ != 0 && iter->leave_nonce_ <= now_nonce){
+      rm_list.push_back(iter);
+    }
+  }
+  for(std::list<ValidatorItem>::iterator iter: rm_list){
+    validator_list_.erase(iter);
+  }
 }
 
 

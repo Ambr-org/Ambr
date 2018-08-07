@@ -78,14 +78,13 @@ void StoreExampleMainWidget::DrawUnit(QPainter& pt){
   //clear
   unit_list_.clear();
   unit_map_.clear();
-
-  ui->wgtPaint->setFixedSize(3000,3000);
+  ui->wgtPaint->setFixedHeight((max_chain_length_for_draw_)*height_distance+unit_width);
+  ui->wgtPaint->setFixedWidth((ambr::store::GetStoreManager()->GetAccountListFromAccountForDebug().size()+1)*width_distance+unit_width);
 
   std::shared_ptr<ambr::store::StoreManager> store_manager = ambr::store::GetStoreManager();
   std::list<ambr::core::UnitHash> unit_list = store_manager->GetAccountListFromAccountForDebug();
   uint32_t hori_idx = 0, vert_idx = 0;
   for(auto iter_account = unit_list.begin(); iter_account != unit_list.end(); iter_account++){
-    //ambr::core::UnitHash account_hash = *iter_account;
     std::list<std::shared_ptr<ambr::store::UnitStore> > unit_list = store_manager->GetTradeHistoryByPubKey(*iter_account, max_chain_length_for_draw_);
     vert_idx = 0;
     for(auto iter_unit = unit_list.begin(); iter_unit != unit_list.end(); iter_unit++){
@@ -351,7 +350,7 @@ void StoreExampleMainWidget::CreateDebugInitChain(){
   //send
   ambr::store::GetStoreManager()->SendToAddress(ambr::core::PrivateKey(
     ambr::core::GetPublicKeyByPrivateKey(test_pri_key_list_[0].toStdString())),
-    "10000000",
+    "100000000000",
     ambr::core::PrivateKey(root_pri_key_.toStdString()),
     &tx_hash[0],
     unit_sended,
@@ -359,7 +358,7 @@ void StoreExampleMainWidget::CreateDebugInitChain(){
   );
   ambr::store::GetStoreManager()->SendToAddress(ambr::core::PrivateKey(
     ambr::core::GetPublicKeyByPrivateKey(test_pri_key_list_[1].toStdString())),
-    "10000000",
+    "100000000000",
     ambr::core::PrivateKey(root_pri_key_.toStdString()),
     &tx_hash[1],
     unit_sended,
@@ -367,7 +366,7 @@ void StoreExampleMainWidget::CreateDebugInitChain(){
   );
   ambr::store::GetStoreManager()->SendToAddress(ambr::core::PrivateKey(
     ambr::core::GetPublicKeyByPrivateKey(test_pri_key_list_[2].toStdString())),
-    "10000000",
+    "100000000000",
     ambr::core::PrivateKey(root_pri_key_.toStdString()),
     &tx_hash[2],
     unit_sended,
@@ -375,7 +374,7 @@ void StoreExampleMainWidget::CreateDebugInitChain(){
   );
   ambr::store::GetStoreManager()->SendToAddress(ambr::core::PrivateKey(
     ambr::core::GetPublicKeyByPrivateKey(test_pri_key_list_[3].toStdString())),
-    "10000000",
+    "100000000000",
     ambr::core::PrivateKey(root_pri_key_.toStdString()),
     &tx_hash[3],
     unit_sended,
@@ -383,7 +382,7 @@ void StoreExampleMainWidget::CreateDebugInitChain(){
   );
   ambr::store::GetStoreManager()->SendToAddress(ambr::core::PrivateKey(
     ambr::core::GetPublicKeyByPrivateKey(test_pri_key_list_[4].toStdString())),
-    "10000000",
+    "100000000000",
     ambr::core::PrivateKey(root_pri_key_.toStdString()),
     &tx_hash[4],
     unit_sended,
@@ -422,19 +421,19 @@ void StoreExampleMainWidget::CreateDebugInitChain(){
     nullptr);
   ambr::store::GetStoreManager()->JoinValidatorSet(
     ambr::core::PrivateKey(test_pri_key_list_[0].toStdString()),
-    "1000000",&tx_hash[9],unit_sended,nullptr);
+    "80000000000",&tx_hash[9],unit_sended,nullptr);
   ambr::store::GetStoreManager()->JoinValidatorSet(
     ambr::core::PrivateKey(test_pri_key_list_[1].toStdString()),
-    "1000000",&tx_hash[9],unit_sended,nullptr);
+    "80000000000",&tx_hash[9],unit_sended,nullptr);
   ambr::store::GetStoreManager()->JoinValidatorSet(
     ambr::core::PrivateKey(test_pri_key_list_[2].toStdString()),
-    "1000000",&tx_hash[9],unit_sended,nullptr);
+    "80000000000",&tx_hash[9],unit_sended,nullptr);
   ambr::store::GetStoreManager()->JoinValidatorSet(
     ambr::core::PrivateKey(test_pri_key_list_[3].toStdString()),
-    "1000000",&tx_hash[9],unit_sended,nullptr);
+    "80000000000",&tx_hash[9],unit_sended,nullptr);
   ambr::store::GetStoreManager()->JoinValidatorSet(
     ambr::core::PrivateKey(test_pri_key_list_[4].toStdString()),
-    "1000000",&tx_hash[9],unit_sended,nullptr);
+    "80000000000",&tx_hash[9],unit_sended,nullptr);
 
 }
 

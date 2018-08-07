@@ -115,6 +115,7 @@ private:
   rocksdb::ColumnFamilyHandle* handle_leave_validator_unit_;//unit_hash->LeaveValidatorUnitStore
   rocksdb::ColumnFamilyHandle* handle_validator_set_;//unit_hash->validator_set
   std::list<std::shared_ptr<core::VoteUnit>> vote_list_;
+  const uint64_t PERCENT_MAX=1000000000u;
 };
 
 inline std::shared_ptr<StoreManager> GetStoreManager(){
