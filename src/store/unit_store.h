@@ -154,13 +154,20 @@ public:
   void set_version(uint32_t version);
   std::list<ValidatorItem> validator_list() const;
   void set_validator_list(const std::list<ValidatorItem>& item);
+
+  uint64_t current_nonce();
+  void set_current_nonce(uint64_t nonce);
+  core::PublicKey current_validator();
+  void set_current_validator(const core::PublicKey& pub_key);
 public:
   void JoinValidator(const ValidatorItem& item);
   void LeaveValidator(const core::PublicKey& pub_key, uint64_t leave_nonce);
   bool GetValidator(const core::PublicKey& pub_key, ValidatorItem& item);
+  std::vector<ambr::core::PublicKey> GetValidatorList(uint64_t now_nonce);
   bool IsValidator(const core::PublicKey& pub_key, uint64_t now_nonce);
   bool IsValidator(const core::PublicKey& pub_key);
   void Update(uint64_t now_nonce);
+  bool GetNonceTurnValidator(uint64_t nonce, core::PublicKey& pub_key);
 public:
   std::string SerializeJson() const;
   bool DeSerializeJson(const std::string& json);
@@ -169,6 +176,8 @@ public:
 private:
 
   uint32_t version_;
+  uint64_t current_nonce_;
+  core::PublicKey current_validator_;
   std::list<ValidatorItem> validator_list_;
 };
 }//ambr

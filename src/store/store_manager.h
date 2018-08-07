@@ -86,6 +86,10 @@ public:
   std::shared_ptr<EnterValidatorSetUnitStore> GetEnterValidatorSetUnit(const core::UnitHash& hash);
   std::shared_ptr<LeaveValidatorSetUnitStore> GetLeaveValidatorSetUnit(const core::UnitHash& hash);
   std::list<std::shared_ptr<core::VoteUnit>> GetVoteList();
+
+  uint64_t GetGenesisTime(){return genesis_time_;}
+  uint32_t GetValidateUnitInterval(){return validate_unit_interval_;}
+  uint64_t GetNonceByNowTime();
 public://for debug
   std::list<core::UnitHash> GetAccountListFromAccountForDebug();
   std::list<core::UnitHash> GetAccountListFromWaitForReceiveForDebug();
@@ -116,6 +120,8 @@ private:
   rocksdb::ColumnFamilyHandle* handle_validator_set_;//unit_hash->validator_set
   std::list<std::shared_ptr<core::VoteUnit>> vote_list_;
   const uint64_t PERCENT_MAX=1000000000u;
+  uint64_t genesis_time_;
+  const uint32_t validate_unit_interval_ = 2000u;//2s
 };
 
 inline std::shared_ptr<StoreManager> GetStoreManager(){

@@ -10,6 +10,7 @@
 
 #include "net_test.h"
 
+
 static uint32_t height_distance = 200;
 static uint32_t width_distance = 200;
 static uint32_t unit_width = 100;
@@ -731,6 +732,49 @@ void StoreExampleMainWidget::on_btnVote_clicked(){
     ui->edtVoteLOG->setPlainText(("Vote success:"+unit->SerializeJson()).c_str());
   }
 }
+void StoreExampleMainWidget::on_btnFlushVote_clicked(){
+  while(ui->tbVote->rowCount()){
+    ui->tbVote->removeRow(0);
+  }
+  std::list<std::shared_ptr<ambr::core::VoteUnit>> vote_list = ambr::store::GetStoreManager()->GetVoteList();
+  ambr::core::Amount all_balance, accept_balance;
+  for(std::shared_ptr<ambr::core::VoteUnit> unit: vote_list){
+    ui->tbVote->insertRow(0);
+    ui->tbVote->setItem(0,0, new QTableWidgetItem(unit->validator_unit_hash().encode_to_hex().c_str()));
+    ui->tbVote->setItem(0,1, new QTableWidgetItem(unit->balance().encode_to_dec().c_str()));
+    ui->tbVote->setItem(0,2, new QTableWidgetItem(unit->accept()?"true":"false"));
+    if(unit->accept()){
+      accept_balance += unit->balance();
+    }
+  }
+  std::shared_ptr<ambr::store::ValidatorSetStore> validator_set_list = ambr::store::GetStoreManager()->GetValidatorSet();
+  if(!validator_set_list){
+    return;
+  }
+  std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = ambr::store::GetStoreManager()->GetLastestValidateUnit();
+  if(!validator_unit){
+    return;
+  }
+  for(ambr::store::ValidatorItem validator_item: validator_set_list->validator_list()){
+    if(validator_unit->nonce() >= validator_item.enter_nonce_ ||
+    (validator_unit->nonce() <= validator_item.leave_nonce_ || validator_item.leave_nonce_ != 0)){
+      all_balance = all_balance+validator_item.balance_;
+    }
+  }
+  QString str;
+  str += "All Cash deposit is ";
+  str += all_balance.encode_to_dec().c_str();
+  str += QString(". accept percent is ")+(accept_balance*100/all_balance).encode_to_dec().c_str()+"%";
+  ui->lblVote->setPlainText(str);
+}
+
+void StoreExampleMainWidget::on_btnMSVStart1_clicked(){
+  validator_auto_[0].StartAutoRun(ui->edtMVSPriv1->text().toStdString());
+}
+
+void StoreExampleMainWidget::on_btnMSVStop1_clicked(){
+  validator_auto_[0].StopAutoRun();
+}
 
 void StoreExampleMainWidget::DealConnect(std::shared_ptr<ambr::net::Peer> peer){
   ui->tbP2PConnectionOut->insertRow(0);
@@ -930,38 +974,5 @@ void StoreExampleMainWidget::on_btnTranslateUnfreeze_clicked(){
   }
 }
 
-void StoreExampleMainWidget::on_btnFlushVote_clicked(){
-  while(ui->tbVote->rowCount()){
-    ui->tbVote->removeRow(0);
-  }
-  std::list<std::shared_ptr<ambr::core::VoteUnit>> vote_list = ambr::store::GetStoreManager()->GetVoteList();
-  ambr::core::Amount all_balance, accept_balance;
-  for(std::shared_ptr<ambr::core::VoteUnit> unit: vote_list){
-    ui->tbVote->insertRow(0);
-    ui->tbVote->setItem(0,0, new QTableWidgetItem(unit->validator_unit_hash().encode_to_hex().c_str()));
-    ui->tbVote->setItem(0,1, new QTableWidgetItem(unit->balance().encode_to_dec().c_str()));
-    ui->tbVote->setItem(0,2, new QTableWidgetItem(unit->accept()?"true":"false"));
-    if(unit->accept()){
-      accept_balance += unit->balance();
-    }
-  }
-  std::shared_ptr<ambr::store::ValidatorSetStore> validator_set_list = ambr::store::GetStoreManager()->GetValidatorSet();
-  if(!validator_set_list){
-    return;
-  }
-  std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = ambr::store::GetStoreManager()->GetLastestValidateUnit();
-  if(!validator_unit){
-    return;
-  }
-  for(ambr::store::ValidatorItem validator_item: validator_set_list->validator_list()){
-    if(validator_unit->nonce() >= validator_item.enter_nonce_ ||
-    (validator_unit->nonce() <= validator_item.leave_nonce_ || validator_item.leave_nonce_ != 0)){
-      all_balance = all_balance+validator_item.balance_;
-    }
-  }
-  QString str;
-  str += "All Cash deposit is ";
-  str += all_balance.encode_to_dec().c_str();
-  str += QString(". accept percent is ")+(accept_balance*100/all_balance).encode_to_dec().c_str()+"%";
-  ui->lblVote->setPlainText(str);
-}
+
+

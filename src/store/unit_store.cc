@@ -491,6 +491,22 @@ void ambr::store::ValidatorSetStore::set_validator_list(const std::list<ambr::st
   validator_list_ = item;
 }
 
+uint64_t ambr::store::ValidatorSetStore::current_nonce(){
+  return current_nonce_;
+}
+
+void ambr::store::ValidatorSetStore::set_current_nonce(uint64_t nonce){
+  current_nonce_ = nonce;
+}
+
+ambr::core::PublicKey ambr::store::ValidatorSetStore::current_validator(){
+  return current_validator_;
+}
+
+void ambr::store::ValidatorSetStore::set_current_validator(const ambr::core::PublicKey &pub_key){
+  current_validator_ = pub_key;
+}
+
 void ambr::store::ValidatorSetStore::JoinValidator(const ambr::store::ValidatorItem &item){
   validator_list_.push_back(item);
 }
@@ -514,17 +530,24 @@ bool ambr::store::ValidatorSetStore::GetValidator(const ambr::core::PublicKey &p
   return false;
 }
 
+std::vector<ambr::core::PublicKey> ambr::store::ValidatorSetStore::GetValidatorList(uint64_t now_nonce){
+  std::vector<ambr::core::PublicKey> rtn;
+  for(const ValidatorItem& item: validator_list_){
+    if(item.enter_nonce_ <= now_nonce &&
+       (item.leave_nonce_ > now_nonce || item.leave_nonce_ == 0)){
+      rtn.push_back(item.validator_public_key_);
+    }
+  }
+  return rtn;
+}
+
 bool ambr::store::ValidatorSetStore::IsValidator(const ambr::core::PublicKey &pub_key, uint64_t now_nonce){
-  //std::list<ValidatorItem> validator_list_;
   for(const ValidatorItem& item: validator_list_){
     if(item.validator_public_key_ == pub_key &&
        item.enter_nonce_ <= now_nonce &&
        (item.leave_nonce_ > now_nonce || item.leave_nonce_ == 0)){
       return true;
     }
-    std::cout<<"========="<<(item.validator_public_key_ == pub_key)<<"|"<<
-               (item.enter_nonce_ >= now_nonce)<<"|"<<
-               ((item.leave_nonce_ < now_nonce || item.leave_nonce_ == 0))<<std::endl;
   }
   return false;
 }
@@ -550,6 +573,8 @@ std::string ambr::store::ValidatorSetStore::SerializeJson() const{
       pt_child.push_back(std::make_pair("", pt_tmp));
     }
     pt.put("version", version_);
+    pt.put("current_nonce", current_nonce_);
+    pt.put("current_validator", current_validator_.encode_to_hex());
     pt.put_child("Validators", pt_child);
   }catch(...){
     assert(1);
@@ -567,6 +592,8 @@ bool ambr::store::ValidatorSetStore::DeSerializeJson(const std::string &json){
     ::boost::property_tree::read_json(stream, pt);
     ::boost::property_tree::ptree pt_array;
     version_ = pt.get<uint32_t>("version");
+    current_nonce_ = pt.get<uint64_t>("current_nonce");
+    current_validator_.decode_from_hex(pt.get<std::string>("current_validator"));
     pt_array = pt.get_child("Validators");
     for(auto child: pt_array){
       ValidatorItem item;
@@ -580,12 +607,16 @@ bool ambr::store::ValidatorSetStore::DeSerializeJson(const std::string &json){
 }
 
 std::vector<uint8_t> ambr::store::ValidatorSetStore::SerializeByte() const{
-  size_t len = sizeof(version_) +validator_list_.size()*sizeof(ValidatorItem);
+  size_t len = sizeof(version_)+sizeof(current_nonce_)+sizeof(current_validator_)+validator_list_.size()*sizeof(ValidatorItem);
   std::vector<uint8_t> rtn(len);
   uint8_t* dest = rtn.data();
 
   memcpy(dest, &version_, sizeof(version_));
   dest += sizeof(version_);
+  memcpy(dest, &current_nonce_, sizeof(current_nonce_));
+  dest += sizeof(current_nonce_);
+  memcpy(dest, &current_validator_, sizeof(current_validator_));
+  dest += sizeof(current_validator_);
 
   for(ValidatorItem item: validator_list_){
     memcpy(dest, &item, sizeof(item));
@@ -596,13 +627,18 @@ std::vector<uint8_t> ambr::store::ValidatorSetStore::SerializeByte() const{
 
 bool ambr::store::ValidatorSetStore::DeSerializeByte(const std::vector<uint8_t> &buf){
   validator_list_.clear();
-  if(buf.size() < 4 || (buf.size()-4)%sizeof(ValidatorItem) != 0){
+  size_t min_size = sizeof(version_)+sizeof(current_nonce_)+sizeof(current_validator_);
+  if(buf.size() <  min_size|| (buf.size()-min_size)%sizeof(ValidatorItem) != 0){
     return false;
   }
   size_t item_size = (buf.size()-4)/sizeof(ValidatorItem);
   const uint8_t* src = buf.data();
   memcpy(&version_, src, sizeof(version_));
   src += sizeof(version_);
+  memcpy(&current_nonce_, src, sizeof(current_nonce_));
+  src += sizeof(current_nonce_);
+  memcpy(&current_validator_, src, sizeof(current_validator_));
+  src += sizeof(current_validator_);
   for(size_t i = 0; i < item_size; i++){
     ValidatorItem item;
     memcpy(&item, src, sizeof(item));
@@ -623,6 +659,24 @@ void ambr::store::ValidatorSetStore::Update(uint64_t now_nonce){
   for(std::list<ValidatorItem>::iterator iter: rm_list){
     validator_list_.erase(iter);
   }
+}
+
+bool ambr::store::ValidatorSetStore::GetNonceTurnValidator(uint64_t nonce, core::PublicKey& pub_key){
+  std::vector<ambr::core::PublicKey> pub_key_list = GetValidatorList(nonce);
+  if(current_nonce_ > nonce){
+    return false;
+  }
+  uint64_t distance = nonce-current_nonce_;
+  uint64_t from_first = 0;
+  for(size_t i = 0; i < pub_key_list.size(); i++){
+    if(pub_key_list[i] == pub_key){
+      from_first = i;
+      break;
+    }
+  }
+  uint64_t idx = (distance+from_first)%pub_key_list.size();
+  pub_key = pub_key_list[idx];
+  return true;
 }
 
 

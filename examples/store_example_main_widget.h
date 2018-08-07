@@ -8,6 +8,7 @@
 #include <core/key.h>
 #include <core/unit.h>
 #include "net_test.h"
+#include "utils/validator_auto.h"
 namespace Ui {
   class StoreExampleMainWidget;
 }
@@ -63,16 +64,16 @@ private slots:
   void on_btnFlushValidatorSet_clicked();
   void on_btnAddSV_clicked();
   void on_btnVote_clicked();
+  void on_btnFlushVote_clicked();
+  void on_btnMSVStart1_clicked();
+  void on_btnMSVStop1_clicked();
+
 
   void DealConnect(std::shared_ptr<ambr::net::Peer> peer);
   void DealAccept(std::shared_ptr<ambr::net::Peer> peer);
   void DealDisconnected(std::shared_ptr<ambr::net::Peer> peer);
 protected:
   bool eventFilter(QObject *target, QEvent *event);
-
-private slots:
-  void on_btnFlushVote_clicked();
-
 private:
   Ui::StoreExampleMainWidget *ui;
   QStringList test_pri_key_list_;
@@ -98,6 +99,8 @@ private:
   std::unordered_map<ambr::core::UnitHash, std::shared_ptr<DrawItem>> unit_map_;
   ambr::core::UnitHash active_unit_;
   ambr::core::UnitHash selected_unit_;
+private:
+  ambr::utils::ValidatorAuto validator_auto_[10];
 };
 
 #endif // STORE_EXAMPLE_MAIN_WIDGET_H

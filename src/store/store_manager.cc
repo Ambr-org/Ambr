@@ -57,7 +57,6 @@ void ambr::store::StoreManager::Init(const std::string& path){
 
     if(!GetBalanceByPubKey(pub_key, balance)){
       std::shared_ptr<core::ReceiveUnit> unit = std::shared_ptr<core::ReceiveUnit>(new core::ReceiveUnit());
-
       //construct unit of genesis
       unit->set_version(0x00000001);
       unit->set_type(core::UnitType::receive);
@@ -79,20 +78,23 @@ void ambr::store::StoreManager::Init(const std::string& path){
       enter_unit->SignatureAndFill(core::PrivateKey("25E25210DCE702D4E36B6C8A17E18DC1D02A9E4F0D1D31C4AEE77327CF1641CC"));
 
       //construct validate unit of genesis
+      boost::posix_time::ptime pt = boost::posix_time::microsec_clock::universal_time();
+      boost::posix_time::ptime pt_ori(boost::gregorian::date(1970, boost::gregorian::Jan, 1));
+      boost::posix_time::time_duration duration = pt-pt_ori;
+      genesis_time_ = duration.total_milliseconds();
       std::shared_ptr<core::ValidatorUnit> unit_validate = std::make_shared<core::ValidatorUnit>();
       unit_validate->set_version(0x00000001);
       unit_validate->set_type(core::UnitType::Validator);
       unit_validate->set_public_key(unit->public_key());
       unit_validate->set_balance(init_validate);
-      unit_validate->set_time_stamp(32);
+      unit_validate->set_time_stamp(genesis_time_);
       unit_validate->set_percent(32);
       unit_validate->set_nonce(0);
-
       unit_validate->add_check_list(enter_unit->hash());
-
       unit_validate->CalcHashAndFill();
       unit_validate->SignatureAndFill(core::PrivateKey("25E25210DCE702D4E36B6C8A17E18DC1D02A9E4F0D1D31C4AEE77327CF1641CC"));
       unit_validate->Validate(nullptr);
+
       //construct validator set of genesis
       std::shared_ptr<store::ValidatorSetStore> validator_store = std::make_shared<store::ValidatorSetStore>();
       validator_store->set_version(0x00000001);
@@ -103,7 +105,10 @@ void ambr::store::StoreManager::Init(const std::string& path){
       item.enter_nonce_ = 0;
       item.leave_nonce_ = 0;
       validator_list.push_back(item);
+      validator_store->set_current_nonce(0u);
+      validator_store->set_current_validator(unit_validate->public_key());
       validator_store->set_validator_list(validator_list);
+
       //write genesis to database
       rocksdb::WriteBatch batch;
       std::shared_ptr<ReceiveUnitStore> rec_store = std::make_shared<ReceiveUnitStore>(unit);
@@ -518,11 +523,6 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
     }
     return false;
   }
-
-  //check nonce
-  //TODO
-
-  //UPDATE validator_set
   std::shared_ptr<ambr::store::ValidatorSetStore> validator_set_list = ambr::store::GetStoreManager()->GetValidatorSet();
   if(!validator_set_list){
     if(err){
@@ -530,6 +530,18 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
     }
     return false;
   }
+
+  //check nonce
+  core::PublicKey check_pub_key;
+  if(!validator_set_list->GetNonceTurnValidator(unit->nonce(), check_pub_key) ||
+     check_pub_key != unit->public_key() ||
+     prv_validate_unit->nonce() == unit->nonce()){
+    if(err){
+      *err = "err nonce or validator";
+    }
+    return false;
+  }
+  //UPDATE validator_set
   validator_set_list->Update(unit->nonce());
 
 
@@ -654,6 +666,8 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
   ClearVote();
   //validator now
   if(unit->percent() > PERCENT_MAX/2){//passed
+    validator_set_list->set_current_nonce(unit->nonce());
+    validator_set_list->set_current_validator(unit->public_key());
     std::vector<ambr::core::UnitHash> checked_list = prv_validate_unit->check_list();
     for(const ambr::core::UnitHash& hash: checked_list){
       std::shared_ptr<ambr::store::UnitStore> unit_tmp = GetUnit(hash);
@@ -1192,24 +1206,13 @@ bool ambr::store::StoreManager::PublishValidator(
     unit->add_vote_list(*vote_item);
   }
 
-  //check percent
-  std::shared_ptr<ambr::core::ValidatorUnit> last_validator_unit = GetLastestValidateUnit();
-  if(unit->percent() > PERCENT_MAX/2){//passed
-    if(!last_validator_unit){
-      if(err){
-        *err = "latest validator unit is not found";
-      }
-      return false;
-    }
-    UpdateNewUnitMap(last_validator_unit->check_list());
-  }
   //add check unit
   auto new_unit_map = GetNewUnitMap();
   for(auto item: new_unit_map){
     unit->add_check_list(item.second);
   }
   unit->set_balance(validator_item.balance_);
-  unit->set_nonce(last_validator_unit->nonce()+1);
+  unit->set_nonce(GetNonceByNowTime());
   //calc percent
   ambr::core::Amount all_balance,vote_balance;
   for(ambr::store::ValidatorItem validator_item: validator_set->validator_list()){
@@ -1241,7 +1244,17 @@ bool ambr::store::StoreManager::PublishValidator(
 
 
   unit->set_percent((uint32_t)(vote_balance*ambr::core::Amount(PERCENT_MAX) / all_balance).data());
-
+  //check percent
+  std::shared_ptr<ambr::core::ValidatorUnit> last_validator_unit = GetLastestValidateUnit();
+  if(unit->percent() > PERCENT_MAX/2){//passed
+    if(!last_validator_unit){
+      if(err){
+        *err = "latest validator unit is not found";
+      }
+      return false;
+    }
+    UpdateNewUnitMap(last_validator_unit->check_list());
+  }
   unit->CalcHashAndFill();
   unit->SignatureAndFill(pri_key);
 
@@ -1442,6 +1455,14 @@ std::shared_ptr<ambr::store::LeaveValidatorSetUnitStore> ambr::store::StoreManag
 
 std::list<std::shared_ptr<ambr::core::VoteUnit>> ambr::store::StoreManager::GetVoteList(){
   return vote_list_;
+}
+
+uint64_t ambr::store::StoreManager::GetNonceByNowTime(){
+  boost::posix_time::ptime pt = boost::posix_time::microsec_clock::universal_time();
+  boost::posix_time::ptime pt_ori(boost::gregorian::date(1970, boost::gregorian::Jan, 1));
+  boost::posix_time::time_duration duration = pt-pt_ori;
+  uint64_t interval = duration.total_milliseconds() - ambr::store::GetStoreManager()->GetGenesisTime();
+  return (interval/GetValidateUnitInterval());
 }
 
 std::list<ambr::core::UnitHash> ambr::store::StoreManager::GetAccountListFromAccountForDebug(){

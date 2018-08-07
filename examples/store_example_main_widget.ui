@@ -261,7 +261,7 @@
              <item>
               <widget class="QTabWidget" name="tabDebugDown">
                <property name="currentIndex">
-                <number>2</number>
+                <number>3</number>
                </property>
                <widget class="QWidget" name="tab_4">
                 <attribute name="title">
@@ -1930,7 +1930,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="edtMVSPriv"/>
+           <widget class="QLineEdit" name="edtMVSPriv1"/>
           </item>
          </layout>
         </item>
@@ -1944,7 +1944,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="edtMVSBalacne"/>
+           <widget class="QLineEdit" name="edtMVSBalacne1"/>
           </item>
          </layout>
         </item>
@@ -1958,7 +1958,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit_3"/>
+           <widget class="QLineEdit" name="edtMVSCashDeposit1"/>
           </item>
          </layout>
         </item>
@@ -1972,19 +1972,19 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit_4"/>
+           <widget class="QLineEdit" name="edtMVSAllBalance1"/>
           </item>
          </layout>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_2">
+         <widget class="QPushButton" name="btnMSVStart1">
           <property name="text">
            <string>开始验证</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_3">
+         <widget class="QPushButton" name="btnMSVStop1">
           <property name="text">
            <string>停止验证</string>
           </property>
