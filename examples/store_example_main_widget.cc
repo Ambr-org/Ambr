@@ -15,16 +15,20 @@ static uint32_t height_distance = 200;
 static uint32_t width_distance = 200;
 static uint32_t unit_width = 100;
 
-StoreExampleMainWidget::StoreExampleMainWidget(QWidget *parent) :
+StoreExampleMainWidget::StoreExampleMainWidget(std::shared_ptr<ambr::store::StoreManager> store_manager, std::shared_ptr<ambr::net::NetManager> net_manager, QWidget *parent) :
   QWidget(parent),
-  ui(new Ui::StoreExampleMainWidget),max_chain_length_for_draw_(10)
+  ui(new Ui::StoreExampleMainWidget),max_chain_length_for_draw_(10),
+  store_manager_(store_manager),
+  net_manager_(net_manager)
 {
+  assert(store_manager_);
   ui->setupUi(this);
   ui->wgtPaint->installEventFilter(this);
   //tab init
   ui->tabMain->setCurrentIndex(2);
   ui->tabMain->setTabEnabled(0, false);
   ui->tabMain->setTabEnabled(1, false);
+  ui->tabMain->setTabEnabled(3, false);
   ui->tabDebugUp->setCurrentIndex(0);
   ui->tabDebugDown->setCurrentIndex(0);
   ui->stackTranslate->setCurrentIndex(0);
@@ -44,9 +48,16 @@ StoreExampleMainWidget::StoreExampleMainWidget(QWidget *parent) :
   connect(this, SIGNAL(DoConnect(std::shared_ptr<ambr::net::Peer>)), this, SLOT(DealConnect(std::shared_ptr<ambr::net::Peer>)));
   connect(this, SIGNAL(DoAccept(std::shared_ptr<ambr::net::Peer>)), this, SLOT(DealAccept(std::shared_ptr<ambr::net::Peer>)));
   connect(this, SIGNAL(DoDisconnected(std::shared_ptr<ambr::net::Peer>)), this, SLOT(DealDisconnected(std::shared_ptr<ambr::net::Peer>)));
+
+  for(int i = 0; i < 32; i++){
+    validator_auto_.push_back(std::make_shared<ambr::utils::ValidatorAuto>(store_manager));
+  }
 }
 
 StoreExampleMainWidget::~StoreExampleMainWidget(){
+  for(std::shared_ptr<ambr::utils::ValidatorAuto> auto_item:validator_auto_){
+    auto_item->StopAutoRun();
+  }
   delete ui;
 }
 
@@ -80,9 +91,9 @@ void StoreExampleMainWidget::DrawUnit(QPainter& pt){
   unit_list_.clear();
   unit_map_.clear();
   ui->wgtPaint->setFixedHeight((max_chain_length_for_draw_)*height_distance+unit_width);
-  ui->wgtPaint->setFixedWidth((ambr::store::GetStoreManager()->GetAccountListFromAccountForDebug().size()+1)*width_distance+unit_width);
+  ui->wgtPaint->setFixedWidth((store_manager_->GetAccountListFromAccountForDebug().size()+1)*width_distance+unit_width);
 
-  std::shared_ptr<ambr::store::StoreManager> store_manager = ambr::store::GetStoreManager();
+  std::shared_ptr<ambr::store::StoreManager> store_manager = store_manager_;
   std::list<ambr::core::UnitHash> unit_list = store_manager->GetAccountListFromAccountForDebug();
   uint32_t hori_idx = 0, vert_idx = 0;
   for(auto iter_account = unit_list.begin(); iter_account != unit_list.end(); iter_account++){
@@ -285,11 +296,11 @@ bool StoreExampleMainWidget::OnMousePress(QEvent *event){
     selected_unit_ = active_unit_;
     if(old_selected != selected_unit_){
       ui->wgtPaint->update();
-      std::shared_ptr<ambr::store::UnitStore> unit = ambr::store::GetStoreManager()->GetUnit(selected_unit_);
+      std::shared_ptr<ambr::store::UnitStore> unit = store_manager_->GetUnit(selected_unit_);
       if(unit){
         ui->edtShowJson->setPlainText(unit->SerializeJson().c_str());
       }else{
-        std::shared_ptr<ambr::core::ValidatorUnit> unit_validator = ambr::store::GetStoreManager()->GetValidateUnit(selected_unit_);
+        std::shared_ptr<ambr::core::ValidatorUnit> unit_validator = store_manager_->GetValidateUnit(selected_unit_);
         if(unit_validator){
           ui->edtShowJson->setPlainText(unit_validator->SerializeJson().c_str());
         }
@@ -349,7 +360,7 @@ void StoreExampleMainWidget::CreateDebugInitChain(){
   std::shared_ptr<ambr::core::Unit> unit_sended;
 
   //send
-  ambr::store::GetStoreManager()->SendToAddress(ambr::core::PrivateKey(
+  store_manager_->SendToAddress(ambr::core::PrivateKey(
     ambr::core::GetPublicKeyByPrivateKey(test_pri_key_list_[0].toStdString())),
     "100000000000",
     ambr::core::PrivateKey(root_pri_key_.toStdString()),
@@ -357,7 +368,7 @@ void StoreExampleMainWidget::CreateDebugInitChain(){
     unit_sended,
     nullptr
   );
-  ambr::store::GetStoreManager()->SendToAddress(ambr::core::PrivateKey(
+  store_manager_->SendToAddress(ambr::core::PrivateKey(
     ambr::core::GetPublicKeyByPrivateKey(test_pri_key_list_[1].toStdString())),
     "100000000000",
     ambr::core::PrivateKey(root_pri_key_.toStdString()),
@@ -365,7 +376,7 @@ void StoreExampleMainWidget::CreateDebugInitChain(){
     unit_sended,
     nullptr
   );
-  ambr::store::GetStoreManager()->SendToAddress(ambr::core::PrivateKey(
+  store_manager_->SendToAddress(ambr::core::PrivateKey(
     ambr::core::GetPublicKeyByPrivateKey(test_pri_key_list_[2].toStdString())),
     "100000000000",
     ambr::core::PrivateKey(root_pri_key_.toStdString()),
@@ -373,7 +384,7 @@ void StoreExampleMainWidget::CreateDebugInitChain(){
     unit_sended,
     nullptr
   );
-  ambr::store::GetStoreManager()->SendToAddress(ambr::core::PrivateKey(
+  store_manager_->SendToAddress(ambr::core::PrivateKey(
     ambr::core::GetPublicKeyByPrivateKey(test_pri_key_list_[3].toStdString())),
     "100000000000",
     ambr::core::PrivateKey(root_pri_key_.toStdString()),
@@ -381,7 +392,7 @@ void StoreExampleMainWidget::CreateDebugInitChain(){
     unit_sended,
     nullptr
   );
-  ambr::store::GetStoreManager()->SendToAddress(ambr::core::PrivateKey(
+  store_manager_->SendToAddress(ambr::core::PrivateKey(
     ambr::core::GetPublicKeyByPrivateKey(test_pri_key_list_[4].toStdString())),
     "100000000000",
     ambr::core::PrivateKey(root_pri_key_.toStdString()),
@@ -390,49 +401,49 @@ void StoreExampleMainWidget::CreateDebugInitChain(){
     nullptr
   );
   //receive
-  ambr::store::GetStoreManager()->ReceiveFromUnitHash(
+  store_manager_->ReceiveFromUnitHash(
     tx_hash[0],
     ambr::core::PrivateKey(test_pri_key_list_[0].toStdString()),
     &tx_hash[9],
     unit_sended,
     nullptr);
-  ambr::store::GetStoreManager()->ReceiveFromUnitHash(
+  store_manager_->ReceiveFromUnitHash(
     tx_hash[1],
     ambr::core::PrivateKey(test_pri_key_list_[1].toStdString()),
     &tx_hash[9],
     unit_sended,
     nullptr);
-  ambr::store::GetStoreManager()->ReceiveFromUnitHash(
+  store_manager_->ReceiveFromUnitHash(
     tx_hash[2],
     ambr::core::PrivateKey(test_pri_key_list_[2].toStdString()),
     &tx_hash[2],
     unit_sended,
     nullptr);
-  ambr::store::GetStoreManager()->ReceiveFromUnitHash(
+  store_manager_->ReceiveFromUnitHash(
     tx_hash[3],
     ambr::core::PrivateKey(test_pri_key_list_[3].toStdString()),
     &tx_hash[9],
     unit_sended,
     nullptr);
-  ambr::store::GetStoreManager()->ReceiveFromUnitHash(
+  store_manager_->ReceiveFromUnitHash(
     tx_hash[4],
     ambr::core::PrivateKey(test_pri_key_list_[4].toStdString()),
     &tx_hash[9],
     unit_sended,
     nullptr);
-  ambr::store::GetStoreManager()->JoinValidatorSet(
+  store_manager_->JoinValidatorSet(
     ambr::core::PrivateKey(test_pri_key_list_[0].toStdString()),
     "80000000000",&tx_hash[9],unit_sended,nullptr);
-  ambr::store::GetStoreManager()->JoinValidatorSet(
+  store_manager_->JoinValidatorSet(
     ambr::core::PrivateKey(test_pri_key_list_[1].toStdString()),
     "80000000000",&tx_hash[9],unit_sended,nullptr);
-  ambr::store::GetStoreManager()->JoinValidatorSet(
+  store_manager_->JoinValidatorSet(
     ambr::core::PrivateKey(test_pri_key_list_[2].toStdString()),
     "80000000000",&tx_hash[9],unit_sended,nullptr);
-  ambr::store::GetStoreManager()->JoinValidatorSet(
+  store_manager_->JoinValidatorSet(
     ambr::core::PrivateKey(test_pri_key_list_[3].toStdString()),
     "80000000000",&tx_hash[9],unit_sended,nullptr);
-  ambr::store::GetStoreManager()->JoinValidatorSet(
+  store_manager_->JoinValidatorSet(
     ambr::core::PrivateKey(test_pri_key_list_[4].toStdString()),
     "80000000000",&tx_hash[9],unit_sended,nullptr);
 
@@ -465,7 +476,7 @@ void StoreExampleMainWidget::on_btnAccountBalance_clicked(){
     pub_key = ambr::core::GetPublicKeyByAddress(addr);
   }
 
-  if(!ambr::store::GetStoreManager()->GetBalanceByPubKey(pub_key, amount)){
+  if(!store_manager_->GetBalanceByPubKey(pub_key, amount)){
     ui->edtABPlanEdit->setPlainText("Account is not found!");
   }else{
     ui->edtABPlanEdit->setPlainText(QString("Account balance is:")+amount.encode_to_dec().c_str());
@@ -473,8 +484,8 @@ void StoreExampleMainWidget::on_btnAccountBalance_clicked(){
 }
 
 void StoreExampleMainWidget::on_btnAccountList_clicked(){
-  std::list<ambr::core::UnitHash> wait_for_list = ambr::store::GetStoreManager()->GetAccountListFromWaitForReceiveForDebug();
-  std::list<ambr::core::UnitHash> account_list = ambr::store::GetStoreManager()->GetAccountListFromAccountForDebug();
+  std::list<ambr::core::UnitHash> wait_for_list = store_manager_->GetAccountListFromWaitForReceiveForDebug();
+  std::list<ambr::core::UnitHash> account_list = store_manager_->GetAccountListFromAccountForDebug();
   std::unordered_map<ambr::core::UnitHash, bool> list_map;
   //boost::unordered_map<ambr::core::UnitHash, bool> list_map;
   for(auto iter = wait_for_list.begin(); iter!= wait_for_list.end(); iter++){
@@ -505,11 +516,11 @@ void StoreExampleMainWidget::on_btnUnReceived_clicked(){
     }
     pub_key = ambr::core::GetPublicKeyByAddress(addr);
   }
-  std::list<ambr::core::UnitHash> hash_list = ambr::store::GetStoreManager()->GetWaitForReceiveList(pub_key);
+  std::list<ambr::core::UnitHash> hash_list = store_manager_->GetWaitForReceiveList(pub_key);
   QString str;
   for(auto iter = hash_list.begin(); iter != hash_list.end(); iter++){
     ambr::core::Amount amount;
-    assert(ambr::store::GetStoreManager()->GetSendAmount(*iter, amount, nullptr));
+    assert(store_manager_->GetSendAmount(*iter, amount, nullptr));
     str = str+"UnitHash:"+iter->encode_to_hex().c_str()+",ammount is:"+amount.encode_to_dec().c_str()+"\n";
   }
   ui->edtURPlanText->setPlainText(str);
@@ -531,18 +542,18 @@ void StoreExampleMainWidget::on_btnTranslateHistory_clicked(){
     pub_key = ambr::core::GetPublicKeyByAddress(addr);
   }
   QString str;
-  std::list<std::shared_ptr<ambr::store::UnitStore> > history = ambr::store::GetStoreManager()->GetTradeHistoryByPubKey(pub_key, 100);
+  std::list<std::shared_ptr<ambr::store::UnitStore> > history = store_manager_->GetTradeHistoryByPubKey(pub_key, 100);
   for(auto iter = history.begin(); iter != history.end(); iter++){
     std::shared_ptr<ambr::store::UnitStore> store = *iter;
     if(store->type() == ambr::store::UnitStore::ST_SendUnit){
       ambr::core::Amount amount;
-      if(ambr::store::GetStoreManager()->GetSendAmount(store->GetUnit()->hash(), amount, nullptr)){
+      if(store_manager_->GetSendAmount(store->GetUnit()->hash(), amount, nullptr)){
         str = str+"UnitHash:"+store->GetUnit()->hash().encode_to_hex().c_str()+", send amount:"+amount.encode_to_dec().c_str()+"\n";
       }
     }else if(store->type() == ambr::store::UnitStore::ST_ReceiveUnit){
       ambr::core::Amount amount;
       auto receive_store = std::dynamic_pointer_cast<ambr::store::ReceiveUnitStore> (store);
-      if(ambr::store::GetStoreManager()->GetSendAmount(receive_store->unit()->from(), amount, nullptr)){
+      if(store_manager_->GetSendAmount(receive_store->unit()->from(), amount, nullptr)){
         str = str+"UnitHash:"+store->GetUnit()->hash().encode_to_hex().c_str()+", receive amount:"+amount.encode_to_dec().c_str()+"\n";
       }
     }
@@ -589,7 +600,7 @@ void StoreExampleMainWidget::on_btnTranslateSend_clicked(){
   QString str;
   ambr::core::UnitHash hash;
   std::shared_ptr<ambr::core::Unit> unit_out;
-  if(ambr::store::GetStoreManager()->SendToAddress(dest, amount, pri_key, &hash, unit_out, &err)){
+  if(store_manager_->SendToAddress(dest, amount, pri_key, &hash, unit_out, &err)){
     {//boardcast to net
       std::shared_ptr<ambr::net::NetMessage> msg = std::make_shared<ambr::net::NetMessage>();
       std::vector<uint8_t> buf = unit_out->SerializeByte();
@@ -597,7 +608,7 @@ void StoreExampleMainWidget::on_btnTranslateSend_clicked(){
       msg->command_ = ambr::net::MC_NEW_UNIT;
       msg->len_ = buf.size();
       msg->str_msg_.assign(buf.begin(), buf.end());
-      ambr::net::GetNetManager()->BoardcastMessage(msg, nullptr);
+      net_manager_->BoardcastMessage(msg, nullptr);
     }
     str = str + "Send success.tx_hash:" + hash.encode_to_hex().c_str();
   }else{
@@ -607,7 +618,7 @@ void StoreExampleMainWidget::on_btnTranslateSend_clicked(){
 }
 void StoreExampleMainWidget::on_btnUnit_clicked(){
     ambr::core::UnitHash unit_hash(ui->edtUnit->text().toStdString());
-    std::shared_ptr<ambr::store::UnitStore> unit = ambr::store::GetStoreManager()->GetUnit(unit_hash);
+    std::shared_ptr<ambr::store::UnitStore> unit = store_manager_->GetUnit(unit_hash);
     if(!unit){
       ui->edtUnitPlainEdit->setPlainText("Couldn't find unit!");
     }else{
@@ -636,7 +647,7 @@ void StoreExampleMainWidget::on_btnTranslateReceive_clicked(){
   QString str;
   ambr::core::UnitHash hash;
   std::shared_ptr<ambr::core::Unit> unit_out;
-  if(ambr::store::GetStoreManager()->ReceiveFromUnitHash(from, pri_key, &hash, unit_out, &err)){
+  if(store_manager_->ReceiveFromUnitHash(from, pri_key, &hash, unit_out, &err)){
     {//boardcast to net
       std::shared_ptr<ambr::net::NetMessage> msg = std::make_shared<ambr::net::NetMessage>();
       std::vector<uint8_t> buf = unit_out->SerializeByte();
@@ -644,10 +655,10 @@ void StoreExampleMainWidget::on_btnTranslateReceive_clicked(){
       msg->command_ = ambr::net::MC_NEW_UNIT;
       msg->len_ = buf.size();
       msg->str_msg_.assign(buf.begin(), buf.end());
-      ambr::net::GetNetManager()->BoardcastMessage(msg, nullptr);
+      net_manager_->BoardcastMessage(msg, nullptr);
     }
     ambr::core::Amount amount;
-    assert(ambr::store::GetStoreManager()->GetSendAmount(from, amount, &err));
+    assert(store_manager_->GetSendAmount(from, amount, &err));
     str = str + "Receive " + amount.encode_to_dec().c_str() + "success.tx_hash:" + hash.encode_to_hex().c_str();
   }else{
     str = str + "Receive faild. tx_hash:" + err.c_str();
@@ -671,9 +682,10 @@ void StoreExampleMainWidget::on_btnInitDataBase_clicked(){
   std::string command = "rm -fr ";
   command += ui->edtDatabasePath->text().toStdString();
   system(command.c_str());
-  ambr::store::GetStoreManager()->Init(ui->edtDatabasePath->text().toStdString());
+  store_manager_->Init(ui->edtDatabasePath->text().toStdString());
   ui->tabMain->setTabEnabled(0, true);
   ui->tabMain->setTabEnabled(1, true);
+  ui->tabMain->setTabEnabled(3, true);
   ui->btnInitDataBase->setEnabled(false);
 }
 
@@ -682,7 +694,7 @@ void StoreExampleMainWidget::on_btnFlushValidatorSet_clicked(){
     ui->tbValidatorSet->removeRow(0);
   }
   std::shared_ptr<ambr::store::ValidatorSetStore> validator_set =
-      ambr::store::GetStoreManager()->GetValidatorSet();
+      store_manager_->GetValidatorSet();
   assert(validator_set);
   for(const ambr::store::ValidatorItem& item: validator_set->validator_list()){
     ui->tbValidatorSet->insertRow(0);
@@ -698,7 +710,7 @@ void StoreExampleMainWidget::on_btnAccountNew_clicked(){
     ui->tbAccountNew->removeRow(0);
   }
   std::unordered_map<ambr::core::PublicKey, ambr::core::UnitHash> _map =
-      ambr::store::GetStoreManager()->GetNewUnitMap();
+      store_manager_->GetNewUnitMap();
   for(const std::pair<ambr::core::PublicKey, ambr::core::UnitHash> item: _map){
     ui->tbAccountNew->insertRow(0);
     ui->tbAccountNew->setItem(0,0, new QTableWidgetItem(item.first.encode_to_hex().c_str()));
@@ -712,7 +724,7 @@ void StoreExampleMainWidget::on_btnAddSV_clicked(){
   std::shared_ptr<ambr::core::ValidatorUnit> unit;
 
   std::string str_err;
-  if(ambr::store::GetStoreManager()->PublishValidator(pri_key, &tx_hash, unit, &str_err)){
+  if(store_manager_->PublishValidator(pri_key, &tx_hash, unit, &str_err)){
     ui->edtSVLOG->setPlainText(("Success:"+unit->SerializeJson()).c_str());
   }else{
     ui->edtSVLOG->setPlainText(("Faild:"+str_err).c_str());
@@ -726,7 +738,7 @@ void StoreExampleMainWidget::on_btnVote_clicked(){
   bool accept = ui->cbAccept->isChecked();
   std::string str_err;
   std::shared_ptr<ambr::core::VoteUnit> unit;
-  if(!ambr::store::GetStoreManager()->PublishVote(pri_key, accept, unit, &str_err)){
+  if(!store_manager_->PublishVote(pri_key, accept, unit, &str_err)){
     ui->edtVoteLOG->setPlainText(("Vote faild:"+str_err).c_str());
   }else{
     ui->edtVoteLOG->setPlainText(("Vote success:"+unit->SerializeJson()).c_str());
@@ -736,7 +748,7 @@ void StoreExampleMainWidget::on_btnFlushVote_clicked(){
   while(ui->tbVote->rowCount()){
     ui->tbVote->removeRow(0);
   }
-  std::list<std::shared_ptr<ambr::core::VoteUnit>> vote_list = ambr::store::GetStoreManager()->GetVoteList();
+  std::list<std::shared_ptr<ambr::core::VoteUnit>> vote_list = store_manager_->GetVoteList();
   ambr::core::Amount all_balance, accept_balance;
   for(std::shared_ptr<ambr::core::VoteUnit> unit: vote_list){
     ui->tbVote->insertRow(0);
@@ -747,11 +759,11 @@ void StoreExampleMainWidget::on_btnFlushVote_clicked(){
       accept_balance += unit->balance();
     }
   }
-  std::shared_ptr<ambr::store::ValidatorSetStore> validator_set_list = ambr::store::GetStoreManager()->GetValidatorSet();
+  std::shared_ptr<ambr::store::ValidatorSetStore> validator_set_list = store_manager_->GetValidatorSet();
   if(!validator_set_list){
     return;
   }
-  std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = ambr::store::GetStoreManager()->GetLastestValidateUnit();
+  std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = store_manager_->GetLastestValidateUnit();
   if(!validator_unit){
     return;
   }
@@ -769,11 +781,15 @@ void StoreExampleMainWidget::on_btnFlushVote_clicked(){
 }
 
 void StoreExampleMainWidget::on_btnMSVStart1_clicked(){
-  validator_auto_[0].StartAutoRun(ui->edtMVSPriv1->text().toStdString());
+  validator_auto_[0]->StartAutoRun(ui->edtMVSPriv1->text().toStdString());
+  ui->btnMSVStart1->setEnabled(false);
+  ui->btnMSVStop1->setEnabled(true);
 }
 
 void StoreExampleMainWidget::on_btnMSVStop1_clicked(){
-  validator_auto_[0].StopAutoRun();
+  validator_auto_[0]->StopAutoRun();
+  ui->btnMSVStart1->setEnabled(true);
+  ui->btnMSVStop1->setEnabled(false);
 }
 
 void StoreExampleMainWidget::DealConnect(std::shared_ptr<ambr::net::Peer> peer){
@@ -813,9 +829,9 @@ void StoreExampleMainWidget::on_btnP2PStart_clicked(){
   ui->tbP2PConnectionIn->setItem(0,1, new QTableWidgetItem("bbb"));*/
   //OnConnect(std::shared_ptr<ambr::net::NetManager> peer)
   //std::function<void(std::shared_ptr<ambr::net::Peer>)> func = std::bind(&StoreExampleMainWidget::OnConnect, this, std::placeholders::_1);
-  ambr::net::GetNetManager()->SetOnAccept(boost::bind(&StoreExampleMainWidget::OnAccept, this, _1));
-  ambr::net::GetNetManager()->SetOnConnected(boost::bind(&StoreExampleMainWidget::OnConnect, this, _1));
-  ambr::net::GetNetManager()->SetOnDisconnect(boost::bind(&StoreExampleMainWidget::OnDisconnected, this, _1));
+  net_manager_->SetOnAccept(boost::bind(&StoreExampleMainWidget::OnAccept, this, _1));
+  net_manager_->SetOnConnected(boost::bind(&StoreExampleMainWidget::OnConnect, this, _1));
+  net_manager_->SetOnDisconnect(boost::bind(&StoreExampleMainWidget::OnDisconnected, this, _1));
 
   ambr::net::NetManagerConfig config;
   config.max_in_peer_ = 8;
@@ -831,7 +847,7 @@ void StoreExampleMainWidget::on_btnP2PStart_clicked(){
   config.use_nat_pmp_ = false;
   config.use_natp_ = false;
   config.heart_time_ = 88;//second of heart interval
-  ambr::net::GetNetManager()->init(config);
+  net_manager_->init(config);
 }
 
 void StoreExampleMainWidget::on_pushButton_clicked(){
@@ -865,7 +881,7 @@ void StoreExampleMainWidget::on_btnPVAddVote_clicked(){
   pub_key = ambr::core::GetPublicKeyByPrivateKey(pri_key);
   unit.set_public_key(pub_key);
   ambr::core::UnitHash last_validator_hash;
-  /*if(!ambr::store::GetStoreManager()->GetLastValidateUnit(last_validator_hash)){
+  /*if(!store_manager_->GetLastValidateUnit(last_validator_hash)){
     ui->edtPVLOG->setPlainText("get last validator unit error");
     return;
   }*/
@@ -928,14 +944,14 @@ void StoreExampleMainWidget::on_btnPVValidatorUnit_clicked(){
   unit->CalcHashAndFill();
   unit->SignatureAndFill(pri_key);
   std::string str_err;
-  if(ambr::store::GetStoreManager()->AddValidateUnit(unit, &str_err)){
+  if(store_manager_->AddValidateUnit(unit, &str_err)){
     std::shared_ptr<ambr::net::NetMessage> msg = std::make_shared<ambr::net::NetMessage>();
     std::vector<uint8_t> buf = unit->SerializeByte();
     msg->version_ = 0x00000001;
     msg->command_ = ambr::net::MC_NEW_UNIT;
     msg->len_ = buf.size();
     msg->str_msg_.assign(buf.begin(), buf.end());
-    ambr::net::GetNetManager()->BoardcastMessage(msg, nullptr);
+    net_manager_->BoardcastMessage(msg, nullptr);
     ui->edtPVLOG->setPlainText(QString("Add validator unit success:")+unit->SerializeJson().c_str());
   }else{
     ui->edtPVLOG->setPlainText(QString("Add validator unit faild:")+str_err.c_str());
@@ -951,7 +967,7 @@ void StoreExampleMainWidget::on_btnTranslateCashDisposite_clicked(){
   ambr::core::UnitHash tx_hash;
   std::shared_ptr<ambr::core::Unit> unit;
   std::string str_err;
-  if(ambr::store::GetStoreManager()->JoinValidatorSet(pri_key, amount, &tx_hash, unit, &str_err)){
+  if(store_manager_->JoinValidatorSet(pri_key, amount, &tx_hash, unit, &str_err)){
     ui->edtTCPlainEdit->setPlainText(QString("Send success:")+unit->SerializeJson().c_str());
   }else{
     ui->edtTCPlainEdit->setPlainText(QString("Send Faild:")+str_err.c_str());
@@ -967,7 +983,7 @@ void StoreExampleMainWidget::on_btnTranslateUnfreeze_clicked(){
   ambr::core::UnitHash tx_hash;
   std::shared_ptr<ambr::core::Unit> unit;
   std::string str_err;
-  if(ambr::store::GetStoreManager()->LeaveValidatorSet(pri_key, amount, &tx_hash, unit, &str_err)){
+  if(store_manager_->LeaveValidatorSet(pri_key, amount, &tx_hash, unit, &str_err)){
     ui->edtTCPlainEdit->setPlainText(QString("Send success:")+unit->SerializeJson().c_str());
   }else{
     ui->edtTCPlainEdit->setPlainText(QString("Send Faild:")+str_err.c_str());

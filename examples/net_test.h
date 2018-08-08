@@ -8,6 +8,7 @@
 #include <atomic>
 #include <functional>
 #include <list>
+#include <memory.h>
 #include <boost/threadpool.hpp>
 //TODO:upnp
 //TODO:PING PONG
@@ -16,6 +17,10 @@
 using Ptr_Unit = std::shared_ptr<ambr::core::Unit>;
 
 namespace ambr{
+namespace store{
+  class StoreManager;
+}
+
 namespace net{
 enum MessageCommand{
   //check version, first message after connected
@@ -143,6 +148,7 @@ public:
 
 class NetManager{
 public:
+  NetManager(std::shared_ptr<store::StoreManager> store_manager);
   bool init(const NetManagerConfig& config);
   void SetOnReceive(std::function<void(std::shared_ptr<NetMessage> msg,  std::shared_ptr<Peer> peer)> func);
   void SendMessage(std::shared_ptr<NetMessage> msg, std::shared_ptr<Peer> peer);
@@ -153,60 +159,10 @@ public:
   void SetOnConnected(std::function<void(std::shared_ptr<Peer>)> func);
   void RemovePeer(std::shared_ptr<Peer> peer, uint32_t second);
 public:
-  static std::shared_ptr<NetManager> GetInstance();
   class Impl;
 private:
-  NetManager();
   Impl* impl_;
-  static std::shared_ptr<NetManager> instance;
 };
-
-class NetManager::Impl {
-public:
-  Impl();
-  bool init(const NetManagerConfig& config);
-  void SetOnReceive(std::function<void(std::shared_ptr<NetMessage> msg,  std::shared_ptr<Peer> peer)> func);
-  void SendMessage(std::shared_ptr<NetMessage> msg, std::shared_ptr<Peer> peer);
-  void BoardcastMessage(std::shared_ptr<NetMessage> msg, std::shared_ptr<Peer> peer);
-  void SetOnDisconnect(std::function<void(std::shared_ptr<Peer>)> func);
-  void SetOnAccept(std::function<void(std::shared_ptr<Peer>)> func);
-  void SetOnConnected(std::function<void(std::shared_ptr<Peer>)> func);
-  void RemovePeer(std::shared_ptr<Peer> peer, uint32_t second);
-public:
-  void OnAccept(std::shared_ptr<boost::asio::ip::tcp::socket> socket, std::shared_ptr<boost::asio::ip::tcp::acceptor> acc, const boost::system::error_code& ec);
-  void OnConnected(std::shared_ptr<boost::asio::ip::tcp::socket> socket, const boost::system::error_code& ec);
-
-private:
-  void ThreadSocketHandle();
-  void OnDisconnect(std::shared_ptr<Peer> peer);
-  void OnReceive(std::shared_ptr<NetMessage> msg,  std::shared_ptr<Peer> peer);
-private:
-  std::vector<boost::asio::ip::address_v4> GetLocalIPs();
-  std::vector<boost::asio::ip::address_v4> LookupPublicIPs();
-private:
-  std::shared_ptr<boost::asio::ip::tcp::acceptor> accept_;
-  ambr::net::NetManagerConfig config_;
-  std::list<Ptr_Unit> list_ptr_unit_;
-  std::list<std::shared_ptr<Peer>> in_peers_;
-  std::list<std::shared_ptr<Peer>> out_peers_;
-  std::list<std::shared_ptr<Peer>> in_peers_wait_;
-  std::list<std::shared_ptr<Peer>> out_peers_wait_;
-  std::list<boost::asio::ip::tcp::endpoint> server_list_;
-private:
-  boost::asio::io_service ios_;
-  std::thread ios_thread_;
-  boost::threadpool::pool thread_pool_;
-  std::function<void(std::shared_ptr<NetMessage> msg,  std::shared_ptr<Peer> peer)> on_receive_func_;
-  std::function<void(std::shared_ptr<Peer>)> on_disconnect_func_;
-  std::function<void(std::shared_ptr<Peer>)> on_accept_func_;
-  std::function<void(std::shared_ptr<Peer>)> on_connect_func_;
-  bool exit_;
-};
-
-inline std::shared_ptr<NetManager> GetNetManager(){
-  return NetManager::GetInstance();
-}
-
 }
 }
 #endif

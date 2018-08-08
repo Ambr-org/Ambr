@@ -15,6 +15,7 @@ namespace Ui {
 namespace ambr {
 namespace store{
   class UnitStore;
+  class StoreManager;
 }
 }
 class StoreExampleMainWidget : public QWidget
@@ -26,7 +27,7 @@ class StoreExampleMainWidget : public QWidget
     std::shared_ptr<ambr::core::ValidatorUnit> validator_unit_store_;
   };
 public:
-  explicit StoreExampleMainWidget(QWidget *parent = 0);
+  explicit StoreExampleMainWidget(std::shared_ptr<ambr::store::StoreManager> store_manager,std::shared_ptr<ambr::net::NetManager> net_manager, QWidget *parent = 0);
   ~StoreExampleMainWidget();
 signals:
   void DoConnect(std::shared_ptr<ambr::net::Peer> peer);
@@ -100,7 +101,9 @@ private:
   ambr::core::UnitHash active_unit_;
   ambr::core::UnitHash selected_unit_;
 private:
-  ambr::utils::ValidatorAuto validator_auto_[10];
+  std::shared_ptr<ambr::store::StoreManager> store_manager_;
+  std::shared_ptr<ambr::net::NetManager> net_manager_;
+  std::vector<std::shared_ptr<ambr::utils::ValidatorAuto>> validator_auto_;
 };
 
 #endif // STORE_EXAMPLE_MAIN_WIDGET_H

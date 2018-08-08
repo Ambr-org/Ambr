@@ -41,6 +41,8 @@ all_return
 */
 
 std::string CmdSendTo(boost::property_tree::ptree pt){
+  std::shared_ptr<ambr::store::StoreManager> store_manager = std::make_shared<ambr::store::StoreManager>();
+  store_manager->Init("./unit");
   std::string result;
   std::string rtn_msg;
   boost::property_tree::ptree pt_child = pt.get_child("param");
@@ -51,12 +53,12 @@ std::string CmdSendTo(boost::property_tree::ptree pt){
   ambr::core::PublicKey pub_key = ambr::core::GetPublicKeyByPrivateKey(pri_key);;
   ambr::core::UnitHash hash;
   ambr::core::Amount amount = boost::multiprecision::uint128_t(0);
-  if(!ambr::store::GetStoreManager()->GetLastUnitHashByPubKey(pub_key, hash)){
+  if(!store_manager->GetLastUnitHashByPubKey(pub_key, hash)){
     result = "false";
     rtn_msg = "Private key is not found!";
     return std::string("{")+"\"result\":"+result+",\"rtn_msg\":\""+rtn_msg+"\"}";
   }
-  ambr::store::GetStoreManager()->GetBalanceByPubKey(pub_key, amount);
+  store_manager->GetBalanceByPubKey(pub_key, amount);
   if(param_amount > amount.data()){
     result = "false";
     rtn_msg = "Insufficient Balance!";

@@ -22,19 +22,19 @@ void ambr::utils::ValidatorAuto::StartAutoRun(const ambr::core::PrivateKey &pri_
       boost::posix_time::ptime pt = boost::posix_time::microsec_clock::universal_time();
       boost::posix_time::ptime pt_ori(boost::gregorian::date(1970, boost::gregorian::Jan, 1));
       boost::posix_time::time_duration duration = pt-pt_ori;
-      interval = duration.total_milliseconds() - ambr::store::GetStoreManager()->GetGenesisTime();
+      interval = duration.total_milliseconds() - store_manager_->GetGenesisTime();
       now_nonce = (interval/publish_interval_);
       if(now_nonce > last_nonce){
         last_nonce = now_nonce;
         //std::cout<<interval<<":"<<now_nonce<<std::endl;
         ambr::core::PublicKey now_pub_key;
-        if(ambr::store::GetStoreManager()->GetValidatorSet()->GetNonceTurnValidator(now_nonce, now_pub_key)){
+        if(store_manager_->GetValidatorSet()->GetNonceTurnValidator(now_nonce, now_pub_key)){
           if(now_pub_key == ambr::core::GetPublicKeyByPrivateKey(pri_key)){
             std::cout<<"MyTurns:"<<now_pub_key.encode_to_hex()<<std::endl;
             core::UnitHash tx_hash;
             std::shared_ptr<ambr::core::ValidatorUnit> unit_validator;
             std::string err;
-            if(ambr::store::GetStoreManager()->PublishValidator(pri_key, &tx_hash, unit_validator, &err)){
+            if(store_manager_->PublishValidator(pri_key, &tx_hash, unit_validator, &err)){
               LOG(INFO)<<"Send Validator Success, tx_hash:"<<tx_hash.encode_to_hex()<<",public:"<<now_pub_key.encode_to_hex()<<std::endl;
             }else{
               LOG(WARNING)<<"Send Validator Faild,public:"<<now_pub_key.encode_to_hex()<<std::endl;
@@ -48,8 +48,10 @@ void ambr::utils::ValidatorAuto::StartAutoRun(const ambr::core::PrivateKey &pri_
 }
 
 void ambr::utils::ValidatorAuto::StopAutoRun(){
-  run_ = false;
-  thread_->join();
-  delete thread_;
-  thread_ = nullptr;
+  if(thread_){
+    run_ = false;
+    thread_->join();
+    delete thread_;
+    thread_ = nullptr;
+  }
 }

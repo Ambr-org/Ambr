@@ -22,6 +22,8 @@ namespace store {
 
 class StoreManager{
 public:
+  StoreManager();
+public:
   void Init(const std::string& path);
   //bool AddUnit(std::shared_ptr<core::Unit> unit, std::string* err);
   bool AddSendUnit(std::shared_ptr<core::SendUnit> send_unit, std::string* err);
@@ -106,7 +108,7 @@ private:
   void RemoveWaitForReceiveUnit(const core::PublicKey& pub_key, const core::UnitHash& hash, rocksdb::WriteBatch* batch);
 private:
   static std::shared_ptr<StoreManager> instance_;
-  StoreManager();
+
 private:
   rocksdb::DB* db_unit_;
   rocksdb::ColumnFamilyHandle* handle_send_unit_;//unit_hash->SendUnitStore
@@ -123,11 +125,6 @@ private:
   uint64_t genesis_time_;
   const uint32_t validate_unit_interval_ = 2000u;//2s
 };
-
-inline std::shared_ptr<StoreManager> GetStoreManager(){
-  return StoreManager::instance();
-}
-
 }
 }
 #endif

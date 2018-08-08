@@ -12,7 +12,7 @@ namespace utils {
 
 class ValidatorAuto{
 public:
-  ValidatorAuto(std::shared_ptr<store::StoreManager> store_manager=nullptr);
+  ValidatorAuto(std::shared_ptr<store::StoreManager> store_manager);
   void StartAutoRun(const core::PrivateKey& pri_key);
   void StopAutoRun();
 private:

@@ -347,7 +347,7 @@ bool ambr::store::StoreManager::AddEnterValidatorSetUnit(std::shared_ptr<ambr::c
   }
 
   std::shared_ptr<ambr::store::ValidatorSetStore> validator_set_list =
-      ambr::store::GetStoreManager()->GetValidatorSet();
+      GetValidatorSet();
   if(!validator_set_list){
     if(err){
       *err = "validator's ptr is null";
@@ -523,7 +523,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
     }
     return false;
   }
-  std::shared_ptr<ambr::store::ValidatorSetStore> validator_set_list = ambr::store::GetStoreManager()->GetValidatorSet();
+  std::shared_ptr<ambr::store::ValidatorSetStore> validator_set_list = GetValidatorSet();
   if(!validator_set_list){
     if(err){
       *err = "validator_set's ptr is null";
@@ -1462,7 +1462,7 @@ uint64_t ambr::store::StoreManager::GetNonceByNowTime(){
   boost::posix_time::ptime pt = boost::posix_time::microsec_clock::universal_time();
   boost::posix_time::ptime pt_ori(boost::gregorian::date(1970, boost::gregorian::Jan, 1));
   boost::posix_time::time_duration duration = pt-pt_ori;
-  uint64_t interval = duration.total_milliseconds() - ambr::store::GetStoreManager()->GetGenesisTime();
+  uint64_t interval = duration.total_milliseconds() - GetGenesisTime();
   return (interval/GetValidateUnitInterval());
 }
 
