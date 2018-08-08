@@ -3,7 +3,11 @@
 #include <boost/date_time.hpp>
 #include <iostream>
 #include <store/store_manager.h>
-ambr::utils::ValidatorAuto::ValidatorAuto():thread_(nullptr){
+#include <glog/logging.h>
+ambr::utils::ValidatorAuto::ValidatorAuto(std::shared_ptr<store::StoreManager> store_manager):
+  store_manager_(store_manager),
+  thread_(nullptr){
+  assert(store_manager_);
 
 }
 
@@ -22,16 +26,19 @@ void ambr::utils::ValidatorAuto::StartAutoRun(const ambr::core::PrivateKey &pri_
       now_nonce = (interval/publish_interval_);
       if(now_nonce > last_nonce){
         last_nonce = now_nonce;
-        std::cout<<interval<<":"<<now_nonce<<std::endl;
+        //std::cout<<interval<<":"<<now_nonce<<std::endl;
         ambr::core::PublicKey now_pub_key;
         if(ambr::store::GetStoreManager()->GetValidatorSet()->GetNonceTurnValidator(now_nonce, now_pub_key)){
-          std::cout<<"Need prikey:"<<pri_key.encode_to_hex()<<std::endl;
-          std::cout<<"Need pubkey:"<<ambr::core::GetPublicKeyByPrivateKey(pri_key).encode_to_hex()<<std::endl;
           if(now_pub_key == ambr::core::GetPublicKeyByPrivateKey(pri_key)){
             std::cout<<"MyTurns:"<<now_pub_key.encode_to_hex()<<std::endl;
-          }
-          else{
-            std::cout<<"OtherTurns:"<<now_pub_key.encode_to_hex()<<std::endl;
+            core::UnitHash tx_hash;
+            std::shared_ptr<ambr::core::ValidatorUnit> unit_validator;
+            std::string err;
+            if(ambr::store::GetStoreManager()->PublishValidator(pri_key, &tx_hash, unit_validator, &err)){
+              LOG(INFO)<<"Send Validator Success, tx_hash:"<<tx_hash.encode_to_hex()<<",public:"<<now_pub_key.encode_to_hex()<<std::endl;
+            }else{
+              LOG(WARNING)<<"Send Validator Faild,public:"<<now_pub_key.encode_to_hex()<<std::endl;
+            }
           }
         }
       }

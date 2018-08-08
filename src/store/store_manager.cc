@@ -1206,11 +1206,7 @@ bool ambr::store::StoreManager::PublishValidator(
     unit->add_vote_list(*vote_item);
   }
 
-  //add check unit
-  auto new_unit_map = GetNewUnitMap();
-  for(auto item: new_unit_map){
-    unit->add_check_list(item.second);
-  }
+
   unit->set_balance(validator_item.balance_);
   unit->set_nonce(GetNonceByNowTime());
   //calc percent
@@ -1254,6 +1250,11 @@ bool ambr::store::StoreManager::PublishValidator(
       return false;
     }
     UpdateNewUnitMap(last_validator_unit->check_list());
+  }
+  //add check unit
+  auto new_unit_map = GetNewUnitMap();
+  for(auto item: new_unit_map){
+    unit->add_check_list(item.second);
   }
   unit->CalcHashAndFill();
   unit->SignatureAndFill(pri_key);

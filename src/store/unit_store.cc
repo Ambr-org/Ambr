@@ -663,7 +663,7 @@ void ambr::store::ValidatorSetStore::Update(uint64_t now_nonce){
 
 bool ambr::store::ValidatorSetStore::GetNonceTurnValidator(uint64_t nonce, core::PublicKey& pub_key){
   std::vector<ambr::core::PublicKey> pub_key_list = GetValidatorList(nonce);
-  if(current_nonce_ > nonce){
+  if(current_nonce_ >= nonce){
     return false;
   }
   uint64_t distance = nonce-current_nonce_;
