@@ -780,16 +780,76 @@ void StoreExampleMainWidget::on_btnFlushVote_clicked(){
   ui->lblVote->setPlainText(str);
 }
 
-void StoreExampleMainWidget::on_btnMSVStart1_clicked(){
-  validator_auto_[0]->StartAutoRun(ui->edtMVSPriv1->text().toStdString());
-  ui->btnMSVStart1->setEnabled(false);
-  ui->btnMSVStop1->setEnabled(true);
+void StoreExampleMainWidget::on_btnMSVStart_1_clicked(){
+  validator_auto_[0]->StartAutoRun(ui->edtMVSPriv_1->text().toStdString());
+  ui->btnMSVStart_1->setEnabled(false);
+  ui->btnMSVStop_1->setEnabled(true);
 }
 
-void StoreExampleMainWidget::on_btnMSVStop1_clicked(){
+void StoreExampleMainWidget::on_btnMSVStop_1_clicked(){
   validator_auto_[0]->StopAutoRun();
-  ui->btnMSVStart1->setEnabled(true);
-  ui->btnMSVStop1->setEnabled(false);
+  ui->btnMSVStart_1->setEnabled(true);
+  ui->btnMSVStop_1->setEnabled(false);
+}
+
+void StoreExampleMainWidget::on_btnMSVStart_2_clicked(){
+  validator_auto_[1]->StartAutoRun(ui->edtMVSPriv_2->text().toStdString());
+  ui->btnMSVStart_2->setEnabled(false);
+  ui->btnMSVStop_2->setEnabled(true);
+}
+
+void StoreExampleMainWidget::on_btnMSVStop_2_clicked(){
+  validator_auto_[1]->StopAutoRun();
+  ui->btnMSVStart_2->setEnabled(true);
+  ui->btnMSVStop_2->setEnabled(false);
+}
+
+void StoreExampleMainWidget::on_btnMSVStart_3_clicked(){
+  validator_auto_[2]->StartAutoRun(ui->edtMVSPriv_3->text().toStdString());
+  ui->btnMSVStart_3->setEnabled(false);
+  ui->btnMSVStop_3->setEnabled(true);
+}
+
+void StoreExampleMainWidget::on_btnMSVStop_3_clicked(){
+  validator_auto_[2]->StopAutoRun();
+  ui->btnMSVStart_3->setEnabled(true);
+  ui->btnMSVStop_3->setEnabled(false);
+}
+
+void StoreExampleMainWidget::on_btnMSVStart_4_clicked(){
+  validator_auto_[3]->StartAutoRun(ui->edtMVSPriv_4->text().toStdString());
+  ui->btnMSVStart_4->setEnabled(false);
+  ui->btnMSVStop_4->setEnabled(true);
+}
+
+void StoreExampleMainWidget::on_btnMSVStop_4_clicked(){
+  validator_auto_[3]->StopAutoRun();
+  ui->btnMSVStart_4->setEnabled(true);
+  ui->btnMSVStop_4->setEnabled(false);
+}
+
+void StoreExampleMainWidget::on_btnMSVStart_5_clicked(){
+  validator_auto_[4]->StartAutoRun(ui->edtMVSPriv_5->text().toStdString());
+  ui->btnMSVStart_5->setEnabled(false);
+  ui->btnMSVStop_5->setEnabled(true);
+}
+
+void StoreExampleMainWidget::on_btnMSVStop_5_clicked(){
+  validator_auto_[4]->StopAutoRun();
+  ui->btnMSVStart_5->setEnabled(true);
+  ui->btnMSVStop_5->setEnabled(false);
+}
+
+void StoreExampleMainWidget::on_btnMSVStart_6_clicked(){
+  validator_auto_[5]->StartAutoRun(ui->edtMVSPriv_6->text().toStdString());
+  ui->btnMSVStart_6->setEnabled(false);
+  ui->btnMSVStop_6->setEnabled(true);
+}
+
+void StoreExampleMainWidget::on_btnMSVStop_6_clicked(){
+  validator_auto_[5]->StopAutoRun();
+  ui->btnMSVStart_6->setEnabled(true);
+  ui->btnMSVStop_6->setEnabled(false);
 }
 
 void StoreExampleMainWidget::DealConnect(std::shared_ptr<ambr::net::Peer> peer){

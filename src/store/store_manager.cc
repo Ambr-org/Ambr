@@ -154,6 +154,27 @@ void ambr::store::StoreManager::Init(const std::string& path){
   }
 }
 
+boost::signals2::connection ambr::store::StoreManager::AddCallBackReceiveNewSendUnit(std::function<void (std::shared_ptr<ambr::core::SendUnit>)> callback){
+  return DoReceiveNewSendUnit.connect(callback);
+}
+
+boost::signals2::connection ambr::store::StoreManager::AddCallBackReceiveNewReceiveUnit(std::function<void (std::shared_ptr<ambr::core::ReceiveUnit>)> callback){
+  return DoReceiveNewReceiveUnit.connect(callback);
+}
+
+boost::signals2::connection ambr::store::StoreManager::AddCallBackReceiveNewJoinValidatorSetUnit(std::function<void (std::shared_ptr<ambr::core::EnterValidateSetUint>)> callback){
+  return DoReceiveNewEnterValidateSetUnit.connect(callback);
+}
+
+boost::signals2::connection ambr::store::StoreManager::AddCallBackReceiveNewLeaveValidatorSetUnit(std::function<void (std::shared_ptr<ambr::core::LeaveValidateSetUint>)> callback){
+  return DoReceiveNewLeaveValidateSetUnit.connect(callback);
+}
+
+boost::signals2::connection ambr::store::StoreManager::AddCallBackReceiveNewValidatorUnit(std::function<void (std::shared_ptr<ambr::core::ValidatorUnit>)> callback){
+  return DoReceiveNewValidatorUnit.connect(callback);
+}
+
+
 bool ambr::store::StoreManager::AddSendUnit(std::shared_ptr<ambr::core::SendUnit> send_unit, std::string *err){
   if(!send_unit){
     if(err)*err = "Unit cast to SendUnit error.";
@@ -217,15 +238,9 @@ bool ambr::store::StoreManager::AddSendUnit(std::shared_ptr<ambr::core::SendUnit
             rocksdb::Slice((const char*)send_unit->hash().bytes().data(), send_unit->hash().bytes().size()));
   assert(status.ok());
   AddWaitForReceiveUnit(send_unit->dest(), send_unit->hash(), &batch);
-  if(use_log){//TODO:use log module
-    std::cout<<"Add unit for send!"<<std::endl;
-    std::cout<<send_unit->hash().encode_to_hex()<<std::endl;
-    std::cout<<store->SerializeJson()<<std::endl;
-    std::cout<<"address:"<<ambr::core::GetAddressStringByPublicKey(send_unit->public_key())
-            <<"'s last unit change to "<<send_unit->hash().encode_to_hex();
-  }
   status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
   assert(status.ok());
+  DoReceiveNewSendUnit(send_unit);
   return true;
 }
 
@@ -306,6 +321,7 @@ bool ambr::store::StoreManager::AddReceiveUnit(std::shared_ptr<ambr::core::Recei
   RemoveWaitForReceiveUnit(receive_unit->public_key(), receive_unit->from(), &batch);
   status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
   assert(status.ok());
+  DoReceiveNewReceiveUnit(receive_unit);
   return true;
 }
 bool ambr::store::StoreManager::AddEnterValidatorSetUnit(std::shared_ptr<ambr::core::EnterValidateSetUint> unit, std::string *err){
@@ -437,6 +453,7 @@ bool ambr::store::StoreManager::AddEnterValidatorSetUnit(std::shared_ptr<ambr::c
   assert(status.ok());
   status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
   assert(status.ok());
+  DoReceiveNewEnterValidateSetUnit(unit);
   return true;
 }
 
@@ -493,6 +510,7 @@ bool ambr::store::StoreManager::AddLeaveValidatorSetUnit(std::shared_ptr<ambr::c
   assert(status.ok());
   status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
   assert(status.ok());
+  DoReceiveNewLeaveValidateSetUnit(unit);
   return true;
 }
 
@@ -665,7 +683,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
   //clear old vote and vote now
   ClearVote();
   //validator now
-  if(unit->percent() > PERCENT_MAX/2){//passed
+  if(unit->percent() > PASS_PERCENT){//passed
     validator_set_list->set_current_nonce(unit->nonce());
     validator_set_list->set_current_validator(unit->public_key());
     std::vector<ambr::core::UnitHash> checked_list = prv_validate_unit->check_list();
@@ -767,6 +785,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
   assert(status.ok());
   status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
   assert(status.ok());
+  DoReceiveNewValidatorUnit(unit);
   return true;
 }
 
@@ -1235,14 +1254,13 @@ bool ambr::store::StoreManager::PublishValidator(
       return false;
     }
     vote_balance += item.balance_;
-    std::cout<<"!!!!!"<<vote_balance.encode_to_dec()<<"|"<<item.validator_public_key_.encode_to_hex()<<std::endl;
   }
 
 
   unit->set_percent((uint32_t)(vote_balance*ambr::core::Amount(PERCENT_MAX) / all_balance).data());
   //check percent
   std::shared_ptr<ambr::core::ValidatorUnit> last_validator_unit = GetLastestValidateUnit();
-  if(unit->percent() > PERCENT_MAX/2){//passed
+  if(unit->percent() > PASS_PERCENT){//passed
     if(!last_validator_unit){
       if(err){
         *err = "latest validator unit is not found";
@@ -1265,10 +1283,10 @@ bool ambr::store::StoreManager::PublishValidator(
   *tx_hash = unit->hash();
   unit_validator = unit;
   // add ValidatorUnit success, publish vote
-  std::shared_ptr<ambr::core::VoteUnit> tmp_unit;
+  /*std::shared_ptr<ambr::core::VoteUnit> tmp_unit;
   if(!PublishVote(pri_key, true, tmp_unit, err)){
     return false;
-  }
+  }*/
   return true;
 }
 

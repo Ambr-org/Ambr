@@ -1910,6 +1910,436 @@
       <attribute name="title">
        <string>验证者模式</string>
       </attribute>
+      <widget class="QWidget" name="layoutWidget_2">
+       <property name="geometry">
+        <rect>
+         <x>320</x>
+         <y>50</y>
+         <width>257</width>
+         <height>251</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_40">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_57">
+          <item>
+           <widget class="QLabel" name="label_49">
+            <property name="text">
+             <string>私钥</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="edtMVSPriv_2">
+            <property name="text">
+             <string>F49E1B9F671D0B244744E07289EA0807FAE09F8335F0C1B0629F1BF924CA64E1</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_58">
+          <item>
+           <widget class="QLabel" name="label_50">
+            <property name="text">
+             <string>验证者账户资金</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="edtMVSBalacne_2"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_59">
+          <item>
+           <widget class="QLabel" name="label_51">
+            <property name="text">
+             <string>验证者保证金    </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="edtMVSCashDeposit_2"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_60">
+          <item>
+           <widget class="QLabel" name="label_52">
+            <property name="text">
+             <string>验证者总资金    </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="edtMVSAllBalance_2"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnMSVStart_2">
+          <property name="text">
+           <string>开始验证</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnMSVStop_2">
+          <property name="text">
+           <string>停止验证</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="layoutWidget_3">
+       <property name="geometry">
+        <rect>
+         <x>580</x>
+         <y>50</y>
+         <width>257</width>
+         <height>251</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_41">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_61">
+          <item>
+           <widget class="QLabel" name="label_53">
+            <property name="text">
+             <string>私钥</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="edtMVSPriv_3">
+            <property name="text">
+             <string>9812383BF3CE164A3D968186BEBA1CCFF299C9C59448A19BF3C0582336E01301</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_62">
+          <item>
+           <widget class="QLabel" name="label_54">
+            <property name="text">
+             <string>验证者账户资金</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="edtMVSBalacne_3"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_63">
+          <item>
+           <widget class="QLabel" name="label_55">
+            <property name="text">
+             <string>验证者保证金    </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="edtMVSCashDeposit_3"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_64">
+          <item>
+           <widget class="QLabel" name="label_56">
+            <property name="text">
+             <string>验证者总资金    </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="edtMVSAllBalance_3"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnMSVStart_3">
+          <property name="text">
+           <string>开始验证</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnMSVStop_3">
+          <property name="text">
+           <string>停止验证</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="layoutWidget_4">
+       <property name="geometry">
+        <rect>
+         <x>60</x>
+         <y>310</y>
+         <width>257</width>
+         <height>251</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_42">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_65">
+          <item>
+           <widget class="QLabel" name="label_57">
+            <property name="text">
+             <string>私钥</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="edtMVSPriv_4">
+            <property name="text">
+             <string>29176270484F74852C5ABCBFEF26C4193FE4C2E4C522984D833329EDD502DC84</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_66">
+          <item>
+           <widget class="QLabel" name="label_58">
+            <property name="text">
+             <string>验证者账户资金</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="edtMVSBalacne_4"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_67">
+          <item>
+           <widget class="QLabel" name="label_59">
+            <property name="text">
+             <string>验证者保证金    </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="edtMVSCashDeposit_4"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_68">
+          <item>
+           <widget class="QLabel" name="label_60">
+            <property name="text">
+             <string>验证者总资金    </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="edtMVSAllBalance_4"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnMSVStart_4">
+          <property name="text">
+           <string>开始验证</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnMSVStop_4">
+          <property name="text">
+           <string>停止验证</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="layoutWidget_5">
+       <property name="geometry">
+        <rect>
+         <x>320</x>
+         <y>310</y>
+         <width>257</width>
+         <height>251</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_43">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_69">
+          <item>
+           <widget class="QLabel" name="label_61">
+            <property name="text">
+             <string>私钥</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="edtMVSPriv_5">
+            <property name="text">
+             <string>C99FC6C3EF33BAB82A8DC27C3D6C26D90DFF3FBE1EB7BA6996A88662A34E031E</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_70">
+          <item>
+           <widget class="QLabel" name="label_62">
+            <property name="text">
+             <string>验证者账户资金</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="edtMVSBalacne_5"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_71">
+          <item>
+           <widget class="QLabel" name="label_63">
+            <property name="text">
+             <string>验证者保证金    </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="edtMVSCashDeposit_5"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_72">
+          <item>
+           <widget class="QLabel" name="label_64">
+            <property name="text">
+             <string>验证者总资金    </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="edtMVSAllBalance_5"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnMSVStart_5">
+          <property name="text">
+           <string>开始验证</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnMSVStop_5">
+          <property name="text">
+           <string>停止验证</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="layoutWidget_6">
+       <property name="geometry">
+        <rect>
+         <x>580</x>
+         <y>310</y>
+         <width>257</width>
+         <height>251</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_44">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_73">
+          <item>
+           <widget class="QLabel" name="label_65">
+            <property name="text">
+             <string>私钥</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="edtMVSPriv_6">
+            <property name="text">
+             <string>C56E273AE386A16846D5710F2B04DE75DE5D4DD086D15ABBFF0B184BC01F81C5</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_74">
+          <item>
+           <widget class="QLabel" name="label_66">
+            <property name="text">
+             <string>验证者账户资金</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="edtMVSBalacne_6"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_75">
+          <item>
+           <widget class="QLabel" name="label_67">
+            <property name="text">
+             <string>验证者保证金    </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="edtMVSCashDeposit_6"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_76">
+          <item>
+           <widget class="QLabel" name="label_68">
+            <property name="text">
+             <string>验证者总资金    </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="edtMVSAllBalance_6"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnMSVStart_6">
+          <property name="text">
+           <string>开始验证</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnMSVStop_6">
+          <property name="text">
+           <string>停止验证</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="">
        <property name="geometry">
         <rect>
@@ -1930,7 +2360,11 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="edtMVSPriv1"/>
+           <widget class="QLineEdit" name="edtMVSPriv_1">
+            <property name="text">
+             <string>25E25210DCE702D4E36B6C8A17E18DC1D02A9E4F0D1D31C4AEE77327CF1641CC</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -1944,7 +2378,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="edtMVSBalacne1"/>
+           <widget class="QLineEdit" name="edtMVSBalacne_1"/>
           </item>
          </layout>
         </item>
@@ -1958,7 +2392,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="edtMVSCashDeposit1"/>
+           <widget class="QLineEdit" name="edtMVSCashDeposit_1"/>
           </item>
          </layout>
         </item>
@@ -1972,19 +2406,19 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="edtMVSAllBalance1"/>
+           <widget class="QLineEdit" name="edtMVSAllBalance_1"/>
           </item>
          </layout>
         </item>
         <item>
-         <widget class="QPushButton" name="btnMSVStart1">
+         <widget class="QPushButton" name="btnMSVStart_1">
           <property name="text">
            <string>开始验证</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="btnMSVStop1">
+         <widget class="QPushButton" name="btnMSVStop_1">
           <property name="text">
            <string>停止验证</string>
           </property>

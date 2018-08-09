@@ -8,6 +8,7 @@
 #include <memory>
 #include <list>
 #include <unordered_map>
+#include <boost/signals2.hpp>
 #include <core/unit.h>
 #include <core/key.h>
 #include <store/unit_store.h>
@@ -25,6 +26,13 @@ public:
   StoreManager();
 public:
   void Init(const std::string& path);
+  //callback
+  boost::signals2::connection AddCallBackReceiveNewSendUnit(std::function<void(std::shared_ptr<core::SendUnit>)> callback);
+  boost::signals2::connection AddCallBackReceiveNewReceiveUnit(std::function<void(std::shared_ptr<core::ReceiveUnit>)> callback);
+  boost::signals2::connection AddCallBackReceiveNewJoinValidatorSetUnit(std::function<void(std::shared_ptr<core::EnterValidateSetUint>)> callback);
+  boost::signals2::connection AddCallBackReceiveNewLeaveValidatorSetUnit(std::function<void(std::shared_ptr<core::LeaveValidateSetUint>)> callback);
+  boost::signals2::connection AddCallBackReceiveNewValidatorUnit(std::function<void(std::shared_ptr<core::ValidatorUnit>)> callback);
+public:
   //bool AddUnit(std::shared_ptr<core::Unit> unit, std::string* err);
   bool AddSendUnit(std::shared_ptr<core::SendUnit> send_unit, std::string* err);
   bool AddReceiveUnit(std::shared_ptr<core::ReceiveUnit> receive_unit, std::string* err);
@@ -91,6 +99,7 @@ public:
 
   uint64_t GetGenesisTime(){return genesis_time_;}
   uint32_t GetValidateUnitInterval(){return validate_unit_interval_;}
+  uint64_t GetPassPercent(){return PASS_PERCENT;}
   uint64_t GetNonceByNowTime();
 public://for debug
   std::list<core::UnitHash> GetAccountListFromAccountForDebug();
@@ -121,9 +130,16 @@ private:
   rocksdb::ColumnFamilyHandle* handle_leave_validator_unit_;//unit_hash->LeaveValidatorUnitStore
   rocksdb::ColumnFamilyHandle* handle_validator_set_;//unit_hash->validator_set
   std::list<std::shared_ptr<core::VoteUnit>> vote_list_;
-  const uint64_t PERCENT_MAX=1000000000u;
+  const uint64_t PERCENT_MAX=10000u;
+  const uint64_t PASS_PERCENT=10000u*7/10;
   uint64_t genesis_time_;
-  const uint32_t validate_unit_interval_ = 2000u;//2s
+  const uint32_t validate_unit_interval_ = 5000u;//2s
+private:
+  boost::signals2::signal<void(std::shared_ptr<core::SendUnit>)> DoReceiveNewSendUnit;
+  boost::signals2::signal<void(std::shared_ptr<core::ReceiveUnit>)> DoReceiveNewReceiveUnit;
+  boost::signals2::signal<void(std::shared_ptr<core::EnterValidateSetUint>)> DoReceiveNewEnterValidateSetUnit;
+  boost::signals2::signal<void(std::shared_ptr<core::LeaveValidateSetUint>)> DoReceiveNewLeaveValidateSetUnit;
+  boost::signals2::signal<void(std::shared_ptr<core::ValidatorUnit>)> DoReceiveNewValidatorUnit;
 };
 }
 }

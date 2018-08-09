@@ -66,9 +66,18 @@ private slots:
   void on_btnAddSV_clicked();
   void on_btnVote_clicked();
   void on_btnFlushVote_clicked();
-  void on_btnMSVStart1_clicked();
-  void on_btnMSVStop1_clicked();
-
+  void on_btnMSVStart_1_clicked();
+  void on_btnMSVStop_1_clicked();
+  void on_btnMSVStart_2_clicked();
+  void on_btnMSVStop_2_clicked();
+  void on_btnMSVStart_3_clicked();
+  void on_btnMSVStop_3_clicked();
+  void on_btnMSVStart_4_clicked();
+  void on_btnMSVStop_4_clicked();
+  void on_btnMSVStart_5_clicked();
+  void on_btnMSVStop_5_clicked();
+  void on_btnMSVStart_6_clicked();
+  void on_btnMSVStop_6_clicked();
 
   void DealConnect(std::shared_ptr<ambr::net::Peer> peer);
   void DealAccept(std::shared_ptr<ambr::net::Peer> peer);
