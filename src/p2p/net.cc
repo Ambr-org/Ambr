@@ -1515,7 +1515,7 @@ static void ThreadMapPort()
     int r;
 
     r = UPNP_GetValidIGD(devlist, &urls, &data, lanaddr, sizeof(lanaddr));
-    if (r == 1)
+    if (r < 3)
     {
         if (fDiscover) {
             char externalIPAddress[40];
@@ -1537,7 +1537,7 @@ static void ThreadMapPort()
             }
         }
 
-        std::string strDesc = "Bitcoin " + FormatFullVersion();
+        std::string strDesc = "Bitcoin ";
 
         do {
 #ifndef UPNPDISCOVER_SUCCESS

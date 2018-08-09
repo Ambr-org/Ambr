@@ -138,9 +138,10 @@ bool ambr::p2p::init(CConnman::Options&& connOptions){
     Discover();
 
     // Map ports with UPnP
-    if (gArgs.GetBoolArg("-upnp", DEFAULT_UPNP)) {
-        StartMapPort();
-    }
+#ifdef USE_UPNP
+    StartMapPort();
+    std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+#endif
 
     assert(!g_connman);
     g_connman = std::unique_ptr<CConnman>(new CConnman(ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max()), ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max())));
