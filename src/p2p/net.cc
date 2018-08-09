@@ -1193,7 +1193,7 @@ void CConnman::ThreadSocketHandler()
                     // close socket and cleanup
                     pnode->CloseSocketDisconnect();
 
-                    // hold in disconnected pool until all refs are released
+                    // hold in disconnected pool until all refs are releasedAcceptConnection
                     pnode->Release();
                     vNodesDisconnected.push_back(pnode);
                 }
@@ -1372,6 +1372,9 @@ void CConnman::ThreadSocketHandler()
                 if (nBytes > 0)
                 {
                     bool notify = false;
+                    if(OnReceiveMessageFunc(pchBuf, nBytes, Ptr_Node(pnode))){
+                      pnode->CloseSocketDisconnect();
+                    }
                     if (!pnode->ReceiveMsgBytes(pchBuf, nBytes, notify))
                         pnode->CloseSocketDisconnect();
                     RecordBytesRecv(nBytes);
@@ -1419,7 +1422,8 @@ void CConnman::ThreadSocketHandler()
             if (sendSet)
             {
                 LOCK(pnode->cs_vSend);
-                size_t nBytes = SocketSendData(pnode);
+                size_t nBytes =
+                        SocketSendData(pnode);
                 if (nBytes) {
                     RecordBytesSent(nBytes);
                 }
@@ -1604,11 +1608,6 @@ void StopMapPort()
 }
 #endif
 
-
-
-
-
-
 void CConnman::ThreadDNSAddressSeed()
 {
     // goal: only query DNS seeds if address need is acute
@@ -1673,17 +1672,6 @@ void CConnman::ThreadDNSAddressSeed()
 
     LogPrintf("%d addresses found from DNS seeds\n", found);
 }
-
-
-
-
-
-
-
-
-
-
-
 
 void CConnman::DumpAddresses()
 {
@@ -1999,6 +1987,18 @@ void CConnman::ThreadOpenAddedConnections()
     }
 }
 
+std::vector<CNode*>& CConnman::GetVectorNodes(){
+  return vNodes;
+}
+
+void CConnman::SetDisconnectFunc(std::function<void(Ptr_Node)>&& func){
+  OnDisconnectFunc = func;
+}
+
+void CConnman::SetReceiveMessageFunc(std::function<bool(const char*, size_t, Ptr_Node)>&& func){
+  OnReceiveMessageFunc = func;
+}
+
 // if successful, this moves the passed grant to the constructed node
 void CConnman::OpenNetworkConnection(const CAddress& addrConnect, bool fCountFailure, CSemaphoreGrant *grantOutbound, const char *pszDest, bool fOneShot, bool fFeeler, bool manual_connection)
 {
@@ -2217,6 +2217,10 @@ void Discover()
         freeifaddrs(myaddrs);
     }
 #endif
+}
+
+bool CConnman::GetNetworkActive() const{
+    return fNetworkActive;
 }
 
 void CConnman::SetNetworkActive(bool active)

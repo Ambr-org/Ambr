@@ -1,14 +1,15 @@
 #ifndef _AMBR_EXAMPLES_NET_TEST_H_
 #define _AMBR_EXAMPLES_NET_TEST_H_
 
+#include "net.h"
 #include "core/unit.h"
 
 #include <boost/asio.hpp>
 #include <time.h>
 #include <atomic>
-#include <functional>
 #include <list>
 #include <memory.h>
+#include <functional>
 #include <boost/threadpool.hpp>
 //TODO:upnp
 //TODO:PING PONG
@@ -153,12 +154,18 @@ public:
   void SetOnReceive(std::function<void(std::shared_ptr<NetMessage> msg,  std::shared_ptr<Peer> peer)> func);
   void SendMessage(std::shared_ptr<NetMessage> msg, std::shared_ptr<Peer> peer);
   //send message to all validate peers except peer in param
-  void BoardcastMessage(std::shared_ptr<NetMessage> msg, std::shared_ptr<Peer> peer);
+  void BoardcastMessage1(std::shared_ptr<NetMessage> msg, std::shared_ptr<Peer> peer);
   void SetOnDisconnect(std::function<void(std::shared_ptr<Peer>)> func);
   void SetOnAccept(std::function<void(std::shared_ptr<Peer>)> func);
   void SetOnConnected(std::function<void(std::shared_ptr<Peer>)> func);
   void RemovePeer(std::shared_ptr<Peer> peer, uint32_t second);
 public:
+  void RemovePeer(Ptr_Node p_node, uint32_t second);
+  void SetOnAccept(std::function<void(Ptr_Node)>& func);
+  void SetOnConnected(std::function<void(Ptr_Node)>& func);
+  void SetOnDisconnect(std::function<void(Ptr_Node)>& func);
+  void BoardcastMessage(std::shared_ptr<NetMessage> msg, Ptr_Node p_node);
+
   class Impl;
 private:
   Impl* impl_;

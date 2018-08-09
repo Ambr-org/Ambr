@@ -114,6 +114,8 @@ struct CSerializedNetMsg
 };
 
 class NetEventsInterface;
+using Ptr_Node = std::shared_ptr<CNode>;
+
 class CConnman
 {
 public:
@@ -179,8 +181,12 @@ public:
     bool Start(CScheduler& scheduler, const Options& options);
     void Stop();
     void Interrupt();
-    bool GetNetworkActive() const { return fNetworkActive; };
+    bool GetNetworkActive() const;
     void SetNetworkActive(bool active);
+    std::vector<CNode*>& GetVectorNodes();
+    void SetDisconnectFunc(std::function<void(Ptr_Node)>&& func);
+    void SetReceiveMessageFunc(std::function<bool(const char*, size_t, Ptr_Node)>&& func);
+
     void OpenNetworkConnection(const CAddress& addrConnect, bool fCountFailure, CSemaphoreGrant *grantOutbound = nullptr, const char *strDest = nullptr, bool fOneShot = false, bool fFeeler = false, bool manual_connection = false);
     bool CheckIncomingNonce(uint64_t nonce);
 
@@ -196,7 +202,7 @@ public:
             if (NodeFullyConnected(node))
                 func(node);
         }
-    };
+    }
 
     template<typename Callable>
     void ForEachNode(Callable&& func) const
@@ -206,7 +212,7 @@ public:
             if (NodeFullyConnected(node))
                 func(node);
         }
-    };
+    }
 
     template<typename Callable, typename CallableAfter>
     void ForEachNodeThen(Callable&& pre, CallableAfter&& post)
@@ -217,7 +223,7 @@ public:
                 pre(node);
         }
         post();
-    };
+    }
 
     template<typename Callable, typename CallableAfter>
     void ForEachNodeThen(Callable&& pre, CallableAfter&& post) const
@@ -228,7 +234,7 @@ public:
                 pre(node);
         }
         post();
-    };
+    }
 
     // Addrman functions
     size_t GetAddressCount() const;
@@ -267,7 +273,7 @@ public:
     bool GetTryNewOutboundPeer();
 
     // Return the number of outbound peers we have in excess of our target (eg,
-    // if we previously called SetTryNewOutboundPeer(true), and have since set
+    // if we previously called SetTryNewOutboundPeer(true), and have since structset
     // to false, we may have extra peers that we wish to disconnect). This may
     // return a value less than (num_outbound_connections - num_outbound_slots)
     // in cases where some outbound connections are not yet fully connected, or
@@ -451,6 +457,8 @@ private:
     std::atomic_bool m_try_another_outbound_peer;
 
     std::atomic<int64_t> m_next_send_inv_to_incoming{0};
+    std::function<void(Ptr_Node)> OnDisconnectFunc;
+    std::function<bool(const char*, size_t, Ptr_Node)> OnReceiveMessageFunc;
 
     friend struct CConnmanTest;
 };
