@@ -12,6 +12,10 @@
 #include <core/unit.h>
 #include <core/key.h>
 #include <store/unit_store.h>
+#include <thread>
+#include <mutex>
+
+typedef std::lock_guard<std::recursive_mutex> LockGrade;
 namespace rocksdb{
 class DB;
 class ColumnFamilyHandle;
@@ -20,6 +24,7 @@ class WriteBatch;
 
 namespace ambr {
 namespace store {
+
 
 class StoreManager{
 public:
@@ -101,6 +106,8 @@ public:
   uint32_t GetValidateUnitInterval(){return validate_unit_interval_;}
   uint64_t GetPassPercent(){return PASS_PERCENT;}
   uint64_t GetNonceByNowTime();
+  std::recursive_mutex& GetMutex(){return mutex_;}
+
 public://for debug
   std::list<core::UnitHash> GetAccountListFromAccountForDebug();
   std::list<core::UnitHash> GetAccountListFromWaitForReceiveForDebug();
@@ -134,6 +141,7 @@ private:
   const uint64_t PASS_PERCENT=10000u*7/10;
   uint64_t genesis_time_;
   const uint32_t validate_unit_interval_ = 5000u;//2s
+  std::recursive_mutex mutex_;
 private:
   boost::signals2::signal<void(std::shared_ptr<core::SendUnit>)> DoReceiveNewSendUnit;
   boost::signals2::signal<void(std::shared_ptr<core::ReceiveUnit>)> DoReceiveNewReceiveUnit;

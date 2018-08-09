@@ -22,7 +22,7 @@ static const ambr::core::Amount min_validator_balance = (boost::multiprecision::
 //TODO: db sync
 
 void ambr::store::StoreManager::Init(const std::string& path){
-
+  LockGrade lk(mutex_);
   rocksdb::DBOptions options;
   options.create_if_missing = true;
   options.create_missing_column_families = true;
@@ -176,6 +176,7 @@ boost::signals2::connection ambr::store::StoreManager::AddCallBackReceiveNewVali
 
 
 bool ambr::store::StoreManager::AddSendUnit(std::shared_ptr<ambr::core::SendUnit> send_unit, std::string *err){
+  LockGrade lk(mutex_);
   if(!send_unit){
     if(err)*err = "Unit cast to SendUnit error.";
     return false;
@@ -245,6 +246,7 @@ bool ambr::store::StoreManager::AddSendUnit(std::shared_ptr<ambr::core::SendUnit
 }
 
 bool ambr::store::StoreManager::AddReceiveUnit(std::shared_ptr<ambr::core::ReceiveUnit> receive_unit, std::string *err){
+  LockGrade lk(mutex_);
   if(!receive_unit){
     if(err)*err = "receive_unit is nullptr.";
     return false;
@@ -325,6 +327,7 @@ bool ambr::store::StoreManager::AddReceiveUnit(std::shared_ptr<ambr::core::Recei
   return true;
 }
 bool ambr::store::StoreManager::AddEnterValidatorSetUnit(std::shared_ptr<ambr::core::EnterValidateSetUint> unit, std::string *err){
+  LockGrade lk(mutex_);
   if(!unit){
     if(err){
       *err = "Unit pointer is null";
@@ -458,6 +461,7 @@ bool ambr::store::StoreManager::AddEnterValidatorSetUnit(std::shared_ptr<ambr::c
 }
 
 bool ambr::store::StoreManager::AddLeaveValidatorSetUnit(std::shared_ptr<ambr::core::LeaveValidateSetUint> unit, std::string *err){
+  LockGrade lk(mutex_);
   if(!unit){
     if(err){
       *err = "Unit pointer is null";
@@ -515,6 +519,7 @@ bool ambr::store::StoreManager::AddLeaveValidatorSetUnit(std::shared_ptr<ambr::c
 }
 
 bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::ValidatorUnit> unit, std::string *err){
+  LockGrade lk(mutex_);
   if(!unit){
     if(err){
       *err = "Unit point is null";
@@ -790,6 +795,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
 }
 
 bool ambr::store::StoreManager::AddVote(std::shared_ptr<ambr::core::VoteUnit> unit, std::string *err){
+  LockGrade lk(mutex_);
   if(!unit){
     if(err){
       *err = "Vote Unit is null";
@@ -834,10 +840,12 @@ bool ambr::store::StoreManager::AddVote(std::shared_ptr<ambr::core::VoteUnit> un
 }
 
 void ambr::store::StoreManager::ClearVote(){
+  LockGrade lk(mutex_);
   vote_list_.clear();
 }
 
 void ambr::store::StoreManager::UpdateNewUnitMap(const std::vector<core::UnitHash> &validator_check_list){
+  LockGrade lk(mutex_);
   std::list<ambr::core::PublicKey> will_remove;
   rocksdb::Iterator* it = db_unit_->NewIterator(rocksdb::ReadOptions(), handle_new_account_);
   for (it->SeekToFirst(); it->Valid(); it->Next()) {
@@ -863,6 +871,7 @@ void ambr::store::StoreManager::UpdateNewUnitMap(const std::vector<core::UnitHas
 
 
 bool ambr::store::StoreManager::GetLastValidateUnit(core::UnitHash& hash){
+  LockGrade lk(mutex_);
   std::string value_get;
   rocksdb::Status status = db_unit_->Get(
         rocksdb::ReadOptions(),
@@ -877,6 +886,7 @@ bool ambr::store::StoreManager::GetLastValidateUnit(core::UnitHash& hash){
 }
 
 std::list<std::shared_ptr<ambr::core::ValidatorUnit> > ambr::store::StoreManager::GetValidateHistory(size_t count){
+  LockGrade lk(mutex_);
   std::list<std::shared_ptr<ambr::core::ValidatorUnit> > rtn;
   core::UnitHash unit_hash;
   if(!GetLastValidateUnit(unit_hash)){
@@ -897,6 +907,7 @@ std::list<std::shared_ptr<ambr::core::ValidatorUnit> > ambr::store::StoreManager
 }
 
 bool ambr::store::StoreManager::GetLastUnitHashByPubKey(const ambr::core::PublicKey &pub_key, ambr::core::UnitHash& hash){
+  LockGrade lk(mutex_);
   std::string value_get;
   rocksdb::Status status = db_unit_->Get(rocksdb::ReadOptions(), handle_account_, rocksdb::Slice((const char*)pub_key.bytes().data(), pub_key.bytes().size()), &value_get);
   if(status.IsNotFound()){
@@ -908,6 +919,7 @@ bool ambr::store::StoreManager::GetLastUnitHashByPubKey(const ambr::core::Public
 }
 
 bool ambr::store::StoreManager::GetBalanceByPubKey(const ambr::core::PublicKey &pub_key, core::Amount &balance){
+  LockGrade lk(mutex_);
   ambr::core::UnitHash hash;
   if(GetLastUnitHashByPubKey(pub_key, hash)){
     std::shared_ptr<UnitStore> store = GetUnit(hash);
@@ -937,6 +949,7 @@ bool ambr::store::StoreManager::GetBalanceByPubKey(const ambr::core::PublicKey &
 }
 
 std::list<std::shared_ptr<ambr::store::UnitStore> > ambr::store::StoreManager::GetTradeHistoryByPubKey(const ambr::core::PublicKey &pub_key, size_t count){
+  LockGrade lk(mutex_);
   std::list<std::shared_ptr<ambr::store::UnitStore> > unit_list;
   ambr::core::UnitHash hash_iter;
   std::shared_ptr<ambr::store::UnitStore> unit_ptr;
@@ -955,8 +968,8 @@ std::list<std::shared_ptr<ambr::store::UnitStore> > ambr::store::StoreManager::G
   return unit_list;
 }
 
-bool ambr::store::StoreManager::GetSendAmount(const ambr::core::UnitHash &unit_hash, ambr::core::Amount &amount, std::string *err)
-{
+bool ambr::store::StoreManager::GetSendAmount(const ambr::core::UnitHash &unit_hash, ambr::core::Amount &amount, std::string *err){
+  LockGrade lk(mutex_);
   core::Amount balance_send;
   std::shared_ptr<SendUnitStore> send_store = GetSendUnit(unit_hash);
   if(!send_store){
@@ -977,6 +990,7 @@ bool ambr::store::StoreManager::GetSendAmount(const ambr::core::UnitHash &unit_h
 }
 
 std::unordered_map<ambr::core::PublicKey, ambr::core::UnitHash> ambr::store::StoreManager::GetNewUnitMap(){
+  LockGrade lk(mutex_);
   std::unordered_map<ambr::core::PublicKey, ambr::core::UnitHash> rtn;
   rocksdb::Iterator* it = db_unit_->NewIterator(rocksdb::ReadOptions(), handle_new_account_);
   for (it->SeekToFirst(); it->Valid(); it->Next()) {
@@ -990,6 +1004,7 @@ std::unordered_map<ambr::core::PublicKey, ambr::core::UnitHash> ambr::store::Sto
 }
 
 std::shared_ptr<ambr::store::ValidatorSetStore> ambr::store::StoreManager::GetValidatorSet(){
+  LockGrade lk(mutex_);
   std::string value_get;
   rocksdb::Status status = db_unit_->Get(
         rocksdb::ReadOptions(), handle_validator_set_,
@@ -1013,6 +1028,7 @@ bool ambr::store::StoreManager::SendToAddress(
     core::UnitHash* tx_hash,
     std::shared_ptr<ambr::core::Unit>& unit_sended,
     std::string* err){
+  LockGrade lk(mutex_);
   std::shared_ptr<core::SendUnit> unit = std::shared_ptr<core::SendUnit>(new core::SendUnit());
   core::PublicKey pub_key = ambr::core::GetPublicKeyByPrivateKey(prv_key);
   core::UnitHash prev_hash;
@@ -1055,6 +1071,7 @@ bool ambr::store::StoreManager::ReceiveFromUnitHash(
     core::UnitHash* tx_hash,
     std::shared_ptr<ambr::core::Unit>& unit_received,
     std::string *err){
+  LockGrade lk(mutex_);
   std::shared_ptr<core::ReceiveUnit> unit = std::shared_ptr<core::ReceiveUnit>(new core::ReceiveUnit());
   core::PublicKey pub_key = ambr::core::GetPublicKeyByPrivateKey(pri_key);
   core::UnitHash prev_hash;
@@ -1102,6 +1119,7 @@ bool ambr::store::StoreManager::JoinValidatorSet(const core::PrivateKey& pri_key
                                                  core::UnitHash* tx_hash,
                                                  std::shared_ptr<ambr::core::Unit>& unit_join,
                                                  std::string* err){
+  LockGrade lk(mutex_);
   std::shared_ptr<ambr::core::EnterValidateSetUint> unit = std::make_shared<ambr::core::EnterValidateSetUint>();
   core::PublicKey pub_key = core::GetPublicKeyByPrivateKey(pri_key);
   core::UnitHash last_hash;
@@ -1148,6 +1166,7 @@ bool ambr::store::StoreManager::LeaveValidatorSet(const core::PrivateKey& pri_ke
                                                   std::shared_ptr<ambr::core::Unit>& unit_leave,
                                                   std::string* err)
 {
+  LockGrade lk(mutex_);
   std::shared_ptr<ambr::core::LeaveValidateSetUint> unit = std::make_shared<ambr::core::LeaveValidateSetUint>();
   core::PublicKey pub_key = core::GetPublicKeyByPrivateKey(pri_key);
   core::UnitHash last_hash;
@@ -1191,6 +1210,7 @@ bool ambr::store::StoreManager::PublishValidator(
     std::shared_ptr<ambr::core::ValidatorUnit>& unit_validator,
     std::string* err
     ){
+  LockGrade lk(mutex_);
   std::shared_ptr<core::ValidatorUnit> unit = std::make_shared<core::ValidatorUnit>();
   unit->set_version((uint32_t)0x000000001);
   unit->set_type(core::UnitType::Validator);
@@ -1294,6 +1314,7 @@ bool ambr::store::StoreManager::PublishVote(const core::PrivateKey& pri_key,
                                             bool accept,
                                             std::shared_ptr<ambr::core::VoteUnit>& unit_vote,
                                             std::string* err){
+  LockGrade lk(mutex_);
   std::shared_ptr<core::VoteUnit> unit = std::make_shared<core::VoteUnit>();
   unit->set_version(0x00000001);
   unit->set_type(core::UnitType::Vote);
@@ -1334,6 +1355,7 @@ bool ambr::store::StoreManager::PublishVote(const core::PrivateKey& pri_key,
 
 
 std::list<ambr::core::UnitHash> ambr::store::StoreManager::GetWaitForReceiveList(const ambr::core::PublicKey &pub_key){
+  LockGrade lk(mutex_);
   //TODO Improve efficiency
   std::string string_readed;
   rocksdb::Status status = db_unit_->Get(
@@ -1385,6 +1407,7 @@ std::shared_ptr<ambr::store::SendUnitStore> ambr::store::StoreManager::GetSendUn
 }
 
 std::shared_ptr<ambr::store::ReceiveUnitStore> ambr::store::StoreManager::GetReceiveUnit(const ambr::core::UnitHash &hash){
+  LockGrade lk(mutex_);
   std::shared_ptr<ambr::store::ReceiveUnitStore> rtn;
   std::string string_readed;
   rocksdb::Status status = db_unit_->Get(
@@ -1404,6 +1427,7 @@ std::shared_ptr<ambr::store::ReceiveUnitStore> ambr::store::StoreManager::GetRec
 }
 
 std::shared_ptr<ambr::core::ValidatorUnit> ambr::store::StoreManager::GetValidateUnit(const ambr::core::UnitHash &hash){
+  LockGrade lk(mutex_);
   std::shared_ptr<ambr::core::ValidatorUnit> rtn;
   std::string string_readed;
   rocksdb::Status status = db_unit_->Get(
@@ -1423,6 +1447,7 @@ std::shared_ptr<ambr::core::ValidatorUnit> ambr::store::StoreManager::GetValidat
 }
 
 std::shared_ptr<ambr::core::ValidatorUnit> ambr::store::StoreManager::GetLastestValidateUnit(){
+  LockGrade lk(mutex_);
   core::UnitHash last_validate_unit_hash;
   if(!GetLastValidateUnit(last_validate_unit_hash)){
     return nullptr;
@@ -1435,6 +1460,7 @@ std::shared_ptr<ambr::core::ValidatorUnit> ambr::store::StoreManager::GetLastest
 }
 
 std::shared_ptr<ambr::store::EnterValidatorSetUnitStore> ambr::store::StoreManager::GetEnterValidatorSetUnit(const ambr::core::UnitHash &hash){
+  LockGrade lk(mutex_);
   std::shared_ptr<EnterValidatorSetUnitStore> rtn;
   std::string string_readed;
   rocksdb::Status status = db_unit_->Get(
@@ -1454,6 +1480,7 @@ std::shared_ptr<ambr::store::EnterValidatorSetUnitStore> ambr::store::StoreManag
 }
 
 std::shared_ptr<ambr::store::LeaveValidatorSetUnitStore> ambr::store::StoreManager::GetLeaveValidatorSetUnit(const ambr::core::UnitHash &hash){
+  LockGrade lk(mutex_);
   std::shared_ptr<LeaveValidatorSetUnitStore> rtn;
   std::string string_readed;
   rocksdb::Status status = db_unit_->Get(
@@ -1485,6 +1512,7 @@ uint64_t ambr::store::StoreManager::GetNonceByNowTime(){
 }
 
 std::list<ambr::core::UnitHash> ambr::store::StoreManager::GetAccountListFromAccountForDebug(){
+  LockGrade lk(mutex_);
   std::list<ambr::core::UnitHash> rtn_list;
   rocksdb::Iterator* it = db_unit_->NewIterator(rocksdb::ReadOptions(), handle_account_);
   for (it->SeekToFirst(); it->Valid(); it->Next()) {
@@ -1497,6 +1525,7 @@ std::list<ambr::core::UnitHash> ambr::store::StoreManager::GetAccountListFromAcc
 }
 
 std::list<ambr::core::UnitHash> ambr::store::StoreManager::GetAccountListFromWaitForReceiveForDebug(){
+  LockGrade lk(mutex_);
   std::list<ambr::core::UnitHash> rtn_list;
   rocksdb::Iterator* it = db_unit_->NewIterator(rocksdb::ReadOptions(), handle_wait_for_receive_);
   for (it->SeekToFirst(); it->Valid(); it->Next()) {
@@ -1509,6 +1538,7 @@ std::list<ambr::core::UnitHash> ambr::store::StoreManager::GetAccountListFromWai
 }
 
 void ambr::store::StoreManager::AddWaitForReceiveUnit(const ambr::core::PublicKey &pub_key, const ambr::core::UnitHash &hash, rocksdb::WriteBatch* batch){
+  LockGrade lk(mutex_);
   //TODO Improve efficiency
   std::string string_readed;
   rocksdb::Status status = db_unit_->Get(
@@ -1534,6 +1564,7 @@ void ambr::store::StoreManager::AddWaitForReceiveUnit(const ambr::core::PublicKe
   assert(status.ok());
 }
 void ambr::store::StoreManager::RemoveWaitForReceiveUnit(const ambr::core::PublicKey &pub_key, const ambr::core::UnitHash &hash, rocksdb::WriteBatch *batch){
+  LockGrade lk(mutex_);
   std::list<core::UnitHash> hash_list = GetWaitForReceiveList(pub_key);
   hash_list.remove(hash);
   std::vector<uint8_t> vec_for_write;

@@ -33,6 +33,7 @@ void ambr::utils::ValidatorAuto::StartAutoRun(const ambr::core::PrivateKey &pri_
       if(now_nonce > last_nonce){
         last_nonce = now_nonce;
         //std::cout<<interval<<":"<<now_nonce<<std::endl;
+        LockGrade lk(store_manager_->GetMutex());
         ambr::core::PublicKey now_pub_key;
         if(store_manager_->GetValidatorSet()->GetNonceTurnValidator(now_nonce, now_pub_key)){
           if(now_pub_key == ambr::core::GetPublicKeyByPrivateKey(pri_key)){
@@ -69,6 +70,7 @@ void ambr::utils::ValidatorAuto::OnNeedVote(std::shared_ptr<ambr::core::Validato
   if(!validator_unit)return;
   std::shared_ptr<ambr::store::ValidatorSetStore> validator_set = store_manager_->GetValidatorSet();
   if(!validator_set)return;
+  LockGrade lk(store_manager_->GetMutex());
   if(validator_set->IsValidator(core::GetPublicKeyByPrivateKey(private_key_), validator_unit->nonce())){
     if(!store_manager_->PublishVote(private_key_, true, vote_unit, &err)){
       LOG(ERROR)<<"Auto vote err:"<<err;
