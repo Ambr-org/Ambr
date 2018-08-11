@@ -960,7 +960,8 @@ void StoreExampleMainWidget::on_btnP2PStart_clicked(){
   config.use_nat_pmp_ = false;
   config.use_natp_ = false;
   config.heart_time_ = 88;//second of heart interval
-  net_manager_->init(config);
+  std::thread tThread(&ambr::net::NetManager::init, net_manager_.get(), config);
+  tThread.detach();
 }
 
 void StoreExampleMainWidget::on_pushButton_clicked(){
