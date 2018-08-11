@@ -43,6 +43,9 @@ const char *GETBLOCKTXN="getblocktxn";
 const char *BLOCKTXN="blocktxn";
 const char *GETLISTENPORT="getport";
 const char *LISTENPORT="listenport";
+const char *UNIT = "unit";
+const char *SECTION = "section";
+const char *SECTIONUNIT = "unit";
 } // namespace NetMsgType
 
 /** All known message types. Keep this in the same order as the list of
@@ -75,6 +78,11 @@ const static std::string allNetMessageTypes[] = {
     NetMsgType::CMPCTBLOCK,
     NetMsgType::GETBLOCKTXN,
     NetMsgType::BLOCKTXN,
+    NetMsgType::GETLISTENPORT,
+    NetMsgType::LISTENPORT,
+    NetMsgType::UNIT,
+    NetMsgType::SECTION,
+    NetMsgType::SECTIONUNIT,
 };
 const static std::vector<std::string> allNetMessageTypesVec(allNetMessageTypes, allNetMessageTypes+ARRAYLEN(allNetMessageTypes));
 

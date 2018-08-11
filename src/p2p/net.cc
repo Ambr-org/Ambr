@@ -477,7 +477,7 @@ CNode* CConnman::ConnectNode(CAddress addrConnect, const char *pszDest, bool fCo
     CNode* pnode = new CNode(id, nLocalServices, GetBestHeight(), hSocket, addrConnect, CalculateKeyedNetGroup(addrConnect), nonce, addr_bind, pszDest ? pszDest : "", false);
     pnode->AddRef();
     bindMaps[pnode] == addrConnect;
-
+    //OnConnectFunc(pnode);
     return pnode;
 }
 
@@ -1157,6 +1157,8 @@ void CConnman::AcceptConnection(const ListenSocket& hListenSocket) {
     CNode* pnode = new CNode(id, nLocalServices, GetBestHeight(), hSocket, addr, CalculateKeyedNetGroup(addr), nonce, addr_bind, "", true);
     pnode->AddRef();
     pnode->fWhitelisted = whitelisted;
+
+    OnAcceptFunc(pnode);
     m_msgproc->InitializeNode(pnode);
 
    // LogPrint(BCLog::NET, "connection from %s accepted\n", addr.ToString());
@@ -1372,11 +1374,11 @@ void CConnman::ThreadSocketHandler()
                 if (nBytes > 0)
                 {
                     bool notify = false;
-                    if(OnReceiveMessageFunc(pchBuf, nBytes, Ptr_Node(pnode))){
+                    if(OnReceiveMessageFunc(pchBuf, nBytes, pnode)){
                       pnode->CloseSocketDisconnect();
                     }
-                    if (!pnode->ReceiveMsgBytes(pchBuf, nBytes, notify))
-                        pnode->CloseSocketDisconnect();
+                    /*if (!pnode->ReceiveMsgBytes(pchBuf, nBytes, notify))
+                        pnode->CloseSocketDisconnect();*/
                     RecordBytesRecv(nBytes);
                     if (notify) {
                         size_t nSizeAdded = 0;
@@ -1960,7 +1962,8 @@ std::vector<AddedNodeInfo> CConnman::GetAddedNodeInfo()
     return ret;
 }
 
-void CConnman::ThreadOpenAddedConnections()
+void CConnman::
+ThreadOpenAddedConnections()
 {
     while (true)
     {
@@ -1991,11 +1994,19 @@ std::vector<CNode*>& CConnman::GetVectorNodes(){
   return vNodes;
 }
 
-void CConnman::SetDisconnectFunc(std::function<void(Ptr_Node)>&& func){
+void CConnman::SetAcceptFunc(std::function<void(CNode*)>&& func){
+  OnAcceptFunc = func;
+}
+
+void CConnman::SetConnectFunc(std::function<void(CNode*)>&& func){
+  OnConnectFunc = func;
+}
+
+void CConnman::SetDisconnectFunc(std::function<void(CNode*)>&& func){
   OnDisconnectFunc = func;
 }
 
-void CConnman::SetReceiveMessageFunc(std::function<bool(const char*, size_t, Ptr_Node)>&& func){
+void CConnman::SetReceiveMessageFunc(std::function<bool(const char*, size_t, CNode*)>&& func){
   OnReceiveMessageFunc = func;
 }
 

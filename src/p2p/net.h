@@ -184,8 +184,10 @@ public:
     bool GetNetworkActive() const;
     void SetNetworkActive(bool active);
     std::vector<CNode*>& GetVectorNodes();
-    void SetDisconnectFunc(std::function<void(Ptr_Node)>&& func);
-    void SetReceiveMessageFunc(std::function<bool(const char*, size_t, Ptr_Node)>&& func);
+    void SetAcceptFunc(std::function<void(CNode*)>&& func);
+    void SetConnectFunc(std::function<void(CNode*)>&& func);
+    void SetDisconnectFunc(std::function<void(CNode*)>&& func);
+    void SetReceiveMessageFunc(std::function<bool(const char*, size_t, CNode*)>&& func);
 
     void OpenNetworkConnection(const CAddress& addrConnect, bool fCountFailure, CSemaphoreGrant *grantOutbound = nullptr, const char *strDest = nullptr, bool fOneShot = false, bool fFeeler = false, bool manual_connection = false);
     bool CheckIncomingNonce(uint64_t nonce);
@@ -457,8 +459,10 @@ private:
     std::atomic_bool m_try_another_outbound_peer;
 
     std::atomic<int64_t> m_next_send_inv_to_incoming{0};
-    std::function<void(Ptr_Node)> OnDisconnectFunc;
-    std::function<bool(const char*, size_t, Ptr_Node)> OnReceiveMessageFunc;
+    std::function<void(CNode*)> OnAcceptFunc;
+    std::function<void(CNode*)> OnConnectFunc;
+    std::function<void(CNode*)> OnDisconnectFunc;
+    std::function<bool(const char*, size_t, CNode*)> OnReceiveMessageFunc;
 
     friend struct CConnmanTest;
 };

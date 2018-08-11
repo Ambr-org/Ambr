@@ -395,8 +395,10 @@ void PeerLogicValidation::InitializeNode(CNode *pnode) {
         LOCK(cs_process);
         mapNodeState.emplace_hint(mapNodeState.end(), std::piecewise_construct, std::forward_as_tuple(nodeid), std::forward_as_tuple(addr, std::move(addrName)));
     }
-    if(!pnode->fInbound)
-        PushNodeVersion(pnode, connman, GetTime());
+    if(!pnode->fInbound){
+       pnode->nSendOffset = 0;
+       PushNodeVersion(pnode, connman, GetTime());
+    }
 }
 
 void PeerLogicValidation::FinalizeNode(NodeId nodeid, bool& fUpdateConnectionTime) {

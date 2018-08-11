@@ -231,10 +231,14 @@ extern const char *CMPCTBLOCK;
  * @since protocol version 70014 as described by BIP 152
  */
 extern const char *GETBLOCKTXN;
-
+extern const char *BLOCKTXN;
 extern const char *GETLISTENPORT;
 extern const char *LISTENPORT;
-};
+
+extern const char *UNIT;
+extern const char *SECTION;
+extern const char *SECTIONUNIT;
+}
 
 /* Get a vector of all valid message types (see above) */
 const std::vector<std::string>& getAllNetMessageTypes();

@@ -98,6 +98,11 @@ struct NetMessage{
   static const uint32_t HEAD_SIZE=12;
 };
 
+struct IPConfig{
+  uint32_t port_;
+  std::string str_ip_;
+};
+
 struct NetManagerConfig{
   uint32_t max_in_peer_;
   uint32_t max_out_peer_;
@@ -109,6 +114,7 @@ struct NetManagerConfig{
   bool use_nat_pmp_;
   bool use_natp_;
   uint32_t heart_time_;//second of heart interval
+  std::vector<IPConfig> vec_seed_;
 };
 
 /*connection info
@@ -160,11 +166,11 @@ public:
   void SetOnConnected(std::function<void(std::shared_ptr<Peer>)> func);
   void RemovePeer(std::shared_ptr<Peer> peer, uint32_t second);
 public:
-  void RemovePeer(Ptr_Node p_node, uint32_t second);
-  void SetOnAccept(std::function<void(Ptr_Node)>& func);
-  void SetOnConnected(std::function<void(Ptr_Node)>& func);
-  void SetOnDisconnect(std::function<void(Ptr_Node)>& func);
-  void BoardcastMessage(std::shared_ptr<NetMessage> msg, Ptr_Node p_node);
+  void RemovePeer(CNode* p_node, uint32_t second);
+  void SetOnAcceptNode(std::function<void(CNode*)>&& func);
+  void SetOnConnectedNode(std::function<void(CNode*)>&& func);
+  void SetOnDisconnectNode(std::function<void(CNode*)>&& func);
+  void BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node);
 
   class Impl;
 private:

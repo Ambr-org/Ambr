@@ -9,6 +9,8 @@
 #include <store/unit_store.h>
 
 #include "net_test.h"
+#include "netmessagemaker.h"
+
 
 
 static uint32_t height_distance = 200;
@@ -45,8 +47,13 @@ StoreExampleMainWidget::StoreExampleMainWidget(std::shared_ptr<ambr::store::Stor
   test_pri_key_list_.push_back("6EDB77B51291C19D82B1105A507008D10B5A0C5CCB5459129D64A3AD8D8AEEFC");
   ui->cmbTestPrivateKey->insertItems(0, test_pri_key_list_);
   qRegisterMetaType<std::shared_ptr<ambr::net::Peer>>("std::shared_ptr<ambr::net::Peer>");
-  connect(this, SIGNAL(DoConnect(std::shared_ptr<ambr::net::Peer>)), this, SLOT(DealConnect(std::shared_ptr<ambr::net::Peer>)));
+
+  connect(this, SIGNAL(sgAccept(Ptr_Node)), this, SLOT(onDealAccept(Ptr_Node)));
+  connect(this, SIGNAL(sgConnect(Ptr_Node)), this, SLOT(onDealConnect(Ptr_Node)));
+  connect(this, SIGNAL(sgDisconnected(Ptr_Node)), this, SLOT(onDealDisconnected(Ptr_Node)));
+
   connect(this, SIGNAL(DoAccept(std::shared_ptr<ambr::net::Peer>)), this, SLOT(DealAccept(std::shared_ptr<ambr::net::Peer>)));
+  connect(this, SIGNAL(DoConnect(std::shared_ptr<ambr::net::Peer>)), this, SLOT(DealConnect(std::shared_ptr<ambr::net::Peer>)));
   connect(this, SIGNAL(DoDisconnected(std::shared_ptr<ambr::net::Peer>)), this, SLOT(DealDisconnected(std::shared_ptr<ambr::net::Peer>)));
 
   for(int i = 0; i < 32; i++){
@@ -309,6 +316,18 @@ bool StoreExampleMainWidget::OnMousePress(QEvent *event){
     }
   }
   return false;
+}
+
+void StoreExampleMainWidget::OnAcceptNode(CNode* p_node){
+  emit sgAccept(p_node);
+}
+
+void StoreExampleMainWidget::OnConnectNode(CNode* p_node){
+  emit sgConnect(p_node);
+}
+
+void StoreExampleMainWidget::OnDisconnectedNode(CNode* p_node){
+  emit sgDisconnected(p_node);
 }
 
 void StoreExampleMainWidget::OnConnect(std::shared_ptr<ambr::net::Peer> peer){
@@ -602,13 +621,10 @@ void StoreExampleMainWidget::on_btnTranslateSend_clicked(){
   std::shared_ptr<ambr::core::Unit> unit_out;
   if(store_manager_->SendToAddress(dest, amount, pri_key, &hash, unit_out, &err)){
     {//boardcast to net
-      std::shared_ptr<ambr::net::NetMessage> msg = std::make_shared<ambr::net::NetMessage>();
       std::vector<uint8_t> buf = unit_out->SerializeByte();
-      msg->version_ = 0x00000001;
-      msg->command_ = ambr::net::MC_NEW_UNIT;
-      msg->len_ = buf.size();
-      msg->str_msg_.assign(buf.begin(), buf.end());
-      net_manager_->BoardcastMessage(msg, nullptr);
+      std::string str_data;
+      str_data.assign(buf.begin(), buf.end());
+      net_manager_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
     }
     str = str + "Send success.tx_hash:" + hash.encode_to_hex().c_str();
   }else{
@@ -651,11 +667,9 @@ void StoreExampleMainWidget::on_btnTranslateReceive_clicked(){
     {//boardcast to net
       std::shared_ptr<ambr::net::NetMessage> msg = std::make_shared<ambr::net::NetMessage>();
       std::vector<uint8_t> buf = unit_out->SerializeByte();
-      msg->version_ = 0x00000001;
-      msg->command_ = ambr::net::MC_NEW_UNIT;
-      msg->len_ = buf.size();
-      msg->str_msg_.assign(buf.begin(), buf.end());
-      net_manager_->BoardcastMessage(msg, nullptr);
+      std::string str_data;
+      str_data.assign(buf.begin(), buf.end());
+      net_manager_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
     }
     ambr::core::Amount amount;
     assert(store_manager_->GetSendAmount(from, amount, &err));
@@ -852,6 +866,35 @@ void StoreExampleMainWidget::on_btnMSVStop_6_clicked(){
   ui->btnMSVStop_6->setEnabled(false);
 }
 
+void StoreExampleMainWidget::onDealAccept(CNode* p_node){
+    ui->tbP2PConnectionIn->insertRow(0);
+    ui->tbP2PConnectionIn->setItem(0, 0, new QTableWidgetItem(p_node->GetAddrLocal().ToStringIP().c_str()));
+    ui->tbP2PConnectionIn->setItem(0, 1, new QTableWidgetItem(p_node->GetAddrLocal().ToStringPort().c_str()));
+}
+
+void StoreExampleMainWidget::onDealConnect(CNode* p_node){
+    ui->tbP2PConnectionOut->insertRow(0);
+    ui->tbP2PConnectionOut->setItem(0, 0, new QTableWidgetItem(p_node->GetAddrLocal().ToStringIP().c_str()));
+    ui->tbP2PConnectionOut->setItem(0, 1, new QTableWidgetItem(p_node->GetAddrLocal().ToStringPort().c_str()));
+}
+
+void StoreExampleMainWidget::onDealDisconnected(CNode* p_node){
+    for(int i = 0; i < ui->tbP2PConnectionOut->rowCount(); i++){
+      if(ui->tbP2PConnectionOut->item(i, 0)->text().toStdString() == p_node->GetAddrLocal().ToStringIP()
+         && ui->tbP2PConnectionOut->item(i, 1)->text().toInt() == p_node->GetAddrLocal().GetPort()){
+        ui->tbP2PConnectionOut->removeRow(i);
+        break;
+      }
+    }
+    for(int i = 0; i < ui->tbP2PConnectionIn->rowCount(); i++){
+      if(ui->tbP2PConnectionIn->item(i, 0)->text().toStdString() == p_node->GetAddrLocal().ToStringIP()
+         && ui->tbP2PConnectionIn->item(i, 1)->text().toInt() == p_node->GetAddrLocal().GetPort()){
+        ui->tbP2PConnectionIn->removeRow(i);
+        break;
+      }
+    }
+}
+
 void StoreExampleMainWidget::DealConnect(std::shared_ptr<ambr::net::Peer> peer){
   ui->tbP2PConnectionOut->insertRow(0);
   ui->tbP2PConnectionOut->setItem(0,0, new QTableWidgetItem(peer->end_point_.address().to_string().c_str()));
@@ -889,9 +932,14 @@ void StoreExampleMainWidget::on_btnP2PStart_clicked(){
   ui->tbP2PConnectionIn->setItem(0,1, new QTableWidgetItem("bbb"));*/
   //OnConnect(std::shared_ptr<ambr::net::NetManager> peer)
   //std::function<void(std::shared_ptr<ambr::net::Peer>)> func = std::bind(&StoreExampleMainWidget::OnConnect, this, std::placeholders::_1);
+
   net_manager_->SetOnAccept(boost::bind(&StoreExampleMainWidget::OnAccept, this, _1));
   net_manager_->SetOnConnected(boost::bind(&StoreExampleMainWidget::OnConnect, this, _1));
   net_manager_->SetOnDisconnect(boost::bind(&StoreExampleMainWidget::OnDisconnected, this, _1));
+
+  net_manager_->SetOnAcceptNode(std::bind(&StoreExampleMainWidget::OnAcceptNode, this, std::placeholders::_1));
+  net_manager_->SetOnConnectedNode(std::bind(&StoreExampleMainWidget::OnConnectNode, this, std::placeholders::_1));
+  net_manager_->SetOnDisconnectNode(std::bind(&StoreExampleMainWidget::OnDisconnectedNode, this, std::placeholders::_1));
 
   ambr::net::NetManagerConfig config;
   config.max_in_peer_ = 8;
@@ -899,10 +947,15 @@ void StoreExampleMainWidget::on_btnP2PStart_clicked(){
   config.max_in_peer_for_optimize_ = 8;
   config.max_out_peer_for_optimize_ = 8;
   config.listen_port_ = ui->edtP2PListenPort->text().toInt();
-  config.seed_list_.push_back(
+
+  ambr::net::IPConfig stuIPConfig;
+  stuIPConfig.port_ = ui->edtP2PSeedAddr->text().split(":")[1].toInt();
+  stuIPConfig.str_ip_ = ui->edtP2PSeedAddr->text().split(":")[0].toStdString();
+  config.vec_seed_.push_back(stuIPConfig);
+  /*config.seed_list_.push_back(
         boost::asio::ip::tcp::endpoint(boost::asio::ip::address_v4::from_string(ui->edtP2PSeedAddr->text().split(":")[0].toStdString()),
         ui->edtP2PSeedAddr->text().split(":")[1].toInt()
-        ));
+        ));*/
   config.use_upnp_ = false;
   config.use_nat_pmp_ = false;
   config.use_natp_ = false;
@@ -1007,11 +1060,9 @@ void StoreExampleMainWidget::on_btnPVValidatorUnit_clicked(){
   if(store_manager_->AddValidateUnit(unit, &str_err)){
     std::shared_ptr<ambr::net::NetMessage> msg = std::make_shared<ambr::net::NetMessage>();
     std::vector<uint8_t> buf = unit->SerializeByte();
-    msg->version_ = 0x00000001;
-    msg->command_ = ambr::net::MC_NEW_UNIT;
-    msg->len_ = buf.size();
-    msg->str_msg_.assign(buf.begin(), buf.end());
-    net_manager_->BoardcastMessage(msg, nullptr);
+    std::string str_data;
+    str_data.assign(buf.begin(), buf.end());
+    net_manager_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
     ui->edtPVLOG->setPlainText(QString("Add validator unit success:")+unit->SerializeJson().c_str());
   }else{
     ui->edtPVLOG->setPlainText(QString("Add validator unit faild:")+str_err.c_str());

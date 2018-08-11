@@ -7,6 +7,8 @@
 #include <QMap>
 #include <core/key.h>
 #include <core/unit.h>
+
+#include "net.h"
 #include "net_test.h"
 #include "utils/validator_auto.h"
 namespace Ui {
@@ -30,6 +32,9 @@ public:
   explicit StoreExampleMainWidget(std::shared_ptr<ambr::store::StoreManager> store_manager,std::shared_ptr<ambr::net::NetManager> net_manager, QWidget *parent = 0);
   ~StoreExampleMainWidget();
 signals:
+  void sgAccept(CNode*);
+  void sgConnect(CNode*);
+  void sgDisconnected(CNode*);
   void DoConnect(std::shared_ptr<ambr::net::Peer> peer);
   void DoAccept(std::shared_ptr<ambr::net::Peer> peer);
   void DoDisconnected(std::shared_ptr<ambr::net::Peer> peer);
@@ -79,6 +84,9 @@ private slots:
   void on_btnMSVStart_6_clicked();
   void on_btnMSVStop_6_clicked();
 
+  void onDealAccept(CNode*);
+  void onDealConnect(CNode*);
+  void onDealDisconnected(CNode*);
   void DealConnect(std::shared_ptr<ambr::net::Peer> peer);
   void DealAccept(std::shared_ptr<ambr::net::Peer> peer);
   void DealDisconnected(std::shared_ptr<ambr::net::Peer> peer);
@@ -96,6 +104,9 @@ private://For paint
   bool OnMouseMove(QEvent* event);
   bool OnMousePress(QEvent* event);
 private:
+  void OnAcceptNode(CNode* p_node);
+  void OnConnectNode(CNode* p_node);
+  void OnDisconnectedNode(CNode* p_node);
   void OnConnect(std::shared_ptr<ambr::net::Peer> peer);
   void OnAccept(std::shared_ptr<ambr::net::Peer> peer);
   void OnDisconnected(std::shared_ptr<ambr::net::Peer> peer);
