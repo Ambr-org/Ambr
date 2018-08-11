@@ -477,7 +477,9 @@ CNode* CConnman::ConnectNode(CAddress addrConnect, const char *pszDest, bool fCo
     CNode* pnode = new CNode(id, nLocalServices, GetBestHeight(), hSocket, addrConnect, CalculateKeyedNetGroup(addrConnect), nonce, addr_bind, pszDest ? pszDest : "", false);
     pnode->AddRef();
     bindMaps[pnode] == addrConnect;
-    //OnConnectFunc(pnode);
+    if(OnConnectFunc){
+      OnConnectFunc(pnode);
+    }
     return pnode;
 }
 
@@ -1158,7 +1160,10 @@ void CConnman::AcceptConnection(const ListenSocket& hListenSocket) {
     pnode->AddRef();
     pnode->fWhitelisted = whitelisted;
 
-    OnAcceptFunc(pnode);
+    if(OnAcceptFunc){
+      OnAcceptFunc(pnode);      
+    }
+    
     m_msgproc->InitializeNode(pnode);
 
    // LogPrint(BCLog::NET, "connection from %s accepted\n", addr.ToString());
