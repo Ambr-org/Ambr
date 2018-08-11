@@ -758,6 +758,11 @@ public:
     CNode(const CNode&) = delete;
     CNode& operator=(const CNode&) = delete;
 
+    //add by ut 
+    std::list<CNetMessage> GetRecvMsg() const{
+        return vRecvMsg;
+    }
+
 private:
  //   const NodeId id;
     const NodeId id;
