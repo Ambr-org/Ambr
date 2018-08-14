@@ -1382,8 +1382,8 @@ void CConnman::ThreadSocketHandler()
                     if(OnReceiveMessageFunc(pchBuf, nBytes, pnode)){
                       pnode->CloseSocketDisconnect();
                     }
-                    /*if (!pnode->ReceiveMsgBytes(pchBuf, nBytes, notify))
-                        pnode->CloseSocketDisconnect();*/
+                    if (!pnode->ReceiveMsgBytes(pchBuf, nBytes, notify))
+                        pnode->CloseSocketDisconnect();
                     RecordBytesRecv(nBytes);
                     if (notify) {
                         size_t nSizeAdded = 0;
