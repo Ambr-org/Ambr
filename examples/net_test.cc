@@ -3,8 +3,8 @@
 #include "shutdown.h"
 #include "net_test.h"
 #include "scheduler.h"
-#include "net_processing.h"
 #include "chainparams.h"
+#include "net_processing.h"
 #include "netmessagemaker.h"
 
 #include <list>
@@ -15,6 +15,7 @@
 #include <boost/threadpool.hpp>
 #include <store/store_manager.h>
 
+#define FixedRate 70
 #define MaxConnections 12
 using Ptr_CScheduler = std::shared_ptr<CScheduler>;
 using Ptr_UnitStore = std::shared_ptr<ambr::store::UnitStore>;
@@ -33,10 +34,10 @@ public:
   void RemovePeer(std::shared_ptr<Peer> peer, uint32_t second);
 
   void RemoveNode(CNode* p_node, uint32_t second);
-  void SetOnAccept(std::function<void(CNode*)>& func);
-  void SetOnConnected(std::function<void(CNode*)>& func);
-  void SetOnDisconnect(std::function<void(CNode*)>& func);
   void SendMessage(CSerializedNetMsg&& msg, CNode* p_node);
+  void SetOnAccept(const std::function<void(CNode*)>& func);
+  void SetOnConnected(const std::function<void(CNode*)>& func);
+  void SetOnDisconnect(const std::function<void(CNode*)>& func);
   void BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node);
   void SetOnReceive(std::function<void(std::shared_ptr<NetMessage> msg, CNode*)>& func);
 
@@ -263,22 +264,22 @@ void ambr::net::NetManager::Impl::RemoveNode(CNode* p_node, uint32_t second){
     }
 }
 
-void ambr::net::NetManager::Impl::SetOnAccept(std::function<void(CNode*)>& func){
- on_accept_node_func_ = func;
-}
-
-void ambr::net::NetManager::Impl::SetOnConnected(std::function<void(CNode*)>& func){
-  on_connect_node_func_ = func;
-}
-
-void ambr::net::NetManager::Impl::SetOnDisconnect(std::function<void(CNode*)>& func){
-  on_disconnect_node_func_ = func;
-}
-
 void ambr::net::NetManager::Impl::SendMessage(CSerializedNetMsg&& msg, CNode* p_node){
   if(p_node){
     PushMessage(p_node, std::forward<CSerializedNetMsg>(msg));
   }
+}
+
+void ambr::net::NetManager::Impl::SetOnAccept(const std::function<void(CNode*)>& func){
+ on_accept_node_func_ = func;
+}
+
+void ambr::net::NetManager::Impl::SetOnConnected(const std::function<void(CNode*)>& func){
+  on_connect_node_func_ = func;
+}
+
+void ambr::net::NetManager::Impl::SetOnDisconnect(const std::function<void(CNode*)>& func){
+  on_disconnect_node_func_ = func;
 }
 
 void ambr::net::NetManager::Impl::BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node){
@@ -508,8 +509,42 @@ bool ambr::net::NetManager::Impl::OnReceiveNode(const char* p_buf, size_t len, C
         else if(ambr::core::UnitType::Validator == unit->type()){
           LOG(INFO) << "Get validator unit:" << unit->SerializeJson();
           std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = std::dynamic_pointer_cast<ambr::core::ValidatorUnit>(unit);
-          if(validator_unit && store_manager_->AddValidateUnit(validator_unit, nullptr)){
-            BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, msg->str_msg_), p_node);
+
+          if(validator_unit){
+              ambr::core::UnitHash newest_unithash;
+              std::shared_ptr<ambr::core::Unit> ptr_unit = nullptr;
+              const ambr::core::UnitHash& last_unithash = validator_unit->prev_unit();
+
+              if(store_manager_->GetLastValidateUnit(newest_unithash)){
+                while(last_unithash != newest_unithash){
+                  std::shared_ptr<ambr::store::UnitStore>&& ptr_unitstore = store_manager_->GetUnit(newest_unithash);
+                  if(ptr_unitstore){
+                      ptr_unit = ptr_unitstore->GetUnit();
+                      if(ptr_unit){
+                        newest_unithash = ptr_unit->prev_unit();
+                      }
+                      else{
+                        break;
+                      }
+                  }
+                  else{
+                    break;
+                  }
+                }
+              }
+
+              if(last_unithash == newest_unithash){
+                if(nullptr == ptr_unit || ptr_unit && FixedRate <= validator_unit->percent()){
+                    if(store_manager_->AddValidateUnit(validator_unit, nullptr)){
+                      BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, msg->str_msg_), p_node);
+                    }
+                }
+              }
+              else{
+                  if(store_manager_->AddValidateUnit(validator_unit, nullptr)){
+                    BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, msg->str_msg_), p_node);
+                  }
+              }
           }
         }
         else if(ambr::core::UnitType::EnterValidateSet == unit->type()){
@@ -610,9 +645,41 @@ bool ambr::net::NetManager::Impl::OnReceiveNode(const char* p_buf, size_t len, C
           break;
           case ambr::core::UnitType::Validator:
           {
-              LOG(INFO)<<"Get validator section unit:"<<unit->SerializeJson();
+              LOG(INFO) << "Get validator unit:" << unit->SerializeJson();
               std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = std::dynamic_pointer_cast<ambr::core::ValidatorUnit>(unit);
-              store_manager_->AddValidateUnit(validator_unit, nullptr);
+
+              if(validator_unit){
+                  ambr::core::UnitHash newest_unithash;
+                  std::shared_ptr<ambr::core::Unit> ptr_unit = nullptr;
+                  const ambr::core::UnitHash& last_unithash = validator_unit->prev_unit();
+
+                  if(store_manager_->GetLastValidateUnit(newest_unithash)){
+                    while(last_unithash != newest_unithash){
+                      std::shared_ptr<ambr::store::UnitStore>&& ptr_unitstore = store_manager_->GetUnit(newest_unithash);
+                      if(ptr_unitstore){
+                          ptr_unit = ptr_unitstore->GetUnit();
+                          if(ptr_unit){
+                            newest_unithash = ptr_unit->prev_unit();
+                          }
+                          else{
+                            break;
+                          }
+                      }
+                      else{
+                        break;
+                      }
+                    }
+                  }
+
+                  if(last_unithash == newest_unithash){
+                    if(nullptr == ptr_unit || ptr_unit && FixedRate <= validator_unit->percent()){
+                      store_manager_->AddValidateUnit(validator_unit, nullptr);
+                    }
+                  }
+                  else{
+                    store_manager_->AddValidateUnit(validator_unit, nullptr);
+                  }
+              }
           }
           break;
           case ambr::core::UnitType::EnterValidateSet:
@@ -1016,20 +1083,20 @@ void ambr::net::NetManager::RemovePeer(CNode* p_node, uint32_t second){
   impl_->RemoveNode(p_node, second);
 }
 
-void ambr::net::NetManager::SetOnAcceptNode(std::function<void(CNode*)>&& func){
+void ambr::net::NetManager::BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node){
+  impl_->BoardcastMessage(std::forward<CSerializedNetMsg>(msg), p_node);
+}
+
+void ambr::net::NetManager::SetOnAcceptNode(const std::function<void(CNode*)>& func){
   impl_->SetOnAccept(func);
 }
 
-void ambr::net::NetManager::SetOnConnectedNode(std::function<void(CNode*)>&& func){
+void ambr::net::NetManager::SetOnConnectedNode(const std::function<void(CNode*)>& func){
   impl_->SetOnConnected(func);
 }
 
-void ambr::net::NetManager::SetOnDisconnectNode(std::function<void(CNode*)>&& func){
+void ambr::net::NetManager::SetOnDisconnectNode(const std::function<void(CNode*)>& func){
   impl_->SetOnDisconnect(func);
-}
-
-void ambr::net::NetManager::BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node){
-  impl_->BoardcastMessage(std::forward<CSerializedNetMsg>(msg), p_node);
 }
 
 void ambr::net::Peer::Start(){

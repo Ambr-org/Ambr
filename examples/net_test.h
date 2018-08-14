@@ -167,10 +167,10 @@ public:
   void RemovePeer(std::shared_ptr<Peer> peer, uint32_t second);
 public:
   void RemovePeer(CNode* p_node, uint32_t second);
-  void SetOnAcceptNode(std::function<void(CNode*)>&& func);
-  void SetOnConnectedNode(std::function<void(CNode*)>&& func);
-  void SetOnDisconnectNode(std::function<void(CNode*)>&& func);
   void BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node);
+  void SetOnAcceptNode(const std::function<void(CNode*)>& func);
+  void SetOnConnectedNode(const std::function<void(CNode*)>& func);
+  void SetOnDisconnectNode(const std::function<void(CNode*)>& func);
 
   class Impl;
 private:
