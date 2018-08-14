@@ -48,9 +48,9 @@ StoreExampleMainWidget::StoreExampleMainWidget(std::shared_ptr<ambr::store::Stor
   ui->cmbTestPrivateKey->insertItems(0, test_pri_key_list_);
   qRegisterMetaType<std::shared_ptr<ambr::net::Peer>>("std::shared_ptr<ambr::net::Peer>");
 
-  connect(this, SIGNAL(sgAccept(Ptr_Node)), this, SLOT(onDealAccept(Ptr_Node)));
-  connect(this, SIGNAL(sgConnect(Ptr_Node)), this, SLOT(onDealConnect(Ptr_Node)));
-  connect(this, SIGNAL(sgDisconnected(Ptr_Node)), this, SLOT(onDealDisconnected(Ptr_Node)));
+  connect(this, SIGNAL(sgAccept(CNode*)), this, SLOT(onDealAccept(CNode*)));
+  connect(this, SIGNAL(sgConnect(CNode*)), this, SLOT(onDealConnect(CNode*)));
+  connect(this, SIGNAL(sgDisconnected(CNode*)), this, SLOT(onDealDisconnected(CNode*)));
 
   connect(this, SIGNAL(DoAccept(std::shared_ptr<ambr::net::Peer>)), this, SLOT(DealAccept(std::shared_ptr<ambr::net::Peer>)));
   connect(this, SIGNAL(DoConnect(std::shared_ptr<ambr::net::Peer>)), this, SLOT(DealConnect(std::shared_ptr<ambr::net::Peer>)));
@@ -868,14 +868,14 @@ void StoreExampleMainWidget::on_btnMSVStop_6_clicked(){
 
 void StoreExampleMainWidget::onDealAccept(CNode* p_node){
     ui->tbP2PConnectionIn->insertRow(0);
-    ui->tbP2PConnectionIn->setItem(0, 0, new QTableWidgetItem(p_node->GetAddrLocal().ToStringIP().c_str()));
-    ui->tbP2PConnectionIn->setItem(0, 1, new QTableWidgetItem(p_node->GetAddrLocal().ToStringPort().c_str()));
+    ui->tbP2PConnectionIn->setItem(0, 0, new QTableWidgetItem(QString(p_node->GetAddrName().c_str()).split(':').at(0)));
+    ui->tbP2PConnectionIn->setItem(0, 1, new QTableWidgetItem(QString(p_node->GetAddrName().c_str()).split(':').at(1)));
 }
 
 void StoreExampleMainWidget::onDealConnect(CNode* p_node){
     ui->tbP2PConnectionOut->insertRow(0);
-    ui->tbP2PConnectionOut->setItem(0, 0, new QTableWidgetItem(p_node->GetAddrLocal().ToStringIP().c_str()));
-    ui->tbP2PConnectionOut->setItem(0, 1, new QTableWidgetItem(p_node->GetAddrLocal().ToStringPort().c_str()));
+    ui->tbP2PConnectionOut->setItem(0, 0, new QTableWidgetItem(QString(p_node->GetAddrName().c_str()).split(':').at(0)));
+    ui->tbP2PConnectionOut->setItem(0, 1, new QTableWidgetItem(QString(p_node->GetAddrName().c_str()).split(':').at(1)));
 }
 
 void StoreExampleMainWidget::onDealDisconnected(CNode* p_node){
