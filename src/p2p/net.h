@@ -184,10 +184,10 @@ public:
     bool GetNetworkActive() const;
     void SetNetworkActive(bool active);
     std::vector<CNode*>& GetVectorNodes();
-    void SetAcceptFunc(std::function<void(CNode*)>&& func);
-    void SetConnectFunc(std::function<void(CNode*)>&& func);
-    void SetDisconnectFunc(std::function<void(CNode*)>&& func);
-    void SetReceiveMessageFunc(std::function<bool(const char*, size_t, CNode*)>&& func);
+    void SetAcceptFunc(const std::function<void(CNode*)>& func);
+    void SetConnectFunc(const std::function<void(CNode*)>& func);
+    void SetDisconnectFunc(const std::function<void(CNode*)>& func);
+    void SetReceiveMessageFunc(const std::function<bool(const char*, size_t, CNode*)>& func);
 
     void OpenNetworkConnection(const CAddress& addrConnect, bool fCountFailure, CSemaphoreGrant *grantOutbound = nullptr, const char *strDest = nullptr, bool fOneShot = false, bool fFeeler = false, bool manual_connection = false);
     bool CheckIncomingNonce(uint64_t nonce);
