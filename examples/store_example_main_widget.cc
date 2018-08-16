@@ -17,11 +17,11 @@ static uint32_t height_distance = 100;
 static uint32_t width_distance = 100;
 static uint32_t unit_width = 50;
 
-StoreExampleMainWidget::StoreExampleMainWidget(std::shared_ptr<ambr::store::StoreManager> store_manager, std::shared_ptr<ambr::net::NetManager> net_manager, QWidget *parent) :
+StoreExampleMainWidget::StoreExampleMainWidget(std::shared_ptr<ambr::store::StoreManager> store_manager, std::shared_ptr<ambr::syn::SynManager> syn_manager, QWidget *parent) :
   QWidget(parent),
   ui(new Ui::StoreExampleMainWidget),max_chain_length_for_draw_(10),
   store_manager_(store_manager),
-  net_manager_(net_manager)
+  p_syn_manager(syn_manager)
 {
   assert(store_manager_);
   ui->setupUi(this);
@@ -634,7 +634,7 @@ void StoreExampleMainWidget::on_btnTranslateSend_clicked(){
       std::vector<uint8_t> buf = unit_out->SerializeByte();
       std::string str_data;
       str_data.assign(buf.begin(), buf.end());
-      net_manager_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
+      p_syn_manager->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
     }
     str = str + "Send success.tx_hash:" + hash.encode_to_hex().c_str();
   }else{
@@ -679,7 +679,7 @@ void StoreExampleMainWidget::on_btnTranslateReceive_clicked(){
       std::vector<uint8_t> buf = unit_out->SerializeByte();
       std::string str_data;
       str_data.assign(buf.begin(), buf.end());
-      net_manager_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
+      p_syn_manager->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
     }
     ambr::core::Amount amount;
     assert(store_manager_->GetSendAmount(from, amount, &err));
@@ -975,34 +975,26 @@ void StoreExampleMainWidget::on_btnP2PStart_clicked(){
   //OnConnect(std::shared_ptr<ambr::net::NetManager> peer)
   //std::function<void(std::shared_ptr<ambr::net::Peer>)> func = std::bind(&StoreExampleMainWidget::OnConnect, this, std::placeholders::_1);
 
-  net_manager_->SetOnAccept(boost::bind(&StoreExampleMainWidget::OnAccept, this, _1));
-  net_manager_->SetOnConnected(boost::bind(&StoreExampleMainWidget::OnConnect, this, _1));
-  net_manager_->SetOnDisconnect(boost::bind(&StoreExampleMainWidget::OnDisconnected, this, _1));
+  p_syn_manager->SetOnAcceptNode(std::bind(&StoreExampleMainWidget::OnAcceptNode, this, std::placeholders::_1));
+  p_syn_manager->SetOnConnectedNode(std::bind(&StoreExampleMainWidget::OnConnectNode, this, std::placeholders::_1));
+  p_syn_manager->SetOnDisconnectNode(std::bind(&StoreExampleMainWidget::OnDisconnectedNode, this, std::placeholders::_1));
 
-  net_manager_->SetOnAcceptNode(std::bind(&StoreExampleMainWidget::OnAcceptNode, this, std::placeholders::_1));
-  net_manager_->SetOnConnectedNode(std::bind(&StoreExampleMainWidget::OnConnectNode, this, std::placeholders::_1));
-  net_manager_->SetOnDisconnectNode(std::bind(&StoreExampleMainWidget::OnDisconnectedNode, this, std::placeholders::_1));
-
-  ambr::net::NetManagerConfig config;
+  ambr::syn::SynManagerConfig config;
   config.max_in_peer_ = 8;
   config.max_out_peer_ = 8;
   config.max_in_peer_for_optimize_ = 8;
   config.max_out_peer_for_optimize_ = 8;
   config.listen_port_ = ui->edtP2PListenPort->text().toInt();
 
-  ambr::net::IPConfig stuIPConfig;
+  ambr::syn::IPConfig stuIPConfig;
   stuIPConfig.port_ = ui->edtP2PSeedAddr->text().split(":")[1].toInt();
   stuIPConfig.str_ip_ = ui->edtP2PSeedAddr->text().split(":")[0].toStdString();
   config.vec_seed_.push_back(stuIPConfig);
-  /*config.seed_list_.push_back(
-        boost::asio::ip::tcp::endpoint(boost::asio::ip::address_v4::from_string(ui->edtP2PSeedAddr->text().split(":")[0].toStdString()),
-        ui->edtP2PSeedAddr->text().split(":")[1].toInt()
-        ));*/
   config.use_upnp_ = false;
   config.use_nat_pmp_ = false;
   config.use_natp_ = false;
-  config.heart_time_ = 88;//second of heart interval
-  std::thread tThread(&ambr::net::NetManager::init, net_manager_.get(), config);
+  config.heart_time_ = 88;
+  std::thread tThread(&ambr::syn::SynManager::Init, p_syn_manager.get(), config);
   tThread.detach();
 }
 
@@ -1105,7 +1097,7 @@ void StoreExampleMainWidget::on_btnPVValidatorUnit_clicked(){
     std::vector<uint8_t> buf = unit->SerializeByte();
     std::string str_data;
     str_data.assign(buf.begin(), buf.end());
-    net_manager_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
+    p_syn_manager->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
     ui->edtPVLOG->setPlainText(QString("Add validator unit success:")+unit->SerializeJson().c_str());
   }else{
     ui->edtPVLOG->setPlainText(QString("Add validator unit faild:")+str_err.c_str());

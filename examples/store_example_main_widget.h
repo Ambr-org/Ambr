@@ -13,6 +13,8 @@
 #include "net.h"
 #include "net_test.h"
 #include "utils/validator_auto.h"
+#include "synchronization/syn_manager.h"
+
 namespace Ui {
   class StoreExampleMainWidget;
 }
@@ -31,7 +33,7 @@ class StoreExampleMainWidget : public QWidget
     std::shared_ptr<ambr::core::ValidatorUnit> validator_unit_store_;
   };
 public:
-  explicit StoreExampleMainWidget(std::shared_ptr<ambr::store::StoreManager> store_manager,std::shared_ptr<ambr::net::NetManager> net_manager, QWidget *parent = 0);
+  explicit StoreExampleMainWidget(std::shared_ptr<ambr::store::StoreManager> store_manager,std::shared_ptr<ambr::syn::SynManager> syn_manager, QWidget *parent = 0);
   ~StoreExampleMainWidget();
 signals:
   void sgAccept(CNode*);
@@ -140,8 +142,8 @@ private:
   ambr::core::UnitHash active_unit_;
   ambr::core::UnitHash selected_unit_;
 private:
+  std::shared_ptr<ambr::syn::SynManager> p_syn_manager;
   std::shared_ptr<ambr::store::StoreManager> store_manager_;
-  std::shared_ptr<ambr::net::NetManager> net_manager_;
   std::vector<std::shared_ptr<ambr::utils::ValidatorAuto>> validator_auto_;
 private:
   void StartPublishTrans(const ambr::core::PrivateKey& pri_key);
