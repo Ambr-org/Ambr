@@ -29,7 +29,7 @@ aux_source_directory(${CUR_DIR}/src/p2p/crypto  DIR_P2P_SRCS)
 aux_source_directory(${CUR_DIR}/src/p2p/support DIR_P2P_SRCS)
 aux_source_directory(${CUR_DIR}/src/p2p/consensus DIR_P2P_SRCS)
 aux_source_directory(${CUR_DIR}/src/p2p/compat DIR_P2P_SRCS)
-
+aux_source_directory(${CUR_DIR}/src/synchronization DIR_SYNC)
 
 set(SERVER_DIR ${CUR_DIR}/src/server)
 set(MAIN_DIR ${CUR_DIR}/src)
@@ -93,6 +93,7 @@ set(CMAKE_CXX_FLAGS "-Wall")
     ${CUR_DIR}/libs/ed25519-donna/ed25519.c
     ${CUR_DIR}/examples/unit_store.cc
     ${CUR_DIR}/examples/net_test.cc
+    ${DIR_SYNC}
     ${QT_SRC}
     ${MOC}
     ${RCC}
