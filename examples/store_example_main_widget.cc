@@ -156,6 +156,10 @@ void StoreExampleMainWidget::DrawUnit(QPainter& pt){
   //draw validator unit
   std::list<std::shared_ptr<ambr::core::ValidatorUnit> > validator_unit_list = store_manager->GetValidateHistory(max_chain_length_for_draw_);
   vert_idx = 0;
+  QPen old_pen_tmp = pt.pen();
+  QPen validator_pen(old_pen_tmp);
+  validator_pen.setColor(qRgb(237,137,65));
+  pt.setPen(validator_pen);
   for(auto iter_unit = validator_unit_list.begin(); iter_unit != validator_unit_list.end(); iter_unit++){
     uint32_t space_y = (max_chain_length_for_draw_ - vert_idx)*height_distance+unit_width/2;
     uint32_t space_x = (hori_idx)*width_distance+unit_width*2;
@@ -180,6 +184,7 @@ void StoreExampleMainWidget::DrawUnit(QPainter& pt){
     pt.restore();
     vert_idx++;
   }
+  pt.setPen(old_pen_tmp);
   //draw account
   QPen old_pen = pt.pen();
   pt.setPen(qRgb(175,175,175));
@@ -235,6 +240,10 @@ void StoreExampleMainWidget::DrawLines(QPainter &pt){
         }
       }
     }else if(item.second->validator_unit_store_){
+      QPen pen_old = pt.pen();
+      QPen pen_new(pen_old);
+      pen_new.setColor(qRgb(237,167,65));
+      pt.setPen(pen_new);
       std::shared_ptr<ambr::core::ValidatorUnit> unit = item.second->validator_unit_store_;
       if(!unit){
         continue;
@@ -251,10 +260,12 @@ void StoreExampleMainWidget::DrawLines(QPainter &pt){
           QPoint pt_end;
           pt_end.setX(pt_start.x());
           pt_end.setY(unit_width/2);
-          QPen pen_old = pt.pen();
-          pt.setPen(Qt::DotLine);
+          //QPen pen_old = pt.pen();
+          pen_new.setStyle(Qt::DotLine);
+          pt.setPen(pen_new);
           DrawLine(pt, pt_start, pt_end, false);
-          pt.setPen(pen_old);
+          pen_new.setStyle(Qt::SolidLine);
+          pt.setPen(pen_new);
         }else{
           QPoint pt_end = iter_prv->second->space_;
           DrawLine(pt, pt_start, pt_end, true);
@@ -268,7 +279,7 @@ void StoreExampleMainWidget::DrawLines(QPainter &pt){
           DrawLine(pt, pt_start, pt_end, true);
         }
       }
-
+      pt.setPen(pen_old);
     }
   }
 
@@ -933,6 +944,35 @@ void StoreExampleMainWidget::onDealDisconnected(CNode* p_node){
     }
 }
 
+void StoreExampleMainWidget::on_btnPTSimTransSpeed_clicked(){
+  QString str = ui->edtPTSimTransSpeed->text();
+  uint32_t num = str.toUInt()>10000?10000:str.toInt();
+  auto_trans_interval_ = 10001/(num+1);
+}
+
+void StoreExampleMainWidget::on_btnStartAllTest_clicked(){
+  on_btnMSVStart_1_clicked();
+  on_btnMSVStart_2_clicked();
+  on_btnMSVStart_3_clicked();
+  on_btnMSVStart_4_clicked();
+  on_btnMSVStart_5_clicked();
+  on_btnMSVStart_6_clicked();
+
+  on_btnMSVStartTrans_1_clicked();
+  on_btnMSVStartTrans_2_clicked();
+  on_btnMSVStartTrans_3_clicked();
+  on_btnMSVStartTrans_4_clicked();
+  on_btnMSVStartTrans_5_clicked();
+  on_btnMSVStartTrans_6_clicked();
+  ui->btnStartAllTest->setEnabled(false);
+}
+
+void StoreExampleMainWidget::on_btnPTSimValidateSpeed_clicked(){
+  QString str = ui->edtPTSimValidateSpeed->text();
+  uint32_t num = str.toUInt()>10000?10000:str.toInt();
+  store_manager_->SetValidateUnitInterval(10001/(num+1));
+}
+
 void StoreExampleMainWidget::DealConnect(std::shared_ptr<ambr::net::Peer> peer){
   ui->tbP2PConnectionOut->insertRow(0);
   ui->tbP2PConnectionOut->setItem(0,0, new QTableWidgetItem(peer->end_point_.address().to_string().c_str()));
@@ -964,7 +1004,7 @@ void StoreExampleMainWidget::DealDisconnected(std::shared_ptr<ambr::net::Peer> p
 
 void StoreExampleMainWidget::OnDrawTimerOut()
 {
-  ui->wgtPaint->repaint();
+  ui->wgtPaint->update();
 }
 
 void StoreExampleMainWidget::on_btnP2PStart_clicked(){
@@ -1180,7 +1220,7 @@ void StoreExampleMainWidget::AutoPublishTransThread(const ambr::core::PrivateKey
         std::cout<<"error:"<<err<<std::endl;
       }
     }
-    boost::this_thread::sleep(boost::posix_time::millisec(qrand()%100));
+    boost::this_thread::sleep(boost::posix_time::millisec(qrand()%auto_trans_interval_));
   }
 }
 
@@ -1192,6 +1232,3 @@ void StoreExampleMainWidget::StopPublishTrans(const ambr::core::PrivateKey &pri_
     auto_publish_trans_thread_map_.erase(pri_key);
   }
 }
-
-
-

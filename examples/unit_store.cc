@@ -24,5 +24,6 @@ int main(int argc, char**argv){
   StoreExampleMainWidget widget(store_manager, net_manager);
   widget.show();
   app.exec();
+  net_manager.reset();
   return 0;
 }

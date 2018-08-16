@@ -272,7 +272,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
    <item>
     <widget class="QTabWidget" name="tabMain">
      <property name="currentIndex">
-      <number>3</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_7">
       <attribute name="title">
@@ -1863,6 +1863,69 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                </widget>
               </item>
              </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_93">
+              <item>
+               <widget class="QLabel" name="label_80">
+                <property name="text">
+                 <string>模拟交易速度(1~10000)</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="edtPTSimTransSpeed">
+                <property name="text">
+                 <string>10</string>
+                </property>
+                <property name="placeholderText">
+                 <string>1~10000</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="btnPTSimTransSpeed">
+                <property name="text">
+                 <string> 确定</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_94">
+              <item>
+               <widget class="QLabel" name="label_81">
+                <property name="text">
+                 <string>模拟验证速度(1~10000)</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="edtPTSimValidateSpeed">
+                <property name="text">
+                 <string>10</string>
+                </property>
+                <property name="placeholderText">
+                 <string>1~10000</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="btnPTSimValidateSpeed">
+                <property name="text">
+                 <string> 确定</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btnStartAllTest">
+              <property name="text">
+               <string>一键自动测试</string>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QLabel" name="label_40">

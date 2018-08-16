@@ -104,6 +104,7 @@ public:
   std::list<std::shared_ptr<core::VoteUnit>> GetVoteList();
 
   uint64_t GetGenesisTime(){return genesis_time_;}
+  void SetValidateUnitInterval(uint32_t interval){ validate_unit_interval_ = interval;}
   uint32_t GetValidateUnitInterval(){return validate_unit_interval_;}
   uint64_t GetPassPercent(){return PASS_PERCENT;}
   uint64_t GetNonceByNowTime();
@@ -141,7 +142,7 @@ private:
   const uint64_t PERCENT_MAX=10000u;
   const uint64_t PASS_PERCENT=10000u*7/10;
   uint64_t genesis_time_;
-  const uint32_t validate_unit_interval_ = 50u;//2s
+  uint32_t validate_unit_interval_ = 3000u;//2s
   std::recursive_mutex mutex_;
 private:
   boost::signals2::signal<void(std::shared_ptr<core::SendUnit>)> DoReceiveNewSendUnit;

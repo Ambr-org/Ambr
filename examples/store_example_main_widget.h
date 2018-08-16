@@ -98,6 +98,9 @@ private slots:
   void on_btnMSVStopTrans_4_clicked();
   void on_btnMSVStopTrans_5_clicked();
   void on_btnMSVStopTrans_6_clicked();
+  void on_btnPTSimValidateSpeed_clicked();
+  void on_btnPTSimTransSpeed_clicked();
+  void on_btnStartAllTest_clicked();
 
   void onDealAccept(CNode*);
   void onDealConnect(CNode*);
@@ -108,7 +111,6 @@ private slots:
   void OnDrawTimerOut();
 protected:
   bool eventFilter(QObject *target, QEvent *event);
-
 
 private:
   Ui::StoreExampleMainWidget *ui;
@@ -147,6 +149,7 @@ private:
   void StartPublishTrans(const ambr::core::PrivateKey& pri_key);
   void AutoPublishTransThread(const ambr::core::PrivateKey& pri_key);
   void StopPublishTrans(const ambr::core::PrivateKey& pri_key);
+  uint32_t auto_trans_interval_ = 1000;
   std::unordered_map<ambr::core::PrivateKey, std::pair<bool, std::shared_ptr<std::thread>>> auto_publish_trans_thread_map_;
 };
 
