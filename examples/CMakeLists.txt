@@ -74,6 +74,7 @@ set(CMAKE_CXX_FLAGS "-Wall")
   find_package(Qt5 REQUIRED Widgets)
   qt5_wrap_cpp( MOC ${CUR_DIR}/examples/store_example_main_widget.h)
   qt5_wrap_ui( UIC ${CUR_DIR}/examples/store_example_main_widget.ui)
+  QT5_ADD_RESOURCES(RCC ${CUR_DIR}/examples/store_example_main_widget.qrc)
   set(QT_SRC
     ${CUR_DIR}/examples/store_example_main_widget.cc
     ${CUR_DIR}/examples/store_example_main_widget.h
@@ -93,5 +94,7 @@ set(CMAKE_CXX_FLAGS "-Wall")
     ${CUR_DIR}/examples/unit_store.cc
     ${CUR_DIR}/examples/net_test.cc
     ${QT_SRC}
+    ${MOC}
+    ${RCC}
     )
   target_link_libraries(unit_store_example Qt5::Widgets)

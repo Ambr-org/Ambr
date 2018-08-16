@@ -857,6 +857,7 @@ void ambr::store::StoreManager::UpdateNewUnitMap(const std::vector<core::UnitHas
       will_remove.push_back(pub_key);
     }
   }
+  delete it;
   rocksdb::WriteBatch batch;
   rocksdb::Status status;
   for(const core::PublicKey& pub_key:will_remove){
@@ -1000,6 +1001,7 @@ std::unordered_map<ambr::core::PublicKey, ambr::core::UnitHash> ambr::store::Sto
     unit_hash.set_bytes(it->value().data(), it->value().size());
     rtn[pub_key] = unit_hash;
   }
+  delete it;
   return rtn;
 }
 
@@ -1521,6 +1523,7 @@ std::list<ambr::core::UnitHash> ambr::store::StoreManager::GetAccountListFromAcc
     hash.set_bytes(it->key().data(), it->key().size());
     rtn_list.push_back(hash);
   }
+  delete it;
   return rtn_list;
 }
 
@@ -1534,6 +1537,7 @@ std::list<ambr::core::UnitHash> ambr::store::StoreManager::GetAccountListFromWai
     hash.set_bytes(it->key().data(), it->key().size());
     rtn_list.push_back(hash);
   }
+  delete it;
   return rtn_list;
 }
 
@@ -1586,6 +1590,12 @@ void ambr::store::StoreManager::RemoveWaitForReceiveUnit(const ambr::core::Publi
 
 ambr::store::StoreManager::StoreManager(){
   //Init();
+}
+
+ambr::store::StoreManager::~StoreManager()
+{
+  db_unit_->Close();
+  delete db_unit_;
 }
 
 

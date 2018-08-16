@@ -194,7 +194,9 @@ bool ambr::core::SendUnit::Validate(std::string *err) const{
     return false;
   }
   if(!ambr::core::SignIsValidate(hash_.bytes().data(), hash_.bytes().size(), public_key_, sign_)){
-    *err = "error signature";
+    if(err){
+      *err = "error signature";
+    }
     return false;
   }
   return true;

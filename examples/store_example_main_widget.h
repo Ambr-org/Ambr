@@ -5,6 +5,8 @@
 #include <unordered_map>
 #include <QWidget>
 #include <QMap>
+#include <QTimer>
+
 #include <core/key.h>
 #include <core/unit.h>
 
@@ -84,14 +86,30 @@ private slots:
   void on_btnMSVStart_6_clicked();
   void on_btnMSVStop_6_clicked();
 
+  void on_btnMSVStartTrans_1_clicked();
+  void on_btnMSVStartTrans_2_clicked();
+  void on_btnMSVStartTrans_3_clicked();
+  void on_btnMSVStartTrans_4_clicked();
+  void on_btnMSVStartTrans_5_clicked();
+  void on_btnMSVStartTrans_6_clicked();
+  void on_btnMSVStopTrans_1_clicked();
+  void on_btnMSVStopTrans_2_clicked();
+  void on_btnMSVStopTrans_3_clicked();
+  void on_btnMSVStopTrans_4_clicked();
+  void on_btnMSVStopTrans_5_clicked();
+  void on_btnMSVStopTrans_6_clicked();
+
   void onDealAccept(CNode*);
   void onDealConnect(CNode*);
   void onDealDisconnected(CNode*);
   void DealConnect(std::shared_ptr<ambr::net::Peer> peer);
   void DealAccept(std::shared_ptr<ambr::net::Peer> peer);
   void DealDisconnected(std::shared_ptr<ambr::net::Peer> peer);
+  void OnDrawTimerOut();
 protected:
   bool eventFilter(QObject *target, QEvent *event);
+
+
 private:
   Ui::StoreExampleMainWidget *ui;
   QStringList test_pri_key_list_;
@@ -115,6 +133,7 @@ private:
   void CheckValidatorUnit();
   void CreateDebugInitChain();
 private:
+  QTimer chain_draw_timer;
   uint32_t max_chain_length_for_draw_;
   std::unordered_map<ambr::core::UnitHash, std::list<std::shared_ptr<DrawItem>>> unit_list_;
   std::unordered_map<ambr::core::UnitHash, std::shared_ptr<DrawItem>> unit_map_;
@@ -124,6 +143,11 @@ private:
   std::shared_ptr<ambr::store::StoreManager> store_manager_;
   std::shared_ptr<ambr::net::NetManager> net_manager_;
   std::vector<std::shared_ptr<ambr::utils::ValidatorAuto>> validator_auto_;
+private:
+  void StartPublishTrans(const ambr::core::PrivateKey& pri_key);
+  void AutoPublishTransThread(const ambr::core::PrivateKey& pri_key);
+  void StopPublishTrans(const ambr::core::PrivateKey& pri_key);
+  std::unordered_map<ambr::core::PrivateKey, std::pair<bool, std::shared_ptr<std::thread>>> auto_publish_trans_thread_map_;
 };
 
 #endif // STORE_EXAMPLE_MAIN_WIDGET_H

@@ -10,12 +10,12 @@
 
 #include "net_test.h"
 #include "netmessagemaker.h"
+#include <boost/thread.hpp>
 
 
-
-static uint32_t height_distance = 200;
-static uint32_t width_distance = 200;
-static uint32_t unit_width = 100;
+static uint32_t height_distance = 100;
+static uint32_t width_distance = 100;
+static uint32_t unit_width = 50;
 
 StoreExampleMainWidget::StoreExampleMainWidget(std::shared_ptr<ambr::store::StoreManager> store_manager, std::shared_ptr<ambr::net::NetManager> net_manager, QWidget *parent) :
   QWidget(parent),
@@ -59,11 +59,19 @@ StoreExampleMainWidget::StoreExampleMainWidget(std::shared_ptr<ambr::store::Stor
   for(int i = 0; i < 32; i++){
     validator_auto_.push_back(std::make_shared<ambr::utils::ValidatorAuto>(store_manager));
   }
+  chain_draw_timer.start(40);
+  connect(&chain_draw_timer, SIGNAL(timeout()), this, SLOT(OnDrawTimerOut()));
 }
 
 StoreExampleMainWidget::~StoreExampleMainWidget(){
   for(std::shared_ptr<ambr::utils::ValidatorAuto> auto_item:validator_auto_){
     auto_item->StopAutoRun();
+  }
+  //std::unordered_map<ambr::core::PrivateKey, std::pair<bool, std::shared_ptr<std::thread>>> auto_publish_trans_thread_map_;
+  for(auto item:auto_publish_trans_thread_map_){
+    auto_publish_trans_thread_map_[item.first].first = false;
+    //item.second.first = false;
+    item.second.second->join();
   }
   delete ui;
 }
@@ -88,16 +96,18 @@ bool StoreExampleMainWidget::eventFilter(QObject *target, QEvent *event)
 
 void StoreExampleMainWidget::DrawChain(){
   QPainter pt(ui->wgtPaint);
+  QFont font;
+  font.setPixelSize(unit_width/5);
+  pt.setFont(font);
   DrawUnit(pt);
   DrawLines(pt);
-  //DrawLine(pt, QPoint(5,5), QPoint(95,95), true);
 }
 
 void StoreExampleMainWidget::DrawUnit(QPainter& pt){
   //clear
   unit_list_.clear();
   unit_map_.clear();
-  ui->wgtPaint->setFixedHeight((max_chain_length_for_draw_)*height_distance+unit_width);
+  ui->wgtPaint->setFixedHeight((max_chain_length_for_draw_)*height_distance+unit_width+10);
   ui->wgtPaint->setFixedWidth((store_manager_->GetAccountListFromAccountForDebug().size()+1)*width_distance+unit_width);
 
   std::shared_ptr<ambr::store::StoreManager> store_manager = store_manager_;
@@ -126,7 +136,7 @@ void StoreExampleMainWidget::DrawUnit(QPainter& pt){
       pt.drawEllipse(item->space_, unit_width/2, unit_width/2);
       QString str_hash =(*iter_unit)->GetUnit()->hash().encode_to_hex().c_str();
       str_hash = str_hash.left(4)+"...."+str_hash.right(4);
-      pt.drawText(QPoint(space_x-unit_width/2+10, space_y), str_hash);
+      pt.drawText(QPoint(space_x-unit_width/2, space_y), str_hash);
       //std::cout<<"draw:"<<item->space_.x()<<","<<item->space_.y()<<std::endl;
       pt.restore();
       vert_idx++;
@@ -140,7 +150,7 @@ void StoreExampleMainWidget::DrawUnit(QPainter& pt){
     uint32_t space_x = (hori_idx)*width_distance+unit_width*2;
     pt.drawEllipse(QPoint(space_x, space_y), unit_width/2, unit_width/2);
     pt.setPen(old_pen);
-    pt.drawText(QPoint(space_x-unit_width/2+10, space_y), str_hash);
+    pt.drawText(QPoint(space_x-unit_width/2, space_y), str_hash);
     hori_idx++;
   }
   //draw validator unit
@@ -179,7 +189,7 @@ void StoreExampleMainWidget::DrawUnit(QPainter& pt){
   uint32_t space_x = (hori_idx)*width_distance+unit_width*2;
   pt.drawEllipse(QPoint(space_x, space_y), unit_width/2, unit_width/2);
   pt.setPen(old_pen);
-  pt.drawText(QPoint(space_x-unit_width/2+10, space_y), str_hash);
+  pt.drawText(QPoint(space_x-unit_width/2, space_y), str_hash);
   hori_idx++;
 }
 
@@ -866,6 +876,34 @@ void StoreExampleMainWidget::on_btnMSVStop_6_clicked(){
   ui->btnMSVStop_6->setEnabled(false);
 }
 
+#define BTN_START_TRANS_FUNC(idx) \
+void StoreExampleMainWidget::on_btnMSVStartTrans_##idx##_clicked(){\
+  ui->btnMSVStartTrans_##idx->setEnabled(false);\
+  ui->btnMSVStopTrans_##idx->setEnabled(true);\
+  ambr::core::PrivateKey pri_key(ui->edtMVSPriv_##idx->text().toStdString());\
+  StartPublishTrans(pri_key);\
+}
+BTN_START_TRANS_FUNC(1)
+BTN_START_TRANS_FUNC(2)
+BTN_START_TRANS_FUNC(3)
+BTN_START_TRANS_FUNC(4)
+BTN_START_TRANS_FUNC(5)
+BTN_START_TRANS_FUNC(6)
+
+#define BTN_STOP_TRANS_FUNC(idx) \
+void StoreExampleMainWidget::on_btnMSVStopTrans_##idx##_clicked(){\
+  ui->btnMSVStartTrans_##idx->setEnabled(true);\
+  ui->btnMSVStopTrans_##idx->setEnabled(false);\
+  ambr::core::PrivateKey pri_key(ui->edtMVSPriv_##idx->text().toStdString());\
+  StopPublishTrans(pri_key);\
+}
+BTN_STOP_TRANS_FUNC(1)
+BTN_STOP_TRANS_FUNC(2)
+BTN_STOP_TRANS_FUNC(3)
+BTN_STOP_TRANS_FUNC(4)
+BTN_STOP_TRANS_FUNC(5)
+BTN_STOP_TRANS_FUNC(6)
+
 void StoreExampleMainWidget::onDealAccept(CNode* p_node){
     ui->tbP2PConnectionIn->insertRow(0);
     ui->tbP2PConnectionIn->setItem(0, 0, new QTableWidgetItem(p_node->GetAddrLocal().ToStringIP().c_str()));
@@ -923,8 +961,12 @@ void StoreExampleMainWidget::DealDisconnected(std::shared_ptr<ambr::net::Peer> p
     }
   }
 }
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
+
+void StoreExampleMainWidget::OnDrawTimerOut()
+{
+  ui->wgtPaint->repaint();
+}
+
 void StoreExampleMainWidget::on_btnP2PStart_clicked(){
   //boost::function<void(std::shared_ptr<ambr::net::Peer>)> func1 = BOOST_BIND(&StoreExampleMainWidget::OnConnect, this, _1);
   /*ui->tbP2PConnectionIn->insertRow(0);
@@ -1099,6 +1141,55 @@ void StoreExampleMainWidget::on_btnTranslateUnfreeze_clicked(){
     ui->edtTCPlainEdit->setPlainText(QString("Send success:")+unit->SerializeJson().c_str());
   }else{
     ui->edtTCPlainEdit->setPlainText(QString("Send Faild:")+str_err.c_str());
+  }
+}
+
+void StoreExampleMainWidget::StartPublishTrans(const ambr::core::PrivateKey &pri_key){
+  std::shared_ptr<std::thread> thread;
+  auto_publish_trans_thread_map_[pri_key] = std::pair<bool, std::shared_ptr<std::thread>>(true, thread);
+  thread = std::make_shared<std::thread>(boost::bind(&StoreExampleMainWidget::AutoPublishTransThread, this, pri_key));
+  auto_publish_trans_thread_map_[pri_key].second = thread;
+}
+
+void StoreExampleMainWidget::AutoPublishTransThread(const ambr::core::PrivateKey &pri_key){
+  std::vector<ambr::core::PublicKey> pub_key_list = {
+      ambr::core::GetPublicKeyByPrivateKey("25E25210DCE702D4E36B6C8A17E18DC1D02A9E4F0D1D31C4AEE77327CF1641CC"),
+      ambr::core::GetPublicKeyByPrivateKey("F49E1B9F671D0B244744E07289EA0807FAE09F8335F0C1B0629F1BF924CA64E1"),
+      ambr::core::GetPublicKeyByPrivateKey("9812383BF3CE164A3D968186BEBA1CCFF299C9C59448A19BF3C0582336E01301"),
+      ambr::core::GetPublicKeyByPrivateKey("29176270484F74852C5ABCBFEF26C4193FE4C2E4C522984D833329EDD502DC84"),
+      ambr::core::GetPublicKeyByPrivateKey("C99FC6C3EF33BAB82A8DC27C3D6C26D90DFF3FBE1EB7BA6996A88662A34E031E"),
+      ambr::core::GetPublicKeyByPrivateKey("C56E273AE386A16846D5710F2B04DE75DE5D4DD086D15ABBFF0B184BC01F81C5")};
+  auto iter = std::find(pub_key_list.begin(), pub_key_list.end(), ambr::core::GetPublicKeyByPrivateKey(pri_key));
+  if(iter != pub_key_list.end()){
+    pub_key_list.erase(iter);
+  }
+
+  ambr::core::UnitHash tx_hash;
+  std::shared_ptr<ambr::core::Unit> unit_sended;
+  std::string err;
+  while(auto_publish_trans_thread_map_[pri_key].first){
+    ambr::core::Amount amount;
+    if(store_manager_->GetBalanceByPubKey(ambr::core::GetPublicKeyByPrivateKey(pri_key), amount)){
+      if(!store_manager_->SendToAddress(pub_key_list[qrand()%pub_key_list.size()], amount/10, pri_key, &tx_hash, unit_sended,&err)){
+        std::cout<<"error:"<<err<<std::endl;
+      }
+    }
+    std::list<ambr::core::UnitHash> wait_list = store_manager_->GetWaitForReceiveList(ambr::core::GetPublicKeyByPrivateKey(pri_key));
+    for(ambr::core::UnitHash unit_hash: wait_list){
+      if(!store_manager_->ReceiveFromUnitHash(unit_hash, pri_key, &tx_hash, unit_sended,&err)){
+        std::cout<<"error:"<<err<<std::endl;
+      }
+    }
+    boost::this_thread::sleep(boost::posix_time::millisec(qrand()%100));
+  }
+}
+
+void StoreExampleMainWidget::StopPublishTrans(const ambr::core::PrivateKey &pri_key){
+  auto iter = auto_publish_trans_thread_map_.find(pri_key);
+  if(iter != auto_publish_trans_thread_map_.end()){
+    auto_publish_trans_thread_map_[pri_key].first = false;
+    auto_publish_trans_thread_map_[pri_key].second->join();
+    auto_publish_trans_thread_map_.erase(pri_key);
   }
 }
 
