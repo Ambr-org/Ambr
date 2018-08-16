@@ -1588,13 +1588,15 @@ void ambr::store::StoreManager::RemoveWaitForReceiveUnit(const ambr::core::Publi
   }
 }
 
-ambr::store::StoreManager::StoreManager(){
+ambr::store::StoreManager::StoreManager():db_unit_(nullptr){
   //Init();
 }
 
 ambr::store::StoreManager::~StoreManager()
 {
-  db_unit_->Close();
+  if(db_unit_){
+    db_unit_->Close();
+  }
   delete db_unit_;
 }
 

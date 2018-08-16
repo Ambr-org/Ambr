@@ -174,4 +174,5 @@ private:
 };
 }
 }
+#pragma pack()
 #endif
