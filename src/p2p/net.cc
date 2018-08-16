@@ -1368,7 +1368,7 @@ void CConnman::ThreadSocketHandler()
             if (recvSet || errorSet)
             {
                 // typical socket buffer is 8K-64K
-                char pchBuf[0x10000];
+                char pchBuf[0x10000] = {0};
                 int nBytes = 0;
                 {
                     LOCK(pnode->cs_hSocket);
@@ -1379,11 +1379,11 @@ void CConnman::ThreadSocketHandler()
                 if (nBytes > 0)
                 {
                     bool notify = false;
-                    if(OnReceiveMessageFunc(pchBuf, nBytes, pnode)){
+                    if(false == OnReceiveMessageFunc(pchBuf, nBytes, pnode)){
                       pnode->CloseSocketDisconnect();
                     }
-                    /*if (!pnode->ReceiveMsgBytes(pchBuf, nBytes, notify))
-                        pnode->CloseSocketDisconnect();*/
+                    if (!pnode->ReceiveMsgBytes(pchBuf, nBytes, notify))
+                        pnode->CloseSocketDisconnect();
                     RecordBytesRecv(nBytes);
                     if (notify) {
                         size_t nSizeAdded = 0;
@@ -1999,19 +1999,19 @@ std::vector<CNode*>& CConnman::GetVectorNodes(){
   return vNodes;
 }
 
-void CConnman::SetAcceptFunc(std::function<void(CNode*)>&& func){
+void CConnman::SetAcceptFunc(const std::function<void(CNode*)>& func){
   OnAcceptFunc = func;
 }
 
-void CConnman::SetConnectFunc(std::function<void(CNode*)>&& func){
+void CConnman::SetConnectFunc(const std::function<void(CNode*)>& func){
   OnConnectFunc = func;
 }
 
-void CConnman::SetDisconnectFunc(std::function<void(CNode*)>&& func){
+void CConnman::SetDisconnectFunc(const std::function<void(CNode*)>& func){
   OnDisconnectFunc = func;
 }
 
-void CConnman::SetReceiveMessageFunc(std::function<bool(const char*, size_t, CNode*)>&& func){
+void CConnman::SetReceiveMessageFunc(const std::function<bool(const char*, size_t, CNode*)>& func){
   OnReceiveMessageFunc = func;
 }
 
