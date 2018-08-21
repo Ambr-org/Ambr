@@ -5,95 +5,16 @@
 #include <glog/logging.h>
 
 #include "store/store_manager.h"
-/*
-class StoreManager{
-public:
-  StoreManager();
-public:
-  void Init(const std::string& path);
-  //callback
-  boost::signals2::connection AddCallBackReceiveNewSendUnit(std::function<void(std::shared_ptr<core::SendUnit>)> callback);
-  boost::signals2::connection AddCallBackReceiveNewReceiveUnit(std::function<void(std::shared_ptr<core::ReceiveUnit>)> callback);
-  boost::signals2::connection AddCallBackReceiveNewJoinValidatorSetUnit(std::function<void(std::shared_ptr<core::EnterValidateSetUint>)> callback);
-  boost::signals2::connection AddCallBackReceiveNewLeaveValidatorSetUnit(std::function<void(std::shared_ptr<core::LeaveValidateSetUint>)> callback);
-  boost::signals2::connection AddCallBackReceiveNewValidatorUnit(std::function<void(std::shared_ptr<core::ValidatorUnit>)> callback);
-public:
-  //bool AddUnit(std::shared_ptr<core::Unit> unit, std::string* err);
-  bool AddSendUnit(std::shared_ptr<core::SendUnit> send_unit, std::string* err);
-  bool AddReceiveUnit(std::shared_ptr<core::ReceiveUnit> receive_unit, std::string* err);
-  bool AddEnterValidatorSetUnit(std::shared_ptr<core::EnterValidateSetUint> unit, std::string* err);
-  bool AddLeaveValidatorSetUnit(std::shared_ptr<core::LeaveValidateSetUint> unit, std::string* err);
-  bool AddValidateUnit(std::shared_ptr<core::ValidatorUnit> unit, std::string* err);
-  bool AddVote(std::shared_ptr<core::VoteUnit> unit, std::string* err);
-  void ClearVote();
-  void UpdateNewUnitMap(const std::vector<core::UnitHash>& validator_check_list);
-
-  bool GetLastValidateUnit(core::UnitHash& hash);
-  std::list<std::shared_ptr<core::ValidatorUnit>> GetValidateHistory(size_t count);
-  bool GetLastUnitHashByPubKey(const core::PublicKey& pub_key, core::UnitHash& hash);
-  bool GetBalanceByPubKey(const core::PublicKey& pub_key, core::Amount& balance);
-  std::list<std::shared_ptr<store::UnitStore>>
-    GetTradeHistoryByPubKey(const core::PublicKey& pub_key, size_t count);
-  bool GetSendAmount(const ambr::core::UnitHash &unit_hash, core::Amount& amount, std::string* err);
-  //get all new unit map at lastest of account  which is not validated by validator set
-  std::unordered_map<ambr::core::PublicKey, ambr::core::UnitHash>
-    GetNewUnitMap();
-  std::shared_ptr<store::ValidatorSetStore> GetValidatorSet();
-  bool SendToAddress(
-      const core::PublicKey pub_key_to,
-      const core::Amount& count,
-      const core::PrivateKey& prv_key,
-      core::UnitHash* tx_hash,
-      std::shared_ptr<ambr::core::Unit>& unit_sended,
-      std::string* err);
-  bool ReceiveFromUnitHash(
-      const core::UnitHash unit_hash,
-      const core::PrivateKey& pri_key,
-      core::UnitHash* tx_hash,
-      std::shared_ptr<ambr::core::Unit>& unit_received,
-      std::string* err);
-  bool JoinValidatorSet(const core::PrivateKey& pri_key,
-                        const core::Amount& count,
-                        core::UnitHash* tx_hash,
-                        std::shared_ptr<ambr::core::Unit>& unit_join,
-                        std::string* err);
-  bool LeaveValidatorSet(const core::PrivateKey& pri_key,
-                         const core::Amount& count,
-                         core::UnitHash* tx_hash,
-                         std::shared_ptr<ambr::core::Unit>& unit_leave,
-                         std::string* err);
-  //add ValidatorUnit auto Validate Unit
-  bool PublishValidator(const core::PrivateKey& pri_key,
-                        core::UnitHash* tx_hash,
-                        std::shared_ptr<ambr::core::ValidatorUnit>& unit_validator,
-                        std::string* err);
-  bool PublishVote(const core::PrivateKey& pri_key,
-                   bool accept,
-                   std::shared_ptr<ambr::core::VoteUnit>& unit_vote,
-                   std::string* err);
-  std::list<core::UnitHash> GetWaitForReceiveList(const core::PublicKey& pub_key);
-  //get unit(send_unit and receive_unit)
-  std::shared_ptr<UnitStore> GetUnit(const core::UnitHash& hash);
-  std::shared_ptr<SendUnitStore> GetSendUnit(const core::UnitHash& hash);
-  std::shared_ptr<ReceiveUnitStore> GetReceiveUnit(const core::UnitHash& hash);
-  std::shared_ptr<core::ValidatorUnit> GetValidateUnit(const core::UnitHash& hash);
-  std::shared_ptr<core::ValidatorUnit> GetLastestValidateUnit();
-  std::shared_ptr<EnterValidatorSetUnitStore> GetEnterValidatorSetUnit(const core::UnitHash& hash);
-  std::shared_ptr<LeaveValidatorSetUnitStore> GetLeaveValidatorSetUnit(const core::UnitHash& hash);
-  std::list<std::shared_ptr<core::VoteUnit>> GetVoteList();
-
-  uint64_t GetGenesisTime(){return genesis_time_;}
-  uint32_t GetValidateUnitInterval(){return validate_unit_interval_;}
-  uint64_t GetPassPercent(){return PASS_PERCENT;}
-  uint64_t GetNonceByNowTime();
-  std::recursive_mutex& GetMutex(){return mutex_;}
-*/
 TEST (UnitTest, Store) {
+
   std::string root_pri_key = "25E25210DCE702D4E36B6C8A17E18DC1D02A9E4F0D1D31C4AEE77327CF1641CC";
   ambr::store::StoreManager* manager = new ambr::store::StoreManager();
   ambr::core::PrivateKey test_pri = ambr::core::CreateRandomPrivateKey();
   ambr::core::PublicKey test_pub = ambr::core::GetPublicKeyByPrivateKey(test_pri);
-  manager->Init("aaa");
+
+  system("rm -fr ./aaa");
+  manager->Init("./aaa");
+
   ambr::core::UnitHash test_hash;
   std::shared_ptr<ambr::core::Unit> added_unit;
   ambr::core::Amount send_ammout = 1;
@@ -226,9 +147,9 @@ TEST (UnitTest, Store) {
     receive_unit->set_version(0x00000001);
     receive_unit->set_type(ambr::core::UnitType::receive);
     receive_unit->set_public_key(test_pub);
-    receive_unit->set_prev_unit(last_unit_hash);return;
+    receive_unit->set_prev_unit(last_unit_hash);
     receive_unit->set_balance(old_balance+receive_amount);
-    receive_unit->set_from(receive_from_hash);return;
+    receive_unit->set_from(receive_from_hash);
     receive_unit->CalcHashAndFill();
     receive_unit->SignatureAndFill(test_pri);
 
@@ -269,6 +190,7 @@ TEST (UnitTest, Store) {
     }
     EXPECT_TRUE(manager->AddReceiveUnit(receive_unit, &err));
   }
+  /*
   {//test join validator set
     ambr::core::PrivateKey validator_pri[10];
     for(size_t i = 0; i < sizeof(validator_pri)/sizeof(ambr::core::PrivateKey); i++){
@@ -277,5 +199,5 @@ TEST (UnitTest, Store) {
       EXPECT_TRUE(manager->ReceiveFromUnitHash(test_hash, validator_pri[i], &test_hash, added_unit, &err));
     }
     EXPECT_TRUE(manager->JoinValidatorSet(test_pri, 10000, &test_hash, added_unit, &err));
-  }
+  }*/
 }

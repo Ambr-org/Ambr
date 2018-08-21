@@ -122,6 +122,11 @@ protected:
 
 class SendUnit:public Unit{
 public:
+  enum DataType{
+    Normal = 0,
+    CreateContract = 1,
+    RunContract = 2
+  };
   SendUnit();
 public:
   virtual std::string SerializeJson () const override;
@@ -140,8 +145,22 @@ public:
   void set_dest(const PublicKey& dest){
     dest_ = dest;
   }
+  DataType data_type(){
+    return data_type_;
+  }
+  void set_data_type(DataType type){
+    data_type_ = type;
+  }
+  std::string data(){
+    return data_;
+  }
+  void set_data(const std::string& data){
+    data_ = data;
+  }
 private:
   PublicKey dest_;
+  DataType data_type_;
+  std::string data_;
 };
 
 class ReceiveUnit:public Unit{

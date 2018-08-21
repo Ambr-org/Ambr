@@ -36,7 +36,7 @@ ambr::core::Unit::Unit():
   sign_("0"){
 }
 
-ambr::core::SendUnit::SendUnit():Unit(){
+ambr::core::SendUnit::SendUnit():Unit(),data_type_(Normal){
 
 }
 
@@ -50,6 +50,8 @@ std::string ambr::core::SendUnit::SerializeJson() const{
   unit_pt.put("hash", hash_.encode_to_hex());
   unit_pt.put("sign", sign_.encode_to_hex());
   unit_pt.put("dest", dest_.encode_to_hex());
+  unit_pt.put("data_type", data_type_);
+  unit_pt.put("data", data_);
   ::boost::property_tree::ptree pt;
   pt.add_child("unit", unit_pt);
   ::std::ostringstream stream;
@@ -70,6 +72,8 @@ bool ambr::core::SendUnit::DeSerializeJson(const std::string& json){
     hash_.decode_from_hex(pt.get<std::string>("unit.hash"));
     sign_.decode_from_hex(pt.get<std::string>("unit.sign"));
     dest_.decode_from_hex(pt.get<std::string>("unit.dest"));
+    data_type_ = (DataType)pt.get<uint32_t>("unit.data_type");
+    data_ = pt.get<std::string>("unit.data");
     return true;
   }catch(::boost::property_tree::json_parser::json_parser_error& error){
     std::cout<<error.message();
@@ -77,10 +81,11 @@ bool ambr::core::SendUnit::DeSerializeJson(const std::string& json){
   }
 }
 
-std::vector<uint8_t> ambr::core::SendUnit::SerializeByte( ) const {
+std::vector<uint8_t> ambr::core::SendUnit::SerializeByte() const {
   std::vector<uint8_t> buf;
   if(version_ == 0x00000001){
-    uint32_t len = sizeof(version_)+sizeof(type_)+sizeof(public_key_)+sizeof(prev_unit_)+sizeof(balance_)+sizeof(hash_)+sizeof(sign_)+sizeof(dest_);
+    uint32_t len = sizeof(version_)+sizeof(type_)+sizeof(public_key_)+sizeof(prev_unit_)+sizeof(balance_)+sizeof(hash_)+sizeof(sign_)+sizeof(dest_)
+        +sizeof(data_type_)+sizeof(uint32_t)+data_.size();
     buf.resize(len);
 
     uint8_t* dest = buf.data();
@@ -107,18 +112,30 @@ std::vector<uint8_t> ambr::core::SendUnit::SerializeByte( ) const {
 
     memcpy(dest, &dest_, sizeof(dest_));
     dest += sizeof(dest_);
+
+    memcpy(dest, &data_type_, sizeof(data_type_));
+    dest += sizeof(data_type_);
+
+    uint32_t data_len = data_.size();
+    memcpy(dest, &data_len, sizeof(data_len));
+    dest += sizeof(data_len);
+
+    memcpy(dest, data_.data(), data_.size());
+    dest += data_.size();
   }
   return buf;
 }
 
 bool ambr::core::SendUnit::DeSerializeByte(const std::vector<uint8_t> &buf, size_t* used_size){
+  data_.clear();
   if(buf.size() < sizeof(version_)){
     return false;
   }
   const uint8_t* src = buf.data();
   memcpy(&version_, src, sizeof(version_));
   if(version_== 0x00000001){
-    uint32_t len = sizeof(version_) + sizeof(type_)+sizeof(public_key_)+sizeof(prev_unit_)+sizeof(balance_)+sizeof(hash_)+sizeof(sign_)+sizeof(dest_);
+    uint32_t len = sizeof(version_) + sizeof(type_)+sizeof(public_key_)+sizeof(prev_unit_)+sizeof(balance_)+sizeof(hash_)+sizeof(sign_)+sizeof(dest_)
+        +sizeof(data_type_)+sizeof(uint32_t);
     if(buf.size() >= len){
       memcpy(&version_, src, sizeof(version_));
       src += sizeof(version_);
@@ -147,7 +164,21 @@ bool ambr::core::SendUnit::DeSerializeByte(const std::vector<uint8_t> &buf, size
 
       memcpy(&dest_, src, sizeof(dest_));
       src += sizeof(dest_);
-      if(used_size)*used_size=len;
+
+      memcpy(&data_type_, src, sizeof(data_type_));
+      src += sizeof(data_type_);
+
+      uint32_t data_len;
+      memcpy(&data_len, src, sizeof(data_len));
+      src += sizeof(data_len);
+
+      if(&buf[buf.size()] - src < data_len){
+        return false;
+      }
+      data_.insert(0, (char*)src, data_len);
+      src += data_len;
+      if(used_size)
+        *used_size=src - &buf[0];
       return true;
     }
   }
@@ -340,14 +371,8 @@ void ambr::core::ReceiveUnit::CalcHashAndFill(){
 }
 
 bool ambr::core::ReceiveUnit::SignatureAndFill(const ambr::core::PrivateKey &key){
-  //TODO:
-  Signature::ArrayType array_sign;
-  PrivateKey::ArrayType array_key;
-  for(size_t i = 0; i< array_key.size(); i++){
-    array_sign[i]=array_key[i];
-  }
-  sign_.set_bytes(array_sign);
-  return true;
+  sign_ = GetSignByPrivateKey(hash_.bytes().data(), hash_.bytes().size(), key);
+  return true;;
 }
 
 bool ambr::core::ReceiveUnit::Validate(std::string *err) const{
@@ -366,7 +391,12 @@ bool ambr::core::ReceiveUnit::Validate(std::string *err) const{
     return false;
   }
   //check signature
-  //TODO:
+  if(!ambr::core::SignIsValidate(hash_.bytes().data(), hash_.bytes().size(), public_key_, sign_)){
+    if(err){
+      *err = "error signature";
+    }
+    return false;
+  }
   return true;
 }
 

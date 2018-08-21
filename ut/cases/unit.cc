@@ -53,6 +53,11 @@ TEST (UnitTest, SendUnit_and_SendUnitStore) {
   amount.set_data(123123123);
   SERIALIZE_EQ_TEST_VALUE(unit1, balance, amount);
   SERIALIZE_EQ_TEST_VALUE(unit1, hash, unit_hash_rand);
+
+  SERIALIZE_EQ_TEST_VALUE(unit1, data_type, (ambr::core::SendUnit::DataType)2 );
+  SERIALIZE_EQ_TEST_VALUE(unit1, data, "1234567890");
+
+
   ambr::utils::uint512 sign_tmp;
   sign_tmp.set_bytes(ambr::crypto::Random::CreateRandomArray<512/8>());
   SERIALIZE_EQ_TEST_VALUE(unit1, sign, sign_tmp);
