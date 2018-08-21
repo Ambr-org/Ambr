@@ -187,7 +187,6 @@ public:
     void SetAcceptFunc(const std::function<void(CNode*)>& func);
     void SetConnectFunc(const std::function<void(CNode*)>& func);
     void SetDisconnectFunc(const std::function<void(CNode*)>& func);
-    void SetReceiveMessageFunc(const std::function<bool(const char*, size_t, CNode*)>& func);
 
     void OpenNetworkConnection(const CAddress& addrConnect, bool fCountFailure, CSemaphoreGrant *grantOutbound = nullptr, const char *strDest = nullptr, bool fOneShot = false, bool fFeeler = false, bool manual_connection = false);
     bool CheckIncomingNonce(uint64_t nonce);
@@ -462,7 +461,6 @@ private:
     std::function<void(CNode*)> OnAcceptFunc;
     std::function<void(CNode*)> OnConnectFunc;
     std::function<void(CNode*)> OnDisconnectFunc;
-    std::function<bool(const char*, size_t, CNode*)> OnReceiveMessageFunc;
 
     friend struct CConnmanTest;
 };
@@ -780,6 +778,7 @@ private:
     // Our address, as reported by the peer
     CService addrLocal;
     mutable CCriticalSection cs_addrLocal;
+    std::function<bool(const CNetMessage&, CNode*)> OnReceiveNodeFunc;
 public:
 
     NodeId GetId() const {
@@ -802,6 +801,8 @@ public:
     }
 
     bool ReceiveMsgBytes(const char *pch, unsigned int nBytes, bool& complete);
+
+    void SetReceiveNodeFunc(const std::function<bool(const CNetMessage&, CNode*)>& p_ReceiveNodeFunc);
 
     void SetRecvVersion(int nVersionIn)
     {

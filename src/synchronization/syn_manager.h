@@ -31,27 +31,6 @@ namespace store{
 }
 
 namespace syn{
-enum MessageCommand{
-  //check version, first message after connected
-  //str_msg_ is no use
-  MC_INVALIDATE = 1,
-  //after check version,need broadcast address
-  /*
-  |-------------------------------|
-  |name      |size|type    |limit |
-  |-------------------------------|
-  |addr_count|2   |uint16  |<=1000|
-  |-------------------------------|
-  |addr      |4   |uint32  |      |
-  |-------------------------------|
-  |port      |2   |uint16  |      |
-  |-------------------------------|
-  */
-  MC_ADDR = 2,
-  MC_NEW_UNIT =3,
-  MC_NEW_SECTION = 4,
-  MC_NEW_SECTION_UNIT = 5,
-};
 
 class NetMessageAddr{
 public:
@@ -126,7 +105,7 @@ struct SynManagerConfig{
 
 class Impl : public CConnman{
 public:
-  Impl(Ptr_StoreManager store_manager);
+  Impl(Ptr_StoreManager p_store_manager);
   bool Init(const SynManagerConfig& config);
   void RemoveNode(CNode* p_node, uint32_t second);
   void SendMessage(CSerializedNetMsg&& msg, CNode* p_node);
@@ -141,7 +120,8 @@ private:
   void OnAcceptNode(CNode* p_node);
   void OnConnectNode(CNode* p_node);
   void OnDisconnectNode(CNode* p_node);
-  bool OnReceiveNode(const char* p_buf, size_t len, CNode* p_node);
+  void UnSerialize(std::vector<uint8_t>& vec_bytes);
+  bool OnReceiveNode(const CNetMessage& netmsg, CNode* p_node);
 
 private:
   bool exit_;
@@ -170,7 +150,7 @@ public:
   void SetOnConnectedNode(const std::function<void(CNode*)>& func);
   void SetOnDisconnectNode(const std::function<void(CNode*)>& func);
 private:
-  Impl* impl_;
+  Impl* p_impl_;
 };
 }
 }

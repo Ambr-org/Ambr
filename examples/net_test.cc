@@ -126,7 +126,6 @@ bool ambr::net::NetManager::Impl::init(const NetManagerConfig &config){
   SetAcceptFunc(std::bind(&ambr::net::NetManager::Impl::OnAcceptNode, this, std::placeholders::_1));
   SetConnectFunc(std::bind(&ambr::net::NetManager::Impl::OnConnectNode, this, std::placeholders::_1));
   SetDisconnectFunc(std::bind(&ambr::net::NetManager::Impl::OnDisconnectNode, this, std::placeholders::_1));
-  SetReceiveMessageFunc(std::bind(&ambr::net::NetManager::Impl::OnReceiveNode, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
   try{
     SelectParams(gArgs.GetChainName(), config.listen_port_);
@@ -397,30 +396,29 @@ void ambr::net::NetManager::Impl::OnDisconnect(std::shared_ptr<Peer> peer){
 bool ambr::net::NetManager::Impl::OnReceiveNode(const char* p_buf, size_t len, CNode* p_node){
     CNetMessage netmsg(Params().MessageStart(), SER_NETWORK, INIT_PROTO_VERSION);
 
-    while (len > 0) {
-        int handled;
-        if (false == netmsg.in_data){
-            handled = netmsg.readHeader(p_buf, len);
+    while(len > 0){
+      int pos;
+      if(false == netmsg.in_data){
+        pos = netmsg.readHeader(p_buf, len);
+      }
+      else{
+        pos = netmsg.readData(++p_buf, len);
+      }
 
-        }
-        else{
-            handled = netmsg.readData(++p_buf, len);
-        }
+      if (pos < 0){
+        return true;
+      }
 
-        if (handled < 0){
-            return true;
-        }
+      if(netmsg.in_data && netmsg.hdr.nMessageSize > MAX_PROTOCOL_MESSAGE_LENGTH){
+        LOG(INFO) << "Oversized message from node = " << p_node->GetAddrName() << ", disconnecting";
+        return true;
+      }
 
-        if (netmsg.in_data && netmsg.hdr.nMessageSize > MAX_PROTOCOL_MESSAGE_LENGTH) {
-            LOG(INFO) << "Oversized message from node = " << p_node->GetAddrName() << ", disconnecting\n";
-            return true;
-        }
-
-        p_buf += handled;
-        len -= handled;
-        if(netmsg.complete()) {
-          break;
-        }
+      p_buf += pos;
+      len -= pos;
+      if(netmsg.complete()){
+        break;
+      }
     }
 
     std::string&& tmp = netmsg.hdr.GetCommand();
@@ -442,8 +440,8 @@ bool ambr::net::NetManager::Impl::OnReceiveNode(const char* p_buf, size_t len, C
             is_wait = true;
             list_in_nodes_wait_.remove(p_node);
             list_in_nodes_.push_back(p_node);
-            LOG(INFO) << "Right node version:" << std::hex << std::setw(8) << std::setfill('0') << msg->version_
-                      << "save" << p_node->GetAddrLocal().ToStringIP() << ":" << std::dec << std::setw(0) << p_node->GetAddrLocal().GetPort() << "to in_peers";
+            LOG(INFO) << "Right node version:" << std::hex << std::setw(8) << std::setfill('0') << "save"
+                      << p_node->GetAddrLocal().ToStringIP() << ":" << std::dec << std::setw(0) << p_node->GetAddrLocal().GetPort() << "to in_peers";
             break;
           }
         }
@@ -454,8 +452,8 @@ bool ambr::net::NetManager::Impl::OnReceiveNode(const char* p_buf, size_t len, C
                 is_wait = true;
                 list_out_nodes_wait_.remove(p_node);
                 list_out_nodes_.push_back(p_node);
-                LOG(INFO) << "Right node version:" << std::hex << std::setw(8) << std::setfill('0') << msg->version_
-                          << "save" << p_node->GetAddrLocal().ToStringIP() << ":" << std::dec << std::setw(0) << p_node->GetAddrLocal().GetPort() << "to out_peers";
+                LOG(INFO) << "Right node version:" << std::hex << std::setw(8) << std::setfill('0') << "save"
+                          << p_node->GetAddrLocal().ToStringIP() << ":" << std::dec << std::setw(0) << p_node->GetAddrLocal().GetPort() << "to out_peers";
                 //Send addr msg
                 {
                   SendMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::ADDR, ""), p_node);
@@ -507,21 +505,21 @@ bool ambr::net::NetManager::Impl::OnReceiveNode(const char* p_buf, size_t len, C
           LOG(INFO) << "Get send unit:" << unit->SerializeJson();
           std::shared_ptr<ambr::core::SendUnit> send_unit = std::dynamic_pointer_cast<ambr::core::SendUnit>(unit);
           if(send_unit && store_manager_->AddSendUnit(send_unit, nullptr)){
-            BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, msg->str_msg_), p_node);
+            BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, buf), p_node);
           }
         }
         else if(ambr::core::UnitType::receive == unit->type()){
           LOG(INFO) << "Get receive unit:" << unit->SerializeJson();
           std::shared_ptr<ambr::core::ReceiveUnit> receive_unit = std::dynamic_pointer_cast<ambr::core::ReceiveUnit>(unit);
           if(receive_unit && store_manager_->AddReceiveUnit(receive_unit, nullptr)){
-            BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, msg->str_msg_), p_node);
+            BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, buf), p_node);
           }
         }
         else if(ambr::core::UnitType::Vote == unit->type()){
           LOG(INFO) << "Get vote unit:" << unit->SerializeJson();
           std::shared_ptr<ambr::core::VoteUnit> vote_unit = std::dynamic_pointer_cast<ambr::core::VoteUnit>(unit);
           if(vote_unit && store_manager_->AddVote(vote_unit, nullptr)){
-            BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, msg->str_msg_), p_node);
+            BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, buf), p_node);
           }
         }
         else if(ambr::core::UnitType::Validator == unit->type()){
@@ -554,13 +552,13 @@ bool ambr::net::NetManager::Impl::OnReceiveNode(const char* p_buf, size_t len, C
             if(last_unithash == newest_unithash){
               if(nullptr == ptr_unit || ptr_unit && FixedRate <= validator_unit->percent()){
                 if(store_manager_->AddValidateUnit(validator_unit, nullptr)){
-                  BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, msg->str_msg_), p_node);
+                  BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, buf), p_node);
                 }
               }
             }
             else{
               if(store_manager_->AddValidateUnit(validator_unit, nullptr)){
-                BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, msg->str_msg_), p_node);
+                BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, buf), p_node);
               }
             }
           }
@@ -569,25 +567,27 @@ bool ambr::net::NetManager::Impl::OnReceiveNode(const char* p_buf, size_t len, C
           LOG(INFO) << "Get enter validator unit:" << unit->SerializeJson();
           std::shared_ptr<ambr::core::EnterValidateSetUint> enter_validator_unit = std::dynamic_pointer_cast<ambr::core::EnterValidateSetUint>(unit);
           if(enter_validator_unit && store_manager_->AddEnterValidatorSetUnit(enter_validator_unit, nullptr)){
-            BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, msg->str_msg_), p_node);
+            BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, buf), p_node);
           }
         }
         else if(ambr::core::UnitType::LeaveValidateSet == unit->type()){
           LOG(INFO) << "Get leave validator unit:" << unit->SerializeJson();
           std::shared_ptr<ambr::core::LeaveValidateSetUint> leave_validator_unit = std::dynamic_pointer_cast<ambr::core::LeaveValidateSetUint>(unit);
           if(leave_validator_unit && store_manager_->AddLeaveValidatorSetUnit(leave_validator_unit, nullptr)){
-            BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, msg->str_msg_), p_node);
+            BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, buf), p_node);
           }
         }
       }
     }
     else if(NetMsgType::SECTION == tmp){
-      LOG(INFO)<<"Get New Section:"<< msg->str_msg_;
+      std::string strTmp;
+      strTmp.assign(netmsg.vRecv.begin(), netmsg.vRecv.end());
+      LOG(INFO)<<"Get New Section:"<< strTmp;
       ambr::core::UnitHash firsthash, lasthash;
-      size_t num_pos = msg->str_msg_.find(':');
+      size_t num_pos = strTmp.find(':');
       if(num_pos != std::string::npos){
-        firsthash.decode_from_hex(msg->str_msg_.substr(0, num_pos));
-        lasthash.decode_from_hex(msg->str_msg_.substr(num_pos + 1, 64));
+        firsthash.decode_from_hex(strTmp.substr(0, num_pos));
+        lasthash.decode_from_hex(strTmp.substr(num_pos + 1, 64));
 
         std::list<Ptr_Unit> list_p_unit;
         while(firsthash != lasthash){
@@ -636,7 +636,7 @@ bool ambr::net::NetManager::Impl::OnReceiveNode(const char* p_buf, size_t len, C
     }
     else if(NetMsgType::SECTIONUNIT == tmp){
         std::vector<uint8_t> buf;
-        buf.assign(msg->str_msg_.begin(), msg->str_msg_.end());
+        buf.assign(netmsg.vRecv.begin(), netmsg.vRecv.end());
         Ptr_Unit unit = ambr::core::Unit::CreateUnitByByte(buf);
         if(unit){
           switch (unit->type()) {
@@ -1068,34 +1068,6 @@ ambr::net::NetManager::NetManager(std::shared_ptr<store::StoreManager> store_man
 
 bool ambr::net::NetManager::init(const ambr::net::NetManagerConfig &config){
   return impl_->init(config);
-}
-
-void ambr::net::NetManager::SetOnReceive(std::function<void (std::shared_ptr<ambr::net::NetMessage> msg, std::shared_ptr<ambr::net::Peer>)> func){
-  return impl_->SetOnReceive(func);
-}
-
-void ambr::net::NetManager::SendMessage(std::shared_ptr<ambr::net::NetMessage> msg, std::shared_ptr<ambr::net::Peer> peer){
-  impl_->SendMessage(msg, peer);
-}
-
-void ambr::net::NetManager::BoardcastMessage1(std::shared_ptr<ambr::net::NetMessage> msg, std::shared_ptr<ambr::net::Peer> peer){
-  impl_->BoardcastMessage(msg, peer);
-}
-
-void ambr::net::NetManager::SetOnDisconnect(std::function<void (std::shared_ptr<ambr::net::Peer>)> func){
-  impl_->SetOnDisconnect(func);
-}
-
-void ambr::net::NetManager::SetOnAccept(std::function<void (std::shared_ptr<ambr::net::Peer>)> func){
-  impl_->SetOnAccept(func);
-}
-
-void ambr::net::NetManager::SetOnConnected(std::function<void (std::shared_ptr<ambr::net::Peer>)> func){
-  impl_->SetOnConnected(func);
-}
-
-void ambr::net::NetManager::RemovePeer(std::shared_ptr<ambr::net::Peer> peer, uint32_t second){
-  impl_->RemovePeer(peer, second);
 }
 
 void ambr::net::NetManager::RemovePeer(CNode* p_node, uint32_t second){

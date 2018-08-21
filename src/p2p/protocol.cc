@@ -45,7 +45,7 @@ const char *GETLISTENPORT="getport";
 const char *LISTENPORT="listenport";
 const char *UNIT = "unit";
 const char *SECTION = "section";
-const char *SECTIONUNIT = "unit";
+const char *SECTIONUNIT = "sectionunit";
 } // namespace NetMsgType
 
 /** All known message types. Keep this in the same order as the list of
