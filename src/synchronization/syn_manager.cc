@@ -108,10 +108,10 @@ bool ambr::syn::Impl::Init(const SynManagerConfig &config){
 }
 
 void ambr::syn::Impl::RemoveNode(CNode* p_node, uint32_t second){
-    p_node->CloseSocketDisconnect();
+  p_node->CloseSocketDisconnect();
   list_in_nodes_.remove(p_node);
   list_out_nodes_.remove(p_node);
-      }
+}
 
 void ambr::syn::Impl::SendMessage(CSerializedNetMsg&& msg, CNode* p_node){
   if(p_node){
@@ -140,7 +140,7 @@ void ambr::syn::Impl::BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node){
   for(auto it:list_out_nodes_){
     if(it != p_node){
       PushMessage(it, std::forward<CSerializedNetMsg>(msg));
-}
+    }
   }
 }
 
@@ -198,8 +198,8 @@ void ambr::syn::Impl::UnSerialize(std::vector<uint8_t>& vec_bytes){
       for(int i = 0; i < 3; ++i){
         vec_bytes.erase(it);
       }
-      }
-      }
+    }
+  }
   else if(std::numeric_limits<unsigned int>::max() + 5 >= data_length){
     uint32_t msg_size = vec_bytes[4] * pow(2, 24) + vec_bytes[3] * pow(2, 16) + vec_bytes[2] * pow(2, 8) + vec_bytes[1];
     if(data_length - 3 == msg_size){
@@ -207,9 +207,9 @@ void ambr::syn::Impl::UnSerialize(std::vector<uint8_t>& vec_bytes){
       for(int i = 0; i < 5; ++i){
         vec_bytes.erase(it);
       }
-      }
-      }
     }
+  }
+}
 
 bool ambr::syn::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode* p_node){
     std::string&& tmp = netmsg.hdr.GetCommand();
