@@ -1021,15 +1021,15 @@ std::shared_ptr<ambr::store::ValidatorSetStore> ambr::store::StoreManager::GetVa
   return validator_set;
 }
 
-
-
-bool ambr::store::StoreManager::SendToAddress(
+bool ambr::store::StoreManager::SendToAddressWithContract(
     const ambr::core::PublicKey pub_key_to,
     const ambr::core::Amount &send_count,
     const ambr::core::PrivateKey &prv_key,
-    core::UnitHash* tx_hash,
-    std::shared_ptr<ambr::core::Unit>& unit_sended,
-    std::string* err){
+    ambr::core::SendUnit::DataType data_type,
+    const std::string &data,
+    ambr::core::UnitHash *tx_hash,
+    std::shared_ptr<ambr::core::Unit> &unit_sended,
+    std::string *err){
   LockGrade lk(mutex_);
   std::shared_ptr<core::SendUnit> unit = std::shared_ptr<core::SendUnit>(new core::SendUnit());
   core::PublicKey pub_key = ambr::core::GetPublicKeyByPrivateKey(prv_key);
@@ -1060,11 +1060,43 @@ bool ambr::store::StoreManager::SendToAddress(
   unit->set_prev_unit(prev_hash);
   unit->set_balance(balance);
   unit->set_dest(pub_key_to);
+  unit->set_data_type(data_type);
+  unit->set_data(data);
   unit->CalcHashAndFill();
   unit->SignatureAndFill(prv_key);
   unit_sended = unit;
   if(tx_hash)*tx_hash = unit->hash();
   return AddSendUnit(unit, err);
+}
+
+bool ambr::store::StoreManager::SendToAddress(
+    const ambr::core::PublicKey pub_key_to,
+    const ambr::core::Amount &count,
+    const ambr::core::PrivateKey &prv_key,
+    ambr::core::UnitHash *tx_hash,
+    std::shared_ptr<ambr::core::Unit> &unit_sended,
+    std::string *err){
+  return SendToAddressWithContract(
+      pub_key_to,
+      count,
+      prv_key,
+      ambr::core::SendUnit::Normal,
+      "",
+      tx_hash,
+      unit_sended,
+      err);
+}
+bool ambr::store::StoreManager::SendContract(const ambr::core::PrivateKey &prv_key, ambr::core::SendUnit::DataType data_type, const std::string &data, ambr::core::UnitHash *tx_hash, std::shared_ptr<ambr::core::Unit> &unit_sended, std::string *err){
+  return SendToAddressWithContract(
+      ambr::core::PublicKey(),
+      0,
+      prv_key,
+      data_type,
+      data,
+      tx_hash,
+      unit_sended,
+      err);
+
 }
 
 bool ambr::store::StoreManager::ReceiveFromUnitHash(
