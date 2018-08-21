@@ -60,10 +60,26 @@ public:
   std::unordered_map<ambr::core::PublicKey, ambr::core::UnitHash>
     GetNewUnitMap();
   std::shared_ptr<store::ValidatorSetStore> GetValidatorSet();
+  bool SendToAddressWithContract(
+      const core::PublicKey pub_key_to,
+      const core::Amount& count,
+      const core::PrivateKey& prv_key,
+      core::SendUnit::DataType data_type,
+      const std::string& data,
+      core::UnitHash* tx_hash,
+      std::shared_ptr<ambr::core::Unit>& unit_sended,
+      std::string* err);
   bool SendToAddress(
       const core::PublicKey pub_key_to,
       const core::Amount& count,
       const core::PrivateKey& prv_key,
+      core::UnitHash* tx_hash,
+      std::shared_ptr<ambr::core::Unit>& unit_sended,
+      std::string* err);
+  bool SendContract(
+      const core::PrivateKey& prv_key,
+      core::SendUnit::DataType data_type,
+      const std::string& data,
       core::UnitHash* tx_hash,
       std::shared_ptr<ambr::core::Unit>& unit_sended,
       std::string* err);
