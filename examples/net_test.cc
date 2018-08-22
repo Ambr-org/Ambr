@@ -396,7 +396,7 @@ void ambr::net::NetManager::Impl::OnDisconnect(std::shared_ptr<Peer> peer){
 
 bool ambr::net::NetManager::Impl::OnReceiveNode(const char* p_buf, size_t len, CNode* p_node){
     CNetMessage netmsg(Params().MessageStart(), SER_NETWORK, INIT_PROTO_VERSION);
-
+#if 0
     while (len > 0) {
         int handled;
         if (false == netmsg.in_data){
@@ -722,6 +722,7 @@ bool ambr::net::NetManager::Impl::OnReceiveNode(const char* p_buf, size_t len, C
     else{
       //thread_pool_.schedule(boost::bind(on_receive_node_func_, msg, p_node));
     }
+#endif
     return true;
 }
 
