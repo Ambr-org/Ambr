@@ -510,7 +510,9 @@ void CNode::CloseSocketDisconnect()
     if (hSocket != INVALID_SOCKET)
     {
        // LogPrint(BCLog::NET, "disconnecting peer=%d\n", id);
-        CloseSocket(hSocket);
+        if(CloseSocket(hSocket) && OnDisConnectNodeFunc){
+            OnDisConnectNodeFunc(this);
+        }
     }
 }
 
@@ -805,6 +807,10 @@ bool CNode::ReceiveMsgBytes(const char *pch, unsigned int nBytes, bool& complete
     }
 
     return true;
+}
+
+void CNode::SetDisConnectNodeFunc(const std::function<void(CNode*)>& p_DisConnectNodeFunc){
+  OnDisConnectNodeFunc = p_DisConnectNodeFunc;
 }
 
 void CNode::SetReceiveNodeFunc(const std::function<bool(const CNetMessage&, CNode*)>& p_ReceiveNodeFunc){
@@ -2010,10 +2016,6 @@ void CConnman::SetAcceptFunc(const std::function<void(CNode*)>& func){
 
 void CConnman::SetConnectFunc(const std::function<void(CNode*)>& func){
   OnConnectFunc = func;
-}
-
-void CConnman::SetDisconnectFunc(const std::function<void(CNode*)>& func){
-  OnDisconnectFunc = func;
 }
 
 // if successful, this moves the passed grant to the constructed node
