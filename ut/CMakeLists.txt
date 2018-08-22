@@ -90,7 +90,6 @@ add_executable(test_case
     ${DIR_CRYPTOPP_SRCS}
     ${DIR_P2P_SRCS}
     ${CUR_DIR}/libs/ed25519-donna/ed25519.c
-    ${CUR_DIR}/examples/net_test.cc
     ${DIR_UT_SRCS})
 
 
