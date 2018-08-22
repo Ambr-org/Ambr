@@ -125,7 +125,6 @@ bool ambr::net::NetManager::Impl::init(const NetManagerConfig &config){
 
   SetAcceptFunc(std::bind(&ambr::net::NetManager::Impl::OnAcceptNode, this, std::placeholders::_1));
   SetConnectFunc(std::bind(&ambr::net::NetManager::Impl::OnConnectNode, this, std::placeholders::_1));
-  SetDisconnectFunc(std::bind(&ambr::net::NetManager::Impl::OnDisconnectNode, this, std::placeholders::_1));
 
   try{
     SelectParams(gArgs.GetChainName(), config.listen_port_);
