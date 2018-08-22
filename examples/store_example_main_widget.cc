@@ -19,8 +19,8 @@ static uint32_t unit_width = 50;
 StoreExampleMainWidget::StoreExampleMainWidget(std::shared_ptr<ambr::store::StoreManager> store_manager, std::shared_ptr<ambr::syn::SynManager> syn_manager, QWidget *parent) :
   QWidget(parent),
   ui(new Ui::StoreExampleMainWidget),max_chain_length_for_draw_(10),
-  store_manager_(store_manager),
-  p_syn_manager(syn_manager)
+  p_syn_manager(syn_manager),
+  store_manager_(store_manager)
 {
   assert(store_manager_);
   ui->setupUi(this);
@@ -45,7 +45,6 @@ StoreExampleMainWidget::StoreExampleMainWidget(std::shared_ptr<ambr::store::Stor
   test_pri_key_list_.push_back("C38359CD5BD9C5FC65482FFE0E016B2E5E046F7A99E0EFDBCCDF23D2D12C7A3E");
   test_pri_key_list_.push_back("6EDB77B51291C19D82B1105A507008D10B5A0C5CCB5459129D64A3AD8D8AEEFC");
   ui->cmbTestPrivateKey->insertItems(0, test_pri_key_list_);
-  qRegisterMetaType<std::shared_ptr<ambr::net::Peer>>("std::shared_ptr<ambr::net::Peer>");
 
   connect(this, SIGNAL(sgAccept(CNode*)), this, SLOT(onDealAccept(CNode*)));
   connect(this, SIGNAL(sgConnect(CNode*)), this, SLOT(onDealConnect(CNode*)));
@@ -348,18 +347,6 @@ void StoreExampleMainWidget::OnConnectNode(CNode* p_node){
 
 void StoreExampleMainWidget::OnDisconnectedNode(CNode* p_node){
   emit sgDisconnected(p_node);
-}
-
-void StoreExampleMainWidget::OnConnect(std::shared_ptr<ambr::net::Peer> peer){
-  emit DoConnect(peer);
-}
-
-void StoreExampleMainWidget::OnAccept(std::shared_ptr<ambr::net::Peer> peer){
-  emit DoAccept(peer);
-}
-
-void StoreExampleMainWidget::OnDisconnected(std::shared_ptr<ambr::net::Peer> peer){
-  emit DoDisconnected(peer);
 }
 
 void StoreExampleMainWidget::CheckValidatorUnit(){
@@ -695,7 +682,6 @@ void StoreExampleMainWidget::on_btnTranslateReceive_clicked(){
   std::shared_ptr<ambr::core::Unit> unit_out;
   if(store_manager_->ReceiveFromUnitHash(from, pri_key, &hash, unit_out, &err)){
     {//boardcast to net
-      std::shared_ptr<ambr::net::NetMessage> msg = std::make_shared<ambr::net::NetMessage>();
       std::vector<uint8_t> buf = unit_out->SerializeByte();
       std::string str_data;
       str_data.assign(buf.begin(), buf.end());
@@ -990,35 +976,6 @@ void StoreExampleMainWidget::on_btnPTSimValidateSpeed_clicked(){
   QString str = ui->edtPTSimValidateSpeed->text();
   uint32_t num = str.toUInt()>10000?10000:str.toInt();
   store_manager_->SetValidateUnitInterval(10001/(num+1));
-}
-
-void StoreExampleMainWidget::DealConnect(std::shared_ptr<ambr::net::Peer> peer){
-  ui->tbP2PConnectionOut->insertRow(0);
-  ui->tbP2PConnectionOut->setItem(0,0, new QTableWidgetItem(peer->end_point_.address().to_string().c_str()));
-  ui->tbP2PConnectionOut->setItem(0,1, new QTableWidgetItem(QString::number(peer->end_point_.port())));
-}
-
-void StoreExampleMainWidget::DealAccept(std::shared_ptr<ambr::net::Peer> peer){
-  ui->tbP2PConnectionIn->insertRow(0);
-  ui->tbP2PConnectionIn->setItem(0,0, new QTableWidgetItem(peer->end_point_.address().to_string().c_str()));
-  ui->tbP2PConnectionIn->setItem(0,1, new QTableWidgetItem(QString::number(peer->end_point_.port())));
-}
-
-void StoreExampleMainWidget::DealDisconnected(std::shared_ptr<ambr::net::Peer> peer){
-  for(int i = 0; i < ui->tbP2PConnectionOut->rowCount(); i++){
-    if(ui->tbP2PConnectionOut->item(i, 0)->text().toStdString() == peer->end_point_.address().to_string()
-       && ui->tbP2PConnectionOut->item(i, 1)->text().toInt() == peer->end_point_.port()){
-      ui->tbP2PConnectionOut->removeRow(i);
-      break;
-    }
-  }
-  for(int i = 0; i < ui->tbP2PConnectionIn->rowCount(); i++){
-    if(ui->tbP2PConnectionIn->item(i, 0)->text().toStdString() == peer->end_point_.address().to_string()
-       && ui->tbP2PConnectionIn->item(i, 1)->text().toInt() == peer->end_point_.port()){
-      ui->tbP2PConnectionIn->removeRow(i);
-      break;
-    }
-  }
 }
 
 void StoreExampleMainWidget::OnDrawTimerOut()

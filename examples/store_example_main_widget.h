@@ -38,9 +38,6 @@ signals:
   void sgAccept(CNode*);
   void sgConnect(CNode*);
   void sgDisconnected(CNode*);
-  void DoConnect(std::shared_ptr<ambr::net::Peer> peer);
-  void DoAccept(std::shared_ptr<ambr::net::Peer> peer);
-  void DoDisconnected(std::shared_ptr<ambr::net::Peer> peer);
 private slots:
   void on_btnPTRepaint_clicked();
   void on_btnTranslateReceive_clicked();
@@ -106,9 +103,6 @@ private slots:
   void onDealAccept(CNode*);
   void onDealConnect(CNode*);
   void onDealDisconnected(CNode*);
-  void DealConnect(std::shared_ptr<ambr::net::Peer> peer);
-  void DealAccept(std::shared_ptr<ambr::net::Peer> peer);
-  void DealDisconnected(std::shared_ptr<ambr::net::Peer> peer);
   void OnDrawTimerOut();
 protected:
   bool eventFilter(QObject *target, QEvent *event);
@@ -128,9 +122,6 @@ private:
   void OnAcceptNode(CNode* p_node);
   void OnConnectNode(CNode* p_node);
   void OnDisconnectedNode(CNode* p_node);
-  void OnConnect(std::shared_ptr<ambr::net::Peer> peer);
-  void OnAccept(std::shared_ptr<ambr::net::Peer> peer);
-  void OnDisconnected(std::shared_ptr<ambr::net::Peer> peer);
 private:
   //check ValidatorUnit
   void CheckValidatorUnit();
