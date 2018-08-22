@@ -30,7 +30,6 @@ bool ambr::syn::Impl::Init(const SynManagerConfig &config){
   config_ = std::move(config);
   SetAcceptFunc(std::bind(&ambr::syn::Impl::OnAcceptNode, this, std::placeholders::_1));
   SetConnectFunc(std::bind(&ambr::syn::Impl::OnConnectNode, this, std::placeholders::_1));
-  SetDisconnectFunc(std::bind(&ambr::syn::Impl::OnDisconnectNode, this, std::placeholders::_1));
 
   try{
     SelectParams(gArgs.GetChainName(), config.listen_port_);
@@ -159,25 +158,29 @@ void ambr::syn::Impl::WaitForShutdown(){
 }
 
 void ambr::syn::Impl::OnAcceptNode(CNode* p_node){
-  if(on_accept_node_func_){
+  if(p_node && on_accept_node_func_){
     on_accept_node_func_(p_node);
     list_in_nodes_wait_.remove(p_node);
     list_in_nodes_wait_.push_back(p_node);
+    p_node->SetDisConnectNodeFunc(std::bind(&ambr::syn::Impl::OnDisConnectNode, this, std::placeholders::_1));
     p_node->SetReceiveNodeFunc(std::bind(&ambr::syn::Impl::OnReceiveNode, this, std::placeholders::_1, std::placeholders::_2));
   }
 }
 
 void ambr::syn::Impl::OnConnectNode(CNode* p_node){
-  if(on_connect_node_func_){
+  if(p_node && on_connect_node_func_){
     on_connect_node_func_(p_node);
     list_out_nodes_wait_.remove(p_node);
     list_out_nodes_wait_.push_back(p_node);
+    p_node->SetDisConnectNodeFunc(std::bind(&ambr::syn::Impl::OnDisConnectNode, this, std::placeholders::_1));
     p_node->SetReceiveNodeFunc(std::bind(&ambr::syn::Impl::OnReceiveNode, this, std::placeholders::_1, std::placeholders::_2));
   }
 }
 
-void ambr::syn::Impl::OnDisconnectNode(CNode* p_node){
-    if(on_disconnect_node_func_){
+void ambr::syn::Impl::OnDisConnectNode(CNode* p_node){
+    if(p_node && on_disconnect_node_func_){
+      list_in_nodes_.remove(p_node);
+      list_out_nodes_.remove(p_node);
       on_disconnect_node_func_(p_node);
     }
 }
@@ -192,7 +195,7 @@ void ambr::syn::Impl::UnSerialize(std::vector<uint8_t>& vec_bytes){
     }
   }
   else if(std::numeric_limits<unsigned short>::max() + 3 >= data_length){
-    uint16_t msg_size = vec_bytes[2] * pow(2, 8) + vec_bytes[1];
+    uint16_t msg_size = vec_bytes[2] * 256 + vec_bytes[1];
     if(data_length - 3 == msg_size){
       auto it = vec_bytes.begin();
       for(int i = 0; i < 3; ++i){
@@ -201,7 +204,7 @@ void ambr::syn::Impl::UnSerialize(std::vector<uint8_t>& vec_bytes){
     }
   }
   else if(std::numeric_limits<unsigned int>::max() + 5 >= data_length){
-    uint32_t msg_size = vec_bytes[4] * pow(2, 24) + vec_bytes[3] * pow(2, 16) + vec_bytes[2] * pow(2, 8) + vec_bytes[1];
+    uint32_t msg_size = vec_bytes[4] * 16777216 + vec_bytes[3] * 65536 + vec_bytes[2] * 256 + vec_bytes[1];
     if(data_length - 3 == msg_size){
       auto it = vec_bytes.begin();
       for(int i = 0; i < 5; ++i){
