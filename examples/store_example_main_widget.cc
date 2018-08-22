@@ -934,16 +934,20 @@ void StoreExampleMainWidget::onDealConnect(CNode* p_node){
 }
 
 void StoreExampleMainWidget::onDealDisconnected(CNode* p_node){
-    for(int i = 0; i < ui->tbP2PConnectionOut->rowCount(); i++){
-      if(ui->tbP2PConnectionOut->item(i, 0)->text().toStdString() == p_node->GetAddrLocal().ToStringIP()
-         && ui->tbP2PConnectionOut->item(i, 1)->text().toInt() == p_node->GetAddrLocal().GetPort()){
+    QStringList&& list_addr = QString(p_node->GetAddrName().c_str()).split(':');
+    int out_count = ui->tbP2PConnectionOut->rowCount();
+    for(int i = 0; i < out_count; i++){
+      if(ui->tbP2PConnectionOut->item(i, 0)->text() == list_addr.at(0)
+         && ui->tbP2PConnectionOut->item(i, 1)->text() == list_addr.at(1)){
         ui->tbP2PConnectionOut->removeRow(i);
         break;
       }
     }
-    for(int i = 0; i < ui->tbP2PConnectionIn->rowCount(); i++){
-      if(ui->tbP2PConnectionIn->item(i, 0)->text().toStdString() == p_node->GetAddrLocal().ToStringIP()
-         && ui->tbP2PConnectionIn->item(i, 1)->text().toInt() == p_node->GetAddrLocal().GetPort()){
+
+    int in_count = ui->tbP2PConnectionOut->rowCount();
+    for(int i = 0; i < in_count; i++){
+      if(ui->tbP2PConnectionIn->item(i, 0)->text() == list_addr.at(0)
+         && ui->tbP2PConnectionIn->item(i, 1)->text() == list_addr.at(1)){
         ui->tbP2PConnectionIn->removeRow(i);
         break;
       }
