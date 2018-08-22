@@ -8,7 +8,7 @@
 #include <QApplication>
 #include <glog/logging.h>
 #include "store_example_main_widget.h"
-#include "net_test.h"
+
 
 
 int main(int argc, char**argv){

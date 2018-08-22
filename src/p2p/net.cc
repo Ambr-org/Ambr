@@ -510,7 +510,9 @@ void CNode::CloseSocketDisconnect()
     if (hSocket != INVALID_SOCKET)
     {
        // LogPrint(BCLog::NET, "disconnecting peer=%d\n", id);
-        CloseSocket(hSocket);
+        if(CloseSocket(hSocket) && OnDisConnectNodeFunc){
+            OnDisConnectNodeFunc(this);
+        }
     }
 }
 
@@ -758,6 +760,7 @@ bool CNode::ReceiveMsgBytes(const char *pch, unsigned int nBytes, bool& complete
     LOCK(cs_vRecv);
     nLastRecv = nTimeMicros / 1000000;
     nRecvBytes += nBytes;
+
     while (nBytes > 0) {
 
         // get current incomplete message, or create a new one
@@ -797,10 +800,21 @@ bool CNode::ReceiveMsgBytes(const char *pch, unsigned int nBytes, bool& complete
 
             msg.nTime = nTimeMicros;
             complete = true;
+            if(OnReceiveNodeFunc){
+              OnReceiveNodeFunc(msg, this);
+            }
         }
     }
 
     return true;
+}
+
+void CNode::SetDisConnectNodeFunc(const std::function<void(CNode*)>& p_DisConnectNodeFunc){
+  OnDisConnectNodeFunc = p_DisConnectNodeFunc;
+}
+
+void CNode::SetReceiveNodeFunc(const std::function<bool(const CNetMessage&, CNode*)>& p_ReceiveNodeFunc){
+  OnReceiveNodeFunc = p_ReceiveNodeFunc;
 }
 
 void CNode::SetSendVersion(int nVersionIn)
@@ -1379,9 +1393,6 @@ void CConnman::ThreadSocketHandler()
                 if (nBytes > 0)
                 {
                     bool notify = false;
-                    if(false == OnReceiveMessageFunc(pchBuf, nBytes, pnode)){
-                      pnode->CloseSocketDisconnect();
-                    }
                     if (!pnode->ReceiveMsgBytes(pchBuf, nBytes, notify))
                         pnode->CloseSocketDisconnect();
                     RecordBytesRecv(nBytes);
@@ -2005,14 +2016,6 @@ void CConnman::SetAcceptFunc(const std::function<void(CNode*)>& func){
 
 void CConnman::SetConnectFunc(const std::function<void(CNode*)>& func){
   OnConnectFunc = func;
-}
-
-void CConnman::SetDisconnectFunc(const std::function<void(CNode*)>& func){
-  OnDisconnectFunc = func;
-}
-
-void CConnman::SetReceiveMessageFunc(const std::function<bool(const char*, size_t, CNode*)>& func){
-  OnReceiveMessageFunc = func;
 }
 
 // if successful, this moves the passed grant to the constructed node

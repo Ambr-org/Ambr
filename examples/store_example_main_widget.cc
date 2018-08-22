@@ -8,7 +8,6 @@
 #include <unordered_map>
 #include <store/unit_store.h>
 
-#include "net_test.h"
 #include "netmessagemaker.h"
 #include <boost/thread.hpp>
 
@@ -770,6 +769,10 @@ void StoreExampleMainWidget::on_btnAddSV_clicked(){
 
   std::string str_err;
   if(store_manager_->PublishValidator(pri_key, &tx_hash, unit, &str_err)){
+    std::vector<uint8_t>&& buf = unit->SerializeByte();
+    std::string str_data;
+    str_data.assign(buf.begin(), buf.end());
+    p_syn_manager->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
     ui->edtSVLOG->setPlainText(("Success:"+unit->SerializeJson()).c_str());
   }else{
     ui->edtSVLOG->setPlainText(("Faild:"+str_err).c_str());
@@ -927,14 +930,16 @@ BTN_STOP_TRANS_FUNC(6)
 
 void StoreExampleMainWidget::onDealAccept(CNode* p_node){
     ui->tbP2PConnectionIn->insertRow(0);
-    ui->tbP2PConnectionIn->setItem(0, 0, new QTableWidgetItem(QString(p_node->GetAddrName().c_str()).split(':').at(0)));
-    ui->tbP2PConnectionIn->setItem(0, 1, new QTableWidgetItem(QString(p_node->GetAddrName().c_str()).split(':').at(1)));
+    QStringList&& list_addr = QString(p_node->GetAddrName().c_str()).split(':');
+    ui->tbP2PConnectionIn->setItem(0, 0, new QTableWidgetItem(list_addr.at(0)));
+    ui->tbP2PConnectionIn->setItem(0, 1, new QTableWidgetItem(list_addr.at(1)));
 }
 
 void StoreExampleMainWidget::onDealConnect(CNode* p_node){
     ui->tbP2PConnectionOut->insertRow(0);
-    ui->tbP2PConnectionOut->setItem(0, 0, new QTableWidgetItem(QString(p_node->GetAddrName().c_str()).split(':').at(0)));
-    ui->tbP2PConnectionOut->setItem(0, 1, new QTableWidgetItem(QString(p_node->GetAddrName().c_str()).split(':').at(1)));
+    QStringList&& list_addr = QString(p_node->GetAddrName().c_str()).split(':');
+    ui->tbP2PConnectionOut->setItem(0, 0, new QTableWidgetItem(list_addr.at(0)));
+    ui->tbP2PConnectionOut->setItem(0, 1, new QTableWidgetItem(list_addr.at(1)));
 }
 
 void StoreExampleMainWidget::onDealDisconnected(CNode* p_node){
@@ -1143,8 +1148,7 @@ void StoreExampleMainWidget::on_btnPVValidatorUnit_clicked(){
   unit->SignatureAndFill(pri_key);
   std::string str_err;
   if(store_manager_->AddValidateUnit(unit, &str_err)){
-    std::shared_ptr<ambr::net::NetMessage> msg = std::make_shared<ambr::net::NetMessage>();
-    std::vector<uint8_t> buf = unit->SerializeByte();
+    std::vector<uint8_t>&& buf = unit->SerializeByte();
     std::string str_data;
     str_data.assign(buf.begin(), buf.end());
     p_syn_manager->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);

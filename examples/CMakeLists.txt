@@ -18,6 +18,7 @@ aux_source_directory(${CUR_DIR}/src DIR_SRC_SRCS)
 aux_source_directory(${CUR_DIR}/src/core DIR_CORE_SRCS)
 aux_source_directory(${CUR_DIR}/src/crypto DIR_CRYPTO_SRCS)
 aux_source_directory(${CUR_DIR}/src/net DIR_NET_SRCS)
+aux_source_directory(${CUR_DIR}/src/synchronization DIR_SYN_SRCS)
 aux_source_directory(${CUR_DIR}/src/server DIR_SERVER_SRCS)
 aux_source_directory(${CUR_DIR}/src/store DIR_STORE_SRCS)
 aux_source_directory(${CUR_DIR}/src/utils DIR_UTILS_SRCS)
@@ -40,6 +41,7 @@ set(CORE_DIR ${CUR_DIR}/src/core)
 set(ROCKSDB_DIR ${CUR_DIR}/libs/rocksdb)
 set(GLOG_DIR ${CUR_DIR}/libs/glog)
 set(P2P_DIR ${CUR_DIR}/src/p2p)
+set(SYN_DIR ${CUR_DIR}/src/synchronizatio)
 
 include_directories(${MAIN_DIR})
 include_directories(${CROW_DIR}/include)
@@ -49,6 +51,7 @@ include_directories(${ARCH_DIR})
 include_directories(${ROCKSDB_DIR}/include)
 include_directories(${GLOG_DIR}/src)
 include_directories(${P2P_DIR})
+include_directories(${SYN_DIR})
 
 link_directories(${ROCKSDB_DIR})
 link_directories(${GLOG_DIR}/.libs)
@@ -90,9 +93,9 @@ set(CMAKE_CXX_FLAGS "-Wall")
     ${DIR_BLAKE2_SRCS}
     ${DIR_CRYPTOPP_SRCS}
     ${DIR_P2P_SRCS}
+    ${DIR_SYN_SRCS}
     ${CUR_DIR}/libs/ed25519-donna/ed25519.c
     ${CUR_DIR}/examples/unit_store.cc
-    ${CUR_DIR}/examples/net_test.cc
     ${DIR_SYNC}
     ${QT_SRC}
     ${MOC}

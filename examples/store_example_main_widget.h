@@ -11,7 +11,6 @@
 #include <core/unit.h>
 
 #include "net.h"
-#include "net_test.h"
 #include "utils/validator_auto.h"
 #include "synchronization/syn_manager.h"
 

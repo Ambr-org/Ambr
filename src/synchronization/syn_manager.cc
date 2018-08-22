@@ -18,8 +18,9 @@
 #define FixedRate 70
 #define MaxConnections 12
 
-ambr::syn::Impl::Impl(Ptr_StoreManager store_manager)
+ambr::syn::Impl::Impl(Ptr_StoreManager p_store_manager)
   : exit_(false)
+  , p_storemanager_(p_store_manager)
   , p_scheduler(std::make_shared<CScheduler>())
   , CConnman(ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max()), ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max())){
 
@@ -30,7 +31,6 @@ bool ambr::syn::Impl::Init(const SynManagerConfig &config){
   SetAcceptFunc(std::bind(&ambr::syn::Impl::OnAcceptNode, this, std::placeholders::_1));
   SetConnectFunc(std::bind(&ambr::syn::Impl::OnConnectNode, this, std::placeholders::_1));
   SetDisconnectFunc(std::bind(&ambr::syn::Impl::OnDisconnectNode, this, std::placeholders::_1));
-  SetReceiveMessageFunc(std::bind(&ambr::syn::Impl::OnReceiveNode, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
   try{
     SelectParams(gArgs.GetChainName(), config.listen_port_);
@@ -108,13 +108,9 @@ bool ambr::syn::Impl::Init(const SynManagerConfig &config){
 }
 
 void ambr::syn::Impl::RemoveNode(CNode* p_node, uint32_t second){
-    p_node->CloseSocketDisconnect();
-    std::vector<CNode*>& vec_nodes = GetVectorNodes();
-    for(auto it = vec_nodes.begin(); it < vec_nodes.end(); ++it){
-      if(p_node == *it){
-        vec_nodes.erase(it);
-      }
-    }
+  p_node->CloseSocketDisconnect();
+  list_in_nodes_.remove(p_node);
+  list_out_nodes_.remove(p_node);
 }
 
 void ambr::syn::Impl::SendMessage(CSerializedNetMsg&& msg, CNode* p_node){
@@ -136,8 +132,12 @@ void ambr::syn::Impl::SetOnDisconnect(const std::function<void(CNode*)>& func){
 }
 
 void ambr::syn::Impl::BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node){
-  std::vector<CNode*>& vec_nodes = GetVectorNodes();
-  for(auto it:vec_nodes){
+  for(auto it:list_in_nodes_){
+    if(it != p_node){
+      PushMessage(it, std::forward<CSerializedNetMsg>(msg));
+    }
+  }
+  for(auto it:list_out_nodes_){
     if(it != p_node){
       PushMessage(it, std::forward<CSerializedNetMsg>(msg));
     }
@@ -161,12 +161,18 @@ void ambr::syn::Impl::WaitForShutdown(){
 void ambr::syn::Impl::OnAcceptNode(CNode* p_node){
   if(on_accept_node_func_){
     on_accept_node_func_(p_node);
+    list_in_nodes_wait_.remove(p_node);
+    list_in_nodes_wait_.push_back(p_node);
+    p_node->SetReceiveNodeFunc(std::bind(&ambr::syn::Impl::OnReceiveNode, this, std::placeholders::_1, std::placeholders::_2));
   }
 }
 
 void ambr::syn::Impl::OnConnectNode(CNode* p_node){
   if(on_connect_node_func_){
     on_connect_node_func_(p_node);
+    list_out_nodes_wait_.remove(p_node);
+    list_out_nodes_wait_.push_back(p_node);
+    p_node->SetReceiveNodeFunc(std::bind(&ambr::syn::Impl::OnReceiveNode, this, std::placeholders::_1, std::placeholders::_2));
   }
 }
 
@@ -176,34 +182,36 @@ void ambr::syn::Impl::OnDisconnectNode(CNode* p_node){
     }
 }
 
-bool ambr::syn::Impl::OnReceiveNode(const char* p_buf, size_t len, CNode* p_node){
-    CNetMessage netmsg(Params().MessageStart(), SER_NETWORK, INIT_PROTO_VERSION);
-
-    while(len > 0){
-      int pos;
-      if(false == netmsg.in_data){
-        pos = netmsg.readHeader(p_buf, len);
-      }
-      else{
-        pos = netmsg.readData(++p_buf, len);
-      }
-
-      if (pos < 0){
-        return true;
-      }
-
-      if(netmsg.in_data && netmsg.hdr.nMessageSize > MAX_PROTOCOL_MESSAGE_LENGTH){
-        LOG(INFO) << "Oversized message from node = " << p_node->GetAddrName() << ", disconnecting";
-        return true;
-      }
-
-      p_buf += pos;
-      len -= pos;
-      if(netmsg.complete()){
-        break;
+void ambr::syn::Impl::UnSerialize(std::vector<uint8_t>& vec_bytes){
+  size_t data_length = vec_bytes.size();
+  if(253 >= data_length && 0 < data_length){
+    uint8_t msg_size = vec_bytes[0];
+    if(data_length - 1 == msg_size){
+      auto it = vec_bytes.begin();
+      vec_bytes.erase(it);
+    }
+  }
+  else if(std::numeric_limits<unsigned short>::max() + 3 >= data_length){
+    uint16_t msg_size = vec_bytes[2] * pow(2, 8) + vec_bytes[1];
+    if(data_length - 3 == msg_size){
+      auto it = vec_bytes.begin();
+      for(int i = 0; i < 3; ++i){
+        vec_bytes.erase(it);
       }
     }
+  }
+  else if(std::numeric_limits<unsigned int>::max() + 5 >= data_length){
+    uint32_t msg_size = vec_bytes[4] * pow(2, 24) + vec_bytes[3] * pow(2, 16) + vec_bytes[2] * pow(2, 8) + vec_bytes[1];
+    if(data_length - 3 == msg_size){
+      auto it = vec_bytes.begin();
+      for(int i = 0; i < 5; ++i){
+        vec_bytes.erase(it);
+      }
+    }
+  }
+}
 
+bool ambr::syn::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode* p_node){
     std::string&& tmp = netmsg.hdr.GetCommand();
     if(NetMsgType::VERSION == tmp){
       /*if(0x00000001 != msg->version_){
@@ -245,23 +253,6 @@ bool ambr::syn::Impl::OnReceiveNode(const char* p_buf, size_t len, CNode* p_node
               }
             }
         }
-
-        if(is_wait){
-          return false;
-        }
-        for(auto& it : list_in_nodes_){
-          if(it == p_node){
-            RemoveNode(p_node, 0);
-            return true;
-          }
-        }
-
-        for(auto& it : list_out_nodes_){
-          if(it == p_node){
-            RemoveNode(p_node, 0);
-            return true;
-          }
-        }
       }
     }
     else if(NetMsgType::ADDR == tmp){
@@ -270,6 +261,8 @@ bool ambr::syn::Impl::OnReceiveNode(const char* p_buf, size_t len, CNode* p_node
     else if(NetMsgType::UNIT == tmp){
       std::vector<uint8_t> buf;
       buf.assign(netmsg.vRecv.begin(), netmsg.vRecv.end());
+
+      UnSerialize(buf);
       Ptr_Unit unit = ambr::core::Unit::CreateUnitByByte(buf);
       if(unit){
         if(!unit->prev_unit().is_zero() && nullptr == p_storemanager_->GetUnit(unit->prev_unit()) && nullptr == p_storemanager_->GetValidateUnit(unit->prev_unit())){
@@ -282,7 +275,9 @@ bool ambr::syn::Impl::OnReceiveNode(const char* p_buf, size_t len, CNode* p_node
             p_storemanager_->GetLastUnitHashByPubKey(unit->public_key(), hash);
           }
           std::string str_data = hash.encode_to_hex() + ":" + unit->hash().encode_to_hex();
-          BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::SECTION, str_data), p_node);
+
+          buf.assign(str_data.begin(), str_data.end());
+          SendMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::SECTION, buf), p_node);
         }
         else if(ambr::core::UnitType::send == unit->type()){
           LOG(INFO) << "Get send unit:" << unit->SerializeJson();
@@ -364,7 +359,7 @@ bool ambr::syn::Impl::OnReceiveNode(const char* p_buf, size_t len, CNode* p_node
     }
     else if(NetMsgType::SECTION == tmp){
       std::string strTmp;
-      strTmp.assign(netmsg.vRecv.begin(), netmsg.vRecv.end());
+      strTmp.assign(netmsg.vRecv.begin() + 1, netmsg.vRecv.end());
       LOG(INFO)<<"Get New Section:"<< strTmp;
       ambr::core::UnitHash firsthash, lasthash;
       size_t num_pos = strTmp.find(':');
@@ -413,13 +408,15 @@ bool ambr::syn::Impl::OnReceiveNode(const char* p_buf, size_t len, CNode* p_node
           std::vector<uint8_t>&& buf = it->SerializeByte();
           std::string str_data;
           str_data.assign(buf.begin(), buf.end());
-          BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), p_node);
+          SendMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::SECTIONUNIT, str_data), p_node);
         }
       }
     }
     else if(NetMsgType::SECTIONUNIT == tmp){
         std::vector<uint8_t> buf;
         buf.assign(netmsg.vRecv.begin(), netmsg.vRecv.end());
+
+        UnSerialize(buf);
         Ptr_Unit unit = ambr::core::Unit::CreateUnitByByte(buf);
         if(unit){
           switch (unit->type()) {
@@ -509,29 +506,29 @@ bool ambr::syn::Impl::OnReceiveNode(const char* p_buf, size_t len, CNode* p_node
 }
 
 ambr::syn::SynManager::SynManager(Ptr_StoreManager p_storemanager){
-  impl_ = new Impl(p_storemanager);
+  p_impl_ = new Impl(p_storemanager);
 }
 
 bool ambr::syn::SynManager::Init(const ambr::syn::SynManagerConfig &config){
-  return impl_->Init(config);
+  return p_impl_->Init(config);
 }
 
 void ambr::syn::SynManager::RemovePeer(CNode* p_node, uint32_t second){
-  impl_->RemoveNode(p_node, second);
+  p_impl_->RemoveNode(p_node, second);
 }
 
 void ambr::syn::SynManager::BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node){
-  impl_->BoardcastMessage(std::forward<CSerializedNetMsg>(msg), p_node);
+  p_impl_->BoardcastMessage(std::forward<CSerializedNetMsg>(msg), p_node);
 }
 
 void ambr::syn::SynManager::SetOnAcceptNode(const std::function<void(CNode*)>& func){
-  impl_->SetOnAccept(func);
+  p_impl_->SetOnAccept(func);
 }
 
 void ambr::syn::SynManager::SetOnConnectedNode(const std::function<void(CNode*)>& func){
-  impl_->SetOnConnected(func);
+  p_impl_->SetOnConnected(func);
 }
 
 void ambr::syn::SynManager::SetOnDisconnectNode(const std::function<void(CNode*)>& func){
-  impl_->SetOnDisconnect(func);
+  p_impl_->SetOnDisconnect(func);
 }
