@@ -119,7 +119,7 @@ private:
   void WaitForShutdown();
   void OnAcceptNode(CNode* p_node);
   void OnConnectNode(CNode* p_node);
-  void OnDisconnectNode(CNode* p_node);
+  void OnDisConnectNode(CNode* p_node);
   void UnSerialize(std::vector<uint8_t>& vec_bytes);
   bool OnReceiveNode(const CNetMessage& netmsg, CNode* p_node);
 
