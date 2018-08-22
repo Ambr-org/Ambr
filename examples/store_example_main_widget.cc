@@ -636,11 +636,21 @@ void StoreExampleMainWidget::on_btnTranslateSend_clicked(){
   }
   ambr::core::Amount amount;
   amount.set_data(ui->edtTSAmount->text().toLongLong());
+  ambr::core::SendUnit::DataType data_type;
+  if(ui->rdoTSNormal->isChecked()){
+    data_type = ambr::core::SendUnit::Normal;
+  }else if(ui->rdoTSCreateContract->isChecked()){
+    data_type = ambr::core::SendUnit::CreateContract;
+  }else if(ui->rdoTSRunContract->isChecked()){
+    data_type = ambr::core::SendUnit::RunContract;
+  }
+  QString addition = ui->edtTSAddtion->toPlainText();
+
   std::string err;
   QString str;
   ambr::core::UnitHash hash;
   std::shared_ptr<ambr::core::Unit> unit_out;
-  if(store_manager_->SendToAddress(dest, amount, pri_key, &hash, unit_out, &err)){
+  if(store_manager_->SendToAddressWithContract(dest, amount, pri_key, data_type, addition.toStdString(), &hash, unit_out, &err)){
     {//boardcast to net
       std::vector<uint8_t> buf = unit_out->SerializeByte();
       std::string str_data;

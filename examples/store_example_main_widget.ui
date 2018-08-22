@@ -272,7 +272,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
    <item>
     <widget class="QTabWidget" name="tabMain">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab_7">
       <attribute name="title">
@@ -519,7 +519,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
              <item>
               <widget class="QTabWidget" name="tabDebugDown">
                <property name="currentIndex">
-                <number>0</number>
+                <number>2</number>
                </property>
                <widget class="QWidget" name="tab_4">
                 <attribute name="title">
@@ -686,65 +686,20 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                     </layout>
                    </item>
                    <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_9">
-                     <item>
-                      <widget class="QWidget" name="widget_7" native="true">
-                       <layout class="QHBoxLayout" name="horizontalLayout_24">
-                        <item>
-                         <widget class="QRadioButton" name="radioButton_9">
-                          <property name="text">
-                           <string>发送交易</string>
-                          </property>
-                          <property name="checked">
-                           <bool>true</bool>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QRadioButton" name="radioButton_10">
-                          <property name="text">
-                           <string>接收交易</string>
-                          </property>
-                          <property name="checked">
-                           <bool>false</bool>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QRadioButton" name="radioButton_11">
-                          <property name="text">
-                           <string>提交保证金</string>
-                          </property>
-                          <property name="checked">
-                           <bool>false</bool>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QRadioButton" name="radioButton_12">
-                          <property name="text">
-                           <string>取出保证金</string>
-                          </property>
-                          <property name="checked">
-                           <bool>false</bool>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item>
-                    <widget class="QStackedWidget" name="stackTranslate">
-                     <property name="currentIndex">
-                      <number>0</number>
+                    <widget class="QScrollArea" name="scrollArea_3">
+                     <property name="widgetResizable">
+                      <bool>true</bool>
                      </property>
-                     <widget class="QWidget" name="page">
-                      <layout class="QVBoxLayout" name="verticalLayout_8">
-                       <property name="spacing">
-                        <number>6</number>
-                       </property>
+                     <widget class="QWidget" name="scrollAreaWidgetContents_3">
+                      <property name="geometry">
+                       <rect>
+                        <x>0</x>
+                        <y>-141</y>
+                        <width>579</width>
+                        <height>525</height>
+                       </rect>
+                      </property>
+                      <layout class="QVBoxLayout" name="verticalLayout_48">
                        <property name="leftMargin">
                         <number>0</number>
                        </property>
@@ -758,414 +713,535 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="QWidget" name="widget" native="true">
-                         <layout class="QVBoxLayout" name="verticalLayout_7">
-                          <property name="spacing">
-                           <number>6</number>
-                          </property>
-                          <property name="leftMargin">
-                           <number>0</number>
-                          </property>
-                          <property name="topMargin">
-                           <number>0</number>
-                          </property>
-                          <property name="rightMargin">
-                           <number>0</number>
-                          </property>
-                          <property name="bottomMargin">
-                           <number>0</number>
-                          </property>
+                        <widget class="QWidget" name="widget_14" native="true">
+                         <layout class="QVBoxLayout" name="verticalLayout_47">
                           <item>
-                           <layout class="QHBoxLayout" name="horizontalLayout_2">
-                            <item>
-                             <widget class="QLabel" name="label_8">
-                              <property name="text">
-                               <string>私钥</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QLineEdit" name="edtTSPrivate"/>
-                            </item>
-                           </layout>
-                          </item>
-                          <item>
-                           <layout class="QHBoxLayout" name="horizontalLayout_13">
-                            <item>
-                             <widget class="QWidget" name="widget_8" native="true">
-                              <layout class="QHBoxLayout" name="horizontalLayout_25">
-                               <item>
-                                <widget class="QRadioButton" name="rdoTSPubKey">
-                                 <property name="text">
-                                  <string>公钥</string>
-                                 </property>
-                                 <property name="checked">
-                                  <bool>true</bool>
-                                 </property>
-                                </widget>
-                               </item>
-                               <item>
-                                <widget class="QRadioButton" name="rdoTSAddress">
-                                 <property name="text">
-                                  <string>地址</string>
-                                 </property>
-                                </widget>
-                               </item>
-                              </layout>
-                             </widget>
-                            </item>
-                           </layout>
-                          </item>
-                          <item>
-                           <layout class="QHBoxLayout" name="horizontalLayout_3">
-                            <item>
-                             <widget class="QLabel" name="label_9">
-                              <property name="text">
-                               <string>目的账户</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QLineEdit" name="edtTSDest"/>
-                            </item>
-                           </layout>
-                          </item>
-                          <item>
-                           <layout class="QHBoxLayout" name="horizontalLayout_8">
-                            <item>
-                             <widget class="QLabel" name="label_10">
-                              <property name="text">
-                               <string>数量</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QLineEdit" name="edtTSAmount"/>
-                            </item>
-                           </layout>
-                          </item>
-                          <item>
-                           <spacer name="verticalSpacer_2">
-                            <property name="orientation">
-                             <enum>Qt::Vertical</enum>
-                            </property>
-                            <property name="sizeHint" stdset="0">
-                             <size>
-                              <width>20</width>
-                              <height>40</height>
-                             </size>
-                            </property>
-                           </spacer>
-                          </item>
-                          <item>
-                           <widget class="QPushButton" name="btnTranslateSend">
-                            <property name="text">
-                             <string>发送</string>
-                            </property>
+                           <widget class="QWidget" name="widget_7" native="true">
+                            <layout class="QHBoxLayout" name="horizontalLayout_24">
+                             <item>
+                              <widget class="QRadioButton" name="radioButton_9">
+                               <property name="text">
+                                <string>发送交易</string>
+                               </property>
+                               <property name="checked">
+                                <bool>true</bool>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QRadioButton" name="radioButton_10">
+                               <property name="text">
+                                <string>接收交易</string>
+                               </property>
+                               <property name="checked">
+                                <bool>false</bool>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QRadioButton" name="radioButton_11">
+                               <property name="text">
+                                <string>提交保证金</string>
+                               </property>
+                               <property name="checked">
+                                <bool>false</bool>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QRadioButton" name="radioButton_12">
+                               <property name="text">
+                                <string>取出保证金</string>
+                               </property>
+                               <property name="checked">
+                                <bool>false</bool>
+                               </property>
+                              </widget>
+                             </item>
+                            </layout>
                            </widget>
                           </item>
                           <item>
-                           <widget class="QPlainTextEdit" name="edtTSPlainEdit"/>
-                          </item>
-                         </layout>
-                        </widget>
-                       </item>
-                      </layout>
-                     </widget>
-                     <widget class="QWidget" name="page_2">
-                      <layout class="QVBoxLayout" name="verticalLayout_11">
-                       <property name="spacing">
-                        <number>0</number>
-                       </property>
-                       <property name="leftMargin">
-                        <number>0</number>
-                       </property>
-                       <property name="topMargin">
-                        <number>0</number>
-                       </property>
-                       <property name="rightMargin">
-                        <number>0</number>
-                       </property>
-                       <property name="bottomMargin">
-                        <number>0</number>
-                       </property>
-                       <item>
-                        <widget class="QWidget" name="widget_2" native="true">
-                         <layout class="QVBoxLayout" name="verticalLayout_10">
-                          <property name="spacing">
-                           <number>6</number>
-                          </property>
-                          <property name="leftMargin">
-                           <number>0</number>
-                          </property>
-                          <property name="topMargin">
-                           <number>0</number>
-                          </property>
-                          <property name="rightMargin">
-                           <number>0</number>
-                          </property>
-                          <property name="bottomMargin">
-                           <number>0</number>
-                          </property>
-                          <item>
-                           <layout class="QHBoxLayout" name="horizontalLayout_10">
-                            <item>
-                             <widget class="QLabel" name="label_11">
-                              <property name="text">
-                               <string>私钥</string>
+                           <widget class="QStackedWidget" name="stackTranslate">
+                            <property name="currentIndex">
+                             <number>0</number>
+                            </property>
+                            <widget class="QWidget" name="page">
+                             <layout class="QVBoxLayout" name="verticalLayout_8">
+                              <property name="spacing">
+                               <number>6</number>
                               </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QLineEdit" name="edtTRPriKey"/>
-                            </item>
-                           </layout>
-                          </item>
-                          <item>
-                           <layout class="QHBoxLayout" name="horizontalLayout_14">
-                            <item>
-                             <widget class="QWidget" name="widget_9" native="true">
-                              <layout class="QHBoxLayout" name="horizontalLayout_26">
-                               <item>
-                                <widget class="QRadioButton" name="rdoTRPublic">
-                                 <property name="text">
-                                  <string>公钥</string>
+                              <property name="leftMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="topMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="rightMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="bottomMargin">
+                               <number>0</number>
+                              </property>
+                              <item>
+                               <widget class="QWidget" name="widget" native="true">
+                                <layout class="QVBoxLayout" name="verticalLayout_7">
+                                 <property name="spacing">
+                                  <number>1</number>
                                  </property>
-                                 <property name="checked">
-                                  <bool>true</bool>
+                                 <property name="leftMargin">
+                                  <number>0</number>
                                  </property>
-                                </widget>
-                               </item>
-                               <item>
-                                <widget class="QRadioButton" name="radioButton_16">
-                                 <property name="text">
-                                  <string>地址</string>
+                                 <property name="topMargin">
+                                  <number>0</number>
                                  </property>
-                                </widget>
-                               </item>
-                              </layout>
-                             </widget>
-                            </item>
-                           </layout>
-                          </item>
-                          <item>
-                           <layout class="QHBoxLayout" name="horizontalLayout_11">
-                            <item>
-                             <widget class="QLabel" name="label_12">
-                              <property name="text">
-                               <string>来源哈希</string>
+                                 <property name="rightMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="bottomMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <item>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_2">
+                                   <item>
+                                    <widget class="QLabel" name="label_8">
+                                     <property name="text">
+                                      <string>私钥</string>
+                                     </property>
+                                    </widget>
+                                   </item>
+                                   <item>
+                                    <widget class="QLineEdit" name="edtTSPrivate"/>
+                                   </item>
+                                  </layout>
+                                 </item>
+                                 <item>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_13">
+                                   <item>
+                                    <widget class="QWidget" name="widget_8" native="true">
+                                     <layout class="QHBoxLayout" name="horizontalLayout_25">
+                                      <item>
+                                       <widget class="QRadioButton" name="rdoTSPubKey">
+                                        <property name="text">
+                                         <string>公钥</string>
+                                        </property>
+                                        <property name="checked">
+                                         <bool>true</bool>
+                                        </property>
+                                       </widget>
+                                      </item>
+                                      <item>
+                                       <widget class="QRadioButton" name="rdoTSAddress">
+                                        <property name="text">
+                                         <string>地址</string>
+                                        </property>
+                                       </widget>
+                                      </item>
+                                     </layout>
+                                    </widget>
+                                   </item>
+                                  </layout>
+                                 </item>
+                                 <item>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_3">
+                                   <item>
+                                    <widget class="QLabel" name="label_9">
+                                     <property name="text">
+                                      <string>目的账户</string>
+                                     </property>
+                                    </widget>
+                                   </item>
+                                   <item>
+                                    <widget class="QLineEdit" name="edtTSDest"/>
+                                   </item>
+                                  </layout>
+                                 </item>
+                                 <item>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_8">
+                                   <item>
+                                    <widget class="QLabel" name="label_10">
+                                     <property name="text">
+                                      <string>数量</string>
+                                     </property>
+                                    </widget>
+                                   </item>
+                                   <item>
+                                    <widget class="QLineEdit" name="edtTSAmount"/>
+                                   </item>
+                                  </layout>
+                                 </item>
+                                 <item>
+                                  <widget class="QLabel" name="label_70">
+                                   <property name="text">
+                                    <string>附加消息</string>
+                                   </property>
+                                   <property name="alignment">
+                                    <set>Qt::AlignCenter</set>
+                                   </property>
+                                  </widget>
+                                 </item>
+                                 <item>
+                                  <spacer name="verticalSpacer_2">
+                                   <property name="orientation">
+                                    <enum>Qt::Vertical</enum>
+                                   </property>
+                                   <property name="sizeHint" stdset="0">
+                                    <size>
+                                     <width>20</width>
+                                     <height>40</height>
+                                    </size>
+                                   </property>
+                                  </spacer>
+                                 </item>
+                                 <item>
+                                  <widget class="QWidget" name="widget_13" native="true">
+                                   <layout class="QHBoxLayout" name="horizontalLayout_83">
+                                    <item>
+                                     <widget class="QRadioButton" name="rdoTSNormal">
+                                      <property name="text">
+                                       <string>普通交易</string>
+                                      </property>
+                                      <property name="checked">
+                                       <bool>true</bool>
+                                      </property>
+                                     </widget>
+                                    </item>
+                                    <item>
+                                     <widget class="QRadioButton" name="rdoTSCreateContract">
+                                      <property name="text">
+                                       <string>  创建合约</string>
+                                      </property>
+                                     </widget>
+                                    </item>
+                                    <item>
+                                     <widget class="QRadioButton" name="rdoTSRunContract">
+                                      <property name="text">
+                                       <string>执行合约</string>
+                                      </property>
+                                     </widget>
+                                    </item>
+                                   </layout>
+                                  </widget>
+                                 </item>
+                                 <item>
+                                  <widget class="QPlainTextEdit" name="edtTSAddtion"/>
+                                 </item>
+                                 <item>
+                                  <widget class="QPushButton" name="btnTranslateSend">
+                                   <property name="text">
+                                    <string>发送</string>
+                                   </property>
+                                  </widget>
+                                 </item>
+                                 <item>
+                                  <widget class="QPlainTextEdit" name="edtTSPlainEdit"/>
+                                 </item>
+                                </layout>
+                               </widget>
+                              </item>
+                             </layout>
+                            </widget>
+                            <widget class="QWidget" name="page_2">
+                             <layout class="QVBoxLayout" name="verticalLayout_11">
+                              <property name="spacing">
+                               <number>0</number>
                               </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QLineEdit" name="edtTRFrom"/>
-                            </item>
-                           </layout>
-                          </item>
-                          <item>
-                           <spacer name="verticalSpacer">
-                            <property name="orientation">
-                             <enum>Qt::Vertical</enum>
-                            </property>
-                            <property name="sizeHint" stdset="0">
-                             <size>
-                              <width>20</width>
-                              <height>40</height>
-                             </size>
-                            </property>
-                           </spacer>
-                          </item>
-                          <item>
-                           <widget class="QPushButton" name="btnTranslateReceive">
-                            <property name="text">
-                             <string>发送</string>
-                            </property>
+                              <property name="leftMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="topMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="rightMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="bottomMargin">
+                               <number>0</number>
+                              </property>
+                              <item>
+                               <widget class="QWidget" name="widget_2" native="true">
+                                <layout class="QVBoxLayout" name="verticalLayout_10">
+                                 <property name="spacing">
+                                  <number>6</number>
+                                 </property>
+                                 <property name="leftMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="topMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="rightMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="bottomMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <item>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_10">
+                                   <item>
+                                    <widget class="QLabel" name="label_11">
+                                     <property name="text">
+                                      <string>私钥</string>
+                                     </property>
+                                    </widget>
+                                   </item>
+                                   <item>
+                                    <widget class="QLineEdit" name="edtTRPriKey"/>
+                                   </item>
+                                  </layout>
+                                 </item>
+                                 <item>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_14">
+                                   <item>
+                                    <widget class="QWidget" name="widget_9" native="true">
+                                     <layout class="QHBoxLayout" name="horizontalLayout_26">
+                                      <item>
+                                       <widget class="QRadioButton" name="rdoTRPublic">
+                                        <property name="text">
+                                         <string>公钥</string>
+                                        </property>
+                                        <property name="checked">
+                                         <bool>true</bool>
+                                        </property>
+                                       </widget>
+                                      </item>
+                                      <item>
+                                       <widget class="QRadioButton" name="radioButton_16">
+                                        <property name="text">
+                                         <string>地址</string>
+                                        </property>
+                                       </widget>
+                                      </item>
+                                     </layout>
+                                    </widget>
+                                   </item>
+                                  </layout>
+                                 </item>
+                                 <item>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_11">
+                                   <item>
+                                    <widget class="QLabel" name="label_12">
+                                     <property name="text">
+                                      <string>来源哈希</string>
+                                     </property>
+                                    </widget>
+                                   </item>
+                                   <item>
+                                    <widget class="QLineEdit" name="edtTRFrom"/>
+                                   </item>
+                                  </layout>
+                                 </item>
+                                 <item>
+                                  <spacer name="verticalSpacer">
+                                   <property name="orientation">
+                                    <enum>Qt::Vertical</enum>
+                                   </property>
+                                   <property name="sizeHint" stdset="0">
+                                    <size>
+                                     <width>20</width>
+                                     <height>40</height>
+                                    </size>
+                                   </property>
+                                  </spacer>
+                                 </item>
+                                 <item>
+                                  <widget class="QPushButton" name="btnTranslateReceive">
+                                   <property name="text">
+                                    <string>发送</string>
+                                   </property>
+                                  </widget>
+                                 </item>
+                                 <item>
+                                  <widget class="QPlainTextEdit" name="edtTRPlaintEdit"/>
+                                 </item>
+                                </layout>
+                               </widget>
+                              </item>
+                             </layout>
+                            </widget>
+                            <widget class="QWidget" name="page_3">
+                             <layout class="QVBoxLayout" name="verticalLayout_36">
+                              <property name="leftMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="topMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="rightMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="bottomMargin">
+                               <number>0</number>
+                              </property>
+                              <item>
+                               <widget class="QWidget" name="widget_15" native="true">
+                                <layout class="QVBoxLayout" name="verticalLayout_35">
+                                 <property name="spacing">
+                                  <number>6</number>
+                                 </property>
+                                 <property name="leftMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="topMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="rightMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="bottomMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <item>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_51">
+                                   <item>
+                                    <widget class="QLabel" name="label_37">
+                                     <property name="text">
+                                      <string>私钥</string>
+                                     </property>
+                                    </widget>
+                                   </item>
+                                   <item>
+                                    <widget class="QLineEdit" name="edtTCPrivate"/>
+                                   </item>
+                                  </layout>
+                                 </item>
+                                 <item>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_53"/>
+                                 </item>
+                                 <item>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_55">
+                                   <item>
+                                    <widget class="QLabel" name="label_39">
+                                     <property name="text">
+                                      <string>数量</string>
+                                     </property>
+                                    </widget>
+                                   </item>
+                                   <item>
+                                    <widget class="QLineEdit" name="edtTCAmount"/>
+                                   </item>
+                                  </layout>
+                                 </item>
+                                 <item>
+                                  <spacer name="verticalSpacer_7">
+                                   <property name="orientation">
+                                    <enum>Qt::Vertical</enum>
+                                   </property>
+                                   <property name="sizeHint" stdset="0">
+                                    <size>
+                                     <width>20</width>
+                                     <height>40</height>
+                                    </size>
+                                   </property>
+                                  </spacer>
+                                 </item>
+                                 <item>
+                                  <widget class="QPushButton" name="btnTranslateCashDisposite">
+                                   <property name="text">
+                                    <string>发送</string>
+                                   </property>
+                                  </widget>
+                                 </item>
+                                 <item>
+                                  <widget class="QPlainTextEdit" name="edtTCPlainEdit"/>
+                                 </item>
+                                </layout>
+                               </widget>
+                              </item>
+                             </layout>
+                            </widget>
+                            <widget class="QWidget" name="page_4">
+                             <layout class="QHBoxLayout" name="horizontalLayout_50">
+                              <property name="leftMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="topMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="rightMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="bottomMargin">
+                               <number>0</number>
+                              </property>
+                              <item>
+                               <widget class="QWidget" name="widget_12" native="true">
+                                <layout class="QVBoxLayout" name="verticalLayout_34">
+                                 <property name="spacing">
+                                  <number>6</number>
+                                 </property>
+                                 <property name="leftMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="topMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="rightMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="bottomMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <item>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_48">
+                                   <item>
+                                    <widget class="QLabel" name="label_36">
+                                     <property name="text">
+                                      <string>私钥</string>
+                                     </property>
+                                    </widget>
+                                   </item>
+                                   <item>
+                                    <widget class="QLineEdit" name="edtTUPrivate"/>
+                                   </item>
+                                  </layout>
+                                 </item>
+                                 <item>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_49"/>
+                                 </item>
+                                 <item>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_52">
+                                   <item>
+                                    <widget class="QLabel" name="label_38">
+                                     <property name="text">
+                                      <string>数量</string>
+                                     </property>
+                                    </widget>
+                                   </item>
+                                   <item>
+                                    <widget class="QLineEdit" name="edtTUAmount"/>
+                                   </item>
+                                  </layout>
+                                 </item>
+                                 <item>
+                                  <spacer name="verticalSpacer_6">
+                                   <property name="orientation">
+                                    <enum>Qt::Vertical</enum>
+                                   </property>
+                                   <property name="sizeHint" stdset="0">
+                                    <size>
+                                     <width>20</width>
+                                     <height>40</height>
+                                    </size>
+                                   </property>
+                                  </spacer>
+                                 </item>
+                                 <item>
+                                  <widget class="QPushButton" name="btnTranslateUnfreeze">
+                                   <property name="text">
+                                    <string>发送</string>
+                                   </property>
+                                  </widget>
+                                 </item>
+                                 <item>
+                                  <widget class="QPlainTextEdit" name="edtTUPlainEdit"/>
+                                 </item>
+                                </layout>
+                               </widget>
+                              </item>
+                             </layout>
+                            </widget>
                            </widget>
-                          </item>
-                          <item>
-                           <widget class="QPlainTextEdit" name="edtTRPlaintEdit"/>
-                          </item>
-                         </layout>
-                        </widget>
-                       </item>
-                      </layout>
-                     </widget>
-                     <widget class="QWidget" name="page_3">
-                      <layout class="QVBoxLayout" name="verticalLayout_36">
-                       <property name="leftMargin">
-                        <number>0</number>
-                       </property>
-                       <property name="topMargin">
-                        <number>0</number>
-                       </property>
-                       <property name="rightMargin">
-                        <number>0</number>
-                       </property>
-                       <property name="bottomMargin">
-                        <number>0</number>
-                       </property>
-                       <item>
-                        <widget class="QWidget" name="widget_15" native="true">
-                         <layout class="QVBoxLayout" name="verticalLayout_35">
-                          <property name="spacing">
-                           <number>6</number>
-                          </property>
-                          <property name="leftMargin">
-                           <number>0</number>
-                          </property>
-                          <property name="topMargin">
-                           <number>0</number>
-                          </property>
-                          <property name="rightMargin">
-                           <number>0</number>
-                          </property>
-                          <property name="bottomMargin">
-                           <number>0</number>
-                          </property>
-                          <item>
-                           <layout class="QHBoxLayout" name="horizontalLayout_51">
-                            <item>
-                             <widget class="QLabel" name="label_37">
-                              <property name="text">
-                               <string>私钥</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QLineEdit" name="edtTCPrivate"/>
-                            </item>
-                           </layout>
-                          </item>
-                          <item>
-                           <layout class="QHBoxLayout" name="horizontalLayout_53"/>
-                          </item>
-                          <item>
-                           <layout class="QHBoxLayout" name="horizontalLayout_55">
-                            <item>
-                             <widget class="QLabel" name="label_39">
-                              <property name="text">
-                               <string>数量</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QLineEdit" name="edtTCAmount"/>
-                            </item>
-                           </layout>
-                          </item>
-                          <item>
-                           <spacer name="verticalSpacer_7">
-                            <property name="orientation">
-                             <enum>Qt::Vertical</enum>
-                            </property>
-                            <property name="sizeHint" stdset="0">
-                             <size>
-                              <width>20</width>
-                              <height>40</height>
-                             </size>
-                            </property>
-                           </spacer>
-                          </item>
-                          <item>
-                           <widget class="QPushButton" name="btnTranslateCashDisposite">
-                            <property name="text">
-                             <string>发送</string>
-                            </property>
-                           </widget>
-                          </item>
-                          <item>
-                           <widget class="QPlainTextEdit" name="edtTCPlainEdit"/>
-                          </item>
-                         </layout>
-                        </widget>
-                       </item>
-                      </layout>
-                     </widget>
-                     <widget class="QWidget" name="page_4">
-                      <layout class="QHBoxLayout" name="horizontalLayout_50">
-                       <property name="leftMargin">
-                        <number>0</number>
-                       </property>
-                       <property name="topMargin">
-                        <number>0</number>
-                       </property>
-                       <property name="rightMargin">
-                        <number>0</number>
-                       </property>
-                       <property name="bottomMargin">
-                        <number>0</number>
-                       </property>
-                       <item>
-                        <widget class="QWidget" name="widget_12" native="true">
-                         <layout class="QVBoxLayout" name="verticalLayout_34">
-                          <property name="spacing">
-                           <number>6</number>
-                          </property>
-                          <property name="leftMargin">
-                           <number>0</number>
-                          </property>
-                          <property name="topMargin">
-                           <number>0</number>
-                          </property>
-                          <property name="rightMargin">
-                           <number>0</number>
-                          </property>
-                          <property name="bottomMargin">
-                           <number>0</number>
-                          </property>
-                          <item>
-                           <layout class="QHBoxLayout" name="horizontalLayout_48">
-                            <item>
-                             <widget class="QLabel" name="label_36">
-                              <property name="text">
-                               <string>私钥</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QLineEdit" name="edtTUPrivate"/>
-                            </item>
-                           </layout>
-                          </item>
-                          <item>
-                           <layout class="QHBoxLayout" name="horizontalLayout_49"/>
-                          </item>
-                          <item>
-                           <layout class="QHBoxLayout" name="horizontalLayout_52">
-                            <item>
-                             <widget class="QLabel" name="label_38">
-                              <property name="text">
-                               <string>数量</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QLineEdit" name="edtTUAmount"/>
-                            </item>
-                           </layout>
-                          </item>
-                          <item>
-                           <spacer name="verticalSpacer_6">
-                            <property name="orientation">
-                             <enum>Qt::Vertical</enum>
-                            </property>
-                            <property name="sizeHint" stdset="0">
-                             <size>
-                              <width>20</width>
-                              <height>40</height>
-                             </size>
-                            </property>
-                           </spacer>
-                          </item>
-                          <item>
-                           <widget class="QPushButton" name="btnTranslateUnfreeze">
-                            <property name="text">
-                             <string>发送</string>
-                            </property>
-                           </widget>
-                          </item>
-                          <item>
-                           <widget class="QPlainTextEdit" name="edtTUPlainEdit"/>
                           </item>
                          </layout>
                         </widget>
@@ -1207,7 +1283,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                     <property name="geometry">
                      <rect>
                       <x>0</x>
-                      <y>-616</y>
+                      <y>0</y>
                       <width>599</width>
                       <height>1361</height>
                      </rect>
@@ -2955,7 +3031,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>30</x>
