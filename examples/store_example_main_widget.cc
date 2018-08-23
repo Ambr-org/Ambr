@@ -50,10 +50,6 @@ StoreExampleMainWidget::StoreExampleMainWidget(std::shared_ptr<ambr::store::Stor
   connect(this, SIGNAL(sgConnect(CNode*)), this, SLOT(onDealConnect(CNode*)));
   connect(this, SIGNAL(sgDisconnected(CNode*)), this, SLOT(onDealDisconnected(CNode*)));
 
-  connect(this, SIGNAL(DoAccept(std::shared_ptr<ambr::net::Peer>)), this, SLOT(DealAccept(std::shared_ptr<ambr::net::Peer>)));
-  connect(this, SIGNAL(DoConnect(std::shared_ptr<ambr::net::Peer>)), this, SLOT(DealConnect(std::shared_ptr<ambr::net::Peer>)));
-  connect(this, SIGNAL(DoDisconnected(std::shared_ptr<ambr::net::Peer>)), this, SLOT(DealDisconnected(std::shared_ptr<ambr::net::Peer>)));
-
   for(int i = 0; i < 32; i++){
     validator_auto_.push_back(std::make_shared<ambr::utils::ValidatorAuto>(store_manager));
   }
@@ -970,6 +966,14 @@ void StoreExampleMainWidget::on_btnStartAllTest_clicked(){
   on_btnMSVStartTrans_5_clicked();
   on_btnMSVStartTrans_6_clicked();
   ui->btnStartAllTest->setEnabled(false);
+}
+
+void StoreExampleMainWidget::on_btnForRemove_clicked(){
+  ambr::core::UnitHash unit_hash(ui->edtForRemove->text().toStdString());
+  std::string err;
+  if(!store_manager_->RemoveUnit(unit_hash, &err)){
+    ui->edtLogForRemove->setPlainText(err.c_str());
+  }
 }
 
 void StoreExampleMainWidget::on_btnPTSimValidateSpeed_clicked(){

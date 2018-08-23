@@ -20,9 +20,7 @@ std::shared_ptr<ambr::store::UnitStore> ambr::store::UnitStore::CreateUnitStoreB
 
 ambr::store::SendUnitStore::SendUnitStore(std::shared_ptr<core::SendUnit> unit):
   UnitStore(ST_SendUnit),
-  unit_(unit),
-  version_(0x00000001),
-  is_validate_(false){
+  unit_(unit){
   //assert(unit);
 }
 
@@ -36,22 +34,6 @@ ambr::core::UnitHash ambr::store::SendUnitStore::receive_unit_hash() const{
 
 void ambr::store::SendUnitStore::set_receive_unit_hash(const ambr::core::UnitHash hash){
   receive_unit_hash_ = hash;
-}
-
-uint32_t ambr::store::SendUnitStore::version(){
-  return version_;
-}
-
-void ambr::store::SendUnitStore::set_version(uint32_t version){
-  version_ = version;
-}
-
-uint8_t ambr::store::SendUnitStore::is_validate(){
-  return is_validate_;
-}
-
-void ambr::store::SendUnitStore::set_is_validate(uint8_t validate){
-  is_validate_ = validate;
 }
 
 std::string ambr::store::SendUnitStore::SerializeJson() const{
@@ -135,30 +117,12 @@ std::shared_ptr<ambr::core::Unit> ambr::store::SendUnitStore::GetUnit(){
 
 ambr::store::ReceiveUnitStore::ReceiveUnitStore(std::shared_ptr<core::ReceiveUnit> unit):
   UnitStore(ST_ReceiveUnit),
-  unit_(unit),
-  version_(0x00000001),
-  is_validate_(false){
+  unit_(unit){
   //assert(unit);
 }
 
 std::shared_ptr<ambr::core::ReceiveUnit> ambr::store::ReceiveUnitStore::unit(){
   return unit_;
-}
-
-uint32_t ambr::store::ReceiveUnitStore::version(){
-  return version_;
-}
-
-void ambr::store::ReceiveUnitStore::set_version(uint32_t version){
-  version_ = version;
-}
-
-uint8_t ambr::store::ReceiveUnitStore::is_validate(){
-  return is_validate_;
-}
-
-void ambr::store::ReceiveUnitStore::set_is_validate(uint8_t validate){
-  is_validate_ = validate;
 }
 
 std::string ambr::store::ReceiveUnitStore::SerializeJson() const{
@@ -236,30 +200,12 @@ std::shared_ptr<ambr::core::Unit> ambr::store::ReceiveUnitStore::GetUnit(){
 
 ambr::store::EnterValidatorSetUnitStore::EnterValidatorSetUnitStore(std::shared_ptr<core::EnterValidateSetUint> unit):
   UnitStore(ST_EnterValidatorSet),
-  unit_(unit),
-  version_(0x00000001),
-  is_validate_(false){
+  unit_(unit){
   //assert(unit);
 }
 
 std::shared_ptr<ambr::core::EnterValidateSetUint> ambr::store::EnterValidatorSetUnitStore::unit(){
   return unit_;
-}
-
-uint32_t ambr::store::EnterValidatorSetUnitStore::version(){
-  return version_;
-}
-
-void ambr::store::EnterValidatorSetUnitStore::set_version(uint32_t version){
-  version_ = version;
-}
-
-uint8_t ambr::store::EnterValidatorSetUnitStore::is_validate(){
-  return is_validate_;
-}
-
-void ambr::store::EnterValidatorSetUnitStore::set_is_validate(uint8_t validate){
-  is_validate_ = validate;
 }
 
 std::string ambr::store::EnterValidatorSetUnitStore::SerializeJson() const{
@@ -337,30 +283,12 @@ std::shared_ptr<ambr::core::Unit> ambr::store::EnterValidatorSetUnitStore::GetUn
 
 ambr::store::LeaveValidatorSetUnitStore::LeaveValidatorSetUnitStore(std::shared_ptr<core::LeaveValidateSetUint> unit):
   UnitStore(ST_LeaveValidatorSet),
-  unit_(unit),
-  version_(0x00000001),
-  is_validate_(false){
+  unit_(unit){
   //assert(unit);
 }
 
 std::shared_ptr<ambr::core::LeaveValidateSetUint> ambr::store::LeaveValidatorSetUnitStore::unit(){
   return unit_;
-}
-
-uint32_t ambr::store::LeaveValidatorSetUnitStore::version(){
-  return version_;
-}
-
-void ambr::store::LeaveValidatorSetUnitStore::set_version(uint32_t version){
-  version_ = version;
-}
-
-uint8_t ambr::store::LeaveValidatorSetUnitStore::is_validate(){
-  return is_validate_;
-}
-
-void ambr::store::LeaveValidatorSetUnitStore::set_is_validate(uint8_t validate){
-  is_validate_ = validate;
 }
 
 std::string ambr::store::LeaveValidatorSetUnitStore::SerializeJson() const{

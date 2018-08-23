@@ -30,6 +30,10 @@ public:
     ST_EnterValidatorSet = 3,
     ST_LeaveValidatorSet = 4
   };
+  uint32_t version(){return version_;};
+  void set_version(uint32_t version){version_ = version;};
+  uint8_t is_validate(){return is_validate_;};//is validate by validator set
+  void set_is_validate(uint8_t validate){is_validate_ = validate;};
   virtual std::string SerializeJson () const = 0;
   virtual bool DeSerializeJson(const std::string& json) = 0;
   virtual std::vector<uint8_t> SerializeByte() const = 0;
@@ -39,10 +43,10 @@ public:
   StoreType type(){return type_;}
   void set_type(StoreType type){type = type;}
 protected:
-  UnitStore(StoreType type):type_(type){}
-private:
+  UnitStore(StoreType type):type_(type),version_(0x00000001),is_validate_(false){}
   StoreType type_;
-
+  uint32_t version_;
+  uint8_t is_validate_;
 };
 
 
@@ -53,10 +57,7 @@ public:
   std::shared_ptr<core::SendUnit> unit();
   core::UnitHash receive_unit_hash() const;
   void set_receive_unit_hash(const core::UnitHash hash);
-  uint32_t version();
-  void set_version(uint32_t version);
-  uint8_t is_validate();//is validate by validator set
-  void set_is_validate(uint8_t validate);
+
 public:
   virtual std::string SerializeJson () const override;
   virtual bool DeSerializeJson(const std::string& json) override;
@@ -65,9 +66,7 @@ public:
   virtual std::shared_ptr<ambr::core::Unit> GetUnit() override;
 private:
   std::shared_ptr<core::SendUnit> unit_;
-  uint32_t version_;
   core::UnitHash receive_unit_hash_;
-  uint8_t is_validate_;
 
 };
 
@@ -76,10 +75,6 @@ public:
   ReceiveUnitStore(std::shared_ptr<core::ReceiveUnit> unit = nullptr);
 public:
   std::shared_ptr<core::ReceiveUnit> unit();
-  uint32_t version();
-  void set_version(uint32_t version);
-  uint8_t is_validate();//is validate by validator set
-  void set_is_validate(uint8_t validate);
 public:
   virtual std::string SerializeJson() const override;
   virtual bool DeSerializeJson(const std::string& json) override;
@@ -88,8 +83,6 @@ public:
   virtual std::shared_ptr<ambr::core::Unit> GetUnit() override;
 private:
   std::shared_ptr<core::ReceiveUnit> unit_;
-  uint32_t version_;
-  uint8_t is_validate_;
 };
 
 
@@ -98,10 +91,6 @@ public:
   EnterValidatorSetUnitStore(std::shared_ptr<core::EnterValidateSetUint> unit = nullptr);
 public:
   std::shared_ptr<core::EnterValidateSetUint> unit();
-  uint32_t version();
-  void set_version(uint32_t version);
-  uint8_t is_validate();//is validate by validator set
-  void set_is_validate(uint8_t validate);
 public:
   virtual std::string SerializeJson() const override;
   virtual bool DeSerializeJson(const std::string& json) override;
@@ -110,8 +99,6 @@ public:
   virtual std::shared_ptr<ambr::core::Unit> GetUnit() override;
 private:
   std::shared_ptr<core::EnterValidateSetUint> unit_;
-  uint32_t version_;
-  uint8_t is_validate_;
 };
 
 
@@ -120,10 +107,6 @@ public:
   LeaveValidatorSetUnitStore(std::shared_ptr<core::LeaveValidateSetUint> unit = nullptr);
 public:
   std::shared_ptr<core::LeaveValidateSetUint> unit();
-  uint32_t version();
-  void set_version(uint32_t version);
-  uint8_t is_validate();//is validate by validator set
-  void set_is_validate(uint8_t validate);
 public:
   virtual std::string SerializeJson() const override;
   virtual bool DeSerializeJson(const std::string& json) override;
@@ -132,8 +115,6 @@ public:
   virtual std::shared_ptr<ambr::core::Unit> GetUnit() override;
 private:
   std::shared_ptr<core::LeaveValidateSetUint> unit_;
-  uint32_t version_;
-  uint8_t is_validate_;
 };
 
 class ValidatorItem{

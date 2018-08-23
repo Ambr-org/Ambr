@@ -238,7 +238,7 @@ public:
   void set_check_list(const std::vector<UnitHash>& hash_list){
     check_list_ = hash_list;
   }
-  std::vector<UnitHash> check_list()const{
+  const std::vector<UnitHash>& check_list()const{
     return check_list_;
   }
   void add_vote_hash_list(const UnitHash& hash){

@@ -14,13 +14,264 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true"/>
+   <string notr="true">QWidget{ 
+  background-color:rgba(50,50,50,255); 
+  color:rgb(222,222,222); 
+   
+} 
+QPushButton{ 
+  color:rgb(238,138,65); 
+  border:none; 
+  border-width:5px; 
+  border-image: url(:/rs/btn_black_normal.png)  5; 
+  min-width:40px; 
+  min-height:40px; 
+} 
+QPushButton:hover{ 
+  border:none; 
+  border-width:5px; 
+  border-image: url(:/rs/btn_black_hover.png)  5; 
+} 
+QPushButton:pressed{ 
+  border:none; 
+  border-width:5px; 
+  border-image: url(:/rs/btn_black_pushed.png)  5; 
+} 
+ 
+QPushButton:disabled{ 
+  border:none; 
+  border-width:5px; 
+  border-image: url(:/rs/btn_black_disable.png)  5; 
+} 
+ 
+QLineEdit{ 
+  border-width:4px; 
+  border-image: url(:/rs/edit_normal.png) 4 ; 
+  min-height:32px; 
+} 
+QLineEdit:hover{ 
+  border-image: url(:/rs/edit_hover.png) 4 ; 
+} 
+QLineEdit:focus  { 
+  border-image: url(:/rs/edit_hover.png) 4 ; 
+} 
+ 
+QComboBox { 
+   border-width:4px; 
+  border-image: url(:/rs/edit_normal.png) 4; 
+  border-image: url(:/rs/edit_hover.png) 4; 
+  margin-right:52px; 
+  min-height:36px; 
+} 
+QComboBox:hover{ 
+  border-image: url(:/rs/edit_hover.png) 4 ; 
+} 
+QComboBox:focus{ 
+  border-image: url(:/rs/edit_hover.png) 4 ; 
+} 
+QComboBox::drop-down { 
+      subcontrol-origin: margin; 
+      subcontrol-position: top right; 
+      width:52px; 
+     border:none; 
+  } 
+QComboBox::down-arrow{ 
+  image: url(:/rs/downn_cmb_btn_normal.png); 
+  } 
+QComboBox::down-arrow:hover{ 
+  image: url(:/rs/down_cmb_btn_hover.png); 
+  } 
+QComboBox::down-arrow:pressed{ 
+  image: url(:/rs/down_cmb_btn_pushed.png); 
+  } 
+ 
+ 
+QRadioButton::indicator::unchecked { 
+    image: url(:/rs/radio_unselect.png); 
+} 
+QRadioButton::indicator::unchecked:hover{ 
+    image:url(:/rs/radio_unselect_hover.png); 
+} 
+ 
+QRadioButton::indicator::checked { 
+     image: url(:/rs/radio_selected.png); 
+} 
+QRadioButton::indicator::checked:hover { 
+     image: url(:/rs/radio_selected_hover.png); 
+} 
+ 
+QPlainTextEdit{ 
+    border-width:4px; 
+  border-image: url(:/rs/edit_normal.png) 4 ; 
+  min-height:64px; 
+} 
+ 
+QTabWidget::tab-bar { 
+      left: 5px; /* move to the right by 5px */ 
+  } 
+ 
+  /* Style the tab using the tab sub-control. Note that 
+      it reads QTabBar _not_ QTabWidget */ 
+  QTabBar::tab { 
+    height:32px; 
+  } 
+QTabBar::tab:selected { 
+      color:rgb(235,135,65); 
+  } 
+QTabBar::tab:disabled { 
+      color:rgb(125,125,125); 
+  } 
+QScrollBar:vertical { 
+       border: none; 
+    border-top-width:12px; 
+    border-bottom-width:12px; 
+    border-image: url(:/rs/v_scroll_scallbar.png) 12 0; 
+       width: 24px; 
+       margin:16px 0; 
+} 
+QScrollBar::handle:vertical { 
+       border-width:5 2; 
+    min-height:32px; 
+    border-image: url(:/rs/v_scroll_handle.png) 5 2; 
+    image:url(:/rs/v_scroll_handle_image.png); 
+} 
+QScrollBar::handle:vertical:hover{ 
+    border-image: url(:/rs/v_scroll_handle_hover.png); 
+ } 
+QScrollBar::handle:vertical:pressed{ 
+    border-image:url(:/rs/v_scroll_handle_pressed.png); 
+ } 
+ 
+QScrollBar::add-line:vertical { 
+       border:none; 
+    margin-top:4px; 
+       height: 12px; 
+    width:16px; 
+       subcontrol-position: bottom; 
+       subcontrol-origin: margin; 
+} 
+ 
+QScrollBar::sub-line:vertical { 
+       border:none; 
+    margin-bottom:4px; 
+       height: 12px; 
+    width:16px; 
+       subcontrol-position: top; 
+       subcontrol-origin: margin; 
+} 
+ 
+QScrollBar::up-arrow:vertical{ 
+  border:none; 
+   width:16px; 
+  height:12px; 
+  image:url(:/rs/v_scroll_btn_up.png); 
+} 
+QScrollBar::up-arrow:vertical:hover{ 
+  image:url(:/rs/v_scroll_btn_up_hover.png); 
+} 
+QScrollBar::up-arrow:vertical:pressed{ 
+  image:url(:/rs/v_scroll_btn_up_pressed.png); 
+} 
+ 
+QScrollBar::down-arrow:vertical{ 
+  border:none; 
+   width:16px; 
+  height:12px; 
+  image:url(:/rs/v_scroll_btn_down.png); 
+} 
+QScrollBar::down-arrow:vertical:hover{ 
+  image:url(:/rs/v_scroll_btn_down_hover.png); 
+} 
+QScrollBar::down-arrow:vertical:pressed{ 
+  image:url(:/rs/v_scroll_btn_down_pressed.png); 
+} 
+ 
+ 
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { 
+   background: none; 
+} 
+ 
+QScrollBar:horizontal { 
+    border: none; 
+  border-left-width:12px; 
+  border-right-width:12px; 
+  border-image: url(:/rs/h_scroll_scallbar.png)  0 12; 
+   height: 24px; 
+   margin:0 16px; 
+} 
+ 
+QScrollBar::handle:horizontal { 
+   border-width:2 5; 
+  min-width:32px; 
+  border-image: url(:/rs/h_scroll_handle.png) 2 5; 
+  image: url(:/rs/h_scroll_handle_image.png); 
+} 
+ 
+QScrollBar::handle:horizontal:hover{ 
+  border-image: url(:/rs/h_scroll_handle_hover.png); 
+} 
+ 
+QScrollBar::handle:horizontal:pressed{ 
+  border-image:url(:/rs/h_scroll_handle_pressed.png); 
+} 
+ 
+ 
+QScrollBar::add-line:horizontal { 
+   border:none; 
+  margin-right:4px; 
+   height: 12px; 
+  width:16px; 
+   subcontrol-position: right; 
+   subcontrol-origin: margin; 
+} 
+ 
+QScrollBar::sub-line:horizontal { 
+   border:none; 
+  margin-left:4px; 
+   height: 12px; 
+  width:16px; 
+   subcontrol-position: left; 
+   subcontrol-origin: margin; 
+} 
+ 
+ 
+ 
+ 
+QScrollBar::left-arrow:horizontal{ 
+  border:none; 
+   width:12px; 
+  height:16px; 
+  image:url(:/rs/h_scroll_btn_left.png); 
+} 
+QScrollBar::left-arrow:horizontal:hover{ 
+  image:url(:/rs/h_scroll_btn_left_hover.png); 
+} 
+QScrollBar::left-arrow:horizontal:pressed{ 
+  image:url(:/rs/h_scroll_btn_left_pressed.png); 
+} 
+ 
+QScrollBar::right-arrow:horizontal{ 
+  border:none; 
+   width:12px; 
+  height:16px; 
+  image:url(:/rs/h_scroll_btn_right.png); 
+} 
+QScrollBar::right-arrow:horizontal:hover{ 
+  image:url(:/rs/h_scroll_btn_right_hover.png); 
+} 
+QScrollBar::right-arrow:horizontal:pressed{ 
+  image:url(:/rs/h_scroll_btn_right_pressed.png); 
+} 
+ 
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal { 
+     background: none; 
+} </string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_19">
    <item>
     <widget class="QTabWidget" name="tabMain">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_7">
       <attribute name="title">
@@ -442,7 +693,7 @@
                       <property name="geometry">
                        <rect>
                         <x>0</x>
-                        <y>-141</y>
+                        <y>0</y>
                         <width>579</width>
                         <height>525</height>
                        </rect>
@@ -1031,9 +1282,9 @@
                     <property name="geometry">
                      <rect>
                       <x>0</x>
-                      <y>-499</y>
-                      <width>609</width>
-                      <height>965</height>
+                      <y>0</y>
+                      <width>599</width>
+                      <height>1361</height>
                      </rect>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_31">
@@ -1630,7 +1881,7 @@
               <x>0</x>
               <y>0</y>
               <width>840</width>
-              <height>823</height>
+              <height>793</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_22">
@@ -1649,200 +1900,271 @@
           </widget>
          </item>
          <item>
-          <widget class="QWidget" name="widget_10" native="true">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>0</height>
-            </size>
-           </property>
+          <widget class="QScrollArea" name="scrollArea_4">
            <property name="maximumSize">
             <size>
              <width>400</width>
              <height>16777215</height>
             </size>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_23">
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_28">
-              <item>
-               <widget class="QLabel" name="label_17">
-                <property name="text">
-                 <string> 账户链绘制长度:</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="edtPTLength">
-                <property name="text">
-                 <string>10</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="btnPTLength">
-                <property name="text">
-                 <string> 确定</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_93">
-              <item>
-               <widget class="QLabel" name="label_80">
-                <property name="text">
-                 <string>模拟交易速度(1~10000)</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="edtPTSimTransSpeed">
-                <property name="text">
-                 <string>10</string>
-                </property>
-                <property name="placeholderText">
-                 <string>1~10000</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="btnPTSimTransSpeed">
-                <property name="text">
-                 <string> 确定</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_94">
-              <item>
-               <widget class="QLabel" name="label_81">
-                <property name="text">
-                 <string>模拟验证速度(1~10000)</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="edtPTSimValidateSpeed">
-                <property name="text">
-                 <string>10</string>
-                </property>
-                <property name="placeholderText">
-                 <string>1~10000</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="btnPTSimValidateSpeed">
-                <property name="text">
-                 <string> 确定</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <widget class="QPushButton" name="btnStartAllTest">
-              <property name="text">
-               <string>一键自动测试</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_40">
-              <property name="text">
-               <string>验证者集合</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QTableWidget" name="tbValidatorSet">
-              <column>
-               <property name="text">
-                <string>ValidatorHash</string>
+           <property name="widgetResizable">
+            <bool>true</bool>
+           </property>
+           <widget class="QWidget" name="scrollAreaWidgetContents_4">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>-365</y>
+              <width>374</width>
+              <height>1158</height>
+             </rect>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_49">
+             <item>
+              <widget class="QWidget" name="widget_10" native="true">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
                </property>
-              </column>
-              <column>
-               <property name="text">
-                <string>Balance</string>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>16777215</height>
+                </size>
                </property>
-              </column>
-              <column>
+               <layout class="QVBoxLayout" name="verticalLayout_23">
+                <property name="leftMargin">
+                 <number>0</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_28">
+                  <item>
+                   <widget class="QLabel" name="label_17">
+                    <property name="text">
+                     <string> 账户链绘制长度:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="edtPTLength">
+                    <property name="text">
+                     <string>10</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="btnPTLength">
+                    <property name="text">
+                     <string> 确定</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_93">
+                  <item>
+                   <widget class="QLabel" name="label_80">
+                    <property name="text">
+                     <string>模拟交易速度(1~10000)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="edtPTSimTransSpeed">
+                    <property name="text">
+                     <string>10</string>
+                    </property>
+                    <property name="placeholderText">
+                     <string>1~10000</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="btnPTSimTransSpeed">
+                    <property name="text">
+                     <string> 确定</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_94">
+                  <item>
+                   <widget class="QLabel" name="label_81">
+                    <property name="text">
+                     <string>模拟验证速度(1~10000)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="edtPTSimValidateSpeed">
+                    <property name="text">
+                     <string>10</string>
+                    </property>
+                    <property name="placeholderText">
+                     <string>1~10000</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="btnPTSimValidateSpeed">
+                    <property name="text">
+                     <string> 确定</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btnStartAllTest">
+                  <property name="text">
+                   <string>一键自动测试</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_40">
+                  <property name="text">
+                   <string>验证者集合</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QTableWidget" name="tbValidatorSet">
+                  <column>
+                   <property name="text">
+                    <string>ValidatorHash</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string>Balance</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string>EnterNonce</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string>LeaveNonce</string>
+                   </property>
+                  </column>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btnFlushValidatorSet">
+                  <property name="text">
+                   <string>刷新</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="Line" name="line_13">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_44">
+                  <property name="text">
+                   <string>当前投票状态</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QTableWidget" name="tbVote">
+                  <column>
+                   <property name="text">
+                    <string>VoteTo</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string>Balance</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string>Accept</string>
+                   </property>
+                  </column>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPlainTextEdit" name="lblVote">
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>100</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btnFlushVote">
+                  <property name="text">
+                   <string>刷新</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPlainTextEdit" name="edtShowJson">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>200</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_71">
+                  <property name="text">
+                   <string>单元hash值</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="edtForRemove"/>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnForRemove">
                <property name="text">
-                <string>EnterNonce</string>
+                <string>删除未经确认的单元</string>
                </property>
-              </column>
-              <column>
-               <property name="text">
-                <string>LeaveNonce</string>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPlainTextEdit" name="edtLogForRemove">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>72</height>
+                </size>
                </property>
-              </column>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="btnFlushValidatorSet">
-              <property name="text">
-               <string>刷新</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="Line" name="line_13">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_44">
-              <property name="text">
-               <string>当前投票状态</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QTableWidget" name="tbVote">
-              <column>
-               <property name="text">
-                <string>VoteTo</string>
-               </property>
-              </column>
-              <column>
-               <property name="text">
-                <string>Balance</string>
-               </property>
-              </column>
-              <column>
-               <property name="text">
-                <string>Accept</string>
-               </property>
-              </column>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPlainTextEdit" name="lblVote">
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>100</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="btnFlushVote">
-              <property name="text">
-               <string>刷新</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPlainTextEdit" name="edtShowJson"/>
-            </item>
-           </layout>
+              </widget>
+             </item>
+            </layout>
+           </widget>
           </widget>
          </item>
         </layout>
@@ -1910,8 +2232,8 @@
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>40</width>
-                   <height>40</height>
+                   <width>50</width>
+                   <height>50</height>
                   </size>
                  </property>
                  <property name="maximumSize">
@@ -1995,8 +2317,8 @@
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>40</width>
-                   <height>40</height>
+                   <width>50</width>
+                   <height>50</height>
                   </size>
                  </property>
                  <property name="maximumSize">

@@ -99,6 +99,7 @@ private slots:
   void on_btnPTSimValidateSpeed_clicked();
   void on_btnPTSimTransSpeed_clicked();
   void on_btnStartAllTest_clicked();
+  void on_btnForRemove_clicked();
 
   void onDealAccept(CNode*);
   void onDealConnect(CNode*);
@@ -106,6 +107,7 @@ private slots:
   void OnDrawTimerOut();
 protected:
   bool eventFilter(QObject *target, QEvent *event);
+
 
 private:
   Ui::StoreExampleMainWidget *ui;

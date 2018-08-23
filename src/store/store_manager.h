@@ -118,7 +118,11 @@ public:
   std::shared_ptr<EnterValidatorSetUnitStore> GetEnterValidatorSetUnit(const core::UnitHash& hash);
   std::shared_ptr<LeaveValidatorSetUnitStore> GetLeaveValidatorSetUnit(const core::UnitHash& hash);
   std::list<std::shared_ptr<core::VoteUnit>> GetVoteList();
-
+public:
+  //could rm not final confirmation unit
+  //all unit that depend on this unit will be removed too.
+  bool RemoveUnit(const core::UnitHash& hash, std::string* err);
+public:
   uint64_t GetGenesisTime(){return genesis_time_;}
   void SetValidateUnitInterval(uint32_t interval){ validate_unit_interval_ = interval;}
   uint32_t GetValidateUnitInterval(){return validate_unit_interval_;}
