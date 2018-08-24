@@ -218,7 +218,7 @@ bool ambr::store::StoreManager::AddSendUnit(std::shared_ptr<ambr::core::SendUnit
       }
       return false;
     }
-    if(send_unit->balance().data() >= balance.data()){
+    if(send_unit->balance() - balance < GetTransectionFeeCountWhenReceive(send_unit)){
       if(err){
         *err = "Insufficient balance!";
       }
@@ -298,11 +298,16 @@ bool ambr::store::StoreManager::AddReceiveUnit(std::shared_ptr<ambr::core::Recei
     }
     return false;
   }
-  if(balance_old.data() !=
-      prev_send_store->GetUnit()->balance().data()-send_unit_store->GetUnit()->balance().data()){
+
+  core::Amount send_amount;
+  if(!GetSendAmount(receive_unit->from(), send_amount, err)){
+    return false;
+  }
+  if(balance_old != send_amount){
     if(err)*err = "Error balance number.";
     return false;
   }
+
   rocksdb::WriteBatch batch;
   auto receive_unit_store = std::make_shared<ReceiveUnitStore>(receive_unit);
   std::vector<uint8_t> bytes = receive_unit_store->SerializeByte();
@@ -987,7 +992,8 @@ bool ambr::store::StoreManager::GetSendAmount(const ambr::core::UnitHash &unit_h
     return false;
   }
   balance_send_pre = store_pre->GetUnit()->balance();
-  amount.set_data(balance_send_pre.data()-balance_send.data());
+  amount.set_data(balance_send_pre.data()-balance_send.data()-
+                  GetTransectionFeeCountWhenReceive(send_store->unit()));
   return true;
 }
 
@@ -1041,28 +1047,35 @@ bool ambr::store::StoreManager::SendToAddressWithContract(
     }
     return false;
   }
-  core::Amount balance;
-  if(!GetBalanceByPubKey(pub_key, balance)){
-    if(err){
-      *err = "Can't find sender's balance";
-    }
-    return false;
-  }
-  if(balance < send_count){
-    if(err){
-      *err = "Insufficient balance!";
-    }
-    return false;
-  }
-  balance.set_data(balance.data() -send_count.data());
+
   unit->set_version(0x00000001);
   unit->set_type(core::UnitType::send);
   unit->set_public_key(ambr::core::GetPublicKeyByPrivateKey(prv_key));
   unit->set_prev_unit(prev_hash);
-  unit->set_balance(balance);
+  //unit->set_balance(balance);
   unit->set_dest(pub_key_to);
   unit->set_data_type(data_type);
   unit->set_data(data);
+  //calc balance
+  {
+    core::Amount balance;
+    if(!GetBalanceByPubKey(pub_key, balance)){
+      if(err){
+        *err = "Can't find sender's balance";
+      }
+      return false;
+    }
+
+    std::cout<<GetTransectionFeeCountWhenReceive(unit)<<std::endl;
+    if(balance < send_count || send_count < GetTransectionFeeCountWhenReceive(unit)){
+      if(err){
+        *err = "Insufficient balance!";
+      }
+      return false;
+    }
+    balance.set_data(balance.data() -send_count.data());
+    unit->set_balance(balance);
+  }
   unit->CalcHashAndFill();
   unit->SignatureAndFill(prv_key);
   unit_sended = unit;
@@ -1133,8 +1146,8 @@ bool ambr::store::StoreManager::ReceiveFromUnitHash(
     return false;
   }
   balance_send_pre = store_pre->GetUnit()->balance();
+  balance.set_data(balance.data()+(balance_send_pre.data()-balance_send.data())-GetTransectionFeeCountWhenReceive(send_store->unit()));
 
-  balance.set_data(balance.data()+(balance_send_pre.data()-balance_send.data()));
 
   unit->set_version(0x00000001);
   unit->set_type(core::UnitType::receive);
@@ -1895,6 +1908,14 @@ uint64_t ambr::store::StoreManager::GetNonceByNowTime(){
   boost::posix_time::time_duration duration = pt-pt_ori;
   uint64_t interval = duration.total_milliseconds() - GetGenesisTime();
   return (interval/GetValidateUnitInterval());
+}
+
+uint64_t ambr::store::StoreManager::GetTransectionFeeBase(){
+  return 1;
+}
+
+uint64_t ambr::store::StoreManager::GetTransectionFeeCountWhenReceive(std::shared_ptr<core::Unit> send_unit){
+  return (send_unit->SerializeByte().size()+core::ReceiveUnit().SerializeByte().size())*GetTransectionFeeBase();
 }
 
 std::list<ambr::core::UnitHash> ambr::store::StoreManager::GetAccountListFromAccountForDebug(){

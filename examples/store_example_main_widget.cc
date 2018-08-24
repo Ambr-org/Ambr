@@ -641,7 +641,7 @@ void StoreExampleMainWidget::on_btnTranslateSend_clicked(){
     }
     str = str + "Send success.tx_hash:" + hash.encode_to_hex().c_str();
   }else{
-    str = str + "Send faild. tx_hash:" + hash.encode_to_hex().c_str();
+    str = str + "Send faild. err:" + err.c_str();
   }
   ui->edtTSPlainEdit->setPlainText(str);
 }
