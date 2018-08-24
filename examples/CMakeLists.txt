@@ -96,7 +96,6 @@ set(CMAKE_CXX_FLAGS "-Wall")
     ${DIR_SYN_SRCS}
     ${CUR_DIR}/libs/ed25519-donna/ed25519.c
     ${CUR_DIR}/examples/unit_store.cc
-    ${CUR_DIR}/examples/net_test.cc
     ${QT_SRC}
     ${MOC}
     ${RCC}

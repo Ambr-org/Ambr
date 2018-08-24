@@ -145,11 +145,11 @@ void ambr::store::StoreManager::Init(const std::string& path){
                 rocksdb::Slice((const char*)validator_set_buf.data(), validator_set_buf.size())
                 );
       rocksdb::Status status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
-      if(use_log){//TODO:use log
+      /*if(use_log){//TODO:use log
         std::cout<<"genesis create"<<std::endl;
         std::cout<<unit->hash().encode_to_hex()<<std::endl;
         std::cout<<rec_store->SerializeJson()<<std::endl;
-      }
+      }*/
       assert(status.ok());
     }
   }
@@ -1066,7 +1066,6 @@ bool ambr::store::StoreManager::SendToAddressWithContract(
       return false;
     }
 
-    std::cout<<GetTransectionFeeCountWhenReceive(unit)<<std::endl;
     if(balance < send_count || send_count < GetTransectionFeeCountWhenReceive(unit)){
       if(err){
         *err = "Insufficient balance!";
@@ -1796,6 +1795,10 @@ bool ambr::store::StoreManager::RemoveUnit(const ambr::core::UnitHash &hash, std
                   }
                 }
                 break;
+              }
+            default:
+              {
+                assert(0);
               }
           }
 
