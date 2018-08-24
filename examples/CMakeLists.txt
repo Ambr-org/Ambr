@@ -18,7 +18,6 @@ aux_source_directory(${CUR_DIR}/src DIR_SRC_SRCS)
 aux_source_directory(${CUR_DIR}/src/core DIR_CORE_SRCS)
 aux_source_directory(${CUR_DIR}/src/crypto DIR_CRYPTO_SRCS)
 aux_source_directory(${CUR_DIR}/src/net DIR_NET_SRCS)
-aux_source_directory(${CUR_DIR}/src/synchronization DIR_SYN_SRCS)
 aux_source_directory(${CUR_DIR}/src/server DIR_SERVER_SRCS)
 aux_source_directory(${CUR_DIR}/src/store DIR_STORE_SRCS)
 aux_source_directory(${CUR_DIR}/src/utils DIR_UTILS_SRCS)
@@ -30,7 +29,7 @@ aux_source_directory(${CUR_DIR}/src/p2p/crypto  DIR_P2P_SRCS)
 aux_source_directory(${CUR_DIR}/src/p2p/support DIR_P2P_SRCS)
 aux_source_directory(${CUR_DIR}/src/p2p/consensus DIR_P2P_SRCS)
 aux_source_directory(${CUR_DIR}/src/p2p/compat DIR_P2P_SRCS)
-aux_source_directory(${CUR_DIR}/src/synchronization DIR_SYNC)
+
 
 set(SERVER_DIR ${CUR_DIR}/src/server)
 set(MAIN_DIR ${CUR_DIR}/src)
@@ -41,7 +40,6 @@ set(CORE_DIR ${CUR_DIR}/src/core)
 set(ROCKSDB_DIR ${CUR_DIR}/libs/rocksdb)
 set(GLOG_DIR ${CUR_DIR}/libs/glog)
 set(P2P_DIR ${CUR_DIR}/src/p2p)
-set(SYN_DIR ${CUR_DIR}/src/synchronizatio)
 
 include_directories(${MAIN_DIR})
 include_directories(${CROW_DIR}/include)
@@ -51,7 +49,6 @@ include_directories(${ARCH_DIR})
 include_directories(${ROCKSDB_DIR}/include)
 include_directories(${GLOG_DIR}/src)
 include_directories(${P2P_DIR})
-include_directories(${SYN_DIR})
 
 link_directories(${ROCKSDB_DIR})
 link_directories(${GLOG_DIR}/.libs)
@@ -77,7 +74,6 @@ set(CMAKE_CXX_FLAGS "-Wall")
   find_package(Qt5 REQUIRED Widgets)
   qt5_wrap_cpp( MOC ${CUR_DIR}/examples/store_example_main_widget.h)
   qt5_wrap_ui( UIC ${CUR_DIR}/examples/store_example_main_widget.ui)
-  QT5_ADD_RESOURCES(RCC ${CUR_DIR}/examples/store_example_main_widget.qrc)
   set(QT_SRC
     ${CUR_DIR}/examples/store_example_main_widget.cc
     ${CUR_DIR}/examples/store_example_main_widget.h
@@ -93,12 +89,10 @@ set(CMAKE_CXX_FLAGS "-Wall")
     ${DIR_BLAKE2_SRCS}
     ${DIR_CRYPTOPP_SRCS}
     ${DIR_P2P_SRCS}
-    ${DIR_SYN_SRCS}
     ${CUR_DIR}/libs/ed25519-donna/ed25519.c
     ${CUR_DIR}/examples/unit_store.cc
-    ${DIR_SYNC}
+    ${CUR_DIR}/examples/net_test.cc
     ${QT_SRC}
     ${MOC}
-    ${RCC}
     )
   target_link_libraries(unit_store_example Qt5::Widgets)

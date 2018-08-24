@@ -15,8 +15,8 @@
 #include <boost/threadpool.hpp>
 #include <store/store_manager.h>
 
-#define FixedRate 70
-#define MaxConnections 12
+#define FIXED_RATE 70
+#define MAX_CONNECTIONS 12
 
 ambr::syn::Impl::Impl(Ptr_StoreManager p_store_manager)
   : exit_(false)
@@ -41,7 +41,7 @@ bool ambr::syn::Impl::Init(const SynManagerConfig &config){
   p_peerLogicValidation_ = std::make_shared<PeerLogicValidation>(this, *p_scheduler, gArgs.GetBoolArg("-enablebip61", DEFAULT_ENABLE_BIP61));
 
   CConnman::Options connOptions;
-  connOptions.nMaxConnections = MaxConnections;
+  connOptions.nMaxConnections = MAX_CONNECTIONS;
   connOptions.nLocalServices = ServiceFlags(NODE_NETWORK | NODE_NETWORK_LIMITED);
   connOptions.nMaxOutbound = std::min(MAX_OUTBOUND_CONNECTIONS, connOptions.nMaxConnections);
   connOptions.nMaxAddnode = MAX_ADDNODE_CONNECTIONS;
@@ -107,7 +107,6 @@ bool ambr::syn::Impl::Init(const SynManagerConfig &config){
 }
 
 void ambr::syn::Impl::RemoveNode(CNode* p_node, uint32_t second){
-  p_node->CloseSocketDisconnect();
   list_in_nodes_.remove(p_node);
   list_out_nodes_.remove(p_node);
 }
@@ -331,7 +330,7 @@ bool ambr::syn::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode* p_node){
             }
 
             if(last_unithash == newest_unithash){
-              if(nullptr == ptr_unit || ptr_unit && FixedRate <= validator_unit->percent()){
+              if(nullptr == ptr_unit || ptr_unit && FIXED_RATE <= validator_unit->percent()){
                 if(p_storemanager_->AddValidateUnit(validator_unit, nullptr)){
                   BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, buf), p_node);
                 }
@@ -473,7 +472,7 @@ bool ambr::syn::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode* p_node){
                   }
 
                   if(last_unithash == newest_unithash){
-                    if(nullptr == ptr_unit || ptr_unit && FixedRate <= validator_unit->percent()){
+                    if(nullptr == ptr_unit || ptr_unit && FIXED_RATE <= validator_unit->percent()){
                       p_storemanager_->AddValidateUnit(validator_unit, nullptr);
                     }
                   }
