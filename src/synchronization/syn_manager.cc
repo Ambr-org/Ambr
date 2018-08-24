@@ -308,20 +308,14 @@ bool ambr::syn::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode* p_node){
 
           if(validator_unit){
             ambr::core::UnitHash newest_unithash;
-            std::shared_ptr<ambr::core::Unit> ptr_unit = nullptr;
+            std::shared_ptr<ambr::core::ValidatorUnit> ptr_unit = nullptr;
             const ambr::core::UnitHash& last_unithash = validator_unit->prev_unit();
 
             if(p_storemanager_->GetLastValidateUnit(newest_unithash)){
               while(last_unithash != newest_unithash){
-                std::shared_ptr<ambr::store::UnitStore>&& ptr_unitstore = p_storemanager_->GetUnit(newest_unithash);
-                if(ptr_unitstore){
-                  ptr_unit = ptr_unitstore->GetUnit();
-                  if(ptr_unit){
-                    newest_unithash = ptr_unit->prev_unit();
-                  }
-                  else{
-                    break;
-                  }
+                ptr_unit = p_storemanager_->GetValidateUnit(newest_unithash);
+                if(ptr_unit){
+                  newest_unithash = ptr_unit->prev_unit();
                 }
                 else{
                   break;
@@ -330,10 +324,14 @@ bool ambr::syn::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode* p_node){
             }
 
             if(last_unithash == newest_unithash){
-              if(nullptr == ptr_unit || ptr_unit && FIXED_RATE <= validator_unit->percent()){
-                if(p_storemanager_->AddValidateUnit(validator_unit, nullptr)){
-                  BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, buf), p_node);
-                }
+              if(nullptr == ptr_unit){
+                p_storemanager_->AddValidateUnit(validator_unit, nullptr);
+                BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, buf), p_node);
+              }
+              else if(ptr_unit && FIXED_RATE <= validator_unit->percent()){
+                p_storemanager_->RemoveUnit(ptr_unit->hash(), nullptr);
+                p_storemanager_->AddValidateUnit(validator_unit, nullptr);
+                BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, buf), p_node);
               }
             }
             else{
@@ -455,15 +453,9 @@ bool ambr::syn::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode* p_node){
 
                   if(p_storemanager_->GetLastValidateUnit(newest_unithash)){
                     while(last_unithash != newest_unithash){
-                      std::shared_ptr<ambr::store::UnitStore>&& ptr_unitstore = p_storemanager_->GetUnit(newest_unithash);
-                      if(ptr_unitstore){
-                          ptr_unit = ptr_unitstore->GetUnit();
-                          if(ptr_unit){
-                            newest_unithash = ptr_unit->prev_unit();
-                          }
-                          else{
-                            break;
-                          }
+                      ptr_unit = p_storemanager_->GetValidateUnit(newest_unithash);
+                      if(ptr_unit){
+                        newest_unithash = ptr_unit->prev_unit();
                       }
                       else{
                         break;
@@ -472,7 +464,11 @@ bool ambr::syn::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode* p_node){
                   }
 
                   if(last_unithash == newest_unithash){
-                    if(nullptr == ptr_unit || ptr_unit && FIXED_RATE <= validator_unit->percent()){
+                    if(nullptr == ptr_unit){
+                      p_storemanager_->AddValidateUnit(validator_unit, nullptr);
+                    }
+                    else if(ptr_unit && FIXED_RATE <= validator_unit->percent()){
+                      p_storemanager_->RemoveUnit(ptr_unit->hash(), nullptr);
                       p_storemanager_->AddValidateUnit(validator_unit, nullptr);
                     }
                   }
