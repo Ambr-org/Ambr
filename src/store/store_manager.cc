@@ -6,6 +6,8 @@
 #include "store_manager.h"
 #include <memory>
 #include <boost/filesystem.hpp>
+#include <map>
+#include <set>
 #include <unordered_map>
 #include <rocksdb/db.h>
 #include <rocksdb/slice.h>
@@ -332,6 +334,7 @@ bool ambr::store::StoreManager::AddReceiveUnit(std::shared_ptr<ambr::core::Recei
   DoReceiveNewReceiveUnit(receive_unit);
   return true;
 }
+
 bool ambr::store::StoreManager::AddEnterValidatorSetUnit(std::shared_ptr<ambr::core::EnterValidateSetUint> unit, std::string *err){
   LockGrade lk(mutex_);
   if(!unit){
@@ -364,7 +367,7 @@ bool ambr::store::StoreManager::AddEnterValidatorSetUnit(std::shared_ptr<ambr::c
     return false;
   }
 
-  if(unit->balance().data() - prv_store->GetUnit()->balance().data() < min_validator_balance.data()){
+  if(unit->balance().data() - prv_store->GetUnit()->balance().data()+unit->SerializeByte().size()*GetTransectionFeeBase() < min_validator_balance.data()){
     if(err){
       *err = "Cash deposit is not enough";
     }
@@ -758,7 +761,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
               core::Amount old_balance = unit_tmp->GetUnit()->balance();
               store::ValidatorItem validator_item;
               validator_item.validator_public_key_ = enter_unit->GetUnit()->public_key();
-              validator_item.balance_ = old_balance-new_balance;
+              validator_item.balance_ = old_balance-new_balance-unit_tmp->SerializeByte().size()*GetTransectionFeeBase();
               validator_item.enter_nonce_ = unit->nonce()+2;
               validator_item.leave_nonce_ = 0;
               validator_set_list->JoinValidator(validator_item);
