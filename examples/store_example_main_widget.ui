@@ -271,7 +271,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
    <item>
     <widget class="QTabWidget" name="tabMain">
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab_7">
       <attribute name="title">
@@ -694,8 +694,8 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                        <rect>
                         <x>0</x>
                         <y>0</y>
-                        <width>579</width>
-                        <height>525</height>
+                        <width>354</width>
+                        <height>466</height>
                        </rect>
                       </property>
                       <layout class="QVBoxLayout" name="verticalLayout_48">
@@ -1284,7 +1284,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                       <x>0</x>
                       <y>0</y>
                       <width>599</width>
-                      <height>1361</height>
+                      <height>1245</height>
                      </rect>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_31">
@@ -1881,7 +1881,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
               <x>0</x>
               <y>0</y>
               <width>840</width>
-              <height>793</height>
+              <height>803</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_22">
@@ -1914,9 +1914,9 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-365</y>
+              <y>0</y>
               <width>374</width>
-              <height>1158</height>
+              <height>919</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_49">
@@ -2128,7 +2128,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                   <property name="minimumSize">
                    <size>
                     <width>0</width>
-                    <height>200</height>
+                    <height>72</height>
                    </size>
                   </property>
                  </widget>
@@ -2232,8 +2232,8 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>50</width>
-                   <height>50</height>
+                   <width>40</width>
+                   <height>40</height>
                   </size>
                  </property>
                  <property name="maximumSize">
@@ -2317,8 +2317,8 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>50</width>
-                   <height>50</height>
+                   <width>40</width>
+                   <height>40</height>
                   </size>
                  </property>
                  <property name="maximumSize">
