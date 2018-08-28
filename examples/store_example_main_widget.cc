@@ -50,6 +50,12 @@ StoreExampleMainWidget::StoreExampleMainWidget(std::shared_ptr<ambr::store::Stor
   connect(this, SIGNAL(sgConnect(CNode*)), this, SLOT(onDealConnect(CNode*)));
   connect(this, SIGNAL(sgDisconnected(CNode*)), this, SLOT(onDealDisconnected(CNode*)));
 
+  store_manager_->AddCallBackReceiveNewSendUnit(std::bind(&ambr::syn::SynManager::BoardCastNewSendUnit, p_syn_manager.get(), std::placeholders::_1));
+  store_manager_->AddCallBackReceiveNewReceiveUnit(std::bind(&ambr::syn::SynManager::BoardCastNewReceiveUnit, p_syn_manager.get(), std::placeholders::_1));
+  store_manager_->AddCallBackReceiveNewValidatorUnit(std::bind(&ambr::syn::SynManager::BoardCastNewValidatorUnit, p_syn_manager.get(), std::placeholders::_1));
+  store_manager_->AddCallBackReceiveNewJoinValidatorSetUnit(std::bind(&ambr::syn::SynManager::BoardCastNewJoinValidatorSetUnit, p_syn_manager.get(), std::placeholders::_1));
+  store_manager_->AddCallBackReceiveNewLeaveValidatorSetUnit(std::bind(&ambr::syn::SynManager::BoardCastNewLeaveValidatorSetUnit, p_syn_manager.get(), std::placeholders::_1));
+
   for(int i = 0; i < 32; i++){
     validator_auto_.push_back(std::make_shared<ambr::utils::ValidatorAuto>(store_manager));
   }
@@ -637,7 +643,6 @@ void StoreExampleMainWidget::on_btnTranslateSend_clicked(){
       std::vector<uint8_t> buf = unit_out->SerializeByte();
       std::string str_data;
       str_data.assign(buf.begin(), buf.end());
-      p_syn_manager->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
     }
     str = str + "Send success.tx_hash:" + hash.encode_to_hex().c_str();
   }else{
@@ -681,7 +686,6 @@ void StoreExampleMainWidget::on_btnTranslateReceive_clicked(){
       std::vector<uint8_t> buf = unit_out->SerializeByte();
       std::string str_data;
       str_data.assign(buf.begin(), buf.end());
-      p_syn_manager->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
     }
     ambr::core::Amount amount;
     assert(store_manager_->GetSendAmount(from, amount, &err));
@@ -755,7 +759,6 @@ void StoreExampleMainWidget::on_btnAddSV_clicked(){
     std::vector<uint8_t>&& buf = unit->SerializeByte();
     std::string str_data;
     str_data.assign(buf.begin(), buf.end());
-    p_syn_manager->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
     ui->edtSVLOG->setPlainText(("Success:"+unit->SerializeJson()).c_str());
   }else{
     ui->edtSVLOG->setPlainText(("Faild:"+str_err).c_str());
@@ -1117,7 +1120,6 @@ void StoreExampleMainWidget::on_btnPVValidatorUnit_clicked(){
     std::vector<uint8_t>&& buf = unit->SerializeByte();
     std::string str_data;
     str_data.assign(buf.begin(), buf.end());
-    p_syn_manager->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
     ui->edtPVLOG->setPlainText(QString("Add validator unit success:")+unit->SerializeJson().c_str());
   }else{
     ui->edtPVLOG->setPlainText(QString("Add validator unit faild:")+str_err.c_str());

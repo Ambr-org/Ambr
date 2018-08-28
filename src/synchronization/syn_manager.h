@@ -149,6 +149,12 @@ public:
   void SetOnAcceptNode(const std::function<void(CNode*)>& func);
   void SetOnConnectedNode(const std::function<void(CNode*)>& func);
   void SetOnDisconnectNode(const std::function<void(CNode*)>& func);
+
+  void BoardCastNewSendUnit(std::shared_ptr<core::SendUnit> p_unit);
+  void BoardCastNewReceiveUnit(std::shared_ptr<core::ReceiveUnit> p_unit);
+  void BoardCastNewValidatorUnit(std::shared_ptr<core::ValidatorUnit> p_unit);
+  void BoardCastNewJoinValidatorSetUnit(std::shared_ptr<core::EnterValidateSetUint> p_unit);
+  void BoardCastNewLeaveValidatorSetUnit(std::shared_ptr<core::LeaveValidateSetUint> p_unit);
 private:
   Impl* p_impl_;
 };
