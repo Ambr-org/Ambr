@@ -530,3 +530,38 @@ void ambr::syn::SynManager::SetOnConnectedNode(const std::function<void(CNode*)>
 void ambr::syn::SynManager::SetOnDisconnectNode(const std::function<void(CNode*)>& func){
   p_impl_->SetOnDisconnect(func);
 }
+
+void ambr::syn::SynManager::BoardCastNewSendUnit(std::shared_ptr<core::SendUnit> p_unit){
+    std::vector<uint8_t>&& buf = p_unit->SerializeByte();
+    std::string str_data;
+    str_data.assign(buf.begin(), buf.end());
+    p_impl_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
+}
+
+void ambr::syn::SynManager::BoardCastNewReceiveUnit(std::shared_ptr<core::ReceiveUnit> p_unit){
+    std::vector<uint8_t>&& buf = p_unit->SerializeByte();
+    std::string str_data;
+    str_data.assign(buf.begin(), buf.end());
+    p_impl_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
+}
+
+void ambr::syn::SynManager::BoardCastNewValidatorUnit(std::shared_ptr<core::ValidatorUnit> p_unit){
+    std::vector<uint8_t>&& buf = p_unit->SerializeByte();
+    std::string str_data;
+    str_data.assign(buf.begin(), buf.end());
+    p_impl_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
+}
+
+void ambr::syn::SynManager::BoardCastNewJoinValidatorSetUnit(std::shared_ptr<core::EnterValidateSetUint> p_unit){
+    std::vector<uint8_t>&& buf = p_unit->SerializeByte();
+    std::string str_data;
+    str_data.assign(buf.begin(), buf.end());
+    p_impl_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
+}
+
+void ambr::syn::SynManager::BoardCastNewLeaveValidatorSetUnit(std::shared_ptr<core::LeaveValidateSetUint> p_unit){
+    std::vector<uint8_t>&& buf = p_unit->SerializeByte();
+    std::string str_data;
+    str_data.assign(buf.begin(), buf.end());
+    p_impl_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
+}
