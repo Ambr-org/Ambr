@@ -201,6 +201,13 @@ public:
   virtual bool SignatureAndFill(const PrivateKey& key) override;
   virtual bool Validate(std::string* err) const override;
 public:
+  bool operator ==(const VoteUnit& it) const {
+      if(this->version_==it.version_ && this->type_==it.type_ && this->public_key_==it.public_key_ && this->prev_unit_==it.prev_unit_
+         &&this->balance_==it.balance_&&this->hash_==it.hash_&&this->sign_==it.sign_ && this->validator_unit_hash_==it.validator_unit_hash_
+         && this->accept_==it.accept_)
+        return true;
+      return false;
+    }
   void set_validator_unit_hash(const UnitHash& hash){
     validator_unit_hash_ = hash;
   }

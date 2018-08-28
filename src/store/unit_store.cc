@@ -80,6 +80,11 @@ bool ambr::store::SendUnitStore::DeSerializeJson(const std::string &json){
 std::vector<uint8_t> ambr::store::SendUnitStore::SerializeByte() const{
   assert(unit_);
   std::vector<uint8_t> rtn = unit_->SerializeByte();
+  uint32_t len=rtn.size();
+  std::vector<uint8_t> len_buf;
+  len_buf.resize(sizeof(len));
+  memcpy(len_buf.data(),&len,sizeof(len));
+  rtn.insert(rtn.begin(),len_buf.begin(),len_buf.end());
   rtn.insert(rtn.end(), (uint8_t*)&version_, (uint8_t*)&version_+sizeof(version_));
   rtn.insert(rtn.end(),receive_unit_hash_.bytes().begin(), receive_unit_hash_.bytes().end());
   rtn.push_back(is_validate_);
@@ -88,13 +93,16 @@ std::vector<uint8_t> ambr::store::SendUnitStore::SerializeByte() const{
 
 bool ambr::store::SendUnitStore::DeSerializeByte(const std::vector<uint8_t> &buf){
   unit_ = std::make_shared<core::SendUnit>();
-  size_t used_count = 0;
-  if(!unit_->DeSerializeByte(buf, &used_count)){
+  uint32_t len;
+  memcpy(&len,buf.data(),sizeof(len));
+  std::vector<uint8_t> unit_buf;
+  unit_buf.resize(len);
+  memcpy(unit_buf.data(),buf.data()+sizeof(len),len);
+  if(!unit_->DeSerializeByte(unit_buf)){
     return false;
   }
-  if(buf.size()-used_count < sizeof(version_)){
-    return false;
-  }
+
+  size_t used_count = len+sizeof(len);
   const uint8_t* src = &buf[used_count];
   memcpy(&version_, src, sizeof(version_));
   src += sizeof(version_);
@@ -166,6 +174,11 @@ bool ambr::store::ReceiveUnitStore::DeSerializeJson(const std::string &json){
 std::vector<uint8_t> ambr::store::ReceiveUnitStore::SerializeByte() const{
   assert(unit_);
   std::vector<uint8_t> rtn = unit_->SerializeByte();
+  uint32_t len=rtn.size();
+  std::vector<uint8_t> len_buf;
+  len_buf.resize(sizeof(len));
+  memcpy(len_buf.data(),&len,sizeof(len));
+  rtn.insert(rtn.begin(),len_buf.begin(),len_buf.end());
   rtn.insert(rtn.end(), (uint8_t*)&version_, (uint8_t*)&version_+sizeof(version_));
   rtn.push_back(is_validate_);
   return rtn;
@@ -173,13 +186,16 @@ std::vector<uint8_t> ambr::store::ReceiveUnitStore::SerializeByte() const{
 
 bool ambr::store::ReceiveUnitStore::DeSerializeByte(const std::vector<uint8_t> &buf){
   unit_ = std::make_shared<core::ReceiveUnit>();
-  size_t used_count = 0;
-  if(!unit_->DeSerializeByte(buf, &used_count)){
+  uint32_t len;
+  memcpy(&len,buf.data(),sizeof(len));
+  std::vector<uint8_t> unit_buf;
+  unit_buf.resize(len);
+  memcpy(unit_buf.data(),buf.data()+sizeof(len),len);
+  if(!unit_->DeSerializeByte(unit_buf)){
     return false;
   }
-  if(buf.size()-used_count < sizeof(version_)){
-    return false;
-  }
+
+  size_t used_count = len+sizeof(len);
   const uint8_t* src = &buf[used_count];
   memcpy(&version_, src, sizeof(version_));
   src += sizeof(version_);
@@ -188,7 +204,6 @@ bool ambr::store::ReceiveUnitStore::DeSerializeByte(const std::vector<uint8_t> &
       return false;
     }
     memcpy(&is_validate_, src, sizeof(is_validate_));
-    //deserialize addtion
     return true;
   }//else if(other version)
   return false;

@@ -5,6 +5,7 @@
  **********************************************************************/
 #include "unit.h"
 #include <boost/property_tree/ptree.hpp>
+#include "unit.pb.h"
 #include <boost/property_tree/json_parser.hpp>
 #include <crypto/sha256.h>
 
@@ -81,106 +82,40 @@ bool ambr::core::SendUnit::DeSerializeJson(const std::string& json){
   }
 }
 
-std::vector<uint8_t> ambr::core::SendUnit::SerializeByte() const {
+std::vector<uint8_t> ambr::core::SendUnit::SerializeByte( ) const {
   std::vector<uint8_t> buf;
-  if(version_ == 0x00000001){
-    uint32_t len = sizeof(version_)+sizeof(type_)+sizeof(public_key_)+sizeof(prev_unit_)+sizeof(balance_)+sizeof(hash_)+sizeof(sign_)+sizeof(dest_)
-        +sizeof(data_type_)+sizeof(uint32_t)+data_.size();
-    buf.resize(len);
-
-    uint8_t* dest = buf.data();
-    memcpy(dest, &version_, sizeof(version_));
-    dest += sizeof(version_);
-
-    memcpy(dest, &type_, sizeof(type_));
-    dest += sizeof(type_);
-
-    memcpy(dest, &public_key_, sizeof(public_key_));
-    dest += sizeof(public_key_);
-
-    memcpy(dest, &prev_unit_, sizeof(prev_unit_));
-    dest += sizeof(prev_unit_);
-
-    memcpy(dest, &balance_, sizeof(balance_));
-    dest += sizeof(balance_);
-
-    memcpy(dest, &hash_, sizeof(hash_));
-    dest += sizeof(hash_);
-
-    memcpy(dest, &sign_, sizeof(sign_));
-    dest += sizeof(sign_);
-
-    memcpy(dest, &dest_, sizeof(dest_));
-    dest += sizeof(dest_);
-
-    memcpy(dest, &data_type_, sizeof(data_type_));
-    dest += sizeof(data_type_);
-
-    uint32_t data_len = data_.size();
-    memcpy(dest, &data_len, sizeof(data_len));
-    dest += sizeof(data_len);
-
-    memcpy(dest, data_.data(), data_.size());
-    dest += data_.size();
-  }
+  ::ambr::protobuf::SendUnit obj;
+  obj.set_version_(version_);
+  obj.set_type_((ambr::protobuf::SendUnit::Type)type_);
+  obj.set_public_key_(public_key_.bytes().data(), public_key_.bytes().size());
+  obj.set_prev_unit_(prev_unit_.bytes().data(),prev_unit_.bytes().size());
+  obj.set_balance_(balance_.bytes().data(),balance_.bytes().size());
+  obj.set_hash_(hash_.bytes().data(),hash_.bytes().size());
+  obj.set_sign_(sign_.bytes().data(),sign_.bytes().size());
+  obj.set_dest_(dest_.bytes().data(),dest_.bytes().size());
+  obj.set_data_type_((ambr::protobuf::SendUnit::DataType)data_type_);//data_type
+  obj.set_data_(data_.data(),data_.size());
+  size_t len=obj.ByteSize();
+  buf.resize(obj.ByteSize());
+  obj.SerializeToArray(buf.data(), len);
   return buf;
 }
 
-bool ambr::core::SendUnit::DeSerializeByte(const std::vector<uint8_t> &buf, size_t* used_size){
-  data_.clear();
-  if(buf.size() < sizeof(version_)){
-    return false;
-  }
-  const uint8_t* src = buf.data();
-  memcpy(&version_, src, sizeof(version_));
-  if(version_== 0x00000001){
-    uint32_t len = sizeof(version_) + sizeof(type_)+sizeof(public_key_)+sizeof(prev_unit_)+sizeof(balance_)+sizeof(hash_)+sizeof(sign_)+sizeof(dest_)
-        +sizeof(data_type_)+sizeof(uint32_t);
-    if(buf.size() >= len){
-      memcpy(&version_, src, sizeof(version_));
-      src += sizeof(version_);
-
-      memcpy(&type_, src, sizeof(type_));
-      src += sizeof(type_);
-
-      if(type_ != UnitType::send){
-        return false;
-      }
-
-      memcpy(&public_key_, src, sizeof(public_key_));
-      src += sizeof(public_key_);
-
-      memcpy(&prev_unit_, src, sizeof(prev_unit_));
-      src += sizeof(prev_unit_);
-
-      memcpy(&balance_, src, sizeof(balance_));
-      src += sizeof(balance_);
-
-      memcpy(&hash_, src, sizeof(hash_));
-      src += sizeof(hash_);
-
-      memcpy(&sign_, src, sizeof(sign_));
-      src += sizeof(sign_);
-
-      memcpy(&dest_, src, sizeof(dest_));
-      src += sizeof(dest_);
-
-      memcpy(&data_type_, src, sizeof(data_type_));
-      src += sizeof(data_type_);
-
-      uint32_t data_len;
-      memcpy(&data_len, src, sizeof(data_len));
-      src += sizeof(data_len);
-
-      if(&buf[buf.size()] - src < data_len){
-        return false;
-      }
-      data_.insert(0, (char*)src, data_len);
-      src += data_len;
-      if(used_size)
-        *used_size=src - &buf[0];
-      return true;
-    }
+bool ambr::core::SendUnit::DeSerializeByte(const std::vector<uint8_t> &buf,size_t* used_size){
+  ::ambr::protobuf::SendUnit obj;
+  google::protobuf::io::CodedInputStream stream(buf.data(),buf.size());
+  if(obj.ParseFromCodedStream(&stream)){
+    version_= (uint32_t)obj.version_();
+    type_=((ambr::core::UnitType)obj.type_());
+    public_key_.set_bytes(obj.public_key_().data(),obj.public_key_().size());
+    prev_unit_.set_bytes(obj.prev_unit_().data(),obj.prev_unit_().size());
+    balance_.set_bytes(obj.balance_().data(),obj.balance_().size());
+    hash_.set_bytes(obj.hash_().data(),obj.hash_().size());
+    sign_.set_bytes(obj.sign_().data(),obj.sign_().size());
+    dest_.set_bytes(obj.dest_().data(),obj.dest_().size());
+    data_type_=((ambr::core::SendUnit::DataType)obj.data_type_());
+    data_=obj.data_();
+    return true;
   }
   return false;
 }
@@ -274,79 +209,36 @@ bool ambr::core::ReceiveUnit::DeSerializeJson(const std::string &json){
   }
 }
 
-std::vector<uint8_t> ambr::core::ReceiveUnit::SerializeByte() const{
+std::vector<uint8_t> ambr::core::ReceiveUnit::SerializeByte( ) const {
   std::vector<uint8_t> buf;
-  if(version_ == 0x00000001){
-    uint32_t len = sizeof(version_)+sizeof(type_)+sizeof(public_key_)+sizeof(prev_unit_)+sizeof(balance_)+sizeof(hash_)+sizeof(sign_)+sizeof(from_);
-    buf.resize(len);
-
-    uint8_t* dest = buf.data();
-    memcpy(dest, &version_, sizeof(version_));
-    dest += sizeof(version_);
-
-    memcpy(dest, &type_, sizeof(type_));
-    dest += sizeof(type_);
-
-    memcpy(dest, &public_key_, sizeof(public_key_));
-    dest += sizeof(public_key_);
-
-    memcpy(dest, &prev_unit_, sizeof(prev_unit_));
-    dest += sizeof(prev_unit_);
-
-    memcpy(dest, &balance_, sizeof(balance_));
-    dest += sizeof(balance_);
-
-    memcpy(dest, &hash_, sizeof(hash_));
-    dest += sizeof(hash_);
-
-    memcpy(dest, &sign_, sizeof(sign_));
-    dest += sizeof(sign_);
-
-    memcpy(dest, &from_, sizeof(from_));
-    dest += sizeof(from_);
-  }
+  ::ambr::protobuf::ReceiveUnit obj;
+  obj.set_version_(version_);
+  obj.set_type_((ambr::protobuf::ReceiveUnit::Type)type_);
+  obj.set_public_key_(public_key_.bytes().data(), public_key_.bytes().size());
+  obj.set_prev_unit_(prev_unit_.bytes().data(),prev_unit_.bytes().size());
+  obj.set_balance_(balance_.bytes().data(),balance_.bytes().size());
+  obj.set_hash_(hash_.bytes().data(),hash_.bytes().size());
+  obj.set_sign_(sign_.bytes().data(),sign_.bytes().size());
+  obj.set_from_(from_.bytes().data(),from_.bytes().size());
+  size_t len=obj.ByteSize();
+  buf.resize(obj.ByteSize());
+  obj.SerializeToArray(buf.data(), len);
   return buf;
 }
 
-bool ambr::core::ReceiveUnit::DeSerializeByte(const std::vector<uint8_t> &buf, size_t* used_count){
-  if(buf.size() < sizeof(version_)){
-    return false;
-  }
-  const uint8_t* src = buf.data();
-  memcpy(&version_, src, sizeof(version_));
-  if(version_== 0x00000001){
-    uint32_t len = sizeof(version_) + sizeof(type_)+sizeof(public_key_)+sizeof(prev_unit_)+sizeof(balance_)+sizeof(hash_)+sizeof(sign_)+sizeof(from_);
-    if(buf.size() >= len){
-      memcpy(&version_, src, sizeof(version_));
-      src += sizeof(version_);
-
-      memcpy(&type_, src, sizeof(type_));
-      src += sizeof(type_);
-
-      if(type_ != UnitType::receive){
-        return false;
-      }
-
-      memcpy(&public_key_, src, sizeof(public_key_));
-      src += sizeof(public_key_);
-
-      memcpy(&prev_unit_, src, sizeof(prev_unit_));
-      src += sizeof(prev_unit_);
-
-      memcpy(&balance_, src, sizeof(balance_));
-      src += sizeof(balance_);
-
-      memcpy(&hash_, src, sizeof(hash_));
-      src += sizeof(hash_);
-
-      memcpy(&sign_, src, sizeof(sign_));
-      src += sizeof(sign_);
-
-      memcpy(&from_, src, sizeof(from_));
-      src += sizeof(from_);
-      if(used_count)*used_count = len;
-      return true;
-    }
+bool ambr::core::ReceiveUnit::DeSerializeByte(const std::vector<uint8_t> &buf,size_t* used_size){
+  ::ambr::protobuf::ReceiveUnit obj;
+  google::protobuf::io::CodedInputStream stream(buf.data(),buf.size());
+  if(obj.ParseFromCodedStream(&stream)){
+    version_= (uint32_t)obj.version_();
+    type_=((ambr::core::UnitType)obj.type_());
+    public_key_.set_bytes(obj.public_key_().data(),obj.public_key_().size());
+    prev_unit_.set_bytes(obj.prev_unit_().data(),obj.prev_unit_().size());
+    balance_.set_bytes(obj.balance_().data(),obj.balance_().size());
+    hash_.set_bytes(obj.hash_().data(),obj.hash_().size());
+    sign_.set_bytes(obj.sign_().data(),obj.sign_().size());
+    from_.set_bytes(obj.from_().data(),obj.from_().size());
+    return true;
   }
   return false;
 }
@@ -443,84 +335,38 @@ bool ambr::core::VoteUnit::DeSerializeJson(const std::string& json){
   }
 }
 
-std::vector<uint8_t> ambr::core::VoteUnit::SerializeByte() const{
+std::vector<uint8_t> ambr::core::VoteUnit::SerializeByte( ) const {
   std::vector<uint8_t> buf;
-  if(version_ == 0x00000001){
-    uint32_t len = sizeof(version_)+sizeof(type_)+sizeof(public_key_)+sizeof(prev_unit_)+sizeof(balance_)+sizeof(hash_)+sizeof(sign_)+sizeof(validator_unit_hash_)+sizeof(accept_);
-    buf.resize(len);
-
-    uint8_t* dest = buf.data();
-    memcpy(dest, &version_, sizeof(version_));
-    dest += sizeof(version_);
-
-    memcpy(dest, &type_, sizeof(type_));
-    dest += sizeof(type_);
-
-    memcpy(dest, &public_key_, sizeof(public_key_));
-    dest += sizeof(public_key_);
-
-    memcpy(dest, &prev_unit_, sizeof(prev_unit_));
-    dest += sizeof(prev_unit_);
-
-    memcpy(dest, &balance_, sizeof(balance_));
-    dest += sizeof(balance_);
-
-    memcpy(dest, &hash_, sizeof(hash_));
-    dest += sizeof(hash_);
-
-    memcpy(dest, &sign_, sizeof(sign_));
-    dest += sizeof(sign_);
-    memcpy(dest, &validator_unit_hash_, sizeof(validator_unit_hash_));
-    dest += sizeof(validator_unit_hash_);
-
-    memcpy(dest, &accept_, sizeof(accept_));
-  }
+  ::ambr::protobuf::VoteUnit obj;
+  obj.set_version_(version_);
+  obj.set_type_((ambr::protobuf::VoteUnit::Type)type_);
+  obj.set_public_key_(public_key_.bytes().data(), public_key_.bytes().size());
+  obj.set_prev_unit_(prev_unit_.bytes().data(),prev_unit_.bytes().size());
+  obj.set_balance_(balance_.bytes().data(),balance_.bytes().size());
+  obj.set_hash_(hash_.bytes().data(),hash_.bytes().size());
+  obj.set_sign_(sign_.bytes().data(),sign_.bytes().size());
+  obj.set_validator_unit_hash_(validator_unit_hash_.bytes().data(),validator_unit_hash_.bytes().size());
+  obj.set_accept_((uint8_t)accept_);
+  size_t len=obj.ByteSize();
+  buf.resize(obj.ByteSize());
+  obj.SerializeToArray(buf.data(), len);
   return buf;
 }
 
-bool ambr::core::VoteUnit::DeSerializeByte(const std::vector<uint8_t> &buf, size_t* used_size){
-  if(buf.size() < sizeof(version_)){
-    return false;
-  }
-  const uint8_t* src = buf.data();
-  memcpy(&version_, src, sizeof(version_));
-  if(version_== 0x00000001){
-    uint32_t len = sizeof(version_) + sizeof(type_)+sizeof(public_key_)+sizeof(prev_unit_)+sizeof(balance_)+sizeof(hash_)+sizeof(sign_)+sizeof(validator_unit_hash_)+sizeof(accept_);
-    if(buf.size() >= len){
-      memcpy(&version_, src, sizeof(version_));
-      src += sizeof(version_);
-
-      memcpy(&type_, src, sizeof(type_));
-      src += sizeof(type_);
-
-      if(type_ != UnitType::Vote){
-        return false;
-      }
-
-      memcpy(&public_key_, src, sizeof(public_key_));
-      src += sizeof(public_key_);
-
-      memcpy(&prev_unit_, src, sizeof(prev_unit_));
-      src += sizeof(prev_unit_);
-
-      memcpy(&balance_, src, sizeof(balance_));
-      src += sizeof(balance_);
-
-      memcpy(&hash_, src, sizeof(hash_));
-      src += sizeof(hash_);
-
-      memcpy(&sign_, src, sizeof(sign_));
-      src += sizeof(sign_);
-
-      memcpy(&validator_unit_hash_, src, sizeof(validator_unit_hash_));
-      src += sizeof(validator_unit_hash_);
-
-      memcpy(&accept_, src, sizeof(accept_));
-      src += sizeof(accept_);
-
-      if(used_size)*used_size=len;
-      return true;
-    }
+bool ambr::core::VoteUnit::DeSerializeByte(const std::vector<uint8_t> &buf,size_t* used_size){
+  ::ambr::protobuf::VoteUnit obj;
+  google::protobuf::io::CodedInputStream stream(buf.data(),buf.size());
+  if(obj.ParseFromCodedStream(&stream)){
+    version_= (uint32_t)obj.version_();
+    type_=((ambr::core::UnitType)obj.type_());
+    public_key_.set_bytes(obj.public_key_().data(),obj.public_key_().size());
+    prev_unit_.set_bytes(obj.prev_unit_().data(),obj.prev_unit_().size());
+    balance_.set_bytes(obj.balance_().data(),obj.balance_().size());
+    hash_.set_bytes(obj.hash_().data(),obj.hash_().size());
+    sign_.set_bytes(obj.sign_().data(),obj.sign_().size());
+    validator_unit_hash_.set_bytes(obj.validator_unit_hash_().data(),obj.validator_unit_hash_().size());
+    accept_=(uint8_t)obj.accept_();
+    return true;
   }
   return false;
 }
@@ -668,184 +514,126 @@ bool ambr::core::ValidatorUnit::DeSerializeJson(const std::string& json){
   }
 }
 
+
 std::vector<uint8_t> ambr::core::ValidatorUnit::SerializeByte( ) const {
   std::vector<uint8_t> buf;
-  if(version_ == 0x00000001){
-    uint32_t len = sizeof(version_)+sizeof(type_)+sizeof(public_key_)+sizeof(prev_unit_)+sizeof(balance_)+sizeof(hash_)+sizeof(sign_)+
-        sizeof(uint32_t)+sizeof(UnitHash)*check_list_.size()+
-        sizeof(uint32_t)+sizeof(UnitHash)*vote_hash_list_.size()+
-        sizeof(percent_)+
-        sizeof(uint32_t)+(vote_list_.size()?(vote_list_[0].SerializeByte().size()*vote_list_.size()):0)+
-        sizeof(time_stamp_)+
-        sizeof(nonce_);
-    buf.resize(len);
+  ::ambr::protobuf::ValidatorUnit obj;
+  obj.set_version_(version_);
+  obj.set_type_((ambr::protobuf::ValidatorUnit::Type)type_);
+  obj.set_public_key_(public_key_.bytes().data(), public_key_.bytes().size());
+  obj.set_prev_unit_(prev_unit_.bytes().data(),prev_unit_.bytes().size());
+  obj.set_balance_(balance_.bytes().data(),balance_.bytes().size());
+  obj.set_hash_(hash_.bytes().data(),hash_.bytes().size());
+  obj.set_sign_(sign_.bytes().data(),sign_.bytes().size());
 
-    uint8_t* dest = buf.data();
-    memcpy(dest, &version_, sizeof(version_));
-    dest += sizeof(version_);
-
-    memcpy(dest, &type_, sizeof(type_));
-    dest += sizeof(type_);
-
-    memcpy(dest, &public_key_, sizeof(public_key_));
-    dest += sizeof(public_key_);
-
-    memcpy(dest, &prev_unit_, sizeof(prev_unit_));
-    dest += sizeof(prev_unit_);
-
-    memcpy(dest, &balance_, sizeof(balance_));
-    dest += sizeof(balance_);
-
-    memcpy(dest, &hash_, sizeof(hash_));
-    dest += sizeof(hash_);
-
-    memcpy(dest, &sign_, sizeof(sign_));
-    dest += sizeof(sign_);
-
-    uint32_t tmp_len;
-    tmp_len = check_list_.size();
-    memcpy(dest, &tmp_len, sizeof(tmp_len));
-    dest += sizeof(tmp_len);
-
-    for(UnitHash hash: check_list_){
-      memcpy(dest, &hash, sizeof(hash));
-      dest += sizeof(hash);
-    }
-
-    tmp_len = vote_hash_list_.size();
-    memcpy(dest, &tmp_len, sizeof(tmp_len));
-    dest += sizeof(tmp_len);
-
-    for(UnitHash hash: vote_hash_list_){
-      memcpy(dest, &hash, sizeof(hash));
-      dest += sizeof(hash);
-    }
-
-    memcpy(dest, &percent_, sizeof(percent_));
-    dest += sizeof(percent_);
-
-    tmp_len = vote_list_.size();
-    memcpy(dest, &tmp_len, sizeof(tmp_len));
-    dest += sizeof(tmp_len);
-    for(VoteUnit unit: vote_list_){
-      std::vector<uint8_t> buf = unit.SerializeByte();
-      memcpy(dest, buf.data(), buf.size());
-      dest += buf.size();
-    }
-
-    memcpy(dest, &time_stamp_, sizeof(time_stamp_));
-    dest += sizeof(time_stamp_);
-
-    memcpy(dest, &nonce_, sizeof(nonce_));
-    dest += sizeof(nonce_);
+  for(UnitHash hash: check_list_){
+   std::string check_hash;
+   check_hash.resize(sizeof(hash));
+   memcpy((void *)check_hash.data(), &hash, sizeof(hash));
+    *obj.mutable_check_list_()->Add() = check_hash;
   }
+
+  for(UnitHash hash: vote_hash_list_){
+    std::string vote_hash;
+    vote_hash.resize(sizeof(hash));
+    memcpy((void *)vote_hash.data(), &hash, sizeof(hash));
+    *obj.mutable_vote_hash_list_()->Add()=vote_hash;
+  }
+
+   obj.set_percent_(percent_);
+
+  for(VoteUnit unit: vote_list_){
+    ::ambr::protobuf::VoteUnit vote_unit_proto;
+    vote_unit_proto.set_version_(unit.version());
+    vote_unit_proto.set_type_((ambr::protobuf::VoteUnit::Type)unit.type());
+    vote_unit_proto.set_public_key_(unit.public_key().bytes().data(), unit.public_key().bytes().size());
+    vote_unit_proto.set_prev_unit_(unit.prev_unit().bytes().data(), unit.prev_unit().bytes().size());
+    vote_unit_proto.set_balance_(unit.balance().bytes().data(), unit.balance().bytes().size());
+    vote_unit_proto.set_hash_(unit.hash().bytes().data(), unit.hash().bytes().size());
+    vote_unit_proto.set_sign_(unit.sign().bytes().data(), unit.sign().bytes().size());
+    vote_unit_proto.set_validator_unit_hash_(unit.validator_unit_hash().bytes().data(), unit.validator_unit_hash().bytes().size());
+    vote_unit_proto.set_accept_((uint32_t)unit.accept());
+
+    *obj.mutable_vote_list_()->Add() = vote_unit_proto;
+  }
+    obj.set_nonce_(nonce_);
+    obj.set_time_stamp_(time_stamp_);
+
+    size_t len=obj.ByteSize();
+    buf.resize(obj.ByteSize());
+    obj.SerializeToArray(buf.data(), len);
   return buf;
 }
 
-bool ambr::core::ValidatorUnit::DeSerializeByte(const std::vector<uint8_t> &buf, size_t* used_size){
-  if(buf.size() < sizeof(version_)){
-    return false;
-  }
-  const uint8_t* src = buf.data();
-  memcpy(&version_, src, sizeof(version_));
-  if(version_== 0x00000001){
-    uint32_t len = sizeof(version_) + sizeof(type_)+sizeof(public_key_)+sizeof(prev_unit_)+sizeof(balance_)+sizeof(hash_)+sizeof(sign_)+sizeof(uint32_t)+sizeof(time_stamp_);
-    if(buf.size() >= len){
-      memcpy(&version_, src, sizeof(version_));
-      src += sizeof(version_);
+bool ambr::core::ValidatorUnit::DeSerializeByte(const std::vector<uint8_t> &buf,size_t* used_size){
+  ::ambr::protobuf::ValidatorUnit obj;
 
-      memcpy(&type_, src, sizeof(type_));
-      src += sizeof(type_);
+  check_list_.clear();
+  vote_hash_list_.clear();
+  vote_list_.clear();
+  google::protobuf::io::CodedInputStream stream(buf.data(),buf.size());
+  if(obj.ParseFromCodedStream(&stream)){
+    version_= (uint32_t)obj.version_();
+    type_=((ambr::core::UnitType)obj.type_());
+    public_key_.set_bytes(obj.public_key_().data(),obj.public_key_().size());
+    prev_unit_.set_bytes(obj.prev_unit_().data(),obj.prev_unit_().size());
+    balance_.set_bytes(obj.balance_().data(),obj.balance_().size());
+    hash_.set_bytes(obj.hash_().data(),obj.hash_().size());
+    sign_.set_bytes(obj.sign_().data(),obj.sign_().size());
 
-      if(type_ != UnitType::Validator){
-        return false;
-      }
-
-      memcpy(&public_key_, src, sizeof(public_key_));
-      src += sizeof(public_key_);
-
-      memcpy(&prev_unit_, src, sizeof(prev_unit_));
-      src += sizeof(prev_unit_);
-
-      memcpy(&balance_, src, sizeof(balance_));
-      src += sizeof(balance_);
-
-      memcpy(&hash_, src, sizeof(hash_));
-      src += sizeof(hash_);
-
-      memcpy(&sign_, src, sizeof(sign_));
-      src += sizeof(sign_);
-
-      const uint8_t* end_point = &buf[buf.size()];
-      uint32_t len;
-      memcpy(&len, src, sizeof(len));
-      src += 4;
-      if(end_point - src < len*(uint32_t)sizeof(UnitHash)){
-        return false;
-      }
-
-      for(uint32_t i = 0; i < len; i++){
-        UnitHash hash;
-        memcpy(&hash, src, sizeof(hash));
-        src += sizeof(hash);
-        check_list_.push_back(hash);
-      }
-
-      if(end_point - src < (uint32_t)sizeof(uint32_t)){
-        return false;
-      }
-      memcpy(&len, src, sizeof(len));
-      src += sizeof(len);
-
-      if(end_point - src < len*(uint32_t)sizeof(UnitHash)){
-        return false;
-      }
-
-      for(uint32_t i = 0; i < len; i++){
-        UnitHash hash;
-        memcpy(&hash, src, sizeof(hash));
-        src += sizeof(hash);
-        vote_hash_list_.push_back(hash);
-      }
-
-      if(end_point - src < (uint32_t)sizeof(percent_)){
-        return false;
-      }
-      memcpy(&percent_, src, sizeof(percent_));
-      src += sizeof(percent_);
-
-      if(end_point - src < (uint32_t)sizeof(uint32_t)){
-        return false;
-      }
-      memcpy(&len, src, sizeof(len));
-      src += sizeof(len);
-
-      VoteUnit tmp;
-      tmp.set_version(0x00000001);
-      uint32_t vote_unit_size = tmp.SerializeByte().size();
-      if(end_point - src < vote_unit_size*len){
-        return false;
-      }
-      for(uint32_t i = 0; i < len; i++){
-        std::vector<uint8_t> buf;
-        buf.assign(src, src+vote_unit_size);
-        VoteUnit tmp;
-        if(!tmp.DeSerializeByte(buf)){
-          return false;
-        }
-        vote_list_.push_back(tmp);
-        src += vote_unit_size;
-      }
-
-      memcpy(&time_stamp_, src, sizeof(time_stamp_));
-      src += sizeof(time_stamp_);
-
-      memcpy(&nonce_, src, sizeof(nonce_));
-      src += sizeof(nonce_);
-
-      if(used_size)*used_size=len;
-      return true;
+    for(int i = 0; i < obj.check_list_().size(); i++){
+      UnitHash hash;
+      hash.set_bytes(obj.check_list_(i).data(), obj.check_list_(i).size());
+      check_list_.push_back(hash);
     }
+
+    for(int i=0; i<obj.vote_hash_list_().size(); i++){
+      UnitHash hash;
+      hash.set_bytes(obj.vote_hash_list_(i).data(), obj.vote_hash_list_(i).size());
+      vote_hash_list_.push_back(hash);
+    }
+
+    percent_=(uint32_t)obj.percent_();
+
+    for(int i=0; i<obj.vote_list_().size(); i++){
+      ambr::core::VoteUnit proto_unit;
+      proto_unit.set_version((uint32_t)obj.vote_list_(i).version_());
+      proto_unit.set_type((ambr::core::UnitType)obj.vote_list_(i).type_());
+
+      PublicKey publickey;
+      publickey.set_bytes(obj.vote_list_(i).public_key_().data(), obj.vote_list_(i).public_key_().size());
+      proto_unit.set_public_key(publickey);
+
+      UnitHash prevunit;
+      prevunit.set_bytes(obj.vote_list_(i).prev_unit_().data(), obj.vote_list_(i).prev_unit_().size());
+      proto_unit.set_prev_unit(prevunit);
+
+      Amount amount;
+      amount.set_bytes(obj.vote_list_(i).balance_().data(), obj.vote_list_(i).balance_().size());
+      proto_unit.set_balance(amount);
+
+      UnitHash hash;
+      hash.set_bytes(obj.vote_list_(i).hash_().data(), obj.vote_list_(i).hash_().size());
+      proto_unit.set_hash(hash);
+
+      Signature sign;
+      sign.set_bytes(obj.vote_list_(i).sign_().data(), obj.vote_list_(i).sign_().size());
+      proto_unit.set_sign(sign);
+
+      UnitHash validator_unit_hash;
+      validator_unit_hash.set_bytes(obj.vote_list_(i).validator_unit_hash_().data(), obj.vote_list_(i).validator_unit_hash_().size());
+      proto_unit.set_validator_unit_hash(validator_unit_hash);
+
+      bool accept;
+      accept=obj.vote_list_(i).accept_()==0?0:1;
+      proto_unit.set_accept(accept);
+
+      vote_list_.push_back(proto_unit);
+    }
+
+    nonce_=(uint64_t)obj.nonce_();
+    time_stamp_=(uint64_t)obj.time_stamp_();
+    return true;
   }
   return false;
 }
@@ -950,73 +738,35 @@ bool ambr::core::EnterValidateSetUint::DeSerializeJson(const std::string& json){
   }
 }
 
+
 std::vector<uint8_t> ambr::core::EnterValidateSetUint::SerializeByte( ) const {
   std::vector<uint8_t> buf;
-  if(version_ == 0x00000001){
-    uint32_t len = sizeof(version_)+sizeof(type_)+sizeof(public_key_)+sizeof(prev_unit_)+sizeof(balance_)+sizeof(hash_)+sizeof(sign_);
-    buf.resize(len);
-
-    uint8_t* dest = buf.data();
-    memcpy(dest, &version_, sizeof(version_));
-    dest += sizeof(version_);
-
-    memcpy(dest, &type_, sizeof(type_));
-    dest += sizeof(type_);
-
-    memcpy(dest, &public_key_, sizeof(public_key_));
-    dest += sizeof(public_key_);
-
-    memcpy(dest, &prev_unit_, sizeof(prev_unit_));
-    dest += sizeof(prev_unit_);
-
-    memcpy(dest, &balance_, sizeof(balance_));
-    dest += sizeof(balance_);
-
-    memcpy(dest, &hash_, sizeof(hash_));
-    dest += sizeof(hash_);
-
-    memcpy(dest, &sign_, sizeof(sign_));
-    dest += sizeof(sign_);
-  }
+  ::ambr::protobuf::EnterValidateSetUint obj;
+  obj.set_version_(version_);
+  obj.set_type_((ambr::protobuf::EnterValidateSetUint::Type)type_);
+  obj.set_public_key_(public_key_.bytes().data(), public_key_.bytes().size());
+  obj.set_prev_unit_(prev_unit_.bytes().data(),prev_unit_.bytes().size());
+  obj.set_balance_(balance_.bytes().data(),balance_.bytes().size());
+  obj.set_hash_(hash_.bytes().data(),hash_.bytes().size());
+  obj.set_sign_(sign_.bytes().data(),sign_.bytes().size());
+  size_t len=obj.ByteSize();
+  buf.resize(obj.ByteSize());
+  obj.SerializeToArray(buf.data(), len);
   return buf;
 }
 
-bool ambr::core::EnterValidateSetUint::DeSerializeByte(const std::vector<uint8_t> &buf, size_t* used_size){
-  if(buf.size() < sizeof(version_)){
-    return false;
-  }
-  const uint8_t* src = buf.data();
-  memcpy(&version_, src, sizeof(version_));
-  if(version_== 0x00000001){
-    uint32_t len = sizeof(version_) + sizeof(type_)+sizeof(public_key_)+sizeof(prev_unit_)+sizeof(balance_)+sizeof(hash_)+sizeof(sign_);
-    if(buf.size() >= len){
-      memcpy(&version_, src, sizeof(version_));
-      src += sizeof(version_);
-
-      memcpy(&type_, src, sizeof(type_));
-      src += sizeof(type_);
-
-      if(type_ != UnitType::EnterValidateSet){
-        return false;
-      }
-
-      memcpy(&public_key_, src, sizeof(public_key_));
-      src += sizeof(public_key_);
-
-      memcpy(&prev_unit_, src, sizeof(prev_unit_));
-      src += sizeof(prev_unit_);
-
-      memcpy(&balance_, src, sizeof(balance_));
-      src += sizeof(balance_);
-
-      memcpy(&hash_, src, sizeof(hash_));
-      src += sizeof(hash_);
-
-      memcpy(&sign_, src, sizeof(sign_));
-      src += sizeof(sign_);
-      if(used_size)*used_size=len;
-      return true;
-    }
+bool ambr::core::EnterValidateSetUint::DeSerializeByte(const std::vector<uint8_t> &buf,size_t* used_size){
+  ::ambr::protobuf::EnterValidateSetUint obj;
+  google::protobuf::io::CodedInputStream stream(buf.data(),buf.size());
+  if(obj.ParseFromCodedStream(&stream)){
+    version_= (uint32_t)obj.version_();
+    type_=((ambr::core::UnitType)obj.type_());
+    public_key_.set_bytes(obj.public_key_().data(),obj.public_key_().size());
+    prev_unit_.set_bytes(obj.prev_unit_().data(),obj.prev_unit_().size());
+    balance_.set_bytes(obj.balance_().data(),obj.balance_().size());
+    hash_.set_bytes(obj.hash_().data(),obj.hash_().size());
+    sign_.set_bytes(obj.sign_().data(),obj.sign_().size());
+    return true;
   }
   return false;
 }
@@ -1110,81 +860,34 @@ bool ambr::core::LeaveValidateSetUint::DeSerializeJson(const std::string& json){
 
 std::vector<uint8_t> ambr::core::LeaveValidateSetUint::SerializeByte( ) const {
   std::vector<uint8_t> buf;
-  if(version_ == 0x00000001){
-    uint32_t len = sizeof(version_)+sizeof(type_)+sizeof(public_key_)+
-        sizeof(prev_unit_)+sizeof(balance_)+sizeof(hash_)+
-        sizeof(sign_)+sizeof(unfreeze_count_);
-    buf.resize(len);
-
-    uint8_t* dest = buf.data();
-    memcpy(dest, &version_, sizeof(version_));
-    dest += sizeof(version_);
-
-    memcpy(dest, &type_, sizeof(type_));
-    dest += sizeof(type_);
-
-    memcpy(dest, &public_key_, sizeof(public_key_));
-    dest += sizeof(public_key_);
-
-    memcpy(dest, &prev_unit_, sizeof(prev_unit_));
-    dest += sizeof(prev_unit_);
-
-    memcpy(dest, &balance_, sizeof(balance_));
-    dest += sizeof(balance_);
-
-    memcpy(dest, &hash_, sizeof(hash_));
-    dest += sizeof(hash_);
-
-    memcpy(dest, &sign_, sizeof(sign_));
-    dest += sizeof(sign_);
-
-    memcpy(dest, &unfreeze_count_, sizeof(unfreeze_count_));
-    dest += sizeof(unfreeze_count_);
-  }
+  ::ambr::protobuf::LeaveValidateSetUint obj;
+  obj.set_version_(version_);
+  obj.set_type_((ambr::protobuf::LeaveValidateSetUint::Type)type_);
+  obj.set_public_key_(public_key_.bytes().data(), public_key_.bytes().size());
+  obj.set_prev_unit_(prev_unit_.bytes().data(), prev_unit_.bytes().size());
+  obj.set_balance_(balance_.bytes().data(), balance_.bytes().size());
+  obj.set_hash_(hash_.bytes().data(), hash_.bytes().size());
+  obj.set_sign_(sign_.bytes().data(), sign_.bytes().size());
+  obj.set_unfreeze_count_(unfreeze_count_.bytes().data(), unfreeze_count_.bytes().size());
+  size_t len=obj.ByteSize();
+  buf.resize(obj.ByteSize());
+  obj.SerializeToArray(buf.data(), len);
   return buf;
 }
 
-bool ambr::core::LeaveValidateSetUint::DeSerializeByte(const std::vector<uint8_t> &buf, size_t* used_size){
-  if(buf.size() < sizeof(version_)){
-    return false;
-  }
-  const uint8_t* src = buf.data();
-  memcpy(&version_, src, sizeof(version_));
-  if(version_== 0x00000001){
-    uint32_t len = sizeof(version_) + sizeof(type_)+sizeof(public_key_)+
-        sizeof(prev_unit_)+sizeof(balance_)+sizeof(hash_)+sizeof(sign_)+
-        sizeof(unfreeze_count_);
-    if(buf.size() >= len){
-      memcpy(&version_, src, sizeof(version_));
-      src += sizeof(version_);
-
-      memcpy(&type_, src, sizeof(type_));
-      src += sizeof(type_);
-
-      if(type_ != UnitType::LeaveValidateSet){
-        return false;
-      }
-
-      memcpy(&public_key_, src, sizeof(public_key_));
-      src += sizeof(public_key_);
-
-      memcpy(&prev_unit_, src, sizeof(prev_unit_));
-      src += sizeof(prev_unit_);
-
-      memcpy(&balance_, src, sizeof(balance_));
-      src += sizeof(balance_);
-
-      memcpy(&hash_, src, sizeof(hash_));
-      src += sizeof(hash_);
-
-      memcpy(&sign_, src, sizeof(sign_));
-      src += sizeof(sign_);
-
-      memcpy(&unfreeze_count_, src, sizeof(unfreeze_count_));
-      src += sizeof(unfreeze_count_);
-      if(used_size)*used_size=len;
-      return true;
-    }
+bool ambr::core::LeaveValidateSetUint::DeSerializeByte(const std::vector<uint8_t> &buf,size_t* used_size){
+  ::ambr::protobuf::LeaveValidateSetUint obj;
+  google::protobuf::io::CodedInputStream stream(buf.data(),buf.size());
+  if(obj.ParseFromCodedStream(&stream)){
+    version_= (uint32_t)obj.version_();
+    type_=((ambr::core::UnitType)obj.type_());
+    public_key_.set_bytes(obj.public_key_().data(), obj.public_key_().size());
+    prev_unit_.set_bytes(obj.prev_unit_().data(), obj.prev_unit_().size());
+    balance_.set_bytes(obj.balance_().data(), obj.balance_().size());
+    hash_.set_bytes(obj.hash_().data(), obj.hash_().size());
+    sign_.set_bytes(obj.sign_().data(), obj.sign_().size());
+    unfreeze_count_.set_bytes(obj.unfreeze_count_().data(), obj.unfreeze_count_().size());
+    return true;
   }
   return false;
 }

@@ -25,9 +25,10 @@
   unit_tmp.DeSerializeJson(str1);\
   EXPECT_EQ(str1, unit_tmp.SerializeJson());\
   \
+  decltype(unit_for_test)::element_type  unit_tmp1;\
   std::vector<uint8_t> buf1 = unit_for_test->SerializeByte();\
-  unit_tmp.DeSerializeByte(buf1);\
-  EXPECT_EQ(buf1, unit_tmp.SerializeByte());
+  unit_tmp1.DeSerializeByte(buf1);\
+  EXPECT_EQ(buf1, unit_tmp1.SerializeByte());
 
 #define SERIALIZE_EQ_TEST_VALUE(unit_for_test, param, value) \
 {\
@@ -35,6 +36,8 @@
   SERIALIZE_EQ_TEST_ASSIST(unit_for_test);\
   auto x = unit_tmp.param();\
   EXPECT_EQ(x, value);\
+  auto y = unit_tmp1.param();\
+  EXPECT_EQ(y, value);\
 }
 
 TEST (UnitTest, SendUnit_and_SendUnitStore) {
@@ -104,6 +107,150 @@ TEST (UnitTest, ReceiveUnit_and_ReceiveUnitStore) {
   SERIALIZE_EQ_TEST_VALUE(unit2, type, ambr::store::UnitStore::ST_ReceiveUnit);
   SERIALIZE_EQ_TEST_VALUE(unit2, version, (uint32_t)0x00000001);
   SERIALIZE_EQ_TEST_VALUE(unit2, is_validate, true);
+}
+
+TEST (UnitTest, VoteUnit) {
+  ambr::core::PrivateKey pri_key = ambr::core::CreateRandomPrivateKey();
+  ambr::core::PublicKey pub_key = ambr::core::GetPublicKeyByPrivateKey(pri_key);
+  ambr::core::UnitHash unit_hash_rand;
+  unit_hash_rand.set_bytes(ambr::crypto::Random::CreateRandomArray<256/8>());
+
+  std::shared_ptr<ambr::core::VoteUnit> unit1 = std::make_shared<ambr::core::VoteUnit>();
+  SERIALIZE_EQ_TEST(unit1);
+  SERIALIZE_EQ_TEST_VALUE(unit1, version, (uint32_t)0x00000001);
+  SERIALIZE_EQ_TEST_VALUE(unit1, type, ambr::core::UnitType::Vote);
+  SERIALIZE_EQ_TEST_VALUE(unit1, public_key, pub_key);
+  SERIALIZE_EQ_TEST_VALUE(unit1, prev_unit, unit_hash_rand);
+  ambr::core::Amount amount;
+  amount.set_data(123123123);
+  SERIALIZE_EQ_TEST_VALUE(unit1, balance, amount);
+  SERIALIZE_EQ_TEST_VALUE(unit1, hash, unit_hash_rand);
+  ambr::utils::uint512 sign_tmp;
+  sign_tmp.set_bytes(ambr::crypto::Random::CreateRandomArray<512/8>());
+  SERIALIZE_EQ_TEST_VALUE(unit1, sign, sign_tmp);
+
+  ambr::core::UnitHash random_hash;
+  random_hash.set_bytes(ambr::crypto::Random::CreateRandomArray<256/8>());
+  SERIALIZE_EQ_TEST_VALUE(unit1, validator_unit_hash, random_hash);
+
+  SERIALIZE_EQ_TEST_VALUE(unit1, accept, true);
+
+  unit1->CalcHashAndFill();
+  unit1->SignatureAndFill(pri_key);
+  EXPECT_TRUE(unit1->Validate(nullptr));
+}
+
+TEST (UnitTest, ValidatorUnit) {
+  ambr::core::PrivateKey pri_key = ambr::core::CreateRandomPrivateKey();
+  ambr::core::PublicKey pub_key = ambr::core::GetPublicKeyByPrivateKey(pri_key);
+  ambr::core::UnitHash unit_hash_rand;
+  unit_hash_rand.set_bytes(ambr::crypto::Random::CreateRandomArray<256/8>());
+
+  std::shared_ptr<ambr::core::ValidatorUnit> unit1 = std::make_shared<ambr::core::ValidatorUnit>();
+  SERIALIZE_EQ_TEST(unit1);
+  SERIALIZE_EQ_TEST_VALUE(unit1, version, (uint32_t)0x00000001);
+  SERIALIZE_EQ_TEST_VALUE(unit1, type, ambr::core::UnitType::Validator);
+  SERIALIZE_EQ_TEST_VALUE(unit1, public_key, pub_key);
+  SERIALIZE_EQ_TEST_VALUE(unit1, prev_unit, unit_hash_rand);
+  ambr::core::Amount amount;
+  amount.set_data(123123123);
+  SERIALIZE_EQ_TEST_VALUE(unit1, balance, amount);
+  SERIALIZE_EQ_TEST_VALUE(unit1, hash, unit_hash_rand);
+  ambr::utils::uint512 sign_tmp;
+  sign_tmp.set_bytes(ambr::crypto::Random::CreateRandomArray<512/8>());
+  SERIALIZE_EQ_TEST_VALUE(unit1, sign, sign_tmp);
+
+  ambr::core::UnitHash check_hash_1;
+  check_hash_1.set_bytes(ambr::crypto::Random::CreateRandomArray<256/8>());
+
+  ambr::core::UnitHash check_hash_2;
+  check_hash_2.set_bytes(ambr::crypto::Random::CreateRandomArray<256/8>());
+
+  std::vector<ambr::core::UnitHash> check_list_tmp;
+  check_list_tmp.push_back(check_hash_1);
+  check_list_tmp.push_back(check_hash_2);
+  unit1->set_check_list(check_list_tmp);
+  SERIALIZE_EQ_TEST_VALUE(unit1, check_list, check_list_tmp);
+
+  ambr::core::VoteUnit VoteUnit_1;
+  VoteUnit_1.set_version((uint32_t)0x00000001);
+
+  VoteUnit_1.set_type(ambr::core::UnitType::Vote);
+
+  ambr::core::PrivateKey pri_key_1 = ambr::core::CreateRandomPrivateKey();
+  ambr::core::PublicKey pub_key_1 = ambr::core::GetPublicKeyByPrivateKey(pri_key_1);
+  VoteUnit_1.set_public_key(pub_key_1);
+
+  ambr::core::UnitHash prev_hash_1;
+  prev_hash_1.set_bytes(ambr::crypto::Random::CreateRandomArray<256/8>());
+  VoteUnit_1.set_prev_unit(prev_hash_1);
+
+  ambr::core::Amount amount_1;
+  amount_1.set_data(123123123);
+  VoteUnit_1.set_balance(amount_1);
+
+  ambr::core::UnitHash rand_hash_1;
+  rand_hash_1.set_bytes(ambr::crypto::Random::CreateRandomArray<256/8>());
+  VoteUnit_1.set_validator_unit_hash(rand_hash_1);
+
+  ambr::utils::uint512 sign_tmp_1;
+  sign_tmp_1.set_bytes(ambr::crypto::Random::CreateRandomArray<512/8>());
+  SERIALIZE_EQ_TEST_VALUE(unit1, sign, sign_tmp_1);
+
+  VoteUnit_1.set_accept(true);
+  VoteUnit_1.CalcHashAndFill();
+  VoteUnit_1.SignatureAndFill(pri_key_1);
+  EXPECT_TRUE(VoteUnit_1.Validate(nullptr));
+
+  ambr::core::VoteUnit VoteUnit_2;
+  VoteUnit_2.set_version((uint32_t)0x00000001);
+  VoteUnit_2.set_type(ambr::core::UnitType::Vote);
+  ambr::core::PrivateKey pri_key_2 = ambr::core::CreateRandomPrivateKey();
+  ambr::core::PublicKey pub_key_2= ambr::core::GetPublicKeyByPrivateKey(pri_key_2);
+  VoteUnit_2.set_public_key(pub_key_2);
+  ambr::core::UnitHash prev_hash_2;
+  prev_hash_2.set_bytes(ambr::crypto::Random::CreateRandomArray<256/8>());
+  VoteUnit_2.set_prev_unit(prev_hash_2);
+  ambr::core::Amount amount_2;
+  amount_2.set_data(123123121);
+  VoteUnit_2.set_balance(amount_2);
+  ambr::core::UnitHash rand_hash_2;
+  rand_hash_2.set_bytes(ambr::crypto::Random::CreateRandomArray<256/8>());
+  VoteUnit_2.set_validator_unit_hash(rand_hash_2);
+  VoteUnit_2.set_accept(true);
+
+  ambr::utils::uint512 sign_tmp_2;
+  sign_tmp_2.set_bytes(ambr::crypto::Random::CreateRandomArray<512/8>());
+  SERIALIZE_EQ_TEST_VALUE(unit1, sign, sign_tmp_2);
+
+  VoteUnit_2.CalcHashAndFill();
+  VoteUnit_2.SignatureAndFill(pri_key_2);
+
+  std::string error_string;
+  EXPECT_TRUE(VoteUnit_2.Validate(&error_string));
+
+  std::vector<ambr::core::VoteUnit> vote_list_tmp;
+  vote_list_tmp.push_back(VoteUnit_1);
+  vote_list_tmp.push_back(VoteUnit_2);
+  SERIALIZE_EQ_TEST_VALUE(unit1, vote_list, vote_list_tmp);
+
+
+  ambr::core::UnitHash vote_hash_list_1;
+  vote_hash_list_1=VoteUnit_1.hash();
+  ambr::core::UnitHash vote_hash_list_2;
+  vote_hash_list_2=VoteUnit_2.hash();
+  std::vector<ambr::core::UnitHash> vote_hash_list_tmp;
+  vote_hash_list_tmp.push_back(vote_hash_list_1);
+  vote_hash_list_tmp.push_back(vote_hash_list_2);
+
+  SERIALIZE_EQ_TEST_VALUE(unit1, vote_hash_list, vote_hash_list_tmp);
+
+  SERIALIZE_EQ_TEST_VALUE(unit1, percent, (uint32_t)100998);
+  SERIALIZE_EQ_TEST_VALUE(unit1, nonce, (uint64_t)89888);
+  SERIALIZE_EQ_TEST_VALUE(unit1, time_stamp,(uint64_t)87658);
+  unit1->CalcHashAndFill();
+  unit1->SignatureAndFill(pri_key);
+  EXPECT_TRUE(unit1->Validate(nullptr));
 }
 
 TEST (UnitTest, EnterValidateSetUint) {
