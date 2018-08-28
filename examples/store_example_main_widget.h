@@ -13,7 +13,7 @@
 #include "net.h"
 #include "utils/validator_auto.h"
 #include "synchronization/syn_manager.h"
-
+#include "rpc/rpc_server.h"
 namespace Ui {
   class StoreExampleMainWidget;
 }
@@ -145,6 +145,7 @@ private:
   void StopPublishTrans(const ambr::core::PrivateKey& pri_key);
   uint32_t auto_trans_interval_ = 1000;
   std::unordered_map<ambr::core::PrivateKey, std::pair<bool, std::shared_ptr<std::thread>>> auto_publish_trans_thread_map_;
+  ambr::rpc::RpcServer rpc_server_;
 };
 
 #endif // STORE_EXAMPLE_MAIN_WIDGET_H

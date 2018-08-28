@@ -367,7 +367,7 @@ bool ambr::store::StoreManager::AddEnterValidatorSetUnit(std::shared_ptr<ambr::c
     return false;
   }
 
-  if(unit->balance().data() - prv_store->GetUnit()->balance().data()+unit->SerializeByte().size()*GetTransectionFeeBase() < min_validator_balance.data()){
+  if(unit->balance().data() - prv_store->GetUnit()->balance().data()+unit->SerializeJson().size()*GetTransectionFeeBase() < min_validator_balance.data()){
     if(err){
       *err = "Cash deposit is not enough";
     }
@@ -761,7 +761,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
               core::Amount old_balance = unit_tmp->GetUnit()->balance();
               store::ValidatorItem validator_item;
               validator_item.validator_public_key_ = enter_unit->GetUnit()->public_key();
-              validator_item.balance_ = old_balance-new_balance-unit_tmp->SerializeByte().size()*GetTransectionFeeBase();
+              validator_item.balance_ = old_balance-new_balance-unit_tmp->SerializeJson().size()*GetTransectionFeeBase();
               validator_item.enter_nonce_ = unit->nonce()+2;
               validator_item.leave_nonce_ = 0;
               validator_set_list->JoinValidator(validator_item);
@@ -997,6 +997,48 @@ bool ambr::store::StoreManager::GetSendAmount(const ambr::core::UnitHash &unit_h
   balance_send_pre = store_pre->GetUnit()->balance();
   amount.set_data(balance_send_pre.data()-balance_send.data()-
                   GetTransectionFeeCountWhenReceive(send_store->unit()));
+  return true;
+}
+
+bool ambr::store::StoreManager::GetSendAmountWithTransactionFee(const ambr::core::UnitHash &unit_hash, ambr::core::Amount &amount, std::string *err){
+  LockGrade lk(mutex_);
+  core::Amount balance_send;
+  std::shared_ptr<SendUnitStore> send_store = GetSendUnit(unit_hash);
+  if(!send_store){
+    if(err)*err = "con't find send unit.";
+    return false;
+  }
+  balance_send = send_store->unit()->balance();
+
+  core::Amount balance_send_pre;
+  std::shared_ptr<UnitStore> store_pre = GetUnit(send_store->unit()->prev_unit());
+  if(!store_pre){
+    if(err)*err = "con't find send unit's pre unit.";
+    return false;
+  }
+  balance_send_pre = store_pre->GetUnit()->balance();
+  amount.set_data(balance_send_pre.data()-balance_send.data());
+  return true;
+}
+
+bool ambr::store::StoreManager::GetReceiveAmount(const ambr::core::UnitHash &unit_hash, ambr::core::Amount &amount, std::string *err){
+  LockGrade lk(mutex_);
+  core::Amount balance_now;
+  std::shared_ptr<ReceiveUnitStore> receive_store = GetReceiveUnit(unit_hash);
+  if(!receive_store){
+    if(err)*err = "con't find receive unit.";
+    return false;
+  }
+  balance_now = receive_store->unit()->balance();
+
+  core::Amount balance_pre;
+  std::shared_ptr<UnitStore> store_pre = GetUnit(receive_store->unit()->prev_unit());
+  if(!store_pre){
+    balance_pre = 0;
+  }else{
+    balance_pre = store_pre->GetUnit()->balance();
+  }
+  amount.set_data(balance_now.data()-balance_pre.data());
   return true;
 }
 
@@ -1916,12 +1958,8 @@ uint64_t ambr::store::StoreManager::GetNonceByNowTime(){
   return (interval/GetValidateUnitInterval());
 }
 
-uint64_t ambr::store::StoreManager::GetTransectionFeeBase(){
-  return 1;
-}
-
 uint64_t ambr::store::StoreManager::GetTransectionFeeCountWhenReceive(std::shared_ptr<core::Unit> send_unit){
-  return (send_unit->SerializeByte().size()+core::ReceiveUnit().SerializeByte().size())*GetTransectionFeeBase();
+  return (send_unit->SerializeJson().size()+core::ReceiveUnit().SerializeJson().size())*GetTransectionFeeBase();
 }
 
 std::list<ambr::core::UnitHash> ambr::store::StoreManager::GetAccountListFromAccountForDebug(){

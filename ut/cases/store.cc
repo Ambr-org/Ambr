@@ -33,7 +33,7 @@ TEST (UnitTest, Store) {
       balance_used = balance_used+send_ammout;
       bool result;
       EXPECT_TRUE((result = manager->SendToAddress(test_pub, send_ammout, root_pri_key, &test_hash, added_unit, &err)));
-      used_byte += added_unit->SerializeByte().size();
+      used_byte += added_unit->SerializeJson().size();
       if(!result){
         std::cout<<err<<std::endl;
       }
@@ -43,7 +43,7 @@ TEST (UnitTest, Store) {
     ambr::core::Amount amount_test = 1000*manager->GetTransectionFeeBase();
     EXPECT_TRUE(manager->SendToAddress(test_pub, amount_test, root_pri_key, nullptr, added_unit, nullptr));
     balance_used = balance_used+amount_test;
-    used_byte+=added_unit->SerializeByte().size();
+    used_byte+=added_unit->SerializeJson().size();
     EXPECT_TRUE(manager->GetBalanceByPubKey(ambr::core::GetPublicKeyByPrivateKey(root_pri_key), balance_remainder));
     EXPECT_EQ(balance_remainder, balance_ori-balance_used);
 
@@ -127,7 +127,7 @@ TEST (UnitTest, Store) {
         EXPECT_FALSE(manager->ReceiveFromUnitHash(wait_list.front(), test_pri+1, &test_hash, added_unit, &err));
       }
       EXPECT_TRUE(manager->ReceiveFromUnitHash(wait_list.front(), test_pri, &test_hash, added_unit, &err));
-      used_byte += added_unit->SerializeByte().size();
+      used_byte += added_unit->SerializeJson().size();
       wait_list.pop_front();
     }
     ambr::core::Amount test_amount;
