@@ -1,0 +1,132 @@
+syntax = "proto3"; 
+package ambr;  
+   
+//import "google/protobuf/timestamp.proto"; 
+message SendUnit {  
+	enum Type{
+		Invalidate = 0;
+		send = 1;
+		receive = 2;
+		Vote = 3;
+		Validator = 4;
+		EnterValidateSet = 5;
+		LeaveValidateSet = 6;
+	}
+	uint32 version_=1;	
+	Type type_ =2;
+	bytes public_key_=3;
+	bytes prev_unit_=4;
+	bytes balance_=5;
+	bytes hash_=6;
+	bytes sign_=7;
+	bytes dest_=8;  
+} 
+
+message ReceiveUnit {  
+	enum Type{
+		Invalidate = 0;
+		send = 1;
+		receive = 2;
+		Vote = 3;
+		Validator = 4;
+		EnterValidateSet = 5;
+		LeaveValidateSet = 6;
+	}
+	uint32 version_=1;	
+	Type type_ =2;
+	bytes public_key_=3;
+	bytes prev_unit_=4;
+	bytes balance_=5;
+	bytes hash_=6;
+	bytes sign_=7;
+	bytes from_=8;  
+} 
+
+message VoteUnit {  
+	enum Type{
+		Invalidate = 0;
+		send = 1;
+		receive = 2;
+		Vote = 3;
+		Validator = 4;
+		EnterValidateSet = 5;
+		LeaveValidateSet = 6;
+	}
+	uint32 version_=1;	
+	Type type_ =2;
+	bytes public_key_=3;
+	bytes prev_unit_=4;
+	bytes balance_=5;
+	bytes hash_=6;
+	bytes sign_=7;
+	bytes validator_unit_hash_=8;
+	uint32 accept_=9;  
+} 
+
+message ValidatorUnit {  
+	enum Type{
+		Invalidate = 0;
+		send = 1;
+		receive = 2;
+		Vote = 3;
+		Validator = 4;
+		EnterValidateSet = 5;
+		LeaveValidateSet = 6;
+	}
+
+	uint32 version_=1;	
+	Type type_ =2;
+	bytes public_key_=3;
+	bytes prev_unit_=4;
+	bytes balance_=5;
+	bytes hash_=6;
+	bytes sign_=7;
+	repeated bytes check_list_=8;
+	repeated bytes vote_hash_list_=9;
+	uint32 percent_=10;
+	repeated VoteUnit vote_list_=11;
+	uint64 time_stamp_=12;
+	uint64 nonce_=13;
+	 
+} 
+
+message EnterValidateSetUint {  
+	enum Type{
+		Invalidate = 0;
+		send = 1;
+		receive = 2;
+		Vote = 3;
+		Validator = 4;
+		EnterValidateSet = 5;
+		LeaveValidateSet = 6;
+	}
+	uint32 version_=1;	
+	Type type_ =2;
+	bytes public_key_=3;
+	bytes prev_unit_=4;
+	bytes balance_=5;
+	bytes hash_=6;
+	bytes sign_=7;  
+} 
+
+message LeaveValidateSetUint {  
+	enum Type{
+		Invalidate = 0;
+		send = 1;
+		receive = 2;
+		Vote = 3;
+		Validator = 4;
+		EnterValidateSet = 5;
+		LeaveValidateSet = 6;
+	}
+	uint32 version_=1;	
+	Type type_ =2;
+	bytes public_key_=3;
+	bytes prev_unit_=4;
+	bytes balance_=5;
+	bytes hash_=6;
+	bytes sign_=7;  
+} 
+
+
+

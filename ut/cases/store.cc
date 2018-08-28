@@ -17,12 +17,13 @@ TEST (UnitTest, Store) {
 
   ambr::core::UnitHash test_hash;
   std::shared_ptr<ambr::core::Unit> added_unit;
-  ambr::core::Amount send_ammout = 1;
+  ambr::core::Amount send_ammout = 1000*manager->GetTransectionFeeBase();
   std::string err;
   ambr::core::Amount balance_ori;
   ambr::core::Amount balance_used;
   ambr::core::Amount balance_remainder;
 
+  size_t used_byte = 0;
   //===last_unit_hash===========================
   //test send 1----->SendToAddress
   {
@@ -32,14 +33,17 @@ TEST (UnitTest, Store) {
       balance_used = balance_used+send_ammout;
       bool result;
       EXPECT_TRUE((result = manager->SendToAddress(test_pub, send_ammout, root_pri_key, &test_hash, added_unit, &err)));
+      used_byte += added_unit->SerializeByte().size();
       if(!result){
         std::cout<<err<<std::endl;
       }
       send_ammout = send_ammout*10;
     }
     //param test
-    EXPECT_TRUE(manager->SendToAddress(test_pub, 1, root_pri_key, nullptr, added_unit, nullptr));
-    balance_used = balance_used+1;
+    ambr::core::Amount amount_test = 1000*manager->GetTransectionFeeBase();
+    EXPECT_TRUE(manager->SendToAddress(test_pub, amount_test, root_pri_key, nullptr, added_unit, nullptr));
+    balance_used = balance_used+amount_test;
+    used_byte+=added_unit->SerializeByte().size();
     EXPECT_TRUE(manager->GetBalanceByPubKey(ambr::core::GetPublicKeyByPrivateKey(root_pri_key), balance_remainder));
     EXPECT_EQ(balance_remainder, balance_ori-balance_used);
 
@@ -47,7 +51,7 @@ TEST (UnitTest, Store) {
     //error private key
     EXPECT_FALSE(manager->SendToAddress(test_pub, send_ammout, ambr::core::CreateRandomPrivateKey(), &test_hash, added_unit, &err));
     //error send_ammout(bigger than remainder)
-    EXPECT_FALSE(manager->SendToAddress(test_pub, balance_remainder+1, root_pri_key, &test_hash, added_unit, &err));
+    EXPECT_FALSE(manager->SendToAddress(test_pub, balance_remainder+amount_test, root_pri_key, &test_hash, added_unit, &err));
   }
 
   //==============================
@@ -115,6 +119,7 @@ TEST (UnitTest, Store) {
   {//test receive1 ------>ReceiveFromUnitHash
     //regular operate
     std::list<ambr::core::UnitHash> wait_list = manager->GetWaitForReceiveList(test_pub);
+
     EXPECT_TRUE(wait_list.size() == 14);
     for(size_t i = 0; i < 13; i++){
       {//incorrect operate
@@ -122,11 +127,12 @@ TEST (UnitTest, Store) {
         EXPECT_FALSE(manager->ReceiveFromUnitHash(wait_list.front(), test_pri+1, &test_hash, added_unit, &err));
       }
       EXPECT_TRUE(manager->ReceiveFromUnitHash(wait_list.front(), test_pri, &test_hash, added_unit, &err));
+      used_byte += added_unit->SerializeByte().size();
       wait_list.pop_front();
     }
     ambr::core::Amount test_amount;
     EXPECT_TRUE(manager->GetBalanceByPubKey(test_pub, test_amount));
-    EXPECT_TRUE(test_amount == balance_used);
+    EXPECT_TRUE(test_amount == balance_used - used_byte*manager->GetTransectionFeeBase());
   }
 
   {//test receive2 ------>AddReceiveUnit

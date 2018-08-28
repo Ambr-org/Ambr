@@ -27,7 +27,7 @@ std::shared_ptr<ambr::core::Unit> ambr::core::Unit::CreateUnitByByte(const std::
 }
 
 ambr::core::Unit::Unit():
-  version_(0),
+  version_(0x00000001),
   type_(UnitType::Invalidate),
   public_key_("0"),
   prev_unit_("0"),

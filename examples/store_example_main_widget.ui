@@ -271,7 +271,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
    <item>
     <widget class="QTabWidget" name="tabMain">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab_7">
       <attribute name="title">
@@ -518,7 +518,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
              <item>
               <widget class="QTabWidget" name="tabDebugDown">
                <property name="currentIndex">
-                <number>3</number>
+                <number>2</number>
                </property>
                <widget class="QWidget" name="tab_4">
                 <attribute name="title">
@@ -693,9 +693,9 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                       <property name="geometry">
                        <rect>
                         <x>0</x>
-                        <y>0</y>
-                        <width>354</width>
-                        <height>466</height>
+                        <y>-176</y>
+                        <width>579</width>
+                        <height>525</height>
                        </rect>
                       </property>
                       <layout class="QVBoxLayout" name="verticalLayout_48">
@@ -1914,7 +1914,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>0</y>
+              <y>-226</y>
               <width>374</width>
               <height>919</height>
              </rect>
