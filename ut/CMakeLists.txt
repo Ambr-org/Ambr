@@ -13,6 +13,9 @@ ELSE (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     set(ARCH_DIR ${CUR_DIR}/arch/mac)
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 
+find_package(Protobuf REQUIRED)
+PROTOBUF_GENERATE_CPP(DIR_PROTO_SRCS DIR_PROTO_HDRS ${CUR_DIR}/src/proto/unit.proto)
+
 aux_source_directory(${ARCH_DIR} DIR_ARCH_SRCS)
 aux_source_directory(${CUR_DIR}/src DIR_SRC_SRCS)
 aux_source_directory(${CUR_DIR}/src/core DIR_CORE_SRCS)
@@ -30,8 +33,9 @@ aux_source_directory(${CUR_DIR}/src/p2p/support DIR_P2P_SRCS)
 aux_source_directory(${CUR_DIR}/src/p2p/consensus DIR_P2P_SRCS)
 aux_source_directory(${CUR_DIR}/src/p2p/compat DIR_P2P_SRCS)
 aux_source_directory(${CUR_DIR}/ut/cases DIR_UT_SRCS)
+aux_source_directory(${CUR_DIR}/src/proto DIR_PROTO_SRCS)
 
-
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(SERVER_DIR ${CUR_DIR}/src/server)
 set(MAIN_DIR ${CUR_DIR}/src)
 set(LIB_DIR ${CUR_DIR}/libs)
@@ -42,6 +46,7 @@ set(ROCKSDB_DIR ${CUR_DIR}/libs/rocksdb)
 set(GLOG_DIR ${CUR_DIR}/libs/glog)
 set(P2P_DIR ${CUR_DIR}/src/p2p)
 set(UT_DIR ${CUR_DIR}/ut)
+set(PROTOBUF_DIR ${CUR_DIR}/libs/protobuf)
 
 include_directories(${MAIN_DIR})
 include_directories(${CROW_DIR}/include)
@@ -51,12 +56,14 @@ include_directories(${ARCH_DIR})
 include_directories(${ROCKSDB_DIR}/include)
 include_directories(${GLOG_DIR}/src)
 include_directories(${P2P_DIR})
+INCLUDE_DIRECTORIES(${PROTOBUF_DIR}/src)
 include_directories(${UT_DIR}/googletest/googletest/include)
 include_directories(${UT_DIR}/googletest/googlemock/include)
 
 
 link_directories(${ROCKSDB_DIR})
 link_directories(${GLOG_DIR}/.libs)
+LINK_DIRECTORIES(${PROTOBUF_DIR}/src/.libs)
 link_directories(${UT_DIR}/googletest/googletest)
 link_directories(${UT_DIR}/googletest/googlemock)
 
@@ -72,6 +79,8 @@ link_libraries(rocksdb)
 link_libraries(glog)
 link_libraries(gtest)
 link_libraries(gmock)
+link_libraries(protobuf)
+link_libraries(protoc)
 SET(CMAKE_C_COMPILER gcc)
 set(CMAKE_CXX_FLAGS "-std=c++14 -Wall")
 set(CMAKE_CXX_FLAGS "-Wall")
@@ -89,6 +98,8 @@ add_executable(test_case
     ${DIR_BLAKE2_SRCS}
     ${DIR_CRYPTOPP_SRCS}
     ${DIR_P2P_SRCS}
+    ${DIR_PROTO_SRCS}
+    ${DIR_PROTO_HDRS}
     ${CUR_DIR}/libs/ed25519-donna/ed25519.c
     ${DIR_UT_SRCS})
 
