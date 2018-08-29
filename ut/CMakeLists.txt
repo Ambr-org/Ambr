@@ -13,9 +13,6 @@ ELSE (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     set(ARCH_DIR ${CUR_DIR}/arch/mac)
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 
-find_package(Protobuf REQUIRED)
-PROTOBUF_GENERATE_CPP(DIR_PROTO_SRCS DIR_PROTO_HDRS ${CUR_DIR}/src/proto/unit.proto)
-
 aux_source_directory(${ARCH_DIR} DIR_ARCH_SRCS)
 aux_source_directory(${CUR_DIR}/src DIR_SRC_SRCS)
 aux_source_directory(${CUR_DIR}/src/core DIR_CORE_SRCS)
@@ -46,7 +43,7 @@ set(ROCKSDB_DIR ${CUR_DIR}/libs/rocksdb)
 set(GLOG_DIR ${CUR_DIR}/libs/glog)
 set(P2P_DIR ${CUR_DIR}/src/p2p)
 set(UT_DIR ${CUR_DIR}/ut)
-set(PROTOBUF_DIR ${CUR_DIR}/libs/protobuf)
+set(PROTOBUF_DIR ${CUR_DIR}/libs/grpc/third_party/protobuf)
 
 include_directories(${MAIN_DIR})
 include_directories(${CROW_DIR}/include)
@@ -56,16 +53,16 @@ include_directories(${ARCH_DIR})
 include_directories(${ROCKSDB_DIR}/include)
 include_directories(${GLOG_DIR}/src)
 include_directories(${P2P_DIR})
-INCLUDE_DIRECTORIES(${PROTOBUF_DIR}/src)
 include_directories(${UT_DIR}/googletest/googletest/include)
 include_directories(${UT_DIR}/googletest/googlemock/include)
+include_directories(${PROTOBUF_DIR}/src)
 
 
 link_directories(${ROCKSDB_DIR})
 link_directories(${GLOG_DIR}/.libs)
-LINK_DIRECTORIES(${PROTOBUF_DIR}/src/.libs)
 link_directories(${UT_DIR}/googletest/googletest)
 link_directories(${UT_DIR}/googletest/googlemock)
+link_directories(${CUR_DIR}/libs/grpc/libs/opt/protobuf)
 
 link_libraries(boost_chrono)
 link_libraries(boost_filesystem)
@@ -86,8 +83,19 @@ set(CMAKE_CXX_FLAGS "-std=c++14 -Wall")
 set(CMAKE_CXX_FLAGS "-Wall")
 
 
+set(PROTO_SRC
+  ${CUR_DIR}/src/proto/unit.pb.h
+  ${CUR_DIR}/src/proto/unit.pb.cc
+  )
+
+
+add_custom_command(OUTPUT ${CUR_DIR}/src/proto/unit.pb.cc ${CUR_DIR}/src/proto/unit.pb.h
+  COMMAND ../../libs/grpc/bins/opt/protobuf/protoc  --cpp_out=. unit.proto
+  WORKING_DIRECTORY ${CUR_DIR}/src/proto/
+  DEPENDS ${CUR_DIR}/src/proto/unit.proto)
 
 add_executable(test_case
+    ${PROTO_SRC}
     ${DIR_ARCH_SRCS}
     ${DIR_CORE_SRCS}
     ${DIR_NET_SRCS}

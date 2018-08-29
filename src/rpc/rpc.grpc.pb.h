@@ -77,6 +77,15 @@ class RpcInterface final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::SendMessageReply>> PrepareAsyncSendMessage(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::SendMessageReply>>(PrepareAsyncSendMessageRaw(context, request, cq));
     }
+    std::unique_ptr< ::grpc::ClientReaderInterface< ::ambr::rpc::MessageStreamReply>> GetMessageStream(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request) {
+      return std::unique_ptr< ::grpc::ClientReaderInterface< ::ambr::rpc::MessageStreamReply>>(GetMessageStreamRaw(context, request));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::ambr::rpc::MessageStreamReply>> AsyncGetMessageStream(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
+      return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::ambr::rpc::MessageStreamReply>>(AsyncGetMessageStreamRaw(context, request, cq, tag));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::ambr::rpc::MessageStreamReply>> PrepareAsyncGetMessageStream(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::ambr::rpc::MessageStreamReply>>(PrepareAsyncGetMessageStreamRaw(context, request, cq));
+    }
     virtual ::grpc::Status GetLastUnitHash(::grpc::ClientContext* context, const ::ambr::rpc::GetLastUnitHashRequest& request, ::ambr::rpc::GetLastUnitHashReplay* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::GetLastUnitHashReplay>> AsyncGetLastUnitHash(::grpc::ClientContext* context, const ::ambr::rpc::GetLastUnitHashRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::GetLastUnitHashReplay>>(AsyncGetLastUnitHashRaw(context, request, cq));
@@ -97,6 +106,9 @@ class RpcInterface final {
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::GetHistoryReply>* PrepareAsyncGetHistoryRaw(::grpc::ClientContext* context, const ::ambr::rpc::GetHistoryRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::SendMessageReply>* AsyncSendMessageRaw(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::SendMessageReply>* PrepareAsyncSendMessageRaw(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientReaderInterface< ::ambr::rpc::MessageStreamReply>* GetMessageStreamRaw(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request) = 0;
+    virtual ::grpc::ClientAsyncReaderInterface< ::ambr::rpc::MessageStreamReply>* AsyncGetMessageStreamRaw(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq, void* tag) = 0;
+    virtual ::grpc::ClientAsyncReaderInterface< ::ambr::rpc::MessageStreamReply>* PrepareAsyncGetMessageStreamRaw(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::GetLastUnitHashReplay>* AsyncGetLastUnitHashRaw(::grpc::ClientContext* context, const ::ambr::rpc::GetLastUnitHashRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::GetLastUnitHashReplay>* PrepareAsyncGetLastUnitHashRaw(::grpc::ClientContext* context, const ::ambr::rpc::GetLastUnitHashRequest& request, ::grpc::CompletionQueue* cq) = 0;
   };
@@ -145,6 +157,15 @@ class RpcInterface final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ambr::rpc::SendMessageReply>> PrepareAsyncSendMessage(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ambr::rpc::SendMessageReply>>(PrepareAsyncSendMessageRaw(context, request, cq));
     }
+    std::unique_ptr< ::grpc::ClientReader< ::ambr::rpc::MessageStreamReply>> GetMessageStream(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request) {
+      return std::unique_ptr< ::grpc::ClientReader< ::ambr::rpc::MessageStreamReply>>(GetMessageStreamRaw(context, request));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncReader< ::ambr::rpc::MessageStreamReply>> AsyncGetMessageStream(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
+      return std::unique_ptr< ::grpc::ClientAsyncReader< ::ambr::rpc::MessageStreamReply>>(AsyncGetMessageStreamRaw(context, request, cq, tag));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncReader< ::ambr::rpc::MessageStreamReply>> PrepareAsyncGetMessageStream(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncReader< ::ambr::rpc::MessageStreamReply>>(PrepareAsyncGetMessageStreamRaw(context, request, cq));
+    }
     ::grpc::Status GetLastUnitHash(::grpc::ClientContext* context, const ::ambr::rpc::GetLastUnitHashRequest& request, ::ambr::rpc::GetLastUnitHashReplay* response) override;
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ambr::rpc::GetLastUnitHashReplay>> AsyncGetLastUnitHash(::grpc::ClientContext* context, const ::ambr::rpc::GetLastUnitHashRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ambr::rpc::GetLastUnitHashReplay>>(AsyncGetLastUnitHashRaw(context, request, cq));
@@ -167,6 +188,9 @@ class RpcInterface final {
     ::grpc::ClientAsyncResponseReader< ::ambr::rpc::GetHistoryReply>* PrepareAsyncGetHistoryRaw(::grpc::ClientContext* context, const ::ambr::rpc::GetHistoryRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::ambr::rpc::SendMessageReply>* AsyncSendMessageRaw(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::ambr::rpc::SendMessageReply>* PrepareAsyncSendMessageRaw(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientReader< ::ambr::rpc::MessageStreamReply>* GetMessageStreamRaw(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request) override;
+    ::grpc::ClientAsyncReader< ::ambr::rpc::MessageStreamReply>* AsyncGetMessageStreamRaw(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq, void* tag) override;
+    ::grpc::ClientAsyncReader< ::ambr::rpc::MessageStreamReply>* PrepareAsyncGetMessageStreamRaw(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::ambr::rpc::GetLastUnitHashReplay>* AsyncGetLastUnitHashRaw(::grpc::ClientContext* context, const ::ambr::rpc::GetLastUnitHashRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::ambr::rpc::GetLastUnitHashReplay>* PrepareAsyncGetLastUnitHashRaw(::grpc::ClientContext* context, const ::ambr::rpc::GetLastUnitHashRequest& request, ::grpc::CompletionQueue* cq) override;
     const ::grpc::internal::RpcMethod rpcmethod_AddSendUnitByJson_;
@@ -175,6 +199,7 @@ class RpcInterface final {
     const ::grpc::internal::RpcMethod rpcmethod_GetBalance_;
     const ::grpc::internal::RpcMethod rpcmethod_GetHistory_;
     const ::grpc::internal::RpcMethod rpcmethod_SendMessage_;
+    const ::grpc::internal::RpcMethod rpcmethod_GetMessageStream_;
     const ::grpc::internal::RpcMethod rpcmethod_GetLastUnitHash_;
   };
   static std::unique_ptr<Stub> NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
@@ -189,6 +214,7 @@ class RpcInterface final {
     virtual ::grpc::Status GetBalance(::grpc::ServerContext* context, const ::ambr::rpc::GetBalanceRequest* request, ::ambr::rpc::GetBalanceReply* response);
     virtual ::grpc::Status GetHistory(::grpc::ServerContext* context, const ::ambr::rpc::GetHistoryRequest* request, ::ambr::rpc::GetHistoryReply* response);
     virtual ::grpc::Status SendMessage(::grpc::ServerContext* context, const ::ambr::rpc::SendMessageRequest* request, ::ambr::rpc::SendMessageReply* response);
+    virtual ::grpc::Status GetMessageStream(::grpc::ServerContext* context, const ::ambr::rpc::SendMessageRequest* request, ::grpc::ServerWriter< ::ambr::rpc::MessageStreamReply>* writer);
     virtual ::grpc::Status GetLastUnitHash(::grpc::ServerContext* context, const ::ambr::rpc::GetLastUnitHashRequest* request, ::ambr::rpc::GetLastUnitHashReplay* response);
   };
   template <class BaseClass>
@@ -312,12 +338,32 @@ class RpcInterface final {
     }
   };
   template <class BaseClass>
+  class WithAsyncMethod_GetMessageStream : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithAsyncMethod_GetMessageStream() {
+      ::grpc::Service::MarkMethodAsync(6);
+    }
+    ~WithAsyncMethod_GetMessageStream() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status GetMessageStream(::grpc::ServerContext* context, const ::ambr::rpc::SendMessageRequest* request, ::grpc::ServerWriter< ::ambr::rpc::MessageStreamReply>* writer) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestGetMessageStream(::grpc::ServerContext* context, ::ambr::rpc::SendMessageRequest* request, ::grpc::ServerAsyncWriter< ::ambr::rpc::MessageStreamReply>* writer, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncServerStreaming(6, context, request, writer, new_call_cq, notification_cq, tag);
+    }
+  };
+  template <class BaseClass>
   class WithAsyncMethod_GetLastUnitHash : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service *service) {}
    public:
     WithAsyncMethod_GetLastUnitHash() {
-      ::grpc::Service::MarkMethodAsync(6);
+      ::grpc::Service::MarkMethodAsync(7);
     }
     ~WithAsyncMethod_GetLastUnitHash() override {
       BaseClassMustBeDerivedFromService(this);
@@ -328,10 +374,10 @@ class RpcInterface final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestGetLastUnitHash(::grpc::ServerContext* context, ::ambr::rpc::GetLastUnitHashRequest* request, ::grpc::ServerAsyncResponseWriter< ::ambr::rpc::GetLastUnitHashReplay>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(6, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(7, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
-  typedef WithAsyncMethod_AddSendUnitByJson<WithAsyncMethod_AddReceiveUnitByJson<WithAsyncMethod_GetWaitForReceiveUnit<WithAsyncMethod_GetBalance<WithAsyncMethod_GetHistory<WithAsyncMethod_SendMessage<WithAsyncMethod_GetLastUnitHash<Service > > > > > > > AsyncService;
+  typedef WithAsyncMethod_AddSendUnitByJson<WithAsyncMethod_AddReceiveUnitByJson<WithAsyncMethod_GetWaitForReceiveUnit<WithAsyncMethod_GetBalance<WithAsyncMethod_GetHistory<WithAsyncMethod_SendMessage<WithAsyncMethod_GetMessageStream<WithAsyncMethod_GetLastUnitHash<Service > > > > > > > > AsyncService;
   template <class BaseClass>
   class WithGenericMethod_AddSendUnitByJson : public BaseClass {
    private:
@@ -435,12 +481,29 @@ class RpcInterface final {
     }
   };
   template <class BaseClass>
+  class WithGenericMethod_GetMessageStream : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithGenericMethod_GetMessageStream() {
+      ::grpc::Service::MarkMethodGeneric(6);
+    }
+    ~WithGenericMethod_GetMessageStream() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status GetMessageStream(::grpc::ServerContext* context, const ::ambr::rpc::SendMessageRequest* request, ::grpc::ServerWriter< ::ambr::rpc::MessageStreamReply>* writer) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+  };
+  template <class BaseClass>
   class WithGenericMethod_GetLastUnitHash : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service *service) {}
    public:
     WithGenericMethod_GetLastUnitHash() {
-      ::grpc::Service::MarkMethodGeneric(6);
+      ::grpc::Service::MarkMethodGeneric(7);
     }
     ~WithGenericMethod_GetLastUnitHash() override {
       BaseClassMustBeDerivedFromService(this);
@@ -572,12 +635,32 @@ class RpcInterface final {
     }
   };
   template <class BaseClass>
+  class WithRawMethod_GetMessageStream : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithRawMethod_GetMessageStream() {
+      ::grpc::Service::MarkMethodRaw(6);
+    }
+    ~WithRawMethod_GetMessageStream() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status GetMessageStream(::grpc::ServerContext* context, const ::ambr::rpc::SendMessageRequest* request, ::grpc::ServerWriter< ::ambr::rpc::MessageStreamReply>* writer) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestGetMessageStream(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncWriter< ::grpc::ByteBuffer>* writer, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncServerStreaming(6, context, request, writer, new_call_cq, notification_cq, tag);
+    }
+  };
+  template <class BaseClass>
   class WithRawMethod_GetLastUnitHash : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service *service) {}
    public:
     WithRawMethod_GetLastUnitHash() {
-      ::grpc::Service::MarkMethodRaw(6);
+      ::grpc::Service::MarkMethodRaw(7);
     }
     ~WithRawMethod_GetLastUnitHash() override {
       BaseClassMustBeDerivedFromService(this);
@@ -588,7 +671,7 @@ class RpcInterface final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestGetLastUnitHash(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(6, context, request, response, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncUnary(7, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -717,7 +800,7 @@ class RpcInterface final {
     void BaseClassMustBeDerivedFromService(const Service *service) {}
    public:
     WithStreamedUnaryMethod_GetLastUnitHash() {
-      ::grpc::Service::MarkMethodStreamed(6,
+      ::grpc::Service::MarkMethodStreamed(7,
         new ::grpc::internal::StreamedUnaryHandler< ::ambr::rpc::GetLastUnitHashRequest, ::ambr::rpc::GetLastUnitHashReplay>(std::bind(&WithStreamedUnaryMethod_GetLastUnitHash<BaseClass>::StreamedGetLastUnitHash, this, std::placeholders::_1, std::placeholders::_2)));
     }
     ~WithStreamedUnaryMethod_GetLastUnitHash() override {
@@ -732,8 +815,28 @@ class RpcInterface final {
     virtual ::grpc::Status StreamedGetLastUnitHash(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::ambr::rpc::GetLastUnitHashRequest,::ambr::rpc::GetLastUnitHashReplay>* server_unary_streamer) = 0;
   };
   typedef WithStreamedUnaryMethod_AddSendUnitByJson<WithStreamedUnaryMethod_AddReceiveUnitByJson<WithStreamedUnaryMethod_GetWaitForReceiveUnit<WithStreamedUnaryMethod_GetBalance<WithStreamedUnaryMethod_GetHistory<WithStreamedUnaryMethod_SendMessage<WithStreamedUnaryMethod_GetLastUnitHash<Service > > > > > > > StreamedUnaryService;
-  typedef Service SplitStreamedService;
-  typedef WithStreamedUnaryMethod_AddSendUnitByJson<WithStreamedUnaryMethod_AddReceiveUnitByJson<WithStreamedUnaryMethod_GetWaitForReceiveUnit<WithStreamedUnaryMethod_GetBalance<WithStreamedUnaryMethod_GetHistory<WithStreamedUnaryMethod_SendMessage<WithStreamedUnaryMethod_GetLastUnitHash<Service > > > > > > > StreamedService;
+  template <class BaseClass>
+  class WithSplitStreamingMethod_GetMessageStream : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithSplitStreamingMethod_GetMessageStream() {
+      ::grpc::Service::MarkMethodStreamed(6,
+        new ::grpc::internal::SplitServerStreamingHandler< ::ambr::rpc::SendMessageRequest, ::ambr::rpc::MessageStreamReply>(std::bind(&WithSplitStreamingMethod_GetMessageStream<BaseClass>::StreamedGetMessageStream, this, std::placeholders::_1, std::placeholders::_2)));
+    }
+    ~WithSplitStreamingMethod_GetMessageStream() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable regular version of this method
+    ::grpc::Status GetMessageStream(::grpc::ServerContext* context, const ::ambr::rpc::SendMessageRequest* request, ::grpc::ServerWriter< ::ambr::rpc::MessageStreamReply>* writer) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    // replace default version of method with split streamed
+    virtual ::grpc::Status StreamedGetMessageStream(::grpc::ServerContext* context, ::grpc::ServerSplitStreamer< ::ambr::rpc::SendMessageRequest,::ambr::rpc::MessageStreamReply>* server_split_streamer) = 0;
+  };
+  typedef WithSplitStreamingMethod_GetMessageStream<Service > SplitStreamedService;
+  typedef WithStreamedUnaryMethod_AddSendUnitByJson<WithStreamedUnaryMethod_AddReceiveUnitByJson<WithStreamedUnaryMethod_GetWaitForReceiveUnit<WithStreamedUnaryMethod_GetBalance<WithStreamedUnaryMethod_GetHistory<WithStreamedUnaryMethod_SendMessage<WithSplitStreamingMethod_GetMessageStream<WithStreamedUnaryMethod_GetLastUnitHash<Service > > > > > > > > StreamedService;
 };
 
 }  // namespace rpc

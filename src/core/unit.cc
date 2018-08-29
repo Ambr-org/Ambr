@@ -5,7 +5,7 @@
  **********************************************************************/
 #include "unit.h"
 #include <boost/property_tree/ptree.hpp>
-#include "unit.pb.h"
+#include "proto/unit.pb.h"
 #include <boost/property_tree/json_parser.hpp>
 #include <crypto/sha256.h>
 
@@ -103,7 +103,7 @@ std::vector<uint8_t> ambr::core::SendUnit::SerializeByte( ) const {
 
 bool ambr::core::SendUnit::DeSerializeByte(const std::vector<uint8_t> &buf,size_t* used_size){
   ::ambr::protobuf::SendUnit obj;
-  google::protobuf::io::CodedInputStream stream(buf.data(),buf.size());
+  google::protobuf::io::CodedInputStream stream((const uint8_t*)buf.data(),buf.size());
   if(obj.ParseFromCodedStream(&stream)){
     version_= (uint32_t)obj.version_();
     type_=((ambr::core::UnitType)obj.type_());

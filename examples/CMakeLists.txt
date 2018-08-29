@@ -43,6 +43,7 @@ set(GLOG_DIR ${CUR_DIR}/libs/glog)
 set(P2P_DIR ${CUR_DIR}/src/p2p)
 set(SYN_DIR ${CUR_DIR}/src/synchronizatio)
 set(RPC_LIB_DIR ${CUR_DIR}/libs/grpc)
+#set(PROTOBUF_DIR ${CUR_DIR}/libs/protobuf)
 
 include_directories(${MAIN_DIR})
 include_directories(${CROW_DIR}/include)
@@ -54,10 +55,12 @@ include_directories(${GLOG_DIR}/src)
 include_directories(${P2P_DIR})
 include_directories(${SYN_DIR})
 include_directories(${RPC_LIB_DIR}/include)
+include_directories(${RPC_LIB_DIR}/third_party/protobuf/src)
 
 link_directories(${ROCKSDB_DIR})
 link_directories(${GLOG_DIR}/.libs)
 link_directories(${RPC_LIB_DIR}/libs/opt)
+link_directories(${RPC_LIB_DIR}/libs/opt/protobuf)
 link_libraries(boost_chrono)
 link_libraries(boost_filesystem)
 link_libraries(boost_system)
@@ -88,7 +91,16 @@ set(QT_SRC
   ${CUR_DIR}/examples/store_example_main_widget.ui)
 
 
+set(PROTO_SRC
+  ${CUR_DIR}/src/proto/unit.pb.h
+  ${CUR_DIR}/src/proto/unit.pb.cc
+  )
 
+
+add_custom_command(OUTPUT ${CUR_DIR}/src/proto/unit.pb.cc ${CUR_DIR}/src/proto/unit.pb.h
+  COMMAND ../../libs/grpc/bins/opt/protobuf/protoc  --cpp_out=. unit.proto
+  WORKING_DIRECTORY ${CUR_DIR}/src/proto/
+  DEPENDS ${CUR_DIR}/src/proto/unit.proto)
 
 set(RPC_SRC
   ${CUR_DIR}/src/rpc/rpc.grpc.pb.cc
@@ -99,12 +111,12 @@ set(RPC_SRC
   ${CUR_DIR}/src/rpc/rpc_server.h
   )
 add_custom_command(OUTPUT ${CUR_DIR}/src/rpc/rpc.grpc.pb.cc ${CUR_DIR}/src/rpc/rpc.grpc.pb.h
-  COMMAND protoc  --grpc_out=. --plugin=protoc-gen-grpc=`which grpc_cpp_plugin` rpc.proto
+  COMMAND ../../libs/grpc/bins/opt/protobuf/protoc  --grpc_out=. --plugin=protoc-gen-grpc=../../libs/grpc/bins/opt/grpc_cpp_plugin rpc.proto
   WORKING_DIRECTORY ${CUR_DIR}/src/rpc/
   DEPENDS ${CUR_DIR}/src/rpc/rpc.proto)
 
 add_custom_command(OUTPUT ${CUR_DIR}/src/rpc/rpc.pb.cc ${CUR_DIR}/src/rpc/rpc.pb.h
-  COMMAND protoc  --cpp_out=. rpc.proto
+  COMMAND ../../libs/grpc/bins/opt/protobuf/protoc  --cpp_out=. rpc.proto
   WORKING_DIRECTORY ${CUR_DIR}/src/rpc/
   DEPENDS ${CUR_DIR}/src/rpc/rpc.proto)
 
@@ -124,8 +136,11 @@ add_executable(unit_store_example
   ${CUR_DIR}/examples/unit_store.cc
   ${QT_SRC}
   ${RPC_SRC}
+  ${PROTO_SRC}
   ${MOC}
   ${RCC}
+  ${DIR_PROTO_SRCS}
+  ${DIR_PROTO_HDRS}
   )
 target_link_libraries(unit_store_example Qt5::Widgets)
 target_link_libraries(unit_store_example grpc++  protobuf)

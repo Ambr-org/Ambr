@@ -23,6 +23,7 @@ static const char* RpcInterface_method_names[] = {
   "/ambr.rpc.RpcInterface/GetBalance",
   "/ambr.rpc.RpcInterface/GetHistory",
   "/ambr.rpc.RpcInterface/SendMessage",
+  "/ambr.rpc.RpcInterface/GetMessageStream",
   "/ambr.rpc.RpcInterface/GetLastUnitHash",
 };
 
@@ -39,7 +40,8 @@ RpcInterface::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& chann
   , rpcmethod_GetBalance_(RpcInterface_method_names[3], ::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_GetHistory_(RpcInterface_method_names[4], ::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_SendMessage_(RpcInterface_method_names[5], ::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_GetLastUnitHash_(RpcInterface_method_names[6], ::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_GetMessageStream_(RpcInterface_method_names[6], ::grpc::internal::RpcMethod::SERVER_STREAMING, channel)
+  , rpcmethod_GetLastUnitHash_(RpcInterface_method_names[7], ::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   {}
 
 ::grpc::Status RpcInterface::Stub::AddSendUnitByJson(::grpc::ClientContext* context, const ::ambr::rpc::AddUnitRequest& request, ::ambr::rpc::AddUnitReply* response) {
@@ -114,6 +116,18 @@ RpcInterface::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& chann
   return ::grpc::internal::ClientAsyncResponseReaderFactory< ::ambr::rpc::SendMessageReply>::Create(channel_.get(), cq, rpcmethod_SendMessage_, context, request, false);
 }
 
+::grpc::ClientReader< ::ambr::rpc::MessageStreamReply>* RpcInterface::Stub::GetMessageStreamRaw(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request) {
+  return ::grpc::internal::ClientReaderFactory< ::ambr::rpc::MessageStreamReply>::Create(channel_.get(), rpcmethod_GetMessageStream_, context, request);
+}
+
+::grpc::ClientAsyncReader< ::ambr::rpc::MessageStreamReply>* RpcInterface::Stub::AsyncGetMessageStreamRaw(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
+  return ::grpc::internal::ClientAsyncReaderFactory< ::ambr::rpc::MessageStreamReply>::Create(channel_.get(), cq, rpcmethod_GetMessageStream_, context, request, true, tag);
+}
+
+::grpc::ClientAsyncReader< ::ambr::rpc::MessageStreamReply>* RpcInterface::Stub::PrepareAsyncGetMessageStreamRaw(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncReaderFactory< ::ambr::rpc::MessageStreamReply>::Create(channel_.get(), cq, rpcmethod_GetMessageStream_, context, request, false, nullptr);
+}
+
 ::grpc::Status RpcInterface::Stub::GetLastUnitHash(::grpc::ClientContext* context, const ::ambr::rpc::GetLastUnitHashRequest& request, ::ambr::rpc::GetLastUnitHashReplay* response) {
   return ::grpc::internal::BlockingUnaryCall(channel_.get(), rpcmethod_GetLastUnitHash_, context, request, response);
 }
@@ -159,6 +173,11 @@ RpcInterface::Service::Service() {
           std::mem_fn(&RpcInterface::Service::SendMessage), this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       RpcInterface_method_names[6],
+      ::grpc::internal::RpcMethod::SERVER_STREAMING,
+      new ::grpc::internal::ServerStreamingHandler< RpcInterface::Service, ::ambr::rpc::SendMessageRequest, ::ambr::rpc::MessageStreamReply>(
+          std::mem_fn(&RpcInterface::Service::GetMessageStream), this)));
+  AddMethod(new ::grpc::internal::RpcServiceMethod(
+      RpcInterface_method_names[7],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< RpcInterface::Service, ::ambr::rpc::GetLastUnitHashRequest, ::ambr::rpc::GetLastUnitHashReplay>(
           std::mem_fn(&RpcInterface::Service::GetLastUnitHash), this)));
@@ -206,6 +225,13 @@ RpcInterface::Service::~Service() {
   (void) context;
   (void) request;
   (void) response;
+  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+}
+
+::grpc::Status RpcInterface::Service::GetMessageStream(::grpc::ServerContext* context, const ::ambr::rpc::SendMessageRequest* request, ::grpc::ServerWriter< ::ambr::rpc::MessageStreamReply>* writer) {
+  (void) context;
+  (void) request;
+  (void) writer;
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 

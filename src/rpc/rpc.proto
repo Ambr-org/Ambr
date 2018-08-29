@@ -10,6 +10,7 @@ service RpcInterface {
   rpc GetBalance(GetBalanceRequest)returns (GetBalanceReply){}
   rpc GetHistory(GetHistoryRequest) returns (GetHistoryReply){}
   rpc SendMessage(SendMessageRequest) returns(SendMessageReply){}
+  rpc GetMessageStream(SendMessageRequest) returns(stream MessageStreamReply){}
   rpc GetLastUnitHash(GetLastUnitHashRequest) returns(GetLastUnitHashReplay){}
 }
 
@@ -71,4 +72,12 @@ message GetLastUnitHashReplay{
   bool result = 1;
   string hash = 2;
   string error_message = 3;
+}
+
+message MessageStreamRequest{
+}
+
+message MessageStreamReply{
+  string public_key = 1;
+  string message = 2;
 }

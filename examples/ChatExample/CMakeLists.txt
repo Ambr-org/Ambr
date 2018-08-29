@@ -4,13 +4,14 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CUR_DIR ../..)
-
 set(MAIN_DIR ${CUR_DIR}/src)
-
+set(RPC_LIB_DIR ${CUR_DIR}/libs/grpc)
 
 
 link_directories(${GLOG_DIR}/.libs)
 include_directories(${MAIN_DIR})
+include_directories(${RPC_LIB_DIR}/include)
+include_directories(${RPC_LIB_DIR}/third_party/protobuf/src)
 
 SET(CMAKE_C_COMPILER gcc)
 set(CMAKE_CXX_FLAGS "-std=c++14 -Wall")
@@ -39,19 +40,31 @@ set(RPC_SRC
   ${CUR_DIR}/src/rpc/rpc.pb.cc
   ${CUR_DIR}/src/rpc/rpc.pb.h
   )
+
 add_custom_command(OUTPUT ${CUR_DIR}/src/rpc/rpc.grpc.pb.cc ${CUR_DIR}/src/rpc/rpc.grpc.pb.h
-  COMMAND protoc  --grpc_out=. --plugin=protoc-gen-grpc=`which grpc_cpp_plugin` rpc.proto
+  COMMAND ../../libs/grpc/bins/opt/protobuf/protoc  --grpc_out=. --plugin=protoc-gen-grpc=../../libs/grpc/bins/opt/grpc_cpp_plugin rpc.proto
   WORKING_DIRECTORY ${CUR_DIR}/src/rpc/
   DEPENDS ${CUR_DIR}/src/rpc/rpc.proto)
 
 add_custom_command(OUTPUT ${CUR_DIR}/src/rpc/rpc.pb.cc ${CUR_DIR}/src/rpc/rpc.pb.h
-  COMMAND protoc  --cpp_out=. rpc.proto
+  COMMAND ../../libs/grpc/bins/opt/protobuf/protoc  --cpp_out=. rpc.proto
   WORKING_DIRECTORY ${CUR_DIR}/src/rpc/
   DEPENDS ${CUR_DIR}/src/rpc/rpc.proto)
+
+set(PROTO_SRC
+  ${CUR_DIR}/src/proto/unit.pb.h
+  ${CUR_DIR}/src/proto/unit.pb.cc
+  )
+
+add_custom_command(OUTPUT ${CUR_DIR}/src/proto/unit.pb.cc ${CUR_DIR}/src/proto/unit.pb.h
+  COMMAND ../../libs/grpc/bins/opt/protobuf/protoc  --cpp_out=. unit.proto
+  WORKING_DIRECTORY ${CUR_DIR}/src/proto/
+  DEPENDS ${CUR_DIR}/src/proto/unit.proto)
 
 add_executable(chat_example
   ${QT_SRC}
   ${CUR_DIR}/examples/ChatExample/main.cc
+
   ${RPC_SRC}
   ${MOC}
   ${RCC}
@@ -60,13 +73,17 @@ add_executable(chat_example
 
 include_directories(${CUR_DIR}/src)
 include_directories(${CUR_DIR}/libs)
+link_directories(${RPC_LIB_DIR}/libs/opt)
+link_directories(${RPC_LIB_DIR}/libs/opt/protobuf)
+
 ADD_LIBRARY (assist_lib SHARED
+  ${PROTO_SRC}
   ${CUR_DIR}/src/core/key.cc
   ${CUR_DIR}/src/core/unit.cc
   ${CUR_DIR}/src/crypto/blake2/blake2b.cc
   ${CUR_DIR}/libs/ed25519-donna/ed25519.c
   ${CUR_DIR}/examples/ChatExample/assist_lib.cc)
-
+target_link_libraries(assist_lib protobuf)
 target_link_libraries(chat_example Qt5::Widgets)
 target_link_libraries(chat_example grpc++  protobuf)
-target_link_libraries(chat_example assist_lib)
+target_link_libraries(chat_example assist_lib )
