@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+
+package ambr.rpc;
+
+service RpcInterface {
+  rpc AddSendUnitByJson (AddUnitRequest) returns (AddUnitReply) {}
+  rpc AddReceiveUnitByJson (AddUnitRequest) returns (AddUnitReply) {}
+  rpc GetWaitForReceiveUnit(GetWaitForReceiveUnitRequest) returns(GetWaitForReceiveUnitReply){}
+  rpc GetBalance(GetBalanceRequest)returns (GetBalanceReply){}
+  rpc GetHistory(GetHistoryRequest) returns (GetHistoryReply){}
+  rpc SendMessage(SendMessageRequest) returns(SendMessageReply){}
+  rpc GetLastUnitHash(GetLastUnitHashRequest) returns(GetLastUnitHashReplay){}
+}
+
+message AddUnitRequest {
+  string json = 1;
+}
+
+message AddUnitReply {
+  bool result = 1;
+  string error_message=2;
+}
+
+message WaitForReceiveItem{
+  string hash = 1;
+  string amount = 2;
+}
+
+message GetWaitForReceiveUnitRequest{
+  string public_key = 1;
+}
+
+message GetWaitForReceiveUnitReply{
+  bool result = 1;
+  repeated WaitForReceiveItem items = 2;
+}
+
+message GetBalanceRequest{
+  string public_key = 1;
+}
+
+message GetBalanceReply{
+  bool result = 1;
+  string amount = 2;
+  string error_message=3;
+}
+message HistoryItem{
+  string type = 1;//send or receive or message
+  string amount = 2;
+}
+message GetHistoryRequest{
+  string public_key = 1;
+}
+message GetHistoryReply{
+  bool result = 1;
+  repeated HistoryItem items = 2;
+  string error_message = 3;
+}
+message SendMessageRequest{
+  string json = 1;
+}
+message SendMessageReply{
+  bool result = 1;
+  string error_message = 2;
+}
+message GetLastUnitHashRequest{
+  string public_key = 1;
+}
+message GetLastUnitHashReplay{
+  bool result = 1;
+  string hash = 2;
+  string error_message = 3;
+}

@@ -125,7 +125,8 @@ public:
   enum DataType{
     Normal = 0,
     CreateContract = 1,
-    RunContract = 2
+    RunContract = 2,
+    Message = 3
   };
   SendUnit();
 public:

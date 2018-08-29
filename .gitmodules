@@ -13,3 +13,6 @@
 [submodule "libs/glog"]
 	path = libs/glog
 	url = https://github.com/google/glog.git
+[submodule "libs/grpc"]
+	path = libs/grpc
+	url = https://github.com/grpc/grpc.git
