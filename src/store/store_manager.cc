@@ -245,6 +245,7 @@ bool ambr::store::StoreManager::AddSendUnit(std::shared_ptr<ambr::core::SendUnit
   status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
   assert(status.ok());
   DoReceiveNewSendUnit(send_unit);
+  std::cout << "Add Send Unit: " << send_unit->hash().encode_to_hex() << std::endl;
   return true;
 }
 
@@ -332,6 +333,7 @@ bool ambr::store::StoreManager::AddReceiveUnit(std::shared_ptr<ambr::core::Recei
   status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
   assert(status.ok());
   DoReceiveNewReceiveUnit(receive_unit);
+  std::cout << "Add Receive Unit: " << receive_unit->hash().encode_to_hex() << std::endl;
   return true;
 }
 
@@ -800,6 +802,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
   status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
   assert(status.ok());
   DoReceiveNewValidatorUnit(unit);
+  std::cout << "Add Validator Unit: " << unit->hash().encode_to_hex() << std::endl;
   return true;
 }
 
