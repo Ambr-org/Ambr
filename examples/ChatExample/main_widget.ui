@@ -1,0 +1,802 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWidget</class>
+ <widget class="QWidget" name="MainWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1065</width>
+    <height>734</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget{ 
+  background-color:rgba(50,50,50,255); 
+  color:rgb(222,222,222); 
+   
+} 
+QPushButton{ 
+  color:rgb(238,138,65); 
+  border:none; 
+  border-width:5px; 
+  border-image: url(:/rs/btn_black_normal.png)  5; 
+  min-width:40px; 
+  min-height:40px; 
+} 
+QPushButton:hover{ 
+  border:none; 
+  border-width:5px; 
+  border-image: url(:/rs/btn_black_hover.png)  5; 
+} 
+QPushButton:pressed{ 
+  border:none; 
+  border-width:5px; 
+  border-image: url(:/rs/btn_black_pushed.png)  5; 
+} 
+ 
+QPushButton:disabled{ 
+  border:none; 
+  border-width:5px; 
+  border-image: url(:/rs/btn_black_disable.png)  5; 
+} 
+ 
+QLineEdit{ 
+  border-width:4px; 
+  border-image: url(:/rs/edit_normal.png) 4 ; 
+  min-height:32px; 
+} 
+QLineEdit:hover{ 
+  border-image: url(:/rs/edit_hover.png) 4 ; 
+} 
+QLineEdit:focus  { 
+  border-image: url(:/rs/edit_hover.png) 4 ; 
+} 
+ 
+QComboBox { 
+   border-width:4px; 
+  border-image: url(:/rs/edit_normal.png) 4; 
+  border-image: url(:/rs/edit_hover.png) 4; 
+  margin-right:52px; 
+  min-height:36px; 
+} 
+QComboBox:hover{ 
+  border-image: url(:/rs/edit_hover.png) 4 ; 
+} 
+QComboBox:focus{ 
+  border-image: url(:/rs/edit_hover.png) 4 ; 
+} 
+QComboBox::drop-down { 
+      subcontrol-origin: margin; 
+      subcontrol-position: top right; 
+      width:52px; 
+     border:none; 
+  } 
+QComboBox::down-arrow{ 
+  image: url(:/rs/downn_cmb_btn_normal.png); 
+  } 
+QComboBox::down-arrow:hover{ 
+  image: url(:/rs/down_cmb_btn_hover.png); 
+  } 
+QComboBox::down-arrow:pressed{ 
+  image: url(:/rs/down_cmb_btn_pushed.png); 
+  } 
+ 
+ 
+QRadioButton::indicator::unchecked { 
+    image: url(:/rs/radio_unselect.png); 
+} 
+QRadioButton::indicator::unchecked:hover{ 
+    image:url(:/rs/radio_unselect_hover.png); 
+} 
+ 
+QRadioButton::indicator::checked { 
+     image: url(:/rs/radio_selected.png); 
+} 
+QRadioButton::indicator::checked:hover { 
+     image: url(:/rs/radio_selected_hover.png); 
+} 
+ 
+QPlainTextEdit{ 
+    border-width:4px; 
+  border-image: url(:/rs/edit_normal.png) 4 ; 
+  min-height:64px; 
+} 
+ 
+QTabWidget::tab-bar { 
+      left: 5px; /* move to the right by 5px */ 
+  } 
+ 
+  /* Style the tab using the tab sub-control. Note that 
+      it reads QTabBar _not_ QTabWidget */ 
+  QTabBar::tab { 
+    height:32px; 
+  } 
+QTabBar::tab:selected { 
+      color:rgb(235,135,65); 
+  } 
+QTabBar::tab:disabled { 
+      color:rgb(125,125,125); 
+  } 
+QScrollBar:vertical { 
+       border: none; 
+    border-top-width:12px; 
+    border-bottom-width:12px; 
+    border-image: url(:/rs/v_scroll_scallbar.png) 12 0; 
+       width: 24px; 
+       margin:16px 0; 
+} 
+QScrollBar::handle:vertical { 
+       border-width:5 2; 
+    min-height:32px; 
+    border-image: url(:/rs/v_scroll_handle.png) 5 2; 
+    image:url(:/rs/v_scroll_handle_image.png); 
+} 
+QScrollBar::handle:vertical:hover{ 
+    border-image: url(:/rs/v_scroll_handle_hover.png); 
+ } 
+QScrollBar::handle:vertical:pressed{ 
+    border-image:url(:/rs/v_scroll_handle_pressed.png); 
+ } 
+ 
+QScrollBar::add-line:vertical { 
+       border:none; 
+    margin-top:4px; 
+       height: 12px; 
+    width:16px; 
+       subcontrol-position: bottom; 
+       subcontrol-origin: margin; 
+} 
+ 
+QScrollBar::sub-line:vertical { 
+       border:none; 
+    margin-bottom:4px; 
+       height: 12px; 
+    width:16px; 
+       subcontrol-position: top; 
+       subcontrol-origin: margin; 
+} 
+ 
+QScrollBar::up-arrow:vertical{ 
+  border:none; 
+   width:16px; 
+  height:12px; 
+  image:url(:/rs/v_scroll_btn_up.png); 
+} 
+QScrollBar::up-arrow:vertical:hover{ 
+  image:url(:/rs/v_scroll_btn_up_hover.png); 
+} 
+QScrollBar::up-arrow:vertical:pressed{ 
+  image:url(:/rs/v_scroll_btn_up_pressed.png); 
+} 
+ 
+QScrollBar::down-arrow:vertical{ 
+  border:none; 
+   width:16px; 
+  height:12px; 
+  image:url(:/rs/v_scroll_btn_down.png); 
+} 
+QScrollBar::down-arrow:vertical:hover{ 
+  image:url(:/rs/v_scroll_btn_down_hover.png); 
+} 
+QScrollBar::down-arrow:vertical:pressed{ 
+  image:url(:/rs/v_scroll_btn_down_pressed.png); 
+} 
+ 
+ 
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { 
+   background: none; 
+} 
+ 
+QScrollBar:horizontal { 
+    border: none; 
+  border-left-width:12px; 
+  border-right-width:12px; 
+  border-image: url(:/rs/h_scroll_scallbar.png)  0 12; 
+   height: 24px; 
+   margin:0 16px; 
+} 
+ 
+QScrollBar::handle:horizontal { 
+   border-width:2 5; 
+  min-width:32px; 
+  border-image: url(:/rs/h_scroll_handle.png) 2 5; 
+  image: url(:/rs/h_scroll_handle_image.png); 
+} 
+ 
+QScrollBar::handle:horizontal:hover{ 
+  border-image: url(:/rs/h_scroll_handle_hover.png); 
+} 
+ 
+QScrollBar::handle:horizontal:pressed{ 
+  border-image:url(:/rs/h_scroll_handle_pressed.png); 
+} 
+ 
+ 
+QScrollBar::add-line:horizontal { 
+   border:none; 
+  margin-right:4px; 
+   height: 12px; 
+  width:16px; 
+   subcontrol-position: right; 
+   subcontrol-origin: margin; 
+} 
+ 
+QScrollBar::sub-line:horizontal { 
+   border:none; 
+  margin-left:4px; 
+   height: 12px; 
+  width:16px; 
+   subcontrol-position: left; 
+   subcontrol-origin: margin; 
+} 
+ 
+ 
+ 
+ 
+QScrollBar::left-arrow:horizontal{ 
+  border:none; 
+   width:12px; 
+  height:16px; 
+  image:url(:/rs/h_scroll_btn_left.png); 
+} 
+QScrollBar::left-arrow:horizontal:hover{ 
+  image:url(:/rs/h_scroll_btn_left_hover.png); 
+} 
+QScrollBar::left-arrow:horizontal:pressed{ 
+  image:url(:/rs/h_scroll_btn_left_pressed.png); 
+} 
+ 
+QScrollBar::right-arrow:horizontal{ 
+  border:none; 
+   width:12px; 
+  height:16px; 
+  image:url(:/rs/h_scroll_btn_right.png); 
+} 
+QScrollBar::right-arrow:horizontal:hover{ 
+  image:url(:/rs/h_scroll_btn_right_hover.png); 
+} 
+QScrollBar::right-arrow:horizontal:pressed{ 
+  image:url(:/rs/h_scroll_btn_right_pressed.png); 
+} 
+ 
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal { 
+     background: none; 
+} </string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout_18">
+   <item>
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>519</width>
+        <height>714</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_8">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_5">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_4">
+             <item>
+              <widget class="QLineEdit" name="edtGetBalancePubkey"/>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="edtGetBalanceResult"/>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnCheckBalance">
+             <property name="minimumSize">
+              <size>
+               <width>180</width>
+               <height>80</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>180</width>
+               <height>80</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>查询余额</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_3">
+             <item>
+              <widget class="QLineEdit" name="edtGetHistoryPublicKey"/>
+             </item>
+             <item>
+              <widget class="QTableWidget" name="tabGetHistory">
+               <column>
+                <property name="text">
+                 <string>type</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Amount</string>
+                </property>
+               </column>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnGetHistory">
+             <property name="minimumSize">
+              <size>
+               <width>180</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>180</width>
+               <height>80</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>查询交易历史</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_2">
+             <item>
+              <widget class="QLineEdit" name="edtGetWaitReceivePublickey"/>
+             </item>
+             <item>
+              <widget class="QTableWidget" name="tabGetWaitReceive">
+               <column>
+                <property name="text">
+                 <string>Hash</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Amount</string>
+                </property>
+               </column>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnGetWaitReceive">
+             <property name="minimumSize">
+              <size>
+               <width>180</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>180</width>
+               <height>80</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>查询未接收交易</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout">
+             <item>
+              <widget class="QLineEdit" name="edtGetLastUnitHashPublicKey"/>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="edtGetLastUnitHash"/>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnGetLastUnitHash">
+             <property name="minimumSize">
+              <size>
+               <width>180</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>180</width>
+               <height>80</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>获取最后一个单元hash</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_11">
+           <item>
+            <widget class="QPlainTextEdit" name="edtSendSendUnit"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnSendSendUnit">
+             <property name="minimumSize">
+              <size>
+               <width>180</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>180</width>
+               <height>80</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>发送转账交易单元</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_17">
+           <item>
+            <widget class="QPlainTextEdit" name="edtSendReceiveUnit"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnSendReceiveUnit">
+             <property name="minimumSize">
+              <size>
+               <width>180</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>180</width>
+               <height>80</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>发送接收交易单元</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QScrollArea" name="scrollArea_2">
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents_2">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>494</width>
+        <height>920</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_11">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_10">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_6">
+             <item>
+              <widget class="QLineEdit" name="edtGetPublicKeyPrivate"/>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="edtGetPublicKeyResult"/>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnGetPublicKey">
+             <property name="minimumSize">
+              <size>
+               <width>50</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>180</width>
+               <height>80</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>私钥-&gt;公钥</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_7">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <item>
+              <widget class="QLabel" name="label">
+               <property name="minimumSize">
+                <size>
+                 <width>120</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>私钥:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="edtGetSendUnitJsonPrivateKey"/>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_7">
+             <item>
+              <widget class="QLabel" name="label_2">
+               <property name="minimumSize">
+                <size>
+                 <width>120</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>目的公钥:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="edtGetSendUnitJsonDest"/>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_8">
+             <item>
+              <widget class="QLabel" name="label_3">
+               <property name="minimumSize">
+                <size>
+                 <width>120</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>最后的hash值:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="edtGetSendUnitHash"/>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_9">
+             <item>
+              <widget class="QLabel" name="label_4">
+               <property name="minimumSize">
+                <size>
+                 <width>120</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>最后的账户金额:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="edtGetSendUnitJsonBalance"/>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_10">
+             <item>
+              <widget class="QLabel" name="label_6">
+               <property name="minimumSize">
+                <size>
+                 <width>120</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>要转账的金额:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="edtGetSendUnitJsonAmount"/>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnGetSendUnitJson">
+             <property name="text">
+              <string>生成发送交易单元</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>生成的json</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPlainTextEdit" name="edtGetSendUnitJsonResult"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_9">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_12">
+             <item>
+              <widget class="QLabel" name="label_7">
+               <property name="minimumSize">
+                <size>
+                 <width>120</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>私钥:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="edtGetReceiveUnitJsonPrivateKey"/>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_13">
+             <item>
+              <widget class="QLabel" name="label_8">
+               <property name="minimumSize">
+                <size>
+                 <width>120</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>来源hash:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="edtGetReceiveUnitJsonFrom"/>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_14">
+             <item>
+              <widget class="QLabel" name="label_9">
+               <property name="minimumSize">
+                <size>
+                 <width>120</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>来源hash的金额:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="edtGetReceiveUnitJsonFromAmount"/>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_16">
+             <item>
+              <widget class="QLabel" name="label_11">
+               <property name="minimumSize">
+                <size>
+                 <width>120</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>最后的hash值:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="edtGetReceiveUnitJsonLastHash"/>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_15">
+             <item>
+              <widget class="QLabel" name="label_10">
+               <property name="minimumSize">
+                <size>
+                 <width>120</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>当前账户金额</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="edtGetReceiveUnitJsonBalance"/>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnGetReceiveUnitJson">
+             <property name="text">
+              <string>生成接收交易单元</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_12">
+             <property name="text">
+              <string>生成的json</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPlainTextEdit" name="edtGetReceiveUnitJsonResult"/>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

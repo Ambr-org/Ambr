@@ -56,6 +56,8 @@ public:
   std::list<std::shared_ptr<store::UnitStore>>
     GetTradeHistoryByPubKey(const core::PublicKey& pub_key, size_t count);
   bool GetSendAmount(const ambr::core::UnitHash &unit_hash, core::Amount& amount, std::string* err);
+  bool GetSendAmountWithTransactionFee(const ambr::core::UnitHash &unit_hash, core::Amount& amount, std::string* err);
+  bool GetReceiveAmount(const ambr::core::UnitHash &unit_hash, core::Amount& amount, std::string* err);
   //get all new unit map at lastest of account  which is not validated by validator set
   std::unordered_map<ambr::core::PublicKey, ambr::core::UnitHash>
     GetNewUnitMap();
@@ -129,7 +131,7 @@ public:
   uint64_t GetPassPercent(){return PASS_PERCENT;}
   uint64_t GetNonceByNowTime();
   std::recursive_mutex& GetMutex(){return mutex_;}
-  uint64_t GetTransectionFeeBase();
+  static uint64_t GetTransectionFeeBase(){return 0;};
   uint64_t GetTransectionFeeCountWhenReceive(std::shared_ptr<core::Unit> send_unit);
 public://for debug
   std::list<core::UnitHash> GetAccountListFromAccountForDebug();
