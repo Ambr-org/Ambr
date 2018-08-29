@@ -1,5 +1,5 @@
 syntax = "proto3"; 
-package ambr;  
+package ambr.protobuf;  
    
 //import "google/protobuf/timestamp.proto"; 
 message SendUnit {  
@@ -12,6 +12,12 @@ message SendUnit {
 		EnterValidateSet = 5;
 		LeaveValidateSet = 6;
 	}
+	enum DataType{
+		Normal = 0;
+    	CreateContract = 1;
+    	RunContract = 2;
+	}
+
 	uint32 version_=1;	
 	Type type_ =2;
 	bytes public_key_=3;
@@ -19,7 +25,9 @@ message SendUnit {
 	bytes balance_=5;
 	bytes hash_=6;
 	bytes sign_=7;
-	bytes dest_=8;  
+	bytes dest_=8; 
+	DataType data_type_=9;
+	bytes data_=10; 
 } 
 
 message ReceiveUnit {  
@@ -125,7 +133,8 @@ message LeaveValidateSetUint {
 	bytes prev_unit_=4;
 	bytes balance_=5;
 	bytes hash_=6;
-	bytes sign_=7;  
+	bytes sign_=7;
+	bytes unfreeze_count_=8;  
 } 
 
 
