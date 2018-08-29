@@ -15,7 +15,10 @@ class MainWidget : public QWidget
 public:
   explicit MainWidget(QWidget *parent = 0);
   ~MainWidget();
-
+signals:
+  void DoReceiveMessage(std::string, std::string);
+private slots:
+  void OnReceiveMessage(std::string, std::string);
 private slots:
   void on_pushButton_2_clicked();
 
@@ -37,6 +40,15 @@ private slots:
 
   void on_btnSendReceiveUnit_clicked();
 
+  void on_btnPubSendTrans_clicked();
+
+  void on_btnPubReceiveTrans_clicked();
+
+  void on_btnPubSendMessage_clicked();
+
+  void on_btnChatStart_clicked();
+private:
+  void StreamChatThread();
 private:
   Ui::MainWidget *ui;
   std::shared_ptr<grpc::Channel> channel_;

@@ -10,9 +10,19 @@ service RpcInterface {
   rpc GetBalance(GetBalanceRequest)returns (GetBalanceReply){}
   rpc GetHistory(GetHistoryRequest) returns (GetHistoryReply){}
   rpc SendMessage(SendMessageRequest) returns(SendMessageReply){}
-  rpc GetMessageStream(SendMessageRequest) returns(stream MessageStreamReply){}
+  rpc GetMessageStream(MessageStreamRequest) returns(stream MessageStreamReply){}
   rpc GetLastUnitHash(GetLastUnitHashRequest) returns(GetLastUnitHashReplay){}
+
+  rpc PubSendTransf(PubSendTransfRequest) returns(PubSendTransfReply){}
+  rpc PubReceiveTransf(PubReceiveTransfRequest)returns(PubReceiveTransfReply){}
+  rpc PubSendMessage(PubSendMessageRequest)returns(PubSendMessageReply){}
 }
+
+
+
+
+
+
 
 message AddUnitRequest {
   string json = 1;
@@ -80,4 +90,38 @@ message MessageStreamRequest{
 message MessageStreamReply{
   string public_key = 1;
   string message = 2;
+}
+
+
+
+message PubSendTransfRequest{
+  string private_key = 1;
+  string dest_public = 2;
+  string amount = 3;
+}
+
+message PubSendTransfReply{
+  bool result = 1;
+  string error_message = 2;
+}
+
+
+message PubReceiveTransfRequest{
+  string private_key = 1;
+  string from_hash = 2;
+}
+
+message PubReceiveTransfReply{
+  bool result = 1;
+  string error_message = 2;
+}
+
+message PubSendMessageRequest{
+  string private_key = 1;
+  string message = 2;
+}
+
+message PubSendMessageReply{
+  bool result = 1;
+  string error_message = 2;
 }

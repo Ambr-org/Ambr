@@ -78,6 +78,12 @@ public:
       core::UnitHash* tx_hash,
       std::shared_ptr<ambr::core::Unit>& unit_sended,
       std::string* err);
+  bool SendMessage(
+      const core::PrivateKey& prv_key,
+      const std::string& message,
+      core::UnitHash* tx_hash,
+      std::shared_ptr<ambr::core::Unit>& unit_sended,
+      std::string* err);
   bool SendContract(
       const core::PrivateKey& prv_key,
       core::SendUnit::DataType data_type,

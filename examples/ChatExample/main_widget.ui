@@ -277,9 +277,9 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
-        <width>519</width>
-        <height>714</height>
+        <y>-950</y>
+        <width>495</width>
+        <height>1720</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -301,8 +301,8 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
             <widget class="QPushButton" name="btnCheckBalance">
              <property name="minimumSize">
               <size>
-               <width>180</width>
-               <height>80</height>
+               <width>50</width>
+               <height>50</height>
               </size>
              </property>
              <property name="maximumSize">
@@ -345,7 +345,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
             <widget class="QPushButton" name="btnGetHistory">
              <property name="minimumSize">
               <size>
-               <width>180</width>
+               <width>50</width>
                <height>50</height>
               </size>
              </property>
@@ -389,7 +389,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
             <widget class="QPushButton" name="btnGetWaitReceive">
              <property name="minimumSize">
               <size>
-               <width>180</width>
+               <width>50</width>
                <height>50</height>
               </size>
              </property>
@@ -422,7 +422,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
             <widget class="QPushButton" name="btnGetLastUnitHash">
              <property name="minimumSize">
               <size>
-               <width>180</width>
+               <width>50</width>
                <height>50</height>
               </size>
              </property>
@@ -448,7 +448,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
             <widget class="QPushButton" name="btnSendSendUnit">
              <property name="minimumSize">
               <size>
-               <width>180</width>
+               <width>50</width>
                <height>50</height>
               </size>
              </property>
@@ -474,7 +474,307 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
             <widget class="QPushButton" name="btnSendReceiveUnit">
              <property name="minimumSize">
               <size>
+               <width>50</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
                <width>180</width>
+               <height>80</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>发送接收交易单元</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_15">
+           <property name="text">
+            <string>发送交易</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_21">
+           <item>
+            <widget class="QLabel" name="label_16">
+             <property name="minimumSize">
+              <size>
+               <width>120</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>私钥</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="edtPubSendTransPrivate"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_22">
+           <item>
+            <widget class="QLabel" name="label_17">
+             <property name="minimumSize">
+              <size>
+               <width>120</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>目的地址</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="edtPubSendTransDest"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_29">
+           <item>
+            <widget class="QLabel" name="label_26">
+             <property name="minimumSize">
+              <size>
+               <width>120</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>发送金额</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="edtPubSendTransAmount"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnPubSendTrans">
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>9999999</width>
+             <height>80</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>发送交易</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_21">
+           <property name="text">
+            <string>接收交易</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_25">
+           <item>
+            <widget class="QLabel" name="label_19">
+             <property name="minimumSize">
+              <size>
+               <width>120</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>私钥</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="edtPubReceiveTransPrivate"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_26">
+           <item>
+            <widget class="QLabel" name="label_22">
+             <property name="minimumSize">
+              <size>
+               <width>120</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>来源hash</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="edtPubReceiveTransFromHash"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnPubReceiveTrans">
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>9999999</width>
+             <height>80</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>接收交易</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_23">
+           <property name="text">
+            <string>发送信息</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_28">
+           <item>
+            <widget class="QLabel" name="label_25">
+             <property name="minimumSize">
+              <size>
+               <width>120</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>私钥</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="edtPubSendMessagePrivate"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_27">
+           <item>
+            <widget class="QLabel" name="label_24">
+             <property name="minimumSize">
+              <size>
+               <width>120</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>信息</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="edtPubSendMessageMessage"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnPubSendMessage">
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>9999999</width>
+             <height>80</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>发送信息</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_13">
+           <property name="text">
+            <string>聊天</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPlainTextEdit" name="edtChatLog">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>200</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnChatStart">
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>9999999</width>
+             <height>80</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>开始监控聊天信息</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_20">
+           <item>
+            <widget class="QLabel" name="label_14">
+             <property name="minimumSize">
+              <size>
+               <width>120</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>私钥:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="edtChatPriv"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_19">
+           <item>
+            <widget class="QPlainTextEdit" name="edtSendReceiveUnit_3"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnSendReceiveUnit_2">
+             <property name="minimumSize">
+              <size>
+               <width>50</width>
                <height>50</height>
               </size>
              </property>

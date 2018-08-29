@@ -38,7 +38,7 @@ namespace protobuf_rpc_2eproto {
 struct TableStruct {
   static const ::google::protobuf::internal::ParseTableField entries[];
   static const ::google::protobuf::internal::AuxillaryParseTableField aux[];
-  static const ::google::protobuf::internal::ParseTable schema[16];
+  static const ::google::protobuf::internal::ParseTable schema[22];
   static const ::google::protobuf::internal::FieldMetadata field_metadata[];
   static const ::google::protobuf::internal::SerializationTable serialization_table[];
   static const ::google::protobuf::uint32 offsets[];
@@ -86,6 +86,24 @@ extern MessageStreamReplyDefaultTypeInternal _MessageStreamReply_default_instanc
 class MessageStreamRequest;
 class MessageStreamRequestDefaultTypeInternal;
 extern MessageStreamRequestDefaultTypeInternal _MessageStreamRequest_default_instance_;
+class PubReceiveTransfReply;
+class PubReceiveTransfReplyDefaultTypeInternal;
+extern PubReceiveTransfReplyDefaultTypeInternal _PubReceiveTransfReply_default_instance_;
+class PubReceiveTransfRequest;
+class PubReceiveTransfRequestDefaultTypeInternal;
+extern PubReceiveTransfRequestDefaultTypeInternal _PubReceiveTransfRequest_default_instance_;
+class PubSendMessageReply;
+class PubSendMessageReplyDefaultTypeInternal;
+extern PubSendMessageReplyDefaultTypeInternal _PubSendMessageReply_default_instance_;
+class PubSendMessageRequest;
+class PubSendMessageRequestDefaultTypeInternal;
+extern PubSendMessageRequestDefaultTypeInternal _PubSendMessageRequest_default_instance_;
+class PubSendTransfReply;
+class PubSendTransfReplyDefaultTypeInternal;
+extern PubSendTransfReplyDefaultTypeInternal _PubSendTransfReply_default_instance_;
+class PubSendTransfRequest;
+class PubSendTransfRequestDefaultTypeInternal;
+extern PubSendTransfRequestDefaultTypeInternal _PubSendTransfRequest_default_instance_;
 class SendMessageReply;
 class SendMessageReplyDefaultTypeInternal;
 extern SendMessageReplyDefaultTypeInternal _SendMessageReply_default_instance_;
@@ -112,6 +130,12 @@ template<> ::ambr::rpc::GetWaitForReceiveUnitRequest* Arena::CreateMaybeMessage<
 template<> ::ambr::rpc::HistoryItem* Arena::CreateMaybeMessage<::ambr::rpc::HistoryItem>(Arena*);
 template<> ::ambr::rpc::MessageStreamReply* Arena::CreateMaybeMessage<::ambr::rpc::MessageStreamReply>(Arena*);
 template<> ::ambr::rpc::MessageStreamRequest* Arena::CreateMaybeMessage<::ambr::rpc::MessageStreamRequest>(Arena*);
+template<> ::ambr::rpc::PubReceiveTransfReply* Arena::CreateMaybeMessage<::ambr::rpc::PubReceiveTransfReply>(Arena*);
+template<> ::ambr::rpc::PubReceiveTransfRequest* Arena::CreateMaybeMessage<::ambr::rpc::PubReceiveTransfRequest>(Arena*);
+template<> ::ambr::rpc::PubSendMessageReply* Arena::CreateMaybeMessage<::ambr::rpc::PubSendMessageReply>(Arena*);
+template<> ::ambr::rpc::PubSendMessageRequest* Arena::CreateMaybeMessage<::ambr::rpc::PubSendMessageRequest>(Arena*);
+template<> ::ambr::rpc::PubSendTransfReply* Arena::CreateMaybeMessage<::ambr::rpc::PubSendTransfReply>(Arena*);
+template<> ::ambr::rpc::PubSendTransfRequest* Arena::CreateMaybeMessage<::ambr::rpc::PubSendTransfRequest>(Arena*);
 template<> ::ambr::rpc::SendMessageReply* Arena::CreateMaybeMessage<::ambr::rpc::SendMessageReply>(Arena*);
 template<> ::ambr::rpc::SendMessageRequest* Arena::CreateMaybeMessage<::ambr::rpc::SendMessageRequest>(Arena*);
 template<> ::ambr::rpc::WaitForReceiveItem* Arena::CreateMaybeMessage<::ambr::rpc::WaitForReceiveItem>(Arena*);
@@ -2009,6 +2033,753 @@ class MessageStreamReply : public ::google::protobuf::Message /* @@protoc_insert
   mutable ::google::protobuf::internal::CachedSize _cached_size_;
   friend struct ::protobuf_rpc_2eproto::TableStruct;
 };
+// -------------------------------------------------------------------
+
+class PubSendTransfRequest : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:ambr.rpc.PubSendTransfRequest) */ {
+ public:
+  PubSendTransfRequest();
+  virtual ~PubSendTransfRequest();
+
+  PubSendTransfRequest(const PubSendTransfRequest& from);
+
+  inline PubSendTransfRequest& operator=(const PubSendTransfRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  PubSendTransfRequest(PubSendTransfRequest&& from) noexcept
+    : PubSendTransfRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline PubSendTransfRequest& operator=(PubSendTransfRequest&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const PubSendTransfRequest& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const PubSendTransfRequest* internal_default_instance() {
+    return reinterpret_cast<const PubSendTransfRequest*>(
+               &_PubSendTransfRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    16;
+
+  void Swap(PubSendTransfRequest* other);
+  friend void swap(PubSendTransfRequest& a, PubSendTransfRequest& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline PubSendTransfRequest* New() const final {
+    return CreateMaybeMessage<PubSendTransfRequest>(NULL);
+  }
+
+  PubSendTransfRequest* New(::google::protobuf::Arena* arena) const final {
+    return CreateMaybeMessage<PubSendTransfRequest>(arena);
+  }
+  void CopyFrom(const ::google::protobuf::Message& from) final;
+  void MergeFrom(const ::google::protobuf::Message& from) final;
+  void CopyFrom(const PubSendTransfRequest& from);
+  void MergeFrom(const PubSendTransfRequest& from);
+  void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) final;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const final;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(PubSendTransfRequest* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // string private_key = 1;
+  void clear_private_key();
+  static const int kPrivateKeyFieldNumber = 1;
+  const ::std::string& private_key() const;
+  void set_private_key(const ::std::string& value);
+  #if LANG_CXX11
+  void set_private_key(::std::string&& value);
+  #endif
+  void set_private_key(const char* value);
+  void set_private_key(const char* value, size_t size);
+  ::std::string* mutable_private_key();
+  ::std::string* release_private_key();
+  void set_allocated_private_key(::std::string* private_key);
+
+  // string dest_public = 2;
+  void clear_dest_public();
+  static const int kDestPublicFieldNumber = 2;
+  const ::std::string& dest_public() const;
+  void set_dest_public(const ::std::string& value);
+  #if LANG_CXX11
+  void set_dest_public(::std::string&& value);
+  #endif
+  void set_dest_public(const char* value);
+  void set_dest_public(const char* value, size_t size);
+  ::std::string* mutable_dest_public();
+  ::std::string* release_dest_public();
+  void set_allocated_dest_public(::std::string* dest_public);
+
+  // string amount = 3;
+  void clear_amount();
+  static const int kAmountFieldNumber = 3;
+  const ::std::string& amount() const;
+  void set_amount(const ::std::string& value);
+  #if LANG_CXX11
+  void set_amount(::std::string&& value);
+  #endif
+  void set_amount(const char* value);
+  void set_amount(const char* value, size_t size);
+  ::std::string* mutable_amount();
+  ::std::string* release_amount();
+  void set_allocated_amount(::std::string* amount);
+
+  // @@protoc_insertion_point(class_scope:ambr.rpc.PubSendTransfRequest)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::ArenaStringPtr private_key_;
+  ::google::protobuf::internal::ArenaStringPtr dest_public_;
+  ::google::protobuf::internal::ArenaStringPtr amount_;
+  mutable ::google::protobuf::internal::CachedSize _cached_size_;
+  friend struct ::protobuf_rpc_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class PubSendTransfReply : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:ambr.rpc.PubSendTransfReply) */ {
+ public:
+  PubSendTransfReply();
+  virtual ~PubSendTransfReply();
+
+  PubSendTransfReply(const PubSendTransfReply& from);
+
+  inline PubSendTransfReply& operator=(const PubSendTransfReply& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  PubSendTransfReply(PubSendTransfReply&& from) noexcept
+    : PubSendTransfReply() {
+    *this = ::std::move(from);
+  }
+
+  inline PubSendTransfReply& operator=(PubSendTransfReply&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const PubSendTransfReply& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const PubSendTransfReply* internal_default_instance() {
+    return reinterpret_cast<const PubSendTransfReply*>(
+               &_PubSendTransfReply_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    17;
+
+  void Swap(PubSendTransfReply* other);
+  friend void swap(PubSendTransfReply& a, PubSendTransfReply& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline PubSendTransfReply* New() const final {
+    return CreateMaybeMessage<PubSendTransfReply>(NULL);
+  }
+
+  PubSendTransfReply* New(::google::protobuf::Arena* arena) const final {
+    return CreateMaybeMessage<PubSendTransfReply>(arena);
+  }
+  void CopyFrom(const ::google::protobuf::Message& from) final;
+  void MergeFrom(const ::google::protobuf::Message& from) final;
+  void CopyFrom(const PubSendTransfReply& from);
+  void MergeFrom(const PubSendTransfReply& from);
+  void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) final;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const final;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(PubSendTransfReply* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // string error_message = 2;
+  void clear_error_message();
+  static const int kErrorMessageFieldNumber = 2;
+  const ::std::string& error_message() const;
+  void set_error_message(const ::std::string& value);
+  #if LANG_CXX11
+  void set_error_message(::std::string&& value);
+  #endif
+  void set_error_message(const char* value);
+  void set_error_message(const char* value, size_t size);
+  ::std::string* mutable_error_message();
+  ::std::string* release_error_message();
+  void set_allocated_error_message(::std::string* error_message);
+
+  // bool result = 1;
+  void clear_result();
+  static const int kResultFieldNumber = 1;
+  bool result() const;
+  void set_result(bool value);
+
+  // @@protoc_insertion_point(class_scope:ambr.rpc.PubSendTransfReply)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::ArenaStringPtr error_message_;
+  bool result_;
+  mutable ::google::protobuf::internal::CachedSize _cached_size_;
+  friend struct ::protobuf_rpc_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class PubReceiveTransfRequest : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:ambr.rpc.PubReceiveTransfRequest) */ {
+ public:
+  PubReceiveTransfRequest();
+  virtual ~PubReceiveTransfRequest();
+
+  PubReceiveTransfRequest(const PubReceiveTransfRequest& from);
+
+  inline PubReceiveTransfRequest& operator=(const PubReceiveTransfRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  PubReceiveTransfRequest(PubReceiveTransfRequest&& from) noexcept
+    : PubReceiveTransfRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline PubReceiveTransfRequest& operator=(PubReceiveTransfRequest&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const PubReceiveTransfRequest& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const PubReceiveTransfRequest* internal_default_instance() {
+    return reinterpret_cast<const PubReceiveTransfRequest*>(
+               &_PubReceiveTransfRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    18;
+
+  void Swap(PubReceiveTransfRequest* other);
+  friend void swap(PubReceiveTransfRequest& a, PubReceiveTransfRequest& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline PubReceiveTransfRequest* New() const final {
+    return CreateMaybeMessage<PubReceiveTransfRequest>(NULL);
+  }
+
+  PubReceiveTransfRequest* New(::google::protobuf::Arena* arena) const final {
+    return CreateMaybeMessage<PubReceiveTransfRequest>(arena);
+  }
+  void CopyFrom(const ::google::protobuf::Message& from) final;
+  void MergeFrom(const ::google::protobuf::Message& from) final;
+  void CopyFrom(const PubReceiveTransfRequest& from);
+  void MergeFrom(const PubReceiveTransfRequest& from);
+  void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) final;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const final;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(PubReceiveTransfRequest* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // string private_key = 1;
+  void clear_private_key();
+  static const int kPrivateKeyFieldNumber = 1;
+  const ::std::string& private_key() const;
+  void set_private_key(const ::std::string& value);
+  #if LANG_CXX11
+  void set_private_key(::std::string&& value);
+  #endif
+  void set_private_key(const char* value);
+  void set_private_key(const char* value, size_t size);
+  ::std::string* mutable_private_key();
+  ::std::string* release_private_key();
+  void set_allocated_private_key(::std::string* private_key);
+
+  // string from_hash = 2;
+  void clear_from_hash();
+  static const int kFromHashFieldNumber = 2;
+  const ::std::string& from_hash() const;
+  void set_from_hash(const ::std::string& value);
+  #if LANG_CXX11
+  void set_from_hash(::std::string&& value);
+  #endif
+  void set_from_hash(const char* value);
+  void set_from_hash(const char* value, size_t size);
+  ::std::string* mutable_from_hash();
+  ::std::string* release_from_hash();
+  void set_allocated_from_hash(::std::string* from_hash);
+
+  // @@protoc_insertion_point(class_scope:ambr.rpc.PubReceiveTransfRequest)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::ArenaStringPtr private_key_;
+  ::google::protobuf::internal::ArenaStringPtr from_hash_;
+  mutable ::google::protobuf::internal::CachedSize _cached_size_;
+  friend struct ::protobuf_rpc_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class PubReceiveTransfReply : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:ambr.rpc.PubReceiveTransfReply) */ {
+ public:
+  PubReceiveTransfReply();
+  virtual ~PubReceiveTransfReply();
+
+  PubReceiveTransfReply(const PubReceiveTransfReply& from);
+
+  inline PubReceiveTransfReply& operator=(const PubReceiveTransfReply& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  PubReceiveTransfReply(PubReceiveTransfReply&& from) noexcept
+    : PubReceiveTransfReply() {
+    *this = ::std::move(from);
+  }
+
+  inline PubReceiveTransfReply& operator=(PubReceiveTransfReply&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const PubReceiveTransfReply& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const PubReceiveTransfReply* internal_default_instance() {
+    return reinterpret_cast<const PubReceiveTransfReply*>(
+               &_PubReceiveTransfReply_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    19;
+
+  void Swap(PubReceiveTransfReply* other);
+  friend void swap(PubReceiveTransfReply& a, PubReceiveTransfReply& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline PubReceiveTransfReply* New() const final {
+    return CreateMaybeMessage<PubReceiveTransfReply>(NULL);
+  }
+
+  PubReceiveTransfReply* New(::google::protobuf::Arena* arena) const final {
+    return CreateMaybeMessage<PubReceiveTransfReply>(arena);
+  }
+  void CopyFrom(const ::google::protobuf::Message& from) final;
+  void MergeFrom(const ::google::protobuf::Message& from) final;
+  void CopyFrom(const PubReceiveTransfReply& from);
+  void MergeFrom(const PubReceiveTransfReply& from);
+  void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) final;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const final;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(PubReceiveTransfReply* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // string error_message = 2;
+  void clear_error_message();
+  static const int kErrorMessageFieldNumber = 2;
+  const ::std::string& error_message() const;
+  void set_error_message(const ::std::string& value);
+  #if LANG_CXX11
+  void set_error_message(::std::string&& value);
+  #endif
+  void set_error_message(const char* value);
+  void set_error_message(const char* value, size_t size);
+  ::std::string* mutable_error_message();
+  ::std::string* release_error_message();
+  void set_allocated_error_message(::std::string* error_message);
+
+  // bool result = 1;
+  void clear_result();
+  static const int kResultFieldNumber = 1;
+  bool result() const;
+  void set_result(bool value);
+
+  // @@protoc_insertion_point(class_scope:ambr.rpc.PubReceiveTransfReply)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::ArenaStringPtr error_message_;
+  bool result_;
+  mutable ::google::protobuf::internal::CachedSize _cached_size_;
+  friend struct ::protobuf_rpc_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class PubSendMessageRequest : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:ambr.rpc.PubSendMessageRequest) */ {
+ public:
+  PubSendMessageRequest();
+  virtual ~PubSendMessageRequest();
+
+  PubSendMessageRequest(const PubSendMessageRequest& from);
+
+  inline PubSendMessageRequest& operator=(const PubSendMessageRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  PubSendMessageRequest(PubSendMessageRequest&& from) noexcept
+    : PubSendMessageRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline PubSendMessageRequest& operator=(PubSendMessageRequest&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const PubSendMessageRequest& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const PubSendMessageRequest* internal_default_instance() {
+    return reinterpret_cast<const PubSendMessageRequest*>(
+               &_PubSendMessageRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    20;
+
+  void Swap(PubSendMessageRequest* other);
+  friend void swap(PubSendMessageRequest& a, PubSendMessageRequest& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline PubSendMessageRequest* New() const final {
+    return CreateMaybeMessage<PubSendMessageRequest>(NULL);
+  }
+
+  PubSendMessageRequest* New(::google::protobuf::Arena* arena) const final {
+    return CreateMaybeMessage<PubSendMessageRequest>(arena);
+  }
+  void CopyFrom(const ::google::protobuf::Message& from) final;
+  void MergeFrom(const ::google::protobuf::Message& from) final;
+  void CopyFrom(const PubSendMessageRequest& from);
+  void MergeFrom(const PubSendMessageRequest& from);
+  void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) final;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const final;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(PubSendMessageRequest* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // string private_key = 1;
+  void clear_private_key();
+  static const int kPrivateKeyFieldNumber = 1;
+  const ::std::string& private_key() const;
+  void set_private_key(const ::std::string& value);
+  #if LANG_CXX11
+  void set_private_key(::std::string&& value);
+  #endif
+  void set_private_key(const char* value);
+  void set_private_key(const char* value, size_t size);
+  ::std::string* mutable_private_key();
+  ::std::string* release_private_key();
+  void set_allocated_private_key(::std::string* private_key);
+
+  // string message = 2;
+  void clear_message();
+  static const int kMessageFieldNumber = 2;
+  const ::std::string& message() const;
+  void set_message(const ::std::string& value);
+  #if LANG_CXX11
+  void set_message(::std::string&& value);
+  #endif
+  void set_message(const char* value);
+  void set_message(const char* value, size_t size);
+  ::std::string* mutable_message();
+  ::std::string* release_message();
+  void set_allocated_message(::std::string* message);
+
+  // @@protoc_insertion_point(class_scope:ambr.rpc.PubSendMessageRequest)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::ArenaStringPtr private_key_;
+  ::google::protobuf::internal::ArenaStringPtr message_;
+  mutable ::google::protobuf::internal::CachedSize _cached_size_;
+  friend struct ::protobuf_rpc_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class PubSendMessageReply : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:ambr.rpc.PubSendMessageReply) */ {
+ public:
+  PubSendMessageReply();
+  virtual ~PubSendMessageReply();
+
+  PubSendMessageReply(const PubSendMessageReply& from);
+
+  inline PubSendMessageReply& operator=(const PubSendMessageReply& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  PubSendMessageReply(PubSendMessageReply&& from) noexcept
+    : PubSendMessageReply() {
+    *this = ::std::move(from);
+  }
+
+  inline PubSendMessageReply& operator=(PubSendMessageReply&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const PubSendMessageReply& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const PubSendMessageReply* internal_default_instance() {
+    return reinterpret_cast<const PubSendMessageReply*>(
+               &_PubSendMessageReply_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    21;
+
+  void Swap(PubSendMessageReply* other);
+  friend void swap(PubSendMessageReply& a, PubSendMessageReply& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline PubSendMessageReply* New() const final {
+    return CreateMaybeMessage<PubSendMessageReply>(NULL);
+  }
+
+  PubSendMessageReply* New(::google::protobuf::Arena* arena) const final {
+    return CreateMaybeMessage<PubSendMessageReply>(arena);
+  }
+  void CopyFrom(const ::google::protobuf::Message& from) final;
+  void MergeFrom(const ::google::protobuf::Message& from) final;
+  void CopyFrom(const PubSendMessageReply& from);
+  void MergeFrom(const PubSendMessageReply& from);
+  void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) final;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const final;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(PubSendMessageReply* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // string error_message = 2;
+  void clear_error_message();
+  static const int kErrorMessageFieldNumber = 2;
+  const ::std::string& error_message() const;
+  void set_error_message(const ::std::string& value);
+  #if LANG_CXX11
+  void set_error_message(::std::string&& value);
+  #endif
+  void set_error_message(const char* value);
+  void set_error_message(const char* value, size_t size);
+  ::std::string* mutable_error_message();
+  ::std::string* release_error_message();
+  void set_allocated_error_message(::std::string* error_message);
+
+  // bool result = 1;
+  void clear_result();
+  static const int kResultFieldNumber = 1;
+  bool result() const;
+  void set_result(bool value);
+
+  // @@protoc_insertion_point(class_scope:ambr.rpc.PubSendMessageReply)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::ArenaStringPtr error_message_;
+  bool result_;
+  mutable ::google::protobuf::internal::CachedSize _cached_size_;
+  friend struct ::protobuf_rpc_2eproto::TableStruct;
+};
 // ===================================================================
 
 
@@ -3231,9 +4002,617 @@ inline void MessageStreamReply::set_allocated_message(::std::string* message) {
   // @@protoc_insertion_point(field_set_allocated:ambr.rpc.MessageStreamReply.message)
 }
 
+// -------------------------------------------------------------------
+
+// PubSendTransfRequest
+
+// string private_key = 1;
+inline void PubSendTransfRequest::clear_private_key() {
+  private_key_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& PubSendTransfRequest::private_key() const {
+  // @@protoc_insertion_point(field_get:ambr.rpc.PubSendTransfRequest.private_key)
+  return private_key_.GetNoArena();
+}
+inline void PubSendTransfRequest::set_private_key(const ::std::string& value) {
+  
+  private_key_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:ambr.rpc.PubSendTransfRequest.private_key)
+}
+#if LANG_CXX11
+inline void PubSendTransfRequest::set_private_key(::std::string&& value) {
+  
+  private_key_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:ambr.rpc.PubSendTransfRequest.private_key)
+}
+#endif
+inline void PubSendTransfRequest::set_private_key(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  
+  private_key_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:ambr.rpc.PubSendTransfRequest.private_key)
+}
+inline void PubSendTransfRequest::set_private_key(const char* value, size_t size) {
+  
+  private_key_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:ambr.rpc.PubSendTransfRequest.private_key)
+}
+inline ::std::string* PubSendTransfRequest::mutable_private_key() {
+  
+  // @@protoc_insertion_point(field_mutable:ambr.rpc.PubSendTransfRequest.private_key)
+  return private_key_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* PubSendTransfRequest::release_private_key() {
+  // @@protoc_insertion_point(field_release:ambr.rpc.PubSendTransfRequest.private_key)
+  
+  return private_key_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void PubSendTransfRequest::set_allocated_private_key(::std::string* private_key) {
+  if (private_key != NULL) {
+    
+  } else {
+    
+  }
+  private_key_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), private_key);
+  // @@protoc_insertion_point(field_set_allocated:ambr.rpc.PubSendTransfRequest.private_key)
+}
+
+// string dest_public = 2;
+inline void PubSendTransfRequest::clear_dest_public() {
+  dest_public_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& PubSendTransfRequest::dest_public() const {
+  // @@protoc_insertion_point(field_get:ambr.rpc.PubSendTransfRequest.dest_public)
+  return dest_public_.GetNoArena();
+}
+inline void PubSendTransfRequest::set_dest_public(const ::std::string& value) {
+  
+  dest_public_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:ambr.rpc.PubSendTransfRequest.dest_public)
+}
+#if LANG_CXX11
+inline void PubSendTransfRequest::set_dest_public(::std::string&& value) {
+  
+  dest_public_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:ambr.rpc.PubSendTransfRequest.dest_public)
+}
+#endif
+inline void PubSendTransfRequest::set_dest_public(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  
+  dest_public_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:ambr.rpc.PubSendTransfRequest.dest_public)
+}
+inline void PubSendTransfRequest::set_dest_public(const char* value, size_t size) {
+  
+  dest_public_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:ambr.rpc.PubSendTransfRequest.dest_public)
+}
+inline ::std::string* PubSendTransfRequest::mutable_dest_public() {
+  
+  // @@protoc_insertion_point(field_mutable:ambr.rpc.PubSendTransfRequest.dest_public)
+  return dest_public_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* PubSendTransfRequest::release_dest_public() {
+  // @@protoc_insertion_point(field_release:ambr.rpc.PubSendTransfRequest.dest_public)
+  
+  return dest_public_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void PubSendTransfRequest::set_allocated_dest_public(::std::string* dest_public) {
+  if (dest_public != NULL) {
+    
+  } else {
+    
+  }
+  dest_public_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), dest_public);
+  // @@protoc_insertion_point(field_set_allocated:ambr.rpc.PubSendTransfRequest.dest_public)
+}
+
+// string amount = 3;
+inline void PubSendTransfRequest::clear_amount() {
+  amount_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& PubSendTransfRequest::amount() const {
+  // @@protoc_insertion_point(field_get:ambr.rpc.PubSendTransfRequest.amount)
+  return amount_.GetNoArena();
+}
+inline void PubSendTransfRequest::set_amount(const ::std::string& value) {
+  
+  amount_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:ambr.rpc.PubSendTransfRequest.amount)
+}
+#if LANG_CXX11
+inline void PubSendTransfRequest::set_amount(::std::string&& value) {
+  
+  amount_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:ambr.rpc.PubSendTransfRequest.amount)
+}
+#endif
+inline void PubSendTransfRequest::set_amount(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  
+  amount_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:ambr.rpc.PubSendTransfRequest.amount)
+}
+inline void PubSendTransfRequest::set_amount(const char* value, size_t size) {
+  
+  amount_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:ambr.rpc.PubSendTransfRequest.amount)
+}
+inline ::std::string* PubSendTransfRequest::mutable_amount() {
+  
+  // @@protoc_insertion_point(field_mutable:ambr.rpc.PubSendTransfRequest.amount)
+  return amount_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* PubSendTransfRequest::release_amount() {
+  // @@protoc_insertion_point(field_release:ambr.rpc.PubSendTransfRequest.amount)
+  
+  return amount_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void PubSendTransfRequest::set_allocated_amount(::std::string* amount) {
+  if (amount != NULL) {
+    
+  } else {
+    
+  }
+  amount_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), amount);
+  // @@protoc_insertion_point(field_set_allocated:ambr.rpc.PubSendTransfRequest.amount)
+}
+
+// -------------------------------------------------------------------
+
+// PubSendTransfReply
+
+// bool result = 1;
+inline void PubSendTransfReply::clear_result() {
+  result_ = false;
+}
+inline bool PubSendTransfReply::result() const {
+  // @@protoc_insertion_point(field_get:ambr.rpc.PubSendTransfReply.result)
+  return result_;
+}
+inline void PubSendTransfReply::set_result(bool value) {
+  
+  result_ = value;
+  // @@protoc_insertion_point(field_set:ambr.rpc.PubSendTransfReply.result)
+}
+
+// string error_message = 2;
+inline void PubSendTransfReply::clear_error_message() {
+  error_message_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& PubSendTransfReply::error_message() const {
+  // @@protoc_insertion_point(field_get:ambr.rpc.PubSendTransfReply.error_message)
+  return error_message_.GetNoArena();
+}
+inline void PubSendTransfReply::set_error_message(const ::std::string& value) {
+  
+  error_message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:ambr.rpc.PubSendTransfReply.error_message)
+}
+#if LANG_CXX11
+inline void PubSendTransfReply::set_error_message(::std::string&& value) {
+  
+  error_message_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:ambr.rpc.PubSendTransfReply.error_message)
+}
+#endif
+inline void PubSendTransfReply::set_error_message(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  
+  error_message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:ambr.rpc.PubSendTransfReply.error_message)
+}
+inline void PubSendTransfReply::set_error_message(const char* value, size_t size) {
+  
+  error_message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:ambr.rpc.PubSendTransfReply.error_message)
+}
+inline ::std::string* PubSendTransfReply::mutable_error_message() {
+  
+  // @@protoc_insertion_point(field_mutable:ambr.rpc.PubSendTransfReply.error_message)
+  return error_message_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* PubSendTransfReply::release_error_message() {
+  // @@protoc_insertion_point(field_release:ambr.rpc.PubSendTransfReply.error_message)
+  
+  return error_message_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void PubSendTransfReply::set_allocated_error_message(::std::string* error_message) {
+  if (error_message != NULL) {
+    
+  } else {
+    
+  }
+  error_message_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), error_message);
+  // @@protoc_insertion_point(field_set_allocated:ambr.rpc.PubSendTransfReply.error_message)
+}
+
+// -------------------------------------------------------------------
+
+// PubReceiveTransfRequest
+
+// string private_key = 1;
+inline void PubReceiveTransfRequest::clear_private_key() {
+  private_key_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& PubReceiveTransfRequest::private_key() const {
+  // @@protoc_insertion_point(field_get:ambr.rpc.PubReceiveTransfRequest.private_key)
+  return private_key_.GetNoArena();
+}
+inline void PubReceiveTransfRequest::set_private_key(const ::std::string& value) {
+  
+  private_key_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:ambr.rpc.PubReceiveTransfRequest.private_key)
+}
+#if LANG_CXX11
+inline void PubReceiveTransfRequest::set_private_key(::std::string&& value) {
+  
+  private_key_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:ambr.rpc.PubReceiveTransfRequest.private_key)
+}
+#endif
+inline void PubReceiveTransfRequest::set_private_key(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  
+  private_key_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:ambr.rpc.PubReceiveTransfRequest.private_key)
+}
+inline void PubReceiveTransfRequest::set_private_key(const char* value, size_t size) {
+  
+  private_key_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:ambr.rpc.PubReceiveTransfRequest.private_key)
+}
+inline ::std::string* PubReceiveTransfRequest::mutable_private_key() {
+  
+  // @@protoc_insertion_point(field_mutable:ambr.rpc.PubReceiveTransfRequest.private_key)
+  return private_key_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* PubReceiveTransfRequest::release_private_key() {
+  // @@protoc_insertion_point(field_release:ambr.rpc.PubReceiveTransfRequest.private_key)
+  
+  return private_key_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void PubReceiveTransfRequest::set_allocated_private_key(::std::string* private_key) {
+  if (private_key != NULL) {
+    
+  } else {
+    
+  }
+  private_key_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), private_key);
+  // @@protoc_insertion_point(field_set_allocated:ambr.rpc.PubReceiveTransfRequest.private_key)
+}
+
+// string from_hash = 2;
+inline void PubReceiveTransfRequest::clear_from_hash() {
+  from_hash_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& PubReceiveTransfRequest::from_hash() const {
+  // @@protoc_insertion_point(field_get:ambr.rpc.PubReceiveTransfRequest.from_hash)
+  return from_hash_.GetNoArena();
+}
+inline void PubReceiveTransfRequest::set_from_hash(const ::std::string& value) {
+  
+  from_hash_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:ambr.rpc.PubReceiveTransfRequest.from_hash)
+}
+#if LANG_CXX11
+inline void PubReceiveTransfRequest::set_from_hash(::std::string&& value) {
+  
+  from_hash_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:ambr.rpc.PubReceiveTransfRequest.from_hash)
+}
+#endif
+inline void PubReceiveTransfRequest::set_from_hash(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  
+  from_hash_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:ambr.rpc.PubReceiveTransfRequest.from_hash)
+}
+inline void PubReceiveTransfRequest::set_from_hash(const char* value, size_t size) {
+  
+  from_hash_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:ambr.rpc.PubReceiveTransfRequest.from_hash)
+}
+inline ::std::string* PubReceiveTransfRequest::mutable_from_hash() {
+  
+  // @@protoc_insertion_point(field_mutable:ambr.rpc.PubReceiveTransfRequest.from_hash)
+  return from_hash_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* PubReceiveTransfRequest::release_from_hash() {
+  // @@protoc_insertion_point(field_release:ambr.rpc.PubReceiveTransfRequest.from_hash)
+  
+  return from_hash_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void PubReceiveTransfRequest::set_allocated_from_hash(::std::string* from_hash) {
+  if (from_hash != NULL) {
+    
+  } else {
+    
+  }
+  from_hash_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from_hash);
+  // @@protoc_insertion_point(field_set_allocated:ambr.rpc.PubReceiveTransfRequest.from_hash)
+}
+
+// -------------------------------------------------------------------
+
+// PubReceiveTransfReply
+
+// bool result = 1;
+inline void PubReceiveTransfReply::clear_result() {
+  result_ = false;
+}
+inline bool PubReceiveTransfReply::result() const {
+  // @@protoc_insertion_point(field_get:ambr.rpc.PubReceiveTransfReply.result)
+  return result_;
+}
+inline void PubReceiveTransfReply::set_result(bool value) {
+  
+  result_ = value;
+  // @@protoc_insertion_point(field_set:ambr.rpc.PubReceiveTransfReply.result)
+}
+
+// string error_message = 2;
+inline void PubReceiveTransfReply::clear_error_message() {
+  error_message_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& PubReceiveTransfReply::error_message() const {
+  // @@protoc_insertion_point(field_get:ambr.rpc.PubReceiveTransfReply.error_message)
+  return error_message_.GetNoArena();
+}
+inline void PubReceiveTransfReply::set_error_message(const ::std::string& value) {
+  
+  error_message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:ambr.rpc.PubReceiveTransfReply.error_message)
+}
+#if LANG_CXX11
+inline void PubReceiveTransfReply::set_error_message(::std::string&& value) {
+  
+  error_message_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:ambr.rpc.PubReceiveTransfReply.error_message)
+}
+#endif
+inline void PubReceiveTransfReply::set_error_message(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  
+  error_message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:ambr.rpc.PubReceiveTransfReply.error_message)
+}
+inline void PubReceiveTransfReply::set_error_message(const char* value, size_t size) {
+  
+  error_message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:ambr.rpc.PubReceiveTransfReply.error_message)
+}
+inline ::std::string* PubReceiveTransfReply::mutable_error_message() {
+  
+  // @@protoc_insertion_point(field_mutable:ambr.rpc.PubReceiveTransfReply.error_message)
+  return error_message_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* PubReceiveTransfReply::release_error_message() {
+  // @@protoc_insertion_point(field_release:ambr.rpc.PubReceiveTransfReply.error_message)
+  
+  return error_message_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void PubReceiveTransfReply::set_allocated_error_message(::std::string* error_message) {
+  if (error_message != NULL) {
+    
+  } else {
+    
+  }
+  error_message_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), error_message);
+  // @@protoc_insertion_point(field_set_allocated:ambr.rpc.PubReceiveTransfReply.error_message)
+}
+
+// -------------------------------------------------------------------
+
+// PubSendMessageRequest
+
+// string private_key = 1;
+inline void PubSendMessageRequest::clear_private_key() {
+  private_key_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& PubSendMessageRequest::private_key() const {
+  // @@protoc_insertion_point(field_get:ambr.rpc.PubSendMessageRequest.private_key)
+  return private_key_.GetNoArena();
+}
+inline void PubSendMessageRequest::set_private_key(const ::std::string& value) {
+  
+  private_key_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:ambr.rpc.PubSendMessageRequest.private_key)
+}
+#if LANG_CXX11
+inline void PubSendMessageRequest::set_private_key(::std::string&& value) {
+  
+  private_key_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:ambr.rpc.PubSendMessageRequest.private_key)
+}
+#endif
+inline void PubSendMessageRequest::set_private_key(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  
+  private_key_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:ambr.rpc.PubSendMessageRequest.private_key)
+}
+inline void PubSendMessageRequest::set_private_key(const char* value, size_t size) {
+  
+  private_key_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:ambr.rpc.PubSendMessageRequest.private_key)
+}
+inline ::std::string* PubSendMessageRequest::mutable_private_key() {
+  
+  // @@protoc_insertion_point(field_mutable:ambr.rpc.PubSendMessageRequest.private_key)
+  return private_key_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* PubSendMessageRequest::release_private_key() {
+  // @@protoc_insertion_point(field_release:ambr.rpc.PubSendMessageRequest.private_key)
+  
+  return private_key_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void PubSendMessageRequest::set_allocated_private_key(::std::string* private_key) {
+  if (private_key != NULL) {
+    
+  } else {
+    
+  }
+  private_key_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), private_key);
+  // @@protoc_insertion_point(field_set_allocated:ambr.rpc.PubSendMessageRequest.private_key)
+}
+
+// string message = 2;
+inline void PubSendMessageRequest::clear_message() {
+  message_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& PubSendMessageRequest::message() const {
+  // @@protoc_insertion_point(field_get:ambr.rpc.PubSendMessageRequest.message)
+  return message_.GetNoArena();
+}
+inline void PubSendMessageRequest::set_message(const ::std::string& value) {
+  
+  message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:ambr.rpc.PubSendMessageRequest.message)
+}
+#if LANG_CXX11
+inline void PubSendMessageRequest::set_message(::std::string&& value) {
+  
+  message_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:ambr.rpc.PubSendMessageRequest.message)
+}
+#endif
+inline void PubSendMessageRequest::set_message(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  
+  message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:ambr.rpc.PubSendMessageRequest.message)
+}
+inline void PubSendMessageRequest::set_message(const char* value, size_t size) {
+  
+  message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:ambr.rpc.PubSendMessageRequest.message)
+}
+inline ::std::string* PubSendMessageRequest::mutable_message() {
+  
+  // @@protoc_insertion_point(field_mutable:ambr.rpc.PubSendMessageRequest.message)
+  return message_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* PubSendMessageRequest::release_message() {
+  // @@protoc_insertion_point(field_release:ambr.rpc.PubSendMessageRequest.message)
+  
+  return message_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void PubSendMessageRequest::set_allocated_message(::std::string* message) {
+  if (message != NULL) {
+    
+  } else {
+    
+  }
+  message_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), message);
+  // @@protoc_insertion_point(field_set_allocated:ambr.rpc.PubSendMessageRequest.message)
+}
+
+// -------------------------------------------------------------------
+
+// PubSendMessageReply
+
+// bool result = 1;
+inline void PubSendMessageReply::clear_result() {
+  result_ = false;
+}
+inline bool PubSendMessageReply::result() const {
+  // @@protoc_insertion_point(field_get:ambr.rpc.PubSendMessageReply.result)
+  return result_;
+}
+inline void PubSendMessageReply::set_result(bool value) {
+  
+  result_ = value;
+  // @@protoc_insertion_point(field_set:ambr.rpc.PubSendMessageReply.result)
+}
+
+// string error_message = 2;
+inline void PubSendMessageReply::clear_error_message() {
+  error_message_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& PubSendMessageReply::error_message() const {
+  // @@protoc_insertion_point(field_get:ambr.rpc.PubSendMessageReply.error_message)
+  return error_message_.GetNoArena();
+}
+inline void PubSendMessageReply::set_error_message(const ::std::string& value) {
+  
+  error_message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:ambr.rpc.PubSendMessageReply.error_message)
+}
+#if LANG_CXX11
+inline void PubSendMessageReply::set_error_message(::std::string&& value) {
+  
+  error_message_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:ambr.rpc.PubSendMessageReply.error_message)
+}
+#endif
+inline void PubSendMessageReply::set_error_message(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  
+  error_message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:ambr.rpc.PubSendMessageReply.error_message)
+}
+inline void PubSendMessageReply::set_error_message(const char* value, size_t size) {
+  
+  error_message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:ambr.rpc.PubSendMessageReply.error_message)
+}
+inline ::std::string* PubSendMessageReply::mutable_error_message() {
+  
+  // @@protoc_insertion_point(field_mutable:ambr.rpc.PubSendMessageReply.error_message)
+  return error_message_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* PubSendMessageReply::release_error_message() {
+  // @@protoc_insertion_point(field_release:ambr.rpc.PubSendMessageReply.error_message)
+  
+  return error_message_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void PubSendMessageReply::set_allocated_error_message(::std::string* error_message) {
+  if (error_message != NULL) {
+    
+  } else {
+    
+  }
+  error_message_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), error_message);
+  // @@protoc_insertion_point(field_set_allocated:ambr.rpc.PubSendMessageReply.error_message)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

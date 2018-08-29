@@ -77,13 +77,13 @@ class RpcInterface final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::SendMessageReply>> PrepareAsyncSendMessage(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::SendMessageReply>>(PrepareAsyncSendMessageRaw(context, request, cq));
     }
-    std::unique_ptr< ::grpc::ClientReaderInterface< ::ambr::rpc::MessageStreamReply>> GetMessageStream(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request) {
+    std::unique_ptr< ::grpc::ClientReaderInterface< ::ambr::rpc::MessageStreamReply>> GetMessageStream(::grpc::ClientContext* context, const ::ambr::rpc::MessageStreamRequest& request) {
       return std::unique_ptr< ::grpc::ClientReaderInterface< ::ambr::rpc::MessageStreamReply>>(GetMessageStreamRaw(context, request));
     }
-    std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::ambr::rpc::MessageStreamReply>> AsyncGetMessageStream(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
+    std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::ambr::rpc::MessageStreamReply>> AsyncGetMessageStream(::grpc::ClientContext* context, const ::ambr::rpc::MessageStreamRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::ambr::rpc::MessageStreamReply>>(AsyncGetMessageStreamRaw(context, request, cq, tag));
     }
-    std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::ambr::rpc::MessageStreamReply>> PrepareAsyncGetMessageStream(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq) {
+    std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::ambr::rpc::MessageStreamReply>> PrepareAsyncGetMessageStream(::grpc::ClientContext* context, const ::ambr::rpc::MessageStreamRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::ambr::rpc::MessageStreamReply>>(PrepareAsyncGetMessageStreamRaw(context, request, cq));
     }
     virtual ::grpc::Status GetLastUnitHash(::grpc::ClientContext* context, const ::ambr::rpc::GetLastUnitHashRequest& request, ::ambr::rpc::GetLastUnitHashReplay* response) = 0;
@@ -92,6 +92,27 @@ class RpcInterface final {
     }
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::GetLastUnitHashReplay>> PrepareAsyncGetLastUnitHash(::grpc::ClientContext* context, const ::ambr::rpc::GetLastUnitHashRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::GetLastUnitHashReplay>>(PrepareAsyncGetLastUnitHashRaw(context, request, cq));
+    }
+    virtual ::grpc::Status PubSendTransf(::grpc::ClientContext* context, const ::ambr::rpc::PubSendTransfRequest& request, ::ambr::rpc::PubSendTransfReply* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::PubSendTransfReply>> AsyncPubSendTransf(::grpc::ClientContext* context, const ::ambr::rpc::PubSendTransfRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::PubSendTransfReply>>(AsyncPubSendTransfRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::PubSendTransfReply>> PrepareAsyncPubSendTransf(::grpc::ClientContext* context, const ::ambr::rpc::PubSendTransfRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::PubSendTransfReply>>(PrepareAsyncPubSendTransfRaw(context, request, cq));
+    }
+    virtual ::grpc::Status PubReceiveTransf(::grpc::ClientContext* context, const ::ambr::rpc::PubReceiveTransfRequest& request, ::ambr::rpc::PubReceiveTransfReply* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::PubReceiveTransfReply>> AsyncPubReceiveTransf(::grpc::ClientContext* context, const ::ambr::rpc::PubReceiveTransfRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::PubReceiveTransfReply>>(AsyncPubReceiveTransfRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::PubReceiveTransfReply>> PrepareAsyncPubReceiveTransf(::grpc::ClientContext* context, const ::ambr::rpc::PubReceiveTransfRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::PubReceiveTransfReply>>(PrepareAsyncPubReceiveTransfRaw(context, request, cq));
+    }
+    virtual ::grpc::Status PubSendMessage(::grpc::ClientContext* context, const ::ambr::rpc::PubSendMessageRequest& request, ::ambr::rpc::PubSendMessageReply* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::PubSendMessageReply>> AsyncPubSendMessage(::grpc::ClientContext* context, const ::ambr::rpc::PubSendMessageRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::PubSendMessageReply>>(AsyncPubSendMessageRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::PubSendMessageReply>> PrepareAsyncPubSendMessage(::grpc::ClientContext* context, const ::ambr::rpc::PubSendMessageRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::PubSendMessageReply>>(PrepareAsyncPubSendMessageRaw(context, request, cq));
     }
   private:
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::AddUnitReply>* AsyncAddSendUnitByJsonRaw(::grpc::ClientContext* context, const ::ambr::rpc::AddUnitRequest& request, ::grpc::CompletionQueue* cq) = 0;
@@ -106,11 +127,17 @@ class RpcInterface final {
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::GetHistoryReply>* PrepareAsyncGetHistoryRaw(::grpc::ClientContext* context, const ::ambr::rpc::GetHistoryRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::SendMessageReply>* AsyncSendMessageRaw(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::SendMessageReply>* PrepareAsyncSendMessageRaw(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientReaderInterface< ::ambr::rpc::MessageStreamReply>* GetMessageStreamRaw(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request) = 0;
-    virtual ::grpc::ClientAsyncReaderInterface< ::ambr::rpc::MessageStreamReply>* AsyncGetMessageStreamRaw(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq, void* tag) = 0;
-    virtual ::grpc::ClientAsyncReaderInterface< ::ambr::rpc::MessageStreamReply>* PrepareAsyncGetMessageStreamRaw(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientReaderInterface< ::ambr::rpc::MessageStreamReply>* GetMessageStreamRaw(::grpc::ClientContext* context, const ::ambr::rpc::MessageStreamRequest& request) = 0;
+    virtual ::grpc::ClientAsyncReaderInterface< ::ambr::rpc::MessageStreamReply>* AsyncGetMessageStreamRaw(::grpc::ClientContext* context, const ::ambr::rpc::MessageStreamRequest& request, ::grpc::CompletionQueue* cq, void* tag) = 0;
+    virtual ::grpc::ClientAsyncReaderInterface< ::ambr::rpc::MessageStreamReply>* PrepareAsyncGetMessageStreamRaw(::grpc::ClientContext* context, const ::ambr::rpc::MessageStreamRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::GetLastUnitHashReplay>* AsyncGetLastUnitHashRaw(::grpc::ClientContext* context, const ::ambr::rpc::GetLastUnitHashRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::GetLastUnitHashReplay>* PrepareAsyncGetLastUnitHashRaw(::grpc::ClientContext* context, const ::ambr::rpc::GetLastUnitHashRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::PubSendTransfReply>* AsyncPubSendTransfRaw(::grpc::ClientContext* context, const ::ambr::rpc::PubSendTransfRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::PubSendTransfReply>* PrepareAsyncPubSendTransfRaw(::grpc::ClientContext* context, const ::ambr::rpc::PubSendTransfRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::PubReceiveTransfReply>* AsyncPubReceiveTransfRaw(::grpc::ClientContext* context, const ::ambr::rpc::PubReceiveTransfRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::PubReceiveTransfReply>* PrepareAsyncPubReceiveTransfRaw(::grpc::ClientContext* context, const ::ambr::rpc::PubReceiveTransfRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::PubSendMessageReply>* AsyncPubSendMessageRaw(::grpc::ClientContext* context, const ::ambr::rpc::PubSendMessageRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::ambr::rpc::PubSendMessageReply>* PrepareAsyncPubSendMessageRaw(::grpc::ClientContext* context, const ::ambr::rpc::PubSendMessageRequest& request, ::grpc::CompletionQueue* cq) = 0;
   };
   class Stub final : public StubInterface {
    public:
@@ -157,13 +184,13 @@ class RpcInterface final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ambr::rpc::SendMessageReply>> PrepareAsyncSendMessage(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ambr::rpc::SendMessageReply>>(PrepareAsyncSendMessageRaw(context, request, cq));
     }
-    std::unique_ptr< ::grpc::ClientReader< ::ambr::rpc::MessageStreamReply>> GetMessageStream(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request) {
+    std::unique_ptr< ::grpc::ClientReader< ::ambr::rpc::MessageStreamReply>> GetMessageStream(::grpc::ClientContext* context, const ::ambr::rpc::MessageStreamRequest& request) {
       return std::unique_ptr< ::grpc::ClientReader< ::ambr::rpc::MessageStreamReply>>(GetMessageStreamRaw(context, request));
     }
-    std::unique_ptr< ::grpc::ClientAsyncReader< ::ambr::rpc::MessageStreamReply>> AsyncGetMessageStream(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
+    std::unique_ptr< ::grpc::ClientAsyncReader< ::ambr::rpc::MessageStreamReply>> AsyncGetMessageStream(::grpc::ClientContext* context, const ::ambr::rpc::MessageStreamRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
       return std::unique_ptr< ::grpc::ClientAsyncReader< ::ambr::rpc::MessageStreamReply>>(AsyncGetMessageStreamRaw(context, request, cq, tag));
     }
-    std::unique_ptr< ::grpc::ClientAsyncReader< ::ambr::rpc::MessageStreamReply>> PrepareAsyncGetMessageStream(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq) {
+    std::unique_ptr< ::grpc::ClientAsyncReader< ::ambr::rpc::MessageStreamReply>> PrepareAsyncGetMessageStream(::grpc::ClientContext* context, const ::ambr::rpc::MessageStreamRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReader< ::ambr::rpc::MessageStreamReply>>(PrepareAsyncGetMessageStreamRaw(context, request, cq));
     }
     ::grpc::Status GetLastUnitHash(::grpc::ClientContext* context, const ::ambr::rpc::GetLastUnitHashRequest& request, ::ambr::rpc::GetLastUnitHashReplay* response) override;
@@ -172,6 +199,27 @@ class RpcInterface final {
     }
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ambr::rpc::GetLastUnitHashReplay>> PrepareAsyncGetLastUnitHash(::grpc::ClientContext* context, const ::ambr::rpc::GetLastUnitHashRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ambr::rpc::GetLastUnitHashReplay>>(PrepareAsyncGetLastUnitHashRaw(context, request, cq));
+    }
+    ::grpc::Status PubSendTransf(::grpc::ClientContext* context, const ::ambr::rpc::PubSendTransfRequest& request, ::ambr::rpc::PubSendTransfReply* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ambr::rpc::PubSendTransfReply>> AsyncPubSendTransf(::grpc::ClientContext* context, const ::ambr::rpc::PubSendTransfRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ambr::rpc::PubSendTransfReply>>(AsyncPubSendTransfRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ambr::rpc::PubSendTransfReply>> PrepareAsyncPubSendTransf(::grpc::ClientContext* context, const ::ambr::rpc::PubSendTransfRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ambr::rpc::PubSendTransfReply>>(PrepareAsyncPubSendTransfRaw(context, request, cq));
+    }
+    ::grpc::Status PubReceiveTransf(::grpc::ClientContext* context, const ::ambr::rpc::PubReceiveTransfRequest& request, ::ambr::rpc::PubReceiveTransfReply* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ambr::rpc::PubReceiveTransfReply>> AsyncPubReceiveTransf(::grpc::ClientContext* context, const ::ambr::rpc::PubReceiveTransfRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ambr::rpc::PubReceiveTransfReply>>(AsyncPubReceiveTransfRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ambr::rpc::PubReceiveTransfReply>> PrepareAsyncPubReceiveTransf(::grpc::ClientContext* context, const ::ambr::rpc::PubReceiveTransfRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ambr::rpc::PubReceiveTransfReply>>(PrepareAsyncPubReceiveTransfRaw(context, request, cq));
+    }
+    ::grpc::Status PubSendMessage(::grpc::ClientContext* context, const ::ambr::rpc::PubSendMessageRequest& request, ::ambr::rpc::PubSendMessageReply* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ambr::rpc::PubSendMessageReply>> AsyncPubSendMessage(::grpc::ClientContext* context, const ::ambr::rpc::PubSendMessageRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ambr::rpc::PubSendMessageReply>>(AsyncPubSendMessageRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ambr::rpc::PubSendMessageReply>> PrepareAsyncPubSendMessage(::grpc::ClientContext* context, const ::ambr::rpc::PubSendMessageRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ambr::rpc::PubSendMessageReply>>(PrepareAsyncPubSendMessageRaw(context, request, cq));
     }
 
    private:
@@ -188,11 +236,17 @@ class RpcInterface final {
     ::grpc::ClientAsyncResponseReader< ::ambr::rpc::GetHistoryReply>* PrepareAsyncGetHistoryRaw(::grpc::ClientContext* context, const ::ambr::rpc::GetHistoryRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::ambr::rpc::SendMessageReply>* AsyncSendMessageRaw(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::ambr::rpc::SendMessageReply>* PrepareAsyncSendMessageRaw(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientReader< ::ambr::rpc::MessageStreamReply>* GetMessageStreamRaw(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request) override;
-    ::grpc::ClientAsyncReader< ::ambr::rpc::MessageStreamReply>* AsyncGetMessageStreamRaw(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq, void* tag) override;
-    ::grpc::ClientAsyncReader< ::ambr::rpc::MessageStreamReply>* PrepareAsyncGetMessageStreamRaw(::grpc::ClientContext* context, const ::ambr::rpc::SendMessageRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientReader< ::ambr::rpc::MessageStreamReply>* GetMessageStreamRaw(::grpc::ClientContext* context, const ::ambr::rpc::MessageStreamRequest& request) override;
+    ::grpc::ClientAsyncReader< ::ambr::rpc::MessageStreamReply>* AsyncGetMessageStreamRaw(::grpc::ClientContext* context, const ::ambr::rpc::MessageStreamRequest& request, ::grpc::CompletionQueue* cq, void* tag) override;
+    ::grpc::ClientAsyncReader< ::ambr::rpc::MessageStreamReply>* PrepareAsyncGetMessageStreamRaw(::grpc::ClientContext* context, const ::ambr::rpc::MessageStreamRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::ambr::rpc::GetLastUnitHashReplay>* AsyncGetLastUnitHashRaw(::grpc::ClientContext* context, const ::ambr::rpc::GetLastUnitHashRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::ambr::rpc::GetLastUnitHashReplay>* PrepareAsyncGetLastUnitHashRaw(::grpc::ClientContext* context, const ::ambr::rpc::GetLastUnitHashRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::ambr::rpc::PubSendTransfReply>* AsyncPubSendTransfRaw(::grpc::ClientContext* context, const ::ambr::rpc::PubSendTransfRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::ambr::rpc::PubSendTransfReply>* PrepareAsyncPubSendTransfRaw(::grpc::ClientContext* context, const ::ambr::rpc::PubSendTransfRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::ambr::rpc::PubReceiveTransfReply>* AsyncPubReceiveTransfRaw(::grpc::ClientContext* context, const ::ambr::rpc::PubReceiveTransfRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::ambr::rpc::PubReceiveTransfReply>* PrepareAsyncPubReceiveTransfRaw(::grpc::ClientContext* context, const ::ambr::rpc::PubReceiveTransfRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::ambr::rpc::PubSendMessageReply>* AsyncPubSendMessageRaw(::grpc::ClientContext* context, const ::ambr::rpc::PubSendMessageRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::ambr::rpc::PubSendMessageReply>* PrepareAsyncPubSendMessageRaw(::grpc::ClientContext* context, const ::ambr::rpc::PubSendMessageRequest& request, ::grpc::CompletionQueue* cq) override;
     const ::grpc::internal::RpcMethod rpcmethod_AddSendUnitByJson_;
     const ::grpc::internal::RpcMethod rpcmethod_AddReceiveUnitByJson_;
     const ::grpc::internal::RpcMethod rpcmethod_GetWaitForReceiveUnit_;
@@ -201,6 +255,9 @@ class RpcInterface final {
     const ::grpc::internal::RpcMethod rpcmethod_SendMessage_;
     const ::grpc::internal::RpcMethod rpcmethod_GetMessageStream_;
     const ::grpc::internal::RpcMethod rpcmethod_GetLastUnitHash_;
+    const ::grpc::internal::RpcMethod rpcmethod_PubSendTransf_;
+    const ::grpc::internal::RpcMethod rpcmethod_PubReceiveTransf_;
+    const ::grpc::internal::RpcMethod rpcmethod_PubSendMessage_;
   };
   static std::unique_ptr<Stub> NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
 
@@ -214,8 +271,11 @@ class RpcInterface final {
     virtual ::grpc::Status GetBalance(::grpc::ServerContext* context, const ::ambr::rpc::GetBalanceRequest* request, ::ambr::rpc::GetBalanceReply* response);
     virtual ::grpc::Status GetHistory(::grpc::ServerContext* context, const ::ambr::rpc::GetHistoryRequest* request, ::ambr::rpc::GetHistoryReply* response);
     virtual ::grpc::Status SendMessage(::grpc::ServerContext* context, const ::ambr::rpc::SendMessageRequest* request, ::ambr::rpc::SendMessageReply* response);
-    virtual ::grpc::Status GetMessageStream(::grpc::ServerContext* context, const ::ambr::rpc::SendMessageRequest* request, ::grpc::ServerWriter< ::ambr::rpc::MessageStreamReply>* writer);
+    virtual ::grpc::Status GetMessageStream(::grpc::ServerContext* context, const ::ambr::rpc::MessageStreamRequest* request, ::grpc::ServerWriter< ::ambr::rpc::MessageStreamReply>* writer);
     virtual ::grpc::Status GetLastUnitHash(::grpc::ServerContext* context, const ::ambr::rpc::GetLastUnitHashRequest* request, ::ambr::rpc::GetLastUnitHashReplay* response);
+    virtual ::grpc::Status PubSendTransf(::grpc::ServerContext* context, const ::ambr::rpc::PubSendTransfRequest* request, ::ambr::rpc::PubSendTransfReply* response);
+    virtual ::grpc::Status PubReceiveTransf(::grpc::ServerContext* context, const ::ambr::rpc::PubReceiveTransfRequest* request, ::ambr::rpc::PubReceiveTransfReply* response);
+    virtual ::grpc::Status PubSendMessage(::grpc::ServerContext* context, const ::ambr::rpc::PubSendMessageRequest* request, ::ambr::rpc::PubSendMessageReply* response);
   };
   template <class BaseClass>
   class WithAsyncMethod_AddSendUnitByJson : public BaseClass {
@@ -349,11 +409,11 @@ class RpcInterface final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status GetMessageStream(::grpc::ServerContext* context, const ::ambr::rpc::SendMessageRequest* request, ::grpc::ServerWriter< ::ambr::rpc::MessageStreamReply>* writer) override {
+    ::grpc::Status GetMessageStream(::grpc::ServerContext* context, const ::ambr::rpc::MessageStreamRequest* request, ::grpc::ServerWriter< ::ambr::rpc::MessageStreamReply>* writer) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void RequestGetMessageStream(::grpc::ServerContext* context, ::ambr::rpc::SendMessageRequest* request, ::grpc::ServerAsyncWriter< ::ambr::rpc::MessageStreamReply>* writer, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+    void RequestGetMessageStream(::grpc::ServerContext* context, ::ambr::rpc::MessageStreamRequest* request, ::grpc::ServerAsyncWriter< ::ambr::rpc::MessageStreamReply>* writer, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncServerStreaming(6, context, request, writer, new_call_cq, notification_cq, tag);
     }
   };
@@ -377,7 +437,67 @@ class RpcInterface final {
       ::grpc::Service::RequestAsyncUnary(7, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
-  typedef WithAsyncMethod_AddSendUnitByJson<WithAsyncMethod_AddReceiveUnitByJson<WithAsyncMethod_GetWaitForReceiveUnit<WithAsyncMethod_GetBalance<WithAsyncMethod_GetHistory<WithAsyncMethod_SendMessage<WithAsyncMethod_GetMessageStream<WithAsyncMethod_GetLastUnitHash<Service > > > > > > > > AsyncService;
+  template <class BaseClass>
+  class WithAsyncMethod_PubSendTransf : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithAsyncMethod_PubSendTransf() {
+      ::grpc::Service::MarkMethodAsync(8);
+    }
+    ~WithAsyncMethod_PubSendTransf() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status PubSendTransf(::grpc::ServerContext* context, const ::ambr::rpc::PubSendTransfRequest* request, ::ambr::rpc::PubSendTransfReply* response) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestPubSendTransf(::grpc::ServerContext* context, ::ambr::rpc::PubSendTransfRequest* request, ::grpc::ServerAsyncResponseWriter< ::ambr::rpc::PubSendTransfReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(8, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  template <class BaseClass>
+  class WithAsyncMethod_PubReceiveTransf : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithAsyncMethod_PubReceiveTransf() {
+      ::grpc::Service::MarkMethodAsync(9);
+    }
+    ~WithAsyncMethod_PubReceiveTransf() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status PubReceiveTransf(::grpc::ServerContext* context, const ::ambr::rpc::PubReceiveTransfRequest* request, ::ambr::rpc::PubReceiveTransfReply* response) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestPubReceiveTransf(::grpc::ServerContext* context, ::ambr::rpc::PubReceiveTransfRequest* request, ::grpc::ServerAsyncResponseWriter< ::ambr::rpc::PubReceiveTransfReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(9, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  template <class BaseClass>
+  class WithAsyncMethod_PubSendMessage : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithAsyncMethod_PubSendMessage() {
+      ::grpc::Service::MarkMethodAsync(10);
+    }
+    ~WithAsyncMethod_PubSendMessage() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status PubSendMessage(::grpc::ServerContext* context, const ::ambr::rpc::PubSendMessageRequest* request, ::ambr::rpc::PubSendMessageReply* response) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestPubSendMessage(::grpc::ServerContext* context, ::ambr::rpc::PubSendMessageRequest* request, ::grpc::ServerAsyncResponseWriter< ::ambr::rpc::PubSendMessageReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(10, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  typedef WithAsyncMethod_AddSendUnitByJson<WithAsyncMethod_AddReceiveUnitByJson<WithAsyncMethod_GetWaitForReceiveUnit<WithAsyncMethod_GetBalance<WithAsyncMethod_GetHistory<WithAsyncMethod_SendMessage<WithAsyncMethod_GetMessageStream<WithAsyncMethod_GetLastUnitHash<WithAsyncMethod_PubSendTransf<WithAsyncMethod_PubReceiveTransf<WithAsyncMethod_PubSendMessage<Service > > > > > > > > > > > AsyncService;
   template <class BaseClass>
   class WithGenericMethod_AddSendUnitByJson : public BaseClass {
    private:
@@ -492,7 +612,7 @@ class RpcInterface final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status GetMessageStream(::grpc::ServerContext* context, const ::ambr::rpc::SendMessageRequest* request, ::grpc::ServerWriter< ::ambr::rpc::MessageStreamReply>* writer) override {
+    ::grpc::Status GetMessageStream(::grpc::ServerContext* context, const ::ambr::rpc::MessageStreamRequest* request, ::grpc::ServerWriter< ::ambr::rpc::MessageStreamReply>* writer) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -510,6 +630,57 @@ class RpcInterface final {
     }
     // disable synchronous version of this method
     ::grpc::Status GetLastUnitHash(::grpc::ServerContext* context, const ::ambr::rpc::GetLastUnitHashRequest* request, ::ambr::rpc::GetLastUnitHashReplay* response) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+  };
+  template <class BaseClass>
+  class WithGenericMethod_PubSendTransf : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithGenericMethod_PubSendTransf() {
+      ::grpc::Service::MarkMethodGeneric(8);
+    }
+    ~WithGenericMethod_PubSendTransf() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status PubSendTransf(::grpc::ServerContext* context, const ::ambr::rpc::PubSendTransfRequest* request, ::ambr::rpc::PubSendTransfReply* response) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+  };
+  template <class BaseClass>
+  class WithGenericMethod_PubReceiveTransf : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithGenericMethod_PubReceiveTransf() {
+      ::grpc::Service::MarkMethodGeneric(9);
+    }
+    ~WithGenericMethod_PubReceiveTransf() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status PubReceiveTransf(::grpc::ServerContext* context, const ::ambr::rpc::PubReceiveTransfRequest* request, ::ambr::rpc::PubReceiveTransfReply* response) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+  };
+  template <class BaseClass>
+  class WithGenericMethod_PubSendMessage : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithGenericMethod_PubSendMessage() {
+      ::grpc::Service::MarkMethodGeneric(10);
+    }
+    ~WithGenericMethod_PubSendMessage() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status PubSendMessage(::grpc::ServerContext* context, const ::ambr::rpc::PubSendMessageRequest* request, ::ambr::rpc::PubSendMessageReply* response) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -646,7 +817,7 @@ class RpcInterface final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status GetMessageStream(::grpc::ServerContext* context, const ::ambr::rpc::SendMessageRequest* request, ::grpc::ServerWriter< ::ambr::rpc::MessageStreamReply>* writer) override {
+    ::grpc::Status GetMessageStream(::grpc::ServerContext* context, const ::ambr::rpc::MessageStreamRequest* request, ::grpc::ServerWriter< ::ambr::rpc::MessageStreamReply>* writer) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -672,6 +843,66 @@ class RpcInterface final {
     }
     void RequestGetLastUnitHash(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncUnary(7, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  template <class BaseClass>
+  class WithRawMethod_PubSendTransf : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithRawMethod_PubSendTransf() {
+      ::grpc::Service::MarkMethodRaw(8);
+    }
+    ~WithRawMethod_PubSendTransf() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status PubSendTransf(::grpc::ServerContext* context, const ::ambr::rpc::PubSendTransfRequest* request, ::ambr::rpc::PubSendTransfReply* response) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestPubSendTransf(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(8, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  template <class BaseClass>
+  class WithRawMethod_PubReceiveTransf : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithRawMethod_PubReceiveTransf() {
+      ::grpc::Service::MarkMethodRaw(9);
+    }
+    ~WithRawMethod_PubReceiveTransf() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status PubReceiveTransf(::grpc::ServerContext* context, const ::ambr::rpc::PubReceiveTransfRequest* request, ::ambr::rpc::PubReceiveTransfReply* response) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestPubReceiveTransf(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(9, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  template <class BaseClass>
+  class WithRawMethod_PubSendMessage : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithRawMethod_PubSendMessage() {
+      ::grpc::Service::MarkMethodRaw(10);
+    }
+    ~WithRawMethod_PubSendMessage() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status PubSendMessage(::grpc::ServerContext* context, const ::ambr::rpc::PubSendMessageRequest* request, ::ambr::rpc::PubSendMessageReply* response) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestPubSendMessage(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(10, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -814,7 +1045,67 @@ class RpcInterface final {
     // replace default version of method with streamed unary
     virtual ::grpc::Status StreamedGetLastUnitHash(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::ambr::rpc::GetLastUnitHashRequest,::ambr::rpc::GetLastUnitHashReplay>* server_unary_streamer) = 0;
   };
-  typedef WithStreamedUnaryMethod_AddSendUnitByJson<WithStreamedUnaryMethod_AddReceiveUnitByJson<WithStreamedUnaryMethod_GetWaitForReceiveUnit<WithStreamedUnaryMethod_GetBalance<WithStreamedUnaryMethod_GetHistory<WithStreamedUnaryMethod_SendMessage<WithStreamedUnaryMethod_GetLastUnitHash<Service > > > > > > > StreamedUnaryService;
+  template <class BaseClass>
+  class WithStreamedUnaryMethod_PubSendTransf : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithStreamedUnaryMethod_PubSendTransf() {
+      ::grpc::Service::MarkMethodStreamed(8,
+        new ::grpc::internal::StreamedUnaryHandler< ::ambr::rpc::PubSendTransfRequest, ::ambr::rpc::PubSendTransfReply>(std::bind(&WithStreamedUnaryMethod_PubSendTransf<BaseClass>::StreamedPubSendTransf, this, std::placeholders::_1, std::placeholders::_2)));
+    }
+    ~WithStreamedUnaryMethod_PubSendTransf() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable regular version of this method
+    ::grpc::Status PubSendTransf(::grpc::ServerContext* context, const ::ambr::rpc::PubSendTransfRequest* request, ::ambr::rpc::PubSendTransfReply* response) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    // replace default version of method with streamed unary
+    virtual ::grpc::Status StreamedPubSendTransf(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::ambr::rpc::PubSendTransfRequest,::ambr::rpc::PubSendTransfReply>* server_unary_streamer) = 0;
+  };
+  template <class BaseClass>
+  class WithStreamedUnaryMethod_PubReceiveTransf : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithStreamedUnaryMethod_PubReceiveTransf() {
+      ::grpc::Service::MarkMethodStreamed(9,
+        new ::grpc::internal::StreamedUnaryHandler< ::ambr::rpc::PubReceiveTransfRequest, ::ambr::rpc::PubReceiveTransfReply>(std::bind(&WithStreamedUnaryMethod_PubReceiveTransf<BaseClass>::StreamedPubReceiveTransf, this, std::placeholders::_1, std::placeholders::_2)));
+    }
+    ~WithStreamedUnaryMethod_PubReceiveTransf() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable regular version of this method
+    ::grpc::Status PubReceiveTransf(::grpc::ServerContext* context, const ::ambr::rpc::PubReceiveTransfRequest* request, ::ambr::rpc::PubReceiveTransfReply* response) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    // replace default version of method with streamed unary
+    virtual ::grpc::Status StreamedPubReceiveTransf(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::ambr::rpc::PubReceiveTransfRequest,::ambr::rpc::PubReceiveTransfReply>* server_unary_streamer) = 0;
+  };
+  template <class BaseClass>
+  class WithStreamedUnaryMethod_PubSendMessage : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithStreamedUnaryMethod_PubSendMessage() {
+      ::grpc::Service::MarkMethodStreamed(10,
+        new ::grpc::internal::StreamedUnaryHandler< ::ambr::rpc::PubSendMessageRequest, ::ambr::rpc::PubSendMessageReply>(std::bind(&WithStreamedUnaryMethod_PubSendMessage<BaseClass>::StreamedPubSendMessage, this, std::placeholders::_1, std::placeholders::_2)));
+    }
+    ~WithStreamedUnaryMethod_PubSendMessage() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable regular version of this method
+    ::grpc::Status PubSendMessage(::grpc::ServerContext* context, const ::ambr::rpc::PubSendMessageRequest* request, ::ambr::rpc::PubSendMessageReply* response) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    // replace default version of method with streamed unary
+    virtual ::grpc::Status StreamedPubSendMessage(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::ambr::rpc::PubSendMessageRequest,::ambr::rpc::PubSendMessageReply>* server_unary_streamer) = 0;
+  };
+  typedef WithStreamedUnaryMethod_AddSendUnitByJson<WithStreamedUnaryMethod_AddReceiveUnitByJson<WithStreamedUnaryMethod_GetWaitForReceiveUnit<WithStreamedUnaryMethod_GetBalance<WithStreamedUnaryMethod_GetHistory<WithStreamedUnaryMethod_SendMessage<WithStreamedUnaryMethod_GetLastUnitHash<WithStreamedUnaryMethod_PubSendTransf<WithStreamedUnaryMethod_PubReceiveTransf<WithStreamedUnaryMethod_PubSendMessage<Service > > > > > > > > > > StreamedUnaryService;
   template <class BaseClass>
   class WithSplitStreamingMethod_GetMessageStream : public BaseClass {
    private:
@@ -822,21 +1113,21 @@ class RpcInterface final {
    public:
     WithSplitStreamingMethod_GetMessageStream() {
       ::grpc::Service::MarkMethodStreamed(6,
-        new ::grpc::internal::SplitServerStreamingHandler< ::ambr::rpc::SendMessageRequest, ::ambr::rpc::MessageStreamReply>(std::bind(&WithSplitStreamingMethod_GetMessageStream<BaseClass>::StreamedGetMessageStream, this, std::placeholders::_1, std::placeholders::_2)));
+        new ::grpc::internal::SplitServerStreamingHandler< ::ambr::rpc::MessageStreamRequest, ::ambr::rpc::MessageStreamReply>(std::bind(&WithSplitStreamingMethod_GetMessageStream<BaseClass>::StreamedGetMessageStream, this, std::placeholders::_1, std::placeholders::_2)));
     }
     ~WithSplitStreamingMethod_GetMessageStream() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable regular version of this method
-    ::grpc::Status GetMessageStream(::grpc::ServerContext* context, const ::ambr::rpc::SendMessageRequest* request, ::grpc::ServerWriter< ::ambr::rpc::MessageStreamReply>* writer) override {
+    ::grpc::Status GetMessageStream(::grpc::ServerContext* context, const ::ambr::rpc::MessageStreamRequest* request, ::grpc::ServerWriter< ::ambr::rpc::MessageStreamReply>* writer) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     // replace default version of method with split streamed
-    virtual ::grpc::Status StreamedGetMessageStream(::grpc::ServerContext* context, ::grpc::ServerSplitStreamer< ::ambr::rpc::SendMessageRequest,::ambr::rpc::MessageStreamReply>* server_split_streamer) = 0;
+    virtual ::grpc::Status StreamedGetMessageStream(::grpc::ServerContext* context, ::grpc::ServerSplitStreamer< ::ambr::rpc::MessageStreamRequest,::ambr::rpc::MessageStreamReply>* server_split_streamer) = 0;
   };
   typedef WithSplitStreamingMethod_GetMessageStream<Service > SplitStreamedService;
-  typedef WithStreamedUnaryMethod_AddSendUnitByJson<WithStreamedUnaryMethod_AddReceiveUnitByJson<WithStreamedUnaryMethod_GetWaitForReceiveUnit<WithStreamedUnaryMethod_GetBalance<WithStreamedUnaryMethod_GetHistory<WithStreamedUnaryMethod_SendMessage<WithSplitStreamingMethod_GetMessageStream<WithStreamedUnaryMethod_GetLastUnitHash<Service > > > > > > > > StreamedService;
+  typedef WithStreamedUnaryMethod_AddSendUnitByJson<WithStreamedUnaryMethod_AddReceiveUnitByJson<WithStreamedUnaryMethod_GetWaitForReceiveUnit<WithStreamedUnaryMethod_GetBalance<WithStreamedUnaryMethod_GetHistory<WithStreamedUnaryMethod_SendMessage<WithSplitStreamingMethod_GetMessageStream<WithStreamedUnaryMethod_GetLastUnitHash<WithStreamedUnaryMethod_PubSendTransf<WithStreamedUnaryMethod_PubReceiveTransf<WithStreamedUnaryMethod_PubSendMessage<Service > > > > > > > > > > > StreamedService;
 };
 
 }  // namespace rpc

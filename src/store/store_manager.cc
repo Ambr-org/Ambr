@@ -1145,6 +1145,18 @@ bool ambr::store::StoreManager::SendToAddress(
       "",
       tx_hash,
       unit_sended,
+        err);
+}
+
+bool ambr::store::StoreManager::SendMessage(const ambr::core::PrivateKey &prv_key, const std::string &message, ambr::core::UnitHash *tx_hash, std::shared_ptr<ambr::core::Unit> &unit_sended, std::string *err){
+  return SendToAddressWithContract(
+    "",
+    0,
+    prv_key,
+    ambr::core::SendUnit::Message,
+    message,
+    tx_hash,
+    unit_sended,
       err);
 }
 bool ambr::store::StoreManager::SendContract(const ambr::core::PrivateKey &prv_key, ambr::core::SendUnit::DataType data_type, const std::string &data, ambr::core::UnitHash *tx_hash, std::shared_ptr<ambr::core::Unit> &unit_sended, std::string *err){

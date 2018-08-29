@@ -1,4 +1,5 @@
 #include "rpc_server.h"
+#include <boost/thread.hpp>
 using namespace ambr::rpc;
 grpc::Status RpcServer::AddSendUnitByJson(grpc::ServerContext *context, const ambr::rpc::AddUnitRequest *request, ambr::rpc::AddUnitReply *response)
 {
@@ -120,6 +121,27 @@ grpc::Status RpcServer::SendMessage(grpc::ServerContext *context, const ambr::rp
   return grpc::Status::OK;
 }
 
+grpc::Status RpcServer::GetMessageStream(grpc::ServerContext *context, const MessageStreamRequest *request, ::grpc::ServerWriter<MessageStreamReply> *writer){
+  //writer->Write()
+  bool connected = true;
+  boost::signals2::connection connection = store_manager_->AddCallBackReceiveNewSendUnit([&](std::shared_ptr<ambr::core::SendUnit> send_unit){
+    if(send_unit->data_type() == ambr::core::SendUnit::Message){
+      MessageStreamReply reply;
+      reply.set_public_key(send_unit->public_key().encode_to_hex());
+      reply.set_message(send_unit->data());
+      if(!writer->Write(reply)){
+        connected = false;
+        connection.disconnect();
+      };
+    }
+  });
+  while(!context->IsCancelled() && connected == true){
+    boost::this_thread::sleep(boost::posix_time::millisec(100));
+  }
+  connection.disconnect();
+  return grpc::Status::OK;
+}
+
 grpc::Status RpcServer::GetLastUnitHash(grpc::ServerContext *context, const GetLastUnitHashRequest *request, GetLastUnitHashReplay *response){
   ambr::core::PublicKey pub_key;
   pub_key.decode_from_hex(request->public_key());
@@ -131,6 +153,58 @@ grpc::Status RpcServer::GetLastUnitHash(grpc::ServerContext *context, const GetL
   }else{
     response->set_result(true);
     response->set_hash(unit_hash.encode_to_hex());
+  }
+  return grpc::Status::OK;
+}
+
+grpc::Status RpcServer::PubSendTransf(grpc::ServerContext *context, const PubSendTransfRequest *request, PubSendTransfReply *response){
+  ambr::core::PrivateKey pri_key(request->private_key());
+  ambr::core::PublicKey public_key(request->dest_public());
+  ambr::core::Amount amount(atoll(request->amount().c_str()));
+
+  std::string error;
+  ambr::core::UnitHash unit_hash;
+  std::shared_ptr<ambr::core::Unit> tmp_unit;
+  if(!store_manager_->SendToAddress(public_key, amount, pri_key, &unit_hash, tmp_unit, &error)){
+    response->set_result(false);
+    response->set_error_message(error);
+  }else{
+    response->set_result(true);
+    response->set_error_message(unit_hash.encode_to_hex());
+  }
+  return grpc::Status::OK;
+}
+
+grpc::Status RpcServer::PubReceiveTransf(grpc::ServerContext *context, const PubReceiveTransfRequest *request, PubReceiveTransfReply *response){
+  ambr::core::PrivateKey pri_key(request->private_key());
+  ambr::core::UnitHash from_hash(request->from_hash());
+
+  std::string error;
+  ambr::core::UnitHash unit_hash;
+  std::shared_ptr<ambr::core::Unit> tmp_unit;
+  if(!store_manager_->ReceiveFromUnitHash(from_hash, pri_key, &unit_hash, tmp_unit, &error)){
+    response->set_result(false);
+    response->set_error_message(error);
+  }else{
+    response->set_result(true);
+    response->set_error_message(unit_hash.encode_to_hex());
+  }
+  return grpc::Status::OK;
+}
+
+grpc::Status RpcServer::PubSendMessage(grpc::ServerContext *context, const PubSendMessageRequest *request, PubSendMessageReply *response){
+  ambr::core::PrivateKey pri_key(request->private_key());
+
+  std::string error;
+  ambr::core::UnitHash unit_hash;
+  std::shared_ptr<ambr::core::Unit> tmp_unit;
+  if(!store_manager_->SendMessage(pri_key, request->message(), &unit_hash, tmp_unit, &error)){
+    response->set_result(false);
+    response->set_error_message(error);
+  }else{
+    response->set_result(true);
+    response->set_error_message(unit_hash.encode_to_hex());
+
   }
   return grpc::Status::OK;
 }

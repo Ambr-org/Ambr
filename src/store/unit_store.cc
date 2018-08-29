@@ -272,9 +272,13 @@ std::vector<uint8_t> ambr::store::EnterValidatorSetUnitStore::SerializeByte() co
 bool ambr::store::EnterValidatorSetUnitStore::DeSerializeByte(const std::vector<uint8_t> &buf){
   unit_ = std::make_shared<core::EnterValidateSetUint>();
   size_t used_count = 0;
-  if(!unit_->DeSerializeByte(buf, &used_count)){
+  std::vector<uint8_t> buf_new;
+  buf_new.resize(buf.size() - sizeof(version_)-sizeof(is_validate_));
+  memcpy(buf_new.data(), buf.data(), buf_new.size());
+  if(!unit_->DeSerializeByte(buf_new, &used_count)){
     return false;
   }
+  used_count = buf_new.size();
   if(buf.size()-used_count < sizeof(version_)){
     return false;
   }

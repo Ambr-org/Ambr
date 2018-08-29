@@ -8,13 +8,24 @@ MainWidget::MainWidget(QWidget *parent) :
   QWidget(parent),
   ui(new Ui::MainWidget)
 {
+  qRegisterMetaType<std::string>("std::string");
   ui->setupUi(this);
   channel_ = grpc::CreateChannel("localhost:50088",grpc::InsecureChannelCredentials());
+  connect(this, SIGNAL(DoReceiveMessage(std::string,std::string)), this, SLOT(OnReceiveMessage(std::string,std::string)));
 }
 
 MainWidget::~MainWidget()
 {
   delete ui;
+}
+
+void MainWidget::OnReceiveMessage(std::string pub_key, std::string msg)
+{
+  QString str;
+  str = str + "pubkey:"+pub_key.c_str();
+  str = str+"msg:"+msg.c_str();
+  str+="\r\n";
+  ui->edtChatLog->appendPlainText(str);
 }
 
 void MainWidget::on_pushButton_2_clicked()
@@ -157,5 +168,85 @@ void MainWidget::on_btnSendReceiveUnit_clicked(){
     }else{
       ui->edtSendReceiveUnit->setPlainText(QString::fromStdString(responce.error_message()));
     }
+  }
+}
+#include <QMessageBox>
+void MainWidget::on_btnPubSendTrans_clicked(){
+  ambr::rpc::RpcInterface::Stub stub(channel_);
+  grpc::ClientContext context;
+  ambr::rpc::PubSendTransfRequest request;
+  ambr::rpc::PubSendTransfReply responce;
+
+  request.set_private_key(ui->edtPubSendTransPrivate->text().toStdString());
+  request.set_dest_public(ui->edtPubSendTransDest->text().toStdString());
+  request.set_amount(ui->edtPubSendTransAmount->text().toStdString());
+  grpc::Status status = stub.PubSendTransf(&context, request, &responce);
+  if(status.ok()){
+    if(responce.result()){
+      QMessageBox::information(nullptr, "title", "OK");
+    }else{
+      QMessageBox::information(nullptr, "title", responce.error_message().c_str());
+    }
+  }
+}
+
+void MainWidget::on_btnPubReceiveTrans_clicked()
+{
+  ambr::rpc::RpcInterface::Stub stub(channel_);
+  grpc::ClientContext context;
+  ambr::rpc::PubReceiveTransfRequest request;
+  ambr::rpc::PubReceiveTransfReply responce;
+
+  request.set_private_key(ui->edtPubReceiveTransPrivate->text().toStdString());
+  request.set_from_hash(ui->edtPubReceiveTransFromHash->text().toStdString());
+  grpc::Status status = stub.PubReceiveTransf(&context, request, &responce);
+  if(status.ok()){
+    if(responce.result()){
+      QMessageBox::information(nullptr, "title", "OK");
+    }else{
+      QMessageBox::information(nullptr, "title", responce.error_message().c_str());
+    }
+  }
+}
+
+void MainWidget::on_btnPubSendMessage_clicked()
+{
+  ambr::rpc::RpcInterface::Stub stub(channel_);
+  grpc::ClientContext context;
+  ambr::rpc::PubSendMessageRequest request;
+  ambr::rpc::PubSendMessageReply responce;
+
+  request.set_private_key(ui->edtPubSendMessagePrivate->text().toStdString());
+  request.set_message(ui->edtPubSendMessageMessage->text().toStdString());
+  grpc::Status status = stub.PubSendMessage(&context, request, &responce);
+  if(status.ok()){
+    if(responce.result()){
+      QMessageBox::information(nullptr, "title", "OK");
+    }else{
+      QMessageBox::information(nullptr, "title", responce.error_message().c_str());
+    }
+  }
+}
+#include <QPushButton>
+#include <thread>
+void MainWidget::on_btnChatStart_clicked()
+{
+    ui->btnChatStart->setEnabled(false);
+    std::thread* thread = new std::thread(std::bind(&MainWidget::StreamChatThread, this));
+}
+
+void MainWidget::StreamChatThread()
+{
+  ambr::rpc::RpcInterface::Stub stub(channel_);
+  grpc::ClientContext context;
+  ambr::rpc::MessageStreamRequest request;
+  ambr::rpc::MessageStreamReply responce;
+
+  //request.set_private_key(ui->edtPubSendMessagePrivate->text().toStdString());
+  //request.set_message(ui->edtPubSendMessageMessage->text().toStdString());
+  std::unique_ptr< ::grpc::ClientReader< ::ambr::rpc::MessageStreamReply>> stream = stub.GetMessageStream(&context, request);
+  ambr::rpc::MessageStreamReply amsg;
+  while(stream->Read(&amsg)){
+    emit DoReceiveMessage(amsg.public_key(), amsg.message());
   }
 }
