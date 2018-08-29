@@ -11,6 +11,7 @@ ARGON2_DIR=${CUR_DIR}/libs/argon2
 ROCKSDB_DIR=${CUR_DIR}/libs/rocksdb
 CRYPTOPP_DIR=${CUR_DIR}/libs/cryptopp
 EDDONNA_DIR=${CUR_DIR}/libs/ed25519-donna
+SYN_DIR=${CUR_DIR}/src/synchronization
 CORE_DIR=${MAIN_DIR}/core
 STORE_DIR=${MAIN_DIR}/store
 P2P_DIR=${CUR_DIR}/src/p2p
@@ -24,8 +25,9 @@ INC_DIR= -I${ARCH_DIR} \
          -I${CROW_DIR}/include \
          -I${ROCKSDB_DIR}/include \
          -I${LIB_DIR} \
-	 -I${P2P_DIR}
-     
+	   -I${P2P_DIR} \
+         -I${SYN_DIR}
+
 SRC = ${wildcard  ${ARCH_DIR}/*.cc} \
       ${wildcard  ${SERVER_DIR}/*.cc} \
       ${wildcard  ${LIB_DIR}/*.cc} \
@@ -34,6 +36,7 @@ SRC = ${wildcard  ${ARCH_DIR}/*.cc} \
       ${wildcard  ${CRYPTO_DIR}/blake2/*.cc} \
       ${wildcard  ${STORE_DIR}/*.cc} \
       ${wildcard  ${P2P_DIR}/*.cc} \
+      ${wildcard  ${SYN_DIR}/*.cc} \
       ${wildcard  ${P2P_DIR}/compat/*.cc} \
       ${wildcard  ${P2P_DIR}/crypto/*.cc} \
       ${wildcard  ${P2P_DIR}/support/*.cc}
