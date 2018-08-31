@@ -55,7 +55,7 @@ CC=g++
 CCFLAGS=-g -std=c++14 -Wall -Wreturn-type ${INC_DIR} 
 CFLAGS=-g -Wall -Wreturn-type ${INC_DIR}
 ${TARGET}: ${OBJ} ${OBJC} ${OBJCPP}
-	${CC} ${OBJ} ${OBJC} ${OBJCPP} -o $@ -L${ROCKSDB_DIR} -lboost_system -pthread -lboost_program_options -lboost_thread -lboost_filesystem -lboost_chrono -lssl -lcrypto -Wl,-rpath=./libs/rocksdb -lrocksdb
+	${CC} ${OBJ} ${OBJC} ${OBJCPP} -o $@ -L${ROCKSDB_DIR} -lglog -lboost_system -pthread -lboost_program_options -lboost_thread -lboost_filesystem -lboost_chrono -lssl -lcrypto -Wl,-rpath=./libs/rocksdb -lrocksdb
 	@echo "Compile done."
 
 
