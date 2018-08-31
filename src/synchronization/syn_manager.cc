@@ -157,8 +157,10 @@ void ambr::syn::Impl::WaitForShutdown(){
 }
 
 void ambr::syn::Impl::OnAcceptNode(CNode* p_node){
-  if(p_node && on_accept_node_func_){
-    on_accept_node_func_(p_node);
+  if(p_node){
+    if(on_accept_node_func_){
+      on_accept_node_func_(p_node);
+    }
     list_in_nodes_wait_.remove(p_node);
     list_in_nodes_wait_.push_back(p_node);
     p_node->SetDisConnectNodeFunc(std::bind(&ambr::syn::Impl::OnDisConnectNode, this, std::placeholders::_1));
@@ -167,8 +169,10 @@ void ambr::syn::Impl::OnAcceptNode(CNode* p_node){
 }
 
 void ambr::syn::Impl::OnConnectNode(CNode* p_node){
-  if(p_node && on_connect_node_func_){
-    on_connect_node_func_(p_node);
+  if(p_node){
+    if(on_connect_node_func_){
+      on_connect_node_func_(p_node);
+    }
     list_out_nodes_wait_.remove(p_node);
     list_out_nodes_wait_.push_back(p_node);
     p_node->SetDisConnectNodeFunc(std::bind(&ambr::syn::Impl::OnDisConnectNode, this, std::placeholders::_1));
@@ -239,21 +243,19 @@ bool ambr::syn::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode* p_node){
           }
         }
 
-        if(is_wait){
-            for(auto& it:list_out_nodes_wait_){
-              if(it == p_node){
-                is_wait = true;
-                list_out_nodes_wait_.remove(p_node);
-                list_out_nodes_.push_back(p_node);
-                LOG(INFO) << "Right node version:" << std::hex << std::setw(8) << std::setfill('0') << "save"
-                          << p_node->GetAddrLocal().ToStringIP() << ":" << std::dec << std::setw(0) << p_node->GetAddrLocal().GetPort() << "to out_peers";
-                //Send addr msg
-                {
-                  SendMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::ADDR, ""), p_node);
-                  break;
-                }
-              }
+        for(auto& it:list_out_nodes_wait_){
+          if(it == p_node){
+            is_wait = true;
+            list_out_nodes_wait_.remove(p_node);
+            list_out_nodes_.push_back(p_node);
+            LOG(INFO) << "Right node version:" << std::hex << std::setw(8) << std::setfill('0') << "save"
+                      << p_node->GetAddrLocal().ToStringIP() << ":" << std::dec << std::setw(0) << p_node->GetAddrLocal().GetPort() << "to out_peers";
+            //Send addr msg
+            {
+              SendMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::ADDR, ""), p_node);
+              break;
             }
+          }
         }
       }
     }
