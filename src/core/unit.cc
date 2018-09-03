@@ -719,9 +719,9 @@ bool ambr::core::ValidatorUnit::Validate(std::string *err) const{
 }
 
 int32_t ambr::core::ValidatorUnit::GetFeeSize(){
-  return Unit::GetFeeSize()+check_list_.size()*sizeof(UnitHash)+
+  return 0;/*Unit::GetFeeSize()+check_list_.size()*sizeof(UnitHash)+
     vote_hash_list_.size()* sizeof(UnitHash)+
-    vote_list_.size()*vote_list_[0].GetFeeSize()+sizeof(percent_)+sizeof(time_stamp_)+sizeof(nonce_);
+    vote_list_.size()*vote_list_[0].GetFeeSize()+sizeof(percent_)+sizeof(time_stamp_)+sizeof(nonce_);*/
 }
 
 

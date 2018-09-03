@@ -138,6 +138,7 @@ public:
   uint64_t GetNonceByNowTime();
   std::recursive_mutex& GetMutex(){return mutex_;}
   static uint64_t GetTransectionFeeBase(){return 1;};
+  static const ambr::core::Amount GetMinValidatorBalance() { return (boost::multiprecision::uint128_t)100000000*1000;};
   uint64_t GetTransectionFeeCountWhenReceive(std::shared_ptr<core::Unit> send_unit);
 public://for debug
   std::list<core::UnitHash> GetAccountListFromAccountForDebug();

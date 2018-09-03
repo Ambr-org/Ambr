@@ -21,7 +21,7 @@ static const ambr::core::Amount init_balance=(boost::multiprecision::uint128_t)5
 static const ambr::core::Amount init_validate=(boost::multiprecision::uint128_t)100000000000*1000;
 static const std::string last_validate_key = "lv";
 static const std::string validate_set_key = "validate_set_key";
-static const ambr::core::Amount min_validator_balance = (boost::multiprecision::uint128_t)100000000*1000;
+
 //TODO: db sync
 
 void ambr::store::StoreManager::Init(const std::string& path){
@@ -368,8 +368,7 @@ bool ambr::store::StoreManager::AddEnterValidatorSetUnit(std::shared_ptr<ambr::c
     }
     return false;
   }
-
-  if(unit->balance().data() - prv_store->GetUnit()->balance().data()+unit->GetFeeSize()*GetTransectionFeeBase() < min_validator_balance.data()){
+  if(prv_store->GetUnit()->balance().data() - unit->balance().data() - unit->GetFeeSize()*GetTransectionFeeBase() < GetMinValidatorBalance().data()){
     if(err){
       *err = "Cash deposit is not enough";
     }
@@ -387,10 +386,11 @@ bool ambr::store::StoreManager::AddEnterValidatorSetUnit(std::shared_ptr<ambr::c
 
   if(validator_set_list->IsValidator(unit->public_key())){
     if(err){
-      *err = "Sender is not validator_set";
+      *err = "Sender is in validator_set";
     }
     return false;
   }
+  //make sure unit is not in validator_set
   std::shared_ptr<store::UnitStore> tmp_unit = GetUnit(unit->prev_unit());
   while(tmp_unit){
     if(tmp_unit->GetUnit()->prev_unit().is_zero()){
