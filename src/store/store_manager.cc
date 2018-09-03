@@ -245,7 +245,7 @@ bool ambr::store::StoreManager::AddSendUnit(std::shared_ptr<ambr::core::SendUnit
   status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
   assert(status.ok());
   DoReceiveNewSendUnit(send_unit);
-  std::cout << "Add Send Unit: " << send_unit->hash().encode_to_hex() << std::endl;
+  //std::cout << "Add Send Unit: " << send_unit->hash().encode_to_hex() << std::endl;
   return true;
 }
 
@@ -333,7 +333,7 @@ bool ambr::store::StoreManager::AddReceiveUnit(std::shared_ptr<ambr::core::Recei
   status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
   assert(status.ok());
   DoReceiveNewReceiveUnit(receive_unit);
-  std::cout << "Add Receive Unit: " << receive_unit->hash().encode_to_hex() << std::endl;
+  //std::cout << "Add Receive Unit: " << receive_unit->hash().encode_to_hex() << std::endl;
   return true;
 }
 
@@ -369,7 +369,7 @@ bool ambr::store::StoreManager::AddEnterValidatorSetUnit(std::shared_ptr<ambr::c
     return false;
   }
 
-  if(unit->balance().data() - prv_store->GetUnit()->balance().data()+unit->SerializeJson().size()*GetTransectionFeeBase() < min_validator_balance.data()){
+  if(unit->balance().data() - prv_store->GetUnit()->balance().data()+unit->GetFeeSize()*GetTransectionFeeBase() < min_validator_balance.data()){
     if(err){
       *err = "Cash deposit is not enough";
     }
@@ -763,7 +763,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
               core::Amount old_balance = unit_tmp->GetUnit()->balance();
               store::ValidatorItem validator_item;
               validator_item.validator_public_key_ = enter_unit->GetUnit()->public_key();
-              validator_item.balance_ = old_balance-new_balance-unit_tmp->SerializeJson().size()*GetTransectionFeeBase();
+              validator_item.balance_ = old_balance-new_balance-unit_tmp->GetUnit()->GetFeeSize()*GetTransectionFeeBase();
               validator_item.enter_nonce_ = unit->nonce()+2;
               validator_item.leave_nonce_ = 0;
               validator_set_list->JoinValidator(validator_item);
@@ -1974,7 +1974,7 @@ uint64_t ambr::store::StoreManager::GetNonceByNowTime(){
 }
 
 uint64_t ambr::store::StoreManager::GetTransectionFeeCountWhenReceive(std::shared_ptr<core::Unit> send_unit){
-  return (send_unit->SerializeJson().size()+core::ReceiveUnit().SerializeJson().size())*GetTransectionFeeBase();
+  return (send_unit->GetFeeSize()+core::ReceiveUnit().GetFeeSize())*GetTransectionFeeBase();
 }
 
 std::list<ambr::core::UnitHash> ambr::store::StoreManager::GetAccountListFromAccountForDebug(){

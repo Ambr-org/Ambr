@@ -10,6 +10,14 @@
 #include <crypto/sha256.h>
 
 
+int32_t ambr::core::Unit::GetFeeSize(){
+  return sizeof(version_)+
+    sizeof(type_)+
+    sizeof(public_key_)+
+    sizeof(prev_unit_) +
+    sizeof(balance_) +sizeof(hash_)+sizeof(sign_);
+}
+
 std::shared_ptr<ambr::core::Unit> ambr::core::Unit::CreateUnitByByte(const std::vector<uint8_t> &buf){
   //MakeShared TODO
   auto validator_unit = std::make_shared<ValidatorUnit>();
@@ -98,6 +106,7 @@ std::vector<uint8_t> ambr::core::SendUnit::SerializeByte( ) const {
   size_t len=obj.ByteSize();
   buf.resize(obj.ByteSize());
   obj.SerializeToArray(buf.data(), len);
+
   return buf;
 }
 
@@ -166,6 +175,10 @@ bool ambr::core::SendUnit::Validate(std::string *err) const{
     return false;
   }
   return true;
+}
+
+int32_t ambr::core::SendUnit::GetFeeSize(){
+  return Unit::GetFeeSize()+sizeof(dest_)+sizeof(data_type_)+data_.size() ;
 }
 
 ambr::core::ReceiveUnit::ReceiveUnit():Unit(){
@@ -292,6 +305,10 @@ bool ambr::core::ReceiveUnit::Validate(std::string *err) const{
   return true;
 }
 
+int32_t ambr::core::ReceiveUnit::GetFeeSize(){
+  return Unit::GetFeeSize()+sizeof(from_);
+}
+
 ambr::core::VoteUnit::VoteUnit():Unit(){
 
 }
@@ -416,6 +433,10 @@ bool ambr::core::VoteUnit::Validate(std::string *err) const{
     return false;
   }
   return true;
+}
+
+int32_t ambr::core::VoteUnit::GetFeeSize(){
+  return Unit::GetFeeSize()+sizeof(validator_unit_hash_)+sizeof(accept_);
 }
 
 
@@ -697,6 +718,12 @@ bool ambr::core::ValidatorUnit::Validate(std::string *err) const{
   return true;
 }
 
+int32_t ambr::core::ValidatorUnit::GetFeeSize(){
+  return Unit::GetFeeSize()+check_list_.size()*sizeof(UnitHash)+
+    vote_hash_list_.size()* sizeof(UnitHash)+
+    vote_list_.size()*vote_list_[0].GetFeeSize()+sizeof(percent_)+sizeof(time_stamp_)+sizeof(nonce_);
+}
+
 
 
 ambr::core::EnterValidateSetUint::EnterValidateSetUint():Unit(){
@@ -814,6 +841,10 @@ bool ambr::core::EnterValidateSetUint::Validate(std::string *err) const{
     return false;
   }
   return true;
+}
+
+int32_t ambr::core::EnterValidateSetUint::GetFeeSize(){
+  return Unit::GetFeeSize();
 }
 
 
@@ -944,6 +975,10 @@ ambr::core::Amount ambr::core::LeaveValidateSetUint::unfreeze_count(){
 
 void ambr::core::LeaveValidateSetUint::set_unfreeze_count(const ambr::core::Amount& count){
   unfreeze_count_ = count;
+}
+
+int32_t ambr::core::LeaveValidateSetUint::GetFeeSize(){
+  return Unit::GetFeeSize()+sizeof(unfreeze_count_);
 }
 
 

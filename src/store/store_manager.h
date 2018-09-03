@@ -137,7 +137,7 @@ public:
   uint64_t GetPassPercent(){return PASS_PERCENT;}
   uint64_t GetNonceByNowTime();
   std::recursive_mutex& GetMutex(){return mutex_;}
-  static uint64_t GetTransectionFeeBase(){return 0;};
+  static uint64_t GetTransectionFeeBase(){return 1;};
   uint64_t GetTransectionFeeCountWhenReceive(std::shared_ptr<core::Unit> send_unit);
 public://for debug
   std::list<core::UnitHash> GetAccountListFromAccountForDebug();

@@ -56,6 +56,7 @@ public:
   virtual void CalcHashAndFill() = 0;
   virtual bool SignatureAndFill(const PrivateKey& key) = 0;
   virtual bool Validate(std::string* err) const = 0;
+  virtual int32_t GetFeeSize();
 public:
   static std::shared_ptr<Unit> CreateUnitByJson(const std::string& json);
   static std::shared_ptr<Unit> CreateUnitByByte(const std::vector<uint8_t>& buf);
@@ -158,6 +159,8 @@ public:
   void set_data(const std::string& data){
     data_ = data;
   }
+public:
+  virtual int32_t GetFeeSize();
 private:
   PublicKey dest_;
   DataType data_type_;
@@ -177,6 +180,8 @@ public:
   virtual void CalcHashAndFill() override;
   virtual bool SignatureAndFill(const PrivateKey& key) override;
   virtual bool Validate(std::string* err) const override;
+public:
+  virtual int32_t GetFeeSize();
 public:
   const UnitHash& from(){
     return from_;
@@ -221,6 +226,8 @@ public:
   bool accept(){
     return accept_;
   }
+public:
+  virtual int32_t GetFeeSize();
 private:
   UnitHash validator_unit_hash_;
   uint8_t accept_;
@@ -292,6 +299,8 @@ public:
   void set_nonce(uint64_t nonce){
     nonce_ = nonce;
   }
+public:
+  virtual int32_t GetFeeSize();
 private:
   //validate unit's hash
   std::vector<UnitHash> check_list_;
@@ -319,6 +328,8 @@ public:
   virtual void CalcHashAndFill() override;
   virtual bool SignatureAndFill(const PrivateKey& key) override;
   virtual bool Validate(std::string* err) const override;
+public:
+  virtual int32_t GetFeeSize();
 };
 
 class LeaveValidateSetUint:public Unit{
@@ -337,6 +348,8 @@ public:
 public:
   ambr::core::Amount unfreeze_count();
   void set_unfreeze_count(const ambr::core::Amount& count);
+public:
+  virtual int32_t GetFeeSize();
 private:
   ambr::core::Amount unfreeze_count_;
 };
