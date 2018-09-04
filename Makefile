@@ -15,6 +15,11 @@ SYN_DIR=${CUR_DIR}/src/synchronization
 CORE_DIR=${MAIN_DIR}/core
 STORE_DIR=${MAIN_DIR}/store
 P2P_DIR=${CUR_DIR}/src/p2p
+RPC_DIR=${CUR_DIR}/src/rpc
+PROTO_DIR=${CUR_DIR}/src/proto
+RPC_LIB_DIR=${CUR_DIR}/libs/grpc
+PROTOBUF_DIR=${RPC_LIB_DIR}/third_party/protobuf/src
+GLOG_DIR=${CUR_DIR}/libs/glog
 
 INC_DIR= -I${ARCH_DIR} \
          -I${MAIN_DIR} \
@@ -25,8 +30,12 @@ INC_DIR= -I${ARCH_DIR} \
          -I${CROW_DIR}/include \
          -I${ROCKSDB_DIR}/include \
          -I${LIB_DIR} \
-	   -I${P2P_DIR} \
-         -I${SYN_DIR}
+	 -I${P2P_DIR} \
+         -I${SYN_DIR} \
+	 -I${RPC_LIB_DIR} \
+	 -I${PROTOBUF_DIR} \
+	 -I${GLOG_DIR}/src \
+	 -I${RPC_LIB_DIR}/include 
 
 SRC = ${wildcard  ${ARCH_DIR}/*.cc} \
       ${wildcard  ${SERVER_DIR}/*.cc} \
@@ -39,7 +48,10 @@ SRC = ${wildcard  ${ARCH_DIR}/*.cc} \
       ${wildcard  ${SYN_DIR}/*.cc} \
       ${wildcard  ${P2P_DIR}/compat/*.cc} \
       ${wildcard  ${P2P_DIR}/crypto/*.cc} \
-      ${wildcard  ${P2P_DIR}/support/*.cc}
+      ${wildcard  ${P2P_DIR}/support/*.cc} \
+      ${wildcard  ${RPC_DIR}/*.cc} \
+      ${wildcard  ${PROTO_DIR}/*.cc} 
+
 
 SRC_C = ${wildcard  ${BLAKE2_DIR}/*.c} \
         ${wildcard  ${EDDONNA_DIR}/ed25519.c} 
@@ -54,8 +66,12 @@ TARGET=ambr
 CC=g++
 CCFLAGS=-g -std=c++14 -Wall -Wreturn-type ${INC_DIR} 
 CFLAGS=-g -Wall -Wreturn-type ${INC_DIR}
+
+
+
+
 ${TARGET}: ${OBJ} ${OBJC} ${OBJCPP}
-	${CC} ${OBJ} ${OBJC} ${OBJCPP} -o $@ -L${ROCKSDB_DIR} -lglog -lboost_system -pthread -lboost_program_options -lboost_thread -lboost_filesystem -lboost_chrono -lssl -lcrypto -Wl,-rpath=./libs/rocksdb -lrocksdb
+	${CC} ${OBJ} ${OBJC} ${OBJCPP} -o $@ -L${ROCKSDB_DIR} -L${GLOG_DIR}/.libs -L${RPC_LIB_DIR}/libs/opt -L${RPC_LIB_DIR}/libs/opt/protobuf -lglog -lboost_system -pthread -lboost_program_options -lboost_thread -lboost_filesystem -lboost_chrono -lssl -lcrypto -Wl,-rpath=${ROCKSDB_DIR}:${GLOG_DIR}/.libs -lrocksdb -lgrpc++ -lprotobuf
 	@echo "Compile done."
 
 
