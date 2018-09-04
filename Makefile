@@ -30,12 +30,12 @@ INC_DIR= -I${ARCH_DIR} \
          -I${CROW_DIR}/include \
          -I${ROCKSDB_DIR}/include \
          -I${LIB_DIR} \
-	 -I${P2P_DIR} \
+	   -I${P2P_DIR} \
          -I${SYN_DIR} \
-	 -I${RPC_LIB_DIR} \
-	 -I${PROTOBUF_DIR} \
-	 -I${GLOG_DIR}/src \
-	 -I${RPC_LIB_DIR}/include 
+	   -I${RPC_LIB_DIR} \
+	   -I${PROTOBUF_DIR} \
+	   -I${GLOG_DIR}/src \
+	   -I${RPC_LIB_DIR}/include 
 
 SRC = ${wildcard  ${ARCH_DIR}/*.cc} \
       ${wildcard  ${SERVER_DIR}/*.cc} \
@@ -71,7 +71,7 @@ CFLAGS=-g -Wall -Wreturn-type ${INC_DIR}
 
 
 ${TARGET}: ${OBJ} ${OBJC} ${OBJCPP}
-	${CC} ${OBJ} ${OBJC} ${OBJCPP} -o $@ -L${ROCKSDB_DIR} -L${GLOG_DIR}/.libs -L${RPC_LIB_DIR}/libs/opt -L${RPC_LIB_DIR}/libs/opt/protobuf -lglog -lboost_system -pthread -lboost_program_options -lboost_thread -lboost_filesystem -lboost_chrono -lssl -lcrypto -Wl,-rpath=${ROCKSDB_DIR}:${GLOG_DIR}/.libs -lrocksdb -lgrpc++ -lprotobuf
+	${CC} ${OBJ} ${OBJC} ${OBJCPP} -o $@ -L${ROCKSDB_DIR} -L${GLOG_DIR}/.libs -L${RPC_LIB_DIR}/libs/opt -L${RPC_LIB_DIR}/libs/opt/protobuf -lglog -lboost_system -pthread -lboost_program_options -lboost_thread -lboost_filesystem -lboost_chrono -lssl -lcrypto -lrocksdb -lprotobuf -lgrpc -lgpr -lgrpc++  -Wl,-rpath=${ROCKSDB_DIR}:${GLOG_DIR}/.libs:${RPC_LIB_DIR}/libs/opt
 	@echo "Compile done."
 
 
