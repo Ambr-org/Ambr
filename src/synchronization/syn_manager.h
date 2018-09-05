@@ -32,51 +32,6 @@ namespace store{
 
 namespace syn{
 
-class NetMessageAddr{
-public:
-  std::list<std::pair<boost::asio::ip::address_v4, uint16_t>> addr_list_;
-  bool DecodeFromString(const std::string& str){
-    if(str.size() < 8 ||str.size()%6 !=2){
-      return false;
-    }
-    uint32_t idx = 0;
-    uint16_t addr_count = *(uint16_t*)(str.data()+idx);
-    idx+=2;
-    if(addr_count > 1000 || addr_count != str.size()/6){
-      return false;
-    }
-    for(int i = 0; i < addr_count; i++){
-      uint32_t addr = *(uint32_t*)(str.data()+idx);
-      idx += 4;
-      uint16_t port = *(uint32_t*)(str.data()+idx);
-      idx += 2;
-      std::pair<boost::asio::ip::address_v4, uint16_t> item;
-      item.first = boost::asio::ip::address_v4(addr);
-      item.second = port;
-      addr_list_.push_back(item);
-    }
-    return true;
-  }
-  std::string EncodeToString(){
-    std::string str_rtn;
-    str_rtn.resize(addr_list_.size()*6+2);
-    uint16_t addr_count = addr_list_.size();
-    uint32_t idx = 0;
-    memcpy((void*)(str_rtn.data()+idx), &addr_count, sizeof(addr_count));
-    idx += sizeof(addr_count);
-    //std::list<std::pair<boost::asio::ip::address_v4, uint16_t>>
-    for(std::pair<boost::asio::ip::address_v4, uint16_t> item:addr_list_){
-      uint32_t addr = item.first.to_uint();
-      memcpy((void*)(str_rtn.data()+idx), &addr, sizeof(addr));
-      idx+=sizeof(addr);
-      uint16_t port = item.second;
-      memcpy((void*)(str_rtn.data()+idx), &port, sizeof(port));
-      idx+=sizeof(port);
-    }
-    return str_rtn;
-  }
-};
-
 struct NetMessage{
   uint32_t len_;
   uint32_t version_;
