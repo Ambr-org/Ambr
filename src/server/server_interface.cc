@@ -48,6 +48,11 @@ std::string ambr::server::ServerInterface::HandleNodeOption(){
 	} else if (vm_.count("version")) {
 		return "0.5";
 	} else if (vm_.count("daemon")) {
+      std::string aaa = vm_["db_path"].as<std::string>();
+      uint16_t bbb = vm_["rpc_port"].as<uint16_t>();
+      uint16_t ccc = vm_["p2p_port"].as<uint16_t>();
+      std::string ddd = vm_["seed_ip"].as<std::string>();
+      uint16_t eee = vm_["seed_port"].as<uint16_t>();
     ambr::server::DoServer(
           vm_["db_path"].as<std::string>(),
         vm_["rpc_port"].as<uint16_t>(),
@@ -156,7 +161,7 @@ void ambr::server::ServerInterface::AddNodeOption() {
 	("daemon,d", "Start node daemon")
   ("db_path", po::value<std::string>()->default_value("./db"), "Defines path of database, default is ./db")
   ("p2p_port", po::value<uint16_t>()->default_value(10111), "Defines port for listen of p2p, default is 10111")
-  ("grpc_port", po::value<uint16_t>()->default_value(10112), "Defines port for listen of grpc, default is 10112")
+  ("rpc_port", po::value<uint16_t>()->default_value(10112), "Defines port for listen of grpc, default is 10112")
   ("seed_ip", po::value<std::string>()->default_value("0.0.0.0"), "Defines seed's ip")
   ("seed_port", po::value<uint16_t>()->default_value(10111), "Defines seed's ip")
 	("address", po::value<std::string>(), "Defines address for other use")
