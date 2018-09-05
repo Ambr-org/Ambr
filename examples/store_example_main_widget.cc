@@ -717,7 +717,7 @@ void StoreExampleMainWidget::on_btnInitDataBase_clicked(){
   ui->tabMain->setTabEnabled(1, true);
   ui->tabMain->setTabEnabled(3, true);
   ui->btnInitDataBase->setEnabled(false);
-  rpc_server_.StartRpcServer(store_manager_);
+  rpc_server_.StartRpcServer(store_manager_, 10112);
 }
 
 void StoreExampleMainWidget::on_btnFlushValidatorSet_clicked(){

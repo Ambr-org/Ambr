@@ -197,40 +197,4 @@ TEST (UnitTest, Store) {
     EXPECT_TRUE(manager->AddReceiveUnit(receive_unit, &err));
   }
 
-  {//test join validator set
-    ambr::core::PrivateKey validator_pri[5];
-    for(size_t i = 0; i < sizeof(validator_pri)/sizeof(ambr::core::PrivateKey); i++){
-      validator_pri[i] = ambr::core::CreateRandomPrivateKey();
-      EXPECT_TRUE(manager->SendToAddress(ambr::core::GetPublicKeyByPrivateKey(validator_pri[i]), ambr::store::StoreManager::GetMinValidatorBalance()+10000, root_pri_key, &test_hash, added_unit, &err));
-      EXPECT_TRUE(manager->ReceiveFromUnitHash(test_hash, validator_pri[i], &test_hash, added_unit, &err));
-    }
-    EXPECT_FALSE(manager->JoinValidatorSet(validator_pri[0], ambr::store::StoreManager::GetMinValidatorBalance(), &test_hash, added_unit, &err));
-    EXPECT_TRUE(manager->JoinValidatorSet(validator_pri[0],
-      ambr::store::StoreManager::GetMinValidatorBalance()+ambr::core::EnterValidateSetUint().GetFeeSize()*ambr::store::StoreManager::GetTransectionFeeBase(),
-      &test_hash, added_unit, &err));
-
-
-    std::shared_ptr<ambr::core::ValidatorUnit> unit_validator;
-    std::shared_ptr<ambr::core::VoteUnit> vote_unit;
-
-    EXPECT_FALSE(manager->GetValidatorSet()->IsValidator(ambr::core::GetPublicKeyByPrivateKey(validator_pri[0])));
-    boost::this_thread::sleep(boost::posix_time::millisec(manager->GetValidateUnitInterval()));
-    EXPECT_TRUE(manager->PublishValidator(root_pri_key, &test_hash, unit_validator, &err));
-    EXPECT_TRUE(manager->PublishVote(root_pri_key, true, vote_unit, &err));
-
-    EXPECT_FALSE(manager->GetValidatorSet()->IsValidator(ambr::core::GetPublicKeyByPrivateKey(validator_pri[0])));
-    boost::this_thread::sleep(boost::posix_time::millisec(manager->GetValidateUnitInterval()));
-    EXPECT_TRUE(manager->PublishValidator(root_pri_key, &test_hash, unit_validator, &err));
-    EXPECT_TRUE(manager->PublishVote(root_pri_key, true, vote_unit, &err));
-
-    EXPECT_FALSE(manager->GetValidatorSet()->IsValidator(ambr::core::GetPublicKeyByPrivateKey(validator_pri[0])));
-    boost::this_thread::sleep(boost::posix_time::millisec(manager->GetValidateUnitInterval()));
-    EXPECT_TRUE(manager->PublishValidator(root_pri_key, &test_hash, unit_validator, &err));
-    EXPECT_TRUE(manager->PublishVote(root_pri_key, true, vote_unit, &err));
-
-    EXPECT_TRUE(manager->GetValidatorSet()->IsValidator(ambr::core::GetPublicKeyByPrivateKey(validator_pri[0])));
-
-  }
-
-
 }

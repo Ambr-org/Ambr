@@ -217,9 +217,9 @@ RpcServer::~RpcServer(){
   StopRpcServer();
 }
 
-bool RpcServer::StartRpcServer(std::shared_ptr<ambr::store::StoreManager> store_manager){
+bool RpcServer::StartRpcServer(std::shared_ptr<ambr::store::StoreManager> store_manager, uint16_t rpc_port){
   if(!rpc_thread_){
-    rpc_thread_ = new std::thread(std::bind(&RpcServer::RpcThreadFunc, this));
+    rpc_thread_ = new std::thread(std::bind(&RpcServer::RpcThreadFunc, this, rpc_port));
   }
   store_manager_ = store_manager;
 
@@ -233,9 +233,8 @@ void RpcServer::StopRpcServer(){
   rpc_thread_ = nullptr;
 }
 
-void RpcServer::RpcThreadFunc()
-{
-  std::string server_address("0.0.0.0:50088");
+void RpcServer::RpcThreadFunc(uint16_t rpc_port){
+  std::string server_address = std::string("0.0.0.0:")+std::to_string(rpc_port);
   grpc::ServerBuilder builder;
   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
   builder.RegisterService(this);

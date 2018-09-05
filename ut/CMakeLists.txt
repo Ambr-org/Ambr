@@ -3,7 +3,7 @@ project(test_case)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CUR_DIR ../)
+set(CUR_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../)
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
     set(ARCH_DIR ${CUR_DIR}/arch/linux)

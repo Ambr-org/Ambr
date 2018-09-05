@@ -26,9 +26,9 @@ public:
 public:
   RpcServer();
   ~RpcServer();
-  bool StartRpcServer(std::shared_ptr<ambr::store::StoreManager>  store_manager);
+  bool StartRpcServer(std::shared_ptr<ambr::store::StoreManager>  store_manager, uint16_t rpc_port);
   void StopRpcServer();
-  void RpcThreadFunc();
+  void RpcThreadFunc(uint16_t rpc_port);
 private:
   bool GetMessage(MessageStreamReply& reply);
   void AddMessage(const MessageStreamReply& reply);

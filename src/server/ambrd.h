@@ -16,7 +16,7 @@ namespace ambr {
 namespace server {
 
 //fucking test
-int DoServer();
+int DoServer(const std::string& db_path, uint16_t rpc_port, uint16_t p2p_prot, const std::string& seed_ip, uint16_t seed_port);
 
 };
 };
