@@ -130,6 +130,7 @@ void ambr::syn::Impl::SetOnDisconnect(const std::function<void(CNode*)>& func){
 }
 
 void ambr::syn::Impl::BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node){
+  LOG(INFO)<<__FUNCTION__<<msg.command<<msg.data.size();
   for(auto it:list_in_nodes_){
     if(it != p_node){
       PushMessage(it, std::forward<CSerializedNetMsg>(msg));
@@ -209,6 +210,7 @@ void ambr::syn::Impl::UnSerialize(std::vector<uint8_t>& vec_bytes){
 }
 
 bool ambr::syn::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode* p_node){
+  LOG(INFO)<<(netmsg.hdr.ToString());
     std::string&& tmp = netmsg.hdr.GetCommand();
     if(NetMsgType::VERSION == tmp){
       /*if(0x00000001 != msg->version_){
@@ -256,9 +258,11 @@ bool ambr::syn::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode* p_node){
     else if(NetMsgType::UNIT == tmp){
       std::vector<uint8_t> buf;
       buf.assign(netmsg.vRecv.begin(), netmsg.vRecv.end());
-
+      LOG(INFO)<<buf.size();
       UnSerialize(buf);
+      LOG(INFO)<<buf.size();
       Ptr_Unit unit = ambr::core::Unit::CreateUnitByByte(buf);
+      LOG(INFO)<<(unit?"create unit success":"create unit faild");
       if(unit){
         if(!unit->prev_unit().is_zero() && nullptr == p_storemanager_->GetUnit(unit->prev_unit()) && nullptr == p_storemanager_->GetValidateUnit(unit->prev_unit())){
           ambr::core::UnitHash hash;
@@ -321,8 +325,8 @@ bool ambr::syn::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode* p_node){
                 p_storemanager_->AddValidateUnit(validator_unit, nullptr);
                 BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, buf), p_node);
               }
-              else if(ptr_unit && FIXED_RATE <= validator_unit->percent()){
-                p_storemanager_->RemoveUnit(ptr_unit->hash(), nullptr);
+              else if(ptr_unit/* && FIXED_RATE <= validator_unit->percent()*/){
+                /*p_storemanager_->RemoveUnit(ptr_unit->hash(), nullptr);*/ //remove by li
                 p_storemanager_->AddValidateUnit(validator_unit, nullptr);
                 BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, buf), p_node);
               }
@@ -528,6 +532,7 @@ void ambr::syn::SynManager::BoardCastNewSendUnit(std::shared_ptr<core::SendUnit>
     std::vector<uint8_t>&& buf = p_unit->SerializeByte();
     std::string str_data;
     str_data.assign(buf.begin(), buf.end());
+    CSerializedNetMsg  msg1 = CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data);
     p_impl_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
 }
 

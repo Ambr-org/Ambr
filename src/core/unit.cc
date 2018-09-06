@@ -23,6 +23,9 @@ std::shared_ptr<ambr::core::Unit> ambr::core::Unit::CreateUnitByByte(const std::
   auto validator_unit = std::make_shared<ValidatorUnit>();
   auto receive_unit = std::make_shared<ReceiveUnit>();
   auto send_unit = std::make_shared<SendUnit>();
+  auto add_validator_unit = std::make_shared<EnterValidateSetUint>();
+  auto leave_validator_unit = std::make_shared<LeaveValidateSetUint>();
+  auto vote_unit = std::make_shared<VoteUnit>();
   if(validator_unit->DeSerializeByte(buf)){
     return validator_unit;
   }
@@ -31,6 +34,15 @@ std::shared_ptr<ambr::core::Unit> ambr::core::Unit::CreateUnitByByte(const std::
   }
   else if(send_unit->DeSerializeByte(buf)){
     return send_unit;
+  }
+  else if(add_validator_unit->DeSerializeByte(buf)){
+    return add_validator_unit;
+  }
+  else if(leave_validator_unit->DeSerializeByte(buf)){
+    return leave_validator_unit;
+  }
+  else if(vote_unit->DeSerializeByte(buf)){
+    return vote_unit;
   }
   return std::shared_ptr<ambr::core::Unit>();
 }

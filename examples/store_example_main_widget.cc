@@ -939,7 +939,7 @@ void StoreExampleMainWidget::onDealDisconnected(CNode* p_node){
       }
     }
 
-    int in_count = ui->tbP2PConnectionOut->rowCount();
+    int in_count = ui->tbP2PConnectionIn->rowCount();
     for(int i = 0; i < in_count; i++){
       if(ui->tbP2PConnectionIn->item(i, 0)->text() == list_addr.at(0)
          && ui->tbP2PConnectionIn->item(i, 1)->text() == list_addr.at(1)){
@@ -992,13 +992,6 @@ void StoreExampleMainWidget::OnDrawTimerOut()
 }
 
 void StoreExampleMainWidget::on_btnP2PStart_clicked(){
-  //boost::function<void(std::shared_ptr<ambr::net::Peer>)> func1 = BOOST_BIND(&StoreExampleMainWidget::OnConnect, this, _1);
-  /*ui->tbP2PConnectionIn->insertRow(0);
-  ui->tbP2PConnectionIn->setItem(0,0, new QTableWidgetItem("aaa"));
-  ui->tbP2PConnectionIn->setItem(0,1, new QTableWidgetItem("bbb"));*/
-  //OnConnect(std::shared_ptr<ambr::net::NetManager> peer)
-  //std::function<void(std::shared_ptr<ambr::net::Peer>)> func = std::bind(&StoreExampleMainWidget::OnConnect, this, std::placeholders::_1);
-
   p_syn_manager->SetOnAcceptNode(std::bind(&StoreExampleMainWidget::OnAcceptNode, this, std::placeholders::_1));
   p_syn_manager->SetOnConnectedNode(std::bind(&StoreExampleMainWidget::OnConnectNode, this, std::placeholders::_1));
   p_syn_manager->SetOnDisconnectNode(std::bind(&StoreExampleMainWidget::OnDisconnectedNode, this, std::placeholders::_1));
@@ -1020,6 +1013,7 @@ void StoreExampleMainWidget::on_btnP2PStart_clicked(){
   config.heart_time_ = 88;
   std::thread tThread(&ambr::syn::SynManager::Init, p_syn_manager.get(), config);
   tThread.detach();
+  ui->btnP2PStart->setEnabled(false);
 }
 
 void StoreExampleMainWidget::on_pushButton_clicked(){

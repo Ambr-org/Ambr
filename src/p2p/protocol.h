@@ -57,6 +57,16 @@ public:
     char pchCommand[COMMAND_SIZE];
     uint32_t nMessageSize;
     uint8_t pchChecksum[CHECKSUM_SIZE];
+    std::string ToString () const{
+      std::string str_rtn="receive a p2p header:\r\n";
+      str_rtn+="pchMessageStart:";
+      str_rtn+=std::string(pchMessageStart, &pchMessageStart[MESSAGE_START_SIZE])+"\r\n";
+      str_rtn+="pchCommand:";
+      str_rtn+=std::string(pchCommand, &pchCommand[COMMAND_SIZE])+"\r\n";
+      str_rtn+="nMessageSize:";
+      str_rtn+=std::to_string(nMessageSize)+"\r\n";
+      return str_rtn;
+    }
 };
 
 /**

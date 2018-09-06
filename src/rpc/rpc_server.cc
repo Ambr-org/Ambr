@@ -227,10 +227,13 @@ bool RpcServer::StartRpcServer(std::shared_ptr<ambr::store::StoreManager> store_
 }
 
 void RpcServer::StopRpcServer(){
-  rpc_server_->Shutdown();
-  rpc_thread_->join();
-  delete rpc_thread_;
-  rpc_thread_ = nullptr;
+  if(rpc_server_)
+    rpc_server_->Shutdown();
+  if(rpc_thread_){
+    rpc_thread_->join();
+    delete rpc_thread_;
+    rpc_thread_ = nullptr;
+  }
 }
 
 void RpcServer::RpcThreadFunc(uint16_t rpc_port){

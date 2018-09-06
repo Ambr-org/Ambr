@@ -47,7 +47,6 @@ QPushButton:disabled{
 QLineEdit{ 
   border-width:4px; 
   border-image: url(:/rs/edit_normal.png) 4 ; 
-  min-height:32px; 
 } 
 QLineEdit:hover{ 
   border-image: url(:/rs/edit_hover.png) 4 ; 
@@ -103,7 +102,6 @@ QRadioButton::indicator::checked:hover {
 QPlainTextEdit{ 
     border-width:4px; 
   border-image: url(:/rs/edit_normal.png) 4 ; 
-  min-height:64px; 
 } 
  
 QTabWidget::tab-bar { 
@@ -287,7 +285,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
              <item>
               <widget class="QTabWidget" name="tabDebugUp">
                <property name="currentIndex">
-                <number>2</number>
+                <number>3</number>
                </property>
                <widget class="QWidget" name="tab">
                 <attribute name="title">
@@ -695,7 +693,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                         <x>0</x>
                         <y>0</y>
                         <width>579</width>
-                        <height>525</height>
+                        <height>586</height>
                        </rect>
                       </property>
                       <layout class="QVBoxLayout" name="verticalLayout_48">
@@ -1284,7 +1282,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                       <x>0</x>
                       <y>0</y>
                       <width>599</width>
-                      <height>1245</height>
+                      <height>1420</height>
                      </rect>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_31">
@@ -1542,7 +1540,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                               <property name="minimumSize">
                                <size>
                                 <width>0</width>
-                                <height>72</height>
+                                <height>0</height>
                                </size>
                               </property>
                              </widget>
@@ -1592,7 +1590,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                                 <property name="minimumSize">
                                  <size>
                                   <width>0</width>
-                                  <height>72</height>
+                                  <height>0</height>
                                  </size>
                                 </property>
                                </widget>
@@ -1649,7 +1647,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                               <property name="minimumSize">
                                <size>
                                 <width>0</width>
-                                <height>72</height>
+                                <height>0</height>
                                </size>
                               </property>
                              </widget>
@@ -1843,7 +1841,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
-                  <height>72</height>
+                  <height>0</height>
                  </size>
                 </property>
                 <property name="maximumSize">
@@ -1881,7 +1879,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
               <x>0</x>
               <y>0</y>
               <width>840</width>
-              <height>803</height>
+              <height>793</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_22">
@@ -1914,9 +1912,9 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>0</y>
+              <y>-188</y>
               <width>374</width>
-              <height>919</height>
+              <height>1237</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_49">
@@ -2108,10 +2106,22 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                 </item>
                 <item>
                  <widget class="QPlainTextEdit" name="lblVote">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="maximumSize">
                    <size>
                     <width>16777215</width>
-                    <height>100</height>
+                    <height>201</height>
                    </size>
                   </property>
                  </widget>
@@ -2128,7 +2138,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                   <property name="minimumSize">
                    <size>
                     <width>0</width>
-                    <height>72</height>
+                    <height>0</height>
                    </size>
                   </property>
                  </widget>
@@ -2158,7 +2168,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                <property name="minimumSize">
                 <size>
                  <width>0</width>
-                 <height>72</height>
+                 <height>0</height>
                 </size>
                </property>
               </widget>
@@ -2232,8 +2242,8 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>40</width>
-                   <height>40</height>
+                   <width>50</width>
+                   <height>50</height>
                   </size>
                  </property>
                  <property name="maximumSize">
@@ -2317,8 +2327,8 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>40</width>
-                   <height>40</height>
+                   <width>50</width>
+                   <height>50</height>
                   </size>
                  </property>
                  <property name="maximumSize">
