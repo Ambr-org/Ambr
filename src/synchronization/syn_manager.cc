@@ -197,20 +197,11 @@ void ambr::syn::Impl::UnSerialize(std::vector<uint8_t>& vec_bytes){
       vec_bytes.erase(it);
     }
   }
-  else if(std::numeric_limits<unsigned short>::max() + 3 >= data_length){
+  else if(std::numeric_limits<unsigned short>::max() + 3 >= data_length && 0 < data_length){
     uint16_t msg_size = vec_bytes[2] * 256 + vec_bytes[1];
     if(data_length - 3 == msg_size){
       auto it = vec_bytes.begin();
       for(int i = 0; i < 3; ++i){
-        vec_bytes.erase(it);
-      }
-    }
-  }
-  else if(std::numeric_limits<unsigned int>::max() + 5 >= data_length){
-    uint32_t msg_size = vec_bytes[4] * 16777216 + vec_bytes[3] * 65536 + vec_bytes[2] * 256 + vec_bytes[1];
-    if(data_length - 3 == msg_size){
-      auto it = vec_bytes.begin();
-      for(int i = 0; i < 5; ++i){
         vec_bytes.erase(it);
       }
     }

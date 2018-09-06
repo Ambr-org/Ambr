@@ -83,6 +83,9 @@ bool ambr::core::SendUnit::DeSerializeJson(const std::string& json){
     dest_.decode_from_hex(pt.get<std::string>("unit.dest"));
     data_type_ = (DataType)pt.get<uint32_t>("unit.data_type");
     data_ = pt.get<std::string>("unit.data");
+    if(type_ != ambr::core::UnitType::send){
+      return false;
+    }
     return true;
   }catch(::boost::property_tree::json_parser::json_parser_error& error){
     std::cout<<error.message();
@@ -124,6 +127,9 @@ bool ambr::core::SendUnit::DeSerializeByte(const std::vector<uint8_t> &buf,size_
     dest_.set_bytes(obj.dest_().data(),obj.dest_().size());
     data_type_=((ambr::core::SendUnit::DataType)obj.data_type_());
     data_=obj.data_();
+    if(type_ != ambr::core::UnitType::send){
+      return false;
+    }
     return true;
   }
   return false;
@@ -215,6 +221,9 @@ bool ambr::core::ReceiveUnit::DeSerializeJson(const std::string &json){
     hash_.decode_from_hex(pt.get<std::string>("unit.hash"));
     sign_.decode_from_hex(pt.get<std::string>("unit.sign"));
     from_.decode_from_hex(pt.get<std::string>("unit.from"));
+    if(type_ != ambr::core::UnitType::receive){
+      return false;
+    }
     return true;
   }catch(::boost::property_tree::json_parser::json_parser_error& error){
     std::cout<<error.message();
@@ -251,6 +260,9 @@ bool ambr::core::ReceiveUnit::DeSerializeByte(const std::vector<uint8_t> &buf,si
     hash_.set_bytes(obj.hash_().data(),obj.hash_().size());
     sign_.set_bytes(obj.sign_().data(),obj.sign_().size());
     from_.set_bytes(obj.from_().data(),obj.from_().size());
+    if(type_ != ambr::core::UnitType::receive){
+      return false;
+    }
     return true;
   }
   return false;
@@ -345,6 +357,9 @@ bool ambr::core::VoteUnit::DeSerializeJson(const std::string& json){
     sign_.decode_from_hex(pt.get<std::string>("unit.sign"));
     validator_unit_hash_.decode_from_hex(pt.get<std::string>("unit.validator_unit_hash"));
     accept_ = (uint8_t)pt.get<uint8_t>("unit.accept");
+    if(type_ != ambr::core::UnitType::Vote){
+      return false;
+    }
     return true;
   }catch(::boost::property_tree::json_parser::json_parser_error& error){
     std::cout<<error.message();
@@ -383,6 +398,9 @@ bool ambr::core::VoteUnit::DeSerializeByte(const std::vector<uint8_t> &buf,size_
     sign_.set_bytes(obj.sign_().data(),obj.sign_().size());
     validator_unit_hash_.set_bytes(obj.validator_unit_hash_().data(),obj.validator_unit_hash_().size());
     accept_=(uint8_t)obj.accept_();
+    if(type_ != ambr::core::UnitType::Vote){
+      return false;
+    }
     return true;
   }
   return false;
@@ -528,6 +546,9 @@ bool ambr::core::ValidatorUnit::DeSerializeJson(const std::string& json){
     percent_ = pt.get<uint32_t>("unit.percent");
     time_stamp_ = pt.get<time_t>("unit.time_stamp");
     nonce_ = pt.get<uint64_t>("unit.nonce");
+    if(type_ != ambr::core::UnitType::Validator){
+      return false;
+    }
     return true;
   }catch(::boost::property_tree::json_parser::json_parser_error& error){
     std::cout<<error.message();
@@ -654,6 +675,9 @@ bool ambr::core::ValidatorUnit::DeSerializeByte(const std::vector<uint8_t> &buf,
 
     nonce_=(uint64_t)obj.nonce_();
     time_stamp_=(uint64_t)obj.time_stamp_();
+    if(type_ != ambr::core::UnitType::Validator){
+      return false;
+    }
     return true;
   }
   return false;
@@ -758,6 +782,9 @@ bool ambr::core::EnterValidateSetUint::DeSerializeJson(const std::string& json){
     balance_.decode_from_hex(pt.get<std::string>("unit.balance"));
     hash_.decode_from_hex(pt.get<std::string>("unit.hash"));
     sign_.decode_from_hex(pt.get<std::string>("unit.sign"));
+    if(type_ != ambr::core::UnitType::EnterValidateSet){
+      return false;
+    }
     return true;
   }catch(::boost::property_tree::json_parser::json_parser_error& error){
     std::cout<<error.message();
@@ -793,6 +820,9 @@ bool ambr::core::EnterValidateSetUint::DeSerializeByte(const std::vector<uint8_t
     balance_.set_bytes(obj.balance_().data(),obj.balance_().size());
     hash_.set_bytes(obj.hash_().data(),obj.hash_().size());
     sign_.set_bytes(obj.sign_().data(),obj.sign_().size());
+    if(type_ != ambr::core::UnitType::EnterValidateSet){
+      return false;
+    }
     return true;
   }
   return false;
@@ -882,6 +912,9 @@ bool ambr::core::LeaveValidateSetUint::DeSerializeJson(const std::string& json){
     hash_.decode_from_hex(pt.get<std::string>("unit.hash"));
     sign_.decode_from_hex(pt.get<std::string>("unit.sign"));
     unfreeze_count_.decode_from_hex(pt.get<std::string>("unit.unfreeze_count"));
+    if(type_ != ambr::core::UnitType::LeaveValidateSet){
+      return false;
+    }
     return true;
   }catch(::boost::property_tree::json_parser::json_parser_error& error){
     std::cout<<error.message();
@@ -918,6 +951,9 @@ bool ambr::core::LeaveValidateSetUint::DeSerializeByte(const std::vector<uint8_t
     hash_.set_bytes(obj.hash_().data(), obj.hash_().size());
     sign_.set_bytes(obj.sign_().data(), obj.sign_().size());
     unfreeze_count_.set_bytes(obj.unfreeze_count_().data(), obj.unfreeze_count_().size());
+    if(type_ != ambr::core::UnitType::LeaveValidateSet){
+      return false;
+    }
     return true;
   }
   return false;

@@ -81,7 +81,7 @@ void ambr::store::StoreManager::Init(const std::string& path){
       enter_unit->SignatureAndFill(core::PrivateKey("25E25210DCE702D4E36B6C8A17E18DC1D02A9E4F0D1D31C4AEE77327CF1641CC"));
 
       //construct validate unit of genesis
-      boost::posix_time::ptime pt = boost::posix_time::microsec_clock::universal_time();
+      boost::posix_time::ptime pt = boost::posix_time::from_iso_string("20180101T000000");;
       boost::posix_time::ptime pt_ori(boost::gregorian::date(1970, boost::gregorian::Jan, 1));
       boost::posix_time::time_duration duration = pt-pt_ori;
       genesis_time_ = duration.total_milliseconds();
