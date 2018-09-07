@@ -3,11 +3,11 @@
 #include <QPainter>
 #include <QTransform>
 #include <QDebug>
+#include <QTime>
 #include <glog/logging.h>
 #include <store/store_manager.h>
 #include <unordered_map>
 #include <store/unit_store.h>
-
 #include "netmessagemaker.h"
 #include <boost/thread.hpp>
 
@@ -20,7 +20,8 @@ StoreExampleMainWidget::StoreExampleMainWidget(std::shared_ptr<ambr::store::Stor
   QWidget(parent),
   ui(new Ui::StoreExampleMainWidget),max_chain_length_for_draw_(10),
   p_syn_manager(syn_manager),
-  store_manager_(store_manager)
+  store_manager_(store_manager),
+  tps_count_(0)
 {
   assert(store_manager_);
   ui->setupUi(this);
@@ -56,11 +57,19 @@ StoreExampleMainWidget::StoreExampleMainWidget(std::shared_ptr<ambr::store::Stor
   store_manager_->AddCallBackReceiveNewJoinValidatorSetUnit(std::bind(&ambr::syn::SynManager::BoardCastNewJoinValidatorSetUnit, p_syn_manager.get(), std::placeholders::_1));
   store_manager_->AddCallBackReceiveNewLeaveValidatorSetUnit(std::bind(&ambr::syn::SynManager::BoardCastNewLeaveValidatorSetUnit, p_syn_manager.get(), std::placeholders::_1));
 
+
+  store_manager_->AddCallBackReceiveNewSendUnit(std::bind(&StoreExampleMainWidget::OnGetNewUnit, this));
+  store_manager_->AddCallBackReceiveNewReceiveUnit(std::bind(&StoreExampleMainWidget::OnGetNewUnit, this));
+  store_manager_->AddCallBackReceiveNewValidatorUnit(std::bind(&StoreExampleMainWidget::OnGetNewUnit, this));
+  store_manager_->AddCallBackReceiveNewJoinValidatorSetUnit(std::bind(&StoreExampleMainWidget::OnGetNewUnit, this));
+  store_manager_->AddCallBackReceiveNewLeaveValidatorSetUnit(std::bind(&StoreExampleMainWidget::OnGetNewUnit, this));
   for(int i = 0; i < 32; i++){
     validator_auto_.push_back(std::make_shared<ambr::utils::ValidatorAuto>(store_manager));
   }
   chain_draw_timer.start(40);
   connect(&chain_draw_timer, SIGNAL(timeout()), this, SLOT(OnDrawTimerOut()));
+  tps_timer_.start(1000);
+  connect(&tps_timer_, SIGNAL(timeout()), this, SLOT(OnTpsTimer()));
 }
 
 StoreExampleMainWidget::~StoreExampleMainWidget(){
@@ -951,8 +960,8 @@ void StoreExampleMainWidget::onDealDisconnected(CNode* p_node){
 
 void StoreExampleMainWidget::on_btnPTSimTransSpeed_clicked(){
   QString str = ui->edtPTSimTransSpeed->text();
-  uint32_t num = str.toUInt()>10000?10000:str.toInt();
-  auto_trans_interval_ = 10001/(num+1);
+  uint32_t num = str.toUInt()<1?1:str.toInt();
+  auto_trans_interval_ = num;
 }
 
 void StoreExampleMainWidget::on_btnStartAllTest_clicked(){
@@ -989,6 +998,14 @@ void StoreExampleMainWidget::on_btnPTSimValidateSpeed_clicked(){
 void StoreExampleMainWidget::OnDrawTimerOut()
 {
   ui->wgtPaint->update();
+}
+
+void StoreExampleMainWidget::OnTpsTimer(){
+  static QTime time = QTime::currentTime();
+  int len = time.msecsTo(QTime::currentTime());
+  time = QTime::currentTime();
+  ui->edtRunTimeTps->setText(QString::number(tps_count_*1000/((len==0)?1:len)));
+  tps_count_ = 0;
 }
 
 void StoreExampleMainWidget::on_btnP2PStart_clicked(){
@@ -1188,7 +1205,7 @@ void StoreExampleMainWidget::AutoPublishTransThread(const ambr::core::PrivateKey
         std::cout<<"error:"<<err<<std::endl;
       }
     }
-    boost::this_thread::sleep(boost::posix_time::millisec(qrand()%auto_trans_interval_));
+    //boost::this_thread::sleep(boost::posix_time::millisec(qrand()%auto_trans_interval_));
   }
 }
 

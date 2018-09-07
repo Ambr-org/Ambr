@@ -269,7 +269,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
    <item>
     <widget class="QTabWidget" name="tabMain">
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_7">
       <attribute name="title">
@@ -1281,7 +1281,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                      <rect>
                       <x>0</x>
                       <y>0</y>
-                      <width>599</width>
+                      <width>176</width>
                       <height>1420</height>
                      </rect>
                     </property>
@@ -1912,9 +1912,9 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-188</y>
+              <y>0</y>
               <width>374</width>
-              <height>1237</height>
+              <height>1272</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_49">
@@ -1975,7 +1975,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                   <item>
                    <widget class="QLabel" name="label_80">
                     <property name="text">
-                     <string>模拟交易速度(1~10000)</string>
+                     <string>模拟交易间隔(1~1000)ms</string>
                     </property>
                    </widget>
                   </item>
@@ -2002,6 +2002,9 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                  <layout class="QHBoxLayout" name="horizontalLayout_94">
                   <item>
                    <widget class="QLabel" name="label_81">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
                     <property name="text">
                      <string>模拟验证速度(1~10000)</string>
                     </property>
@@ -2009,8 +2012,11 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                   </item>
                   <item>
                    <widget class="QLineEdit" name="edtPTSimValidateSpeed">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
                     <property name="text">
-                     <string>10</string>
+                     <string/>
                     </property>
                     <property name="placeholderText">
                      <string>1~10000</string>
@@ -2019,8 +2025,32 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                   </item>
                   <item>
                    <widget class="QPushButton" name="btnPTSimValidateSpeed">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
                     <property name="text">
                      <string> 确定</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_96">
+                  <item>
+                   <widget class="QLabel" name="label_83">
+                    <property name="text">
+                     <string>实时TPS</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="edtRunTimeTps">
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="placeholderText">
+                     <string/>
                     </property>
                    </widget>
                   </item>

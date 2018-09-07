@@ -105,6 +105,7 @@ private slots:
   void onDealConnect(CNode*);
   void onDealDisconnected(CNode*);
   void OnDrawTimerOut();
+  void OnTpsTimer();
 protected:
   bool eventFilter(QObject *target, QEvent *event);
 
@@ -128,8 +129,11 @@ private:
   //check ValidatorUnit
   void CheckValidatorUnit();
   void CreateDebugInitChain();
+private://tps
+  void OnGetNewUnit(){tps_count_++;}
 private:
   QTimer chain_draw_timer;
+  QTimer tps_timer_;
   uint32_t max_chain_length_for_draw_;
   std::unordered_map<ambr::core::UnitHash, std::list<std::shared_ptr<DrawItem>>> unit_list_;
   std::unordered_map<ambr::core::UnitHash, std::shared_ptr<DrawItem>> unit_map_;
@@ -146,6 +150,7 @@ private:
   uint32_t auto_trans_interval_ = 1000;
   std::unordered_map<ambr::core::PrivateKey, std::pair<bool, std::shared_ptr<std::thread>>> auto_publish_trans_thread_map_;
   ambr::rpc::RpcServer rpc_server_;
+  uint32_t tps_count_;
 };
 
 #endif // STORE_EXAMPLE_MAIN_WIDGET_H
