@@ -10,14 +10,23 @@
 
 class TestCase {
 public:
-  TestCase(ambr::syn::Impl* impl)
-  :p_Impl(impl)
-  {}
+  TestCase()=default;
 
   bool OnReceiveNode(const CNetMessage& netmsg, CNode* p_node) {
     std::string tmp = netmsg.hdr.GetCommand();
     std::cout << "tmp is " << tmp << std::endl;
-    p_Impl->OnReceiveNode(netmsg, p_node);
+    
+    if(NetMsgType::UNIT == tmp){
+       std::vector<uint8_t> buf;
+      buf.assign(netmsg.vRecv.begin(), netmsg.vRecv.end());
+
+      p_Impl -> UnSerialize(buf);
+      unit_ = ambr::core::Unit::CreateUnitByByte(buf);
+      std::cout <<  unit_->version()<< std::endl;
+    }
+    else{
+      p_Impl->OnReceiveNode(netmsg, p_node);
+    }
 
   }
 
@@ -31,8 +40,17 @@ public:
     pnode->SetReceiveNodeFunc(std::bind(&TestCase::OnReceiveNode, this, std::placeholders::_1, std::placeholders::_2));
   }
 
+  Ptr_Unit GetUnit(){
+    return unit_;
+  }
+
+  void SetImpl(ambr::syn::Impl* Impl){
+    p_Impl = Impl;
+  }
+
 private:
   ambr::syn::Impl* p_Impl;
+  Ptr_Unit unit_;
 };
 
 
@@ -45,7 +63,7 @@ protected:
     store_manager->AddCallBackReceiveNewJoinValidatorSetUnit(std::bind(&ambr::syn::SynManager::BoardCastNewJoinValidatorSetUnit, syn_manager.get(), std::placeholders::_1));
     store_manager->AddCallBackReceiveNewLeaveValidatorSetUnit(std::bind(&ambr::syn::SynManager::BoardCastNewLeaveValidatorSetUnit, syn_manager.get(), std::placeholders::_1));
 
-    TestCase tc(syn_manager->GetImpl());
+    tc.SetImpl(syn_manager->GetImpl());
 
     ambr::syn::IPConfig ip ={
         10111, // port
@@ -95,6 +113,8 @@ protected:
     static std::shared_ptr<ambr::syn::SynManager> syn_manager;
     static ambr::core::PrivateKey test_pri;
     static std::string root_pri_key;
+
+    TestCase tc;
   };
 
   std::shared_ptr<ambr::store::StoreManager> SendTest::store_manager;
@@ -110,7 +130,7 @@ protected:
     
     ambr::core::UnitHash test_hash;
     std::shared_ptr<ambr::core::Unit> added_unit;
-    ambr::core::Amount send_ammout = 1000*store_manager->GetTransectionFeeBase();
+    ambr::core::Amount send_ammout = 10000*store_manager->GetTransectionFeeBase();
     std::string err;
     ambr::core::Amount balance_ori;
     ambr::core::Amount balance_used;
@@ -149,6 +169,9 @@ protected:
       std::cout<<err<<std::endl;
     }
 
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    EXPECT_EQ(tc.GetUnit()->version(), unit->version());
+
     //param test
 
     /*
@@ -165,8 +188,6 @@ protected:
     //error send_ammout(bigger than remainder)
     EXPECT_FALSE(manager->SendToAddress(test_pub, balance_remainder+amount_test, root_pri_key, &test_hash, added_unit, &err));
     */
-
-    std::this_thread::sleep_for(std::chrono::seconds(5));
 
   }
 

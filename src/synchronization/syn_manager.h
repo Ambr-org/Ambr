@@ -73,13 +73,14 @@ public:
     list_in_nodes_.push_back(pnode);
   }
   bool OnReceiveNode(const CNetMessage& netmsg, CNode* p_node);
+  void UnSerialize(std::vector<uint8_t>& vec_bytes);
 private:
   void Shutdown();
   void WaitForShutdown();
   void OnAcceptNode(CNode* p_node);
   void OnConnectNode(CNode* p_node);
   void OnDisConnectNode(CNode* p_node);
-  void UnSerialize(std::vector<uint8_t>& vec_bytes);
+  
   
 
 private:
