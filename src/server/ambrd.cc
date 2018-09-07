@@ -14,6 +14,7 @@
 #include <p2p/shutdown.h>
 #include <p2p/net_processing.h>
 #include <p2p/init.h>
+#include <glog/logging.h>
 #include "store/store_manager.h"
 #include "synchronization/syn_manager.h"
 #include "rpc/rpc_server.h"
@@ -27,6 +28,7 @@ int DoServer(const std::string& db_path, uint16_t rpc_port, uint16_t p2p_prot, c
   std::shared_ptr<ambr::syn::SynManager> p_syn_manager = std::make_shared<ambr::syn::SynManager>(p_store_manager);
   std::shared_ptr<ambr::rpc::RpcServer> p_rpc = std::make_shared<ambr::rpc::RpcServer>();
   p_store_manager->Init(db_path);
+  google::SetLogDestination(google::GLOG_INFO, (db_path+"/log.log").c_str());
   p_store_manager->AddCallBackReceiveNewSendUnit(std::bind(&ambr::syn::SynManager::BoardCastNewSendUnit, p_syn_manager.get(), std::placeholders::_1));
   p_store_manager->AddCallBackReceiveNewReceiveUnit(std::bind(&ambr::syn::SynManager::BoardCastNewReceiveUnit, p_syn_manager.get(), std::placeholders::_1));
   p_store_manager->AddCallBackReceiveNewValidatorUnit(std::bind(&ambr::syn::SynManager::BoardCastNewValidatorUnit, p_syn_manager.get(), std::placeholders::_1));

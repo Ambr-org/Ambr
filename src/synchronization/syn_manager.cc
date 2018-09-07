@@ -130,7 +130,6 @@ void ambr::syn::Impl::SetOnDisconnect(const std::function<void(CNode*)>& func){
 }
 
 void ambr::syn::Impl::BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node){
-  LOG(INFO)<<__FUNCTION__<<msg.command<<msg.data.size();
   for(auto it:list_in_nodes_){
     if(it != p_node){
       PushMessage(it, std::forward<CSerializedNetMsg>(msg));
@@ -210,7 +209,6 @@ void ambr::syn::Impl::UnSerialize(std::vector<uint8_t>& vec_bytes){
 }
 
 bool ambr::syn::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode* p_node){
-  LOG(INFO)<<(netmsg.hdr.ToString());
     std::string&& tmp = netmsg.hdr.GetCommand();
     if(NetMsgType::VERSION == tmp){
       /*if(0x00000001 != msg->version_){
@@ -258,11 +256,14 @@ bool ambr::syn::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode* p_node){
     else if(NetMsgType::UNIT == tmp){
       std::vector<uint8_t> buf;
       buf.assign(netmsg.vRecv.begin(), netmsg.vRecv.end());
-      LOG(INFO)<<buf.size();
       UnSerialize(buf);
-      LOG(INFO)<<buf.size();
       Ptr_Unit unit = ambr::core::Unit::CreateUnitByByte(buf);
-      LOG(INFO)<<(unit?"create unit success":"create unit faild");
+      LOG(INFO)<<"receive unit message";
+      if(unit){
+        LOG(INFO)<<"Unit create success:"<<unit->hash().encode_to_hex();
+      }else{
+        LOG(INFO)<<"Unit create faild";
+      }
       if(unit){
         if(!unit->prev_unit().is_zero() && nullptr == p_storemanager_->GetUnit(unit->prev_unit()) && nullptr == p_storemanager_->GetValidateUnit(unit->prev_unit())){
           ambr::core::UnitHash hash;
@@ -279,28 +280,24 @@ bool ambr::syn::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode* p_node){
           SendMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::SECTION, buf), p_node);
         }
         else if(ambr::core::UnitType::send == unit->type()){
-          LOG(INFO) << "Get send unit:" << unit->SerializeJson();
           std::shared_ptr<ambr::core::SendUnit> send_unit = std::dynamic_pointer_cast<ambr::core::SendUnit>(unit);
           if(send_unit && p_storemanager_->AddSendUnit(send_unit, nullptr)){
             BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, buf), p_node);
           }
         }
         else if(ambr::core::UnitType::receive == unit->type()){
-          LOG(INFO) << "Get receive unit:" << unit->SerializeJson();
           std::shared_ptr<ambr::core::ReceiveUnit> receive_unit = std::dynamic_pointer_cast<ambr::core::ReceiveUnit>(unit);
           if(receive_unit && p_storemanager_->AddReceiveUnit(receive_unit, nullptr)){
             BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, buf), p_node);
           }
         }
         else if(ambr::core::UnitType::Vote == unit->type()){
-          LOG(INFO) << "Get vote unit:" << unit->SerializeJson();
           std::shared_ptr<ambr::core::VoteUnit> vote_unit = std::dynamic_pointer_cast<ambr::core::VoteUnit>(unit);
           if(vote_unit && p_storemanager_->AddVote(vote_unit, nullptr)){
             BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, buf), p_node);
           }
         }
         else if(ambr::core::UnitType::Validator == unit->type()){
-          LOG(INFO) << "Get validator unit:" << unit->SerializeJson();
           std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = std::dynamic_pointer_cast<ambr::core::ValidatorUnit>(unit);
 
           if(validator_unit){
@@ -339,14 +336,12 @@ bool ambr::syn::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode* p_node){
           }
         }
         else if(ambr::core::UnitType::EnterValidateSet == unit->type()){
-          LOG(INFO) << "Get enter validator unit:" << unit->SerializeJson();
           std::shared_ptr<ambr::core::EnterValidateSetUint> enter_validator_unit = std::dynamic_pointer_cast<ambr::core::EnterValidateSetUint>(unit);
           if(enter_validator_unit && p_storemanager_->AddEnterValidatorSetUnit(enter_validator_unit, nullptr)){
             BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, buf), p_node);
           }
         }
         else if(ambr::core::UnitType::LeaveValidateSet == unit->type()){
-          LOG(INFO) << "Get leave validator unit:" << unit->SerializeJson();
           std::shared_ptr<ambr::core::LeaveValidateSetUint> leave_validator_unit = std::dynamic_pointer_cast<ambr::core::LeaveValidateSetUint>(unit);
           if(leave_validator_unit && p_storemanager_->AddLeaveValidatorSetUnit(leave_validator_unit, nullptr)){
             BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, buf), p_node);
@@ -415,6 +410,12 @@ bool ambr::syn::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode* p_node){
 
         UnSerialize(buf);
         Ptr_Unit unit = ambr::core::Unit::CreateUnitByByte(buf);
+        LOG(INFO)<<"receive unit message";
+        if(unit){
+          LOG(INFO)<<"Unit create success:"<<unit->hash().encode_to_hex();
+        }else{
+          LOG(INFO)<<"Unit create faild";
+        }
         if(unit){
           switch (unit->type()) {
           case ambr::core::UnitType::send:
@@ -529,37 +530,42 @@ void ambr::syn::SynManager::SetOnDisconnectNode(const std::function<void(CNode*)
 }
 
 void ambr::syn::SynManager::BoardCastNewSendUnit(std::shared_ptr<core::SendUnit> p_unit){
-    std::vector<uint8_t>&& buf = p_unit->SerializeByte();
-    std::string str_data;
-    str_data.assign(buf.begin(), buf.end());
-    CSerializedNetMsg  msg1 = CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data);
-    p_impl_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
+  std::vector<uint8_t>&& buf = p_unit->SerializeByte();
+  LOG(INFO)<<__FUNCTION__<<p_unit->hash().encode_to_hex();
+  std::string str_data;
+  str_data.assign(buf.begin(), buf.end());
+  CSerializedNetMsg  msg1 = CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data);
+  p_impl_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
 }
 
 void ambr::syn::SynManager::BoardCastNewReceiveUnit(std::shared_ptr<core::ReceiveUnit> p_unit){
-    std::vector<uint8_t>&& buf = p_unit->SerializeByte();
-    std::string str_data;
-    str_data.assign(buf.begin(), buf.end());
-    p_impl_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
+  LOG(INFO)<<__FUNCTION__<<p_unit->hash().encode_to_hex();
+  std::vector<uint8_t>&& buf = p_unit->SerializeByte();
+  std::string str_data;
+  str_data.assign(buf.begin(), buf.end());
+  p_impl_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
 }
 
 void ambr::syn::SynManager::BoardCastNewValidatorUnit(std::shared_ptr<core::ValidatorUnit> p_unit){
-    std::vector<uint8_t>&& buf = p_unit->SerializeByte();
-    std::string str_data;
-    str_data.assign(buf.begin(), buf.end());
-    p_impl_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
+  LOG(INFO)<<__FUNCTION__<<p_unit->hash().encode_to_hex();
+  std::vector<uint8_t>&& buf = p_unit->SerializeByte();
+  std::string str_data;
+  str_data.assign(buf.begin(), buf.end());
+  p_impl_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
 }
 
 void ambr::syn::SynManager::BoardCastNewJoinValidatorSetUnit(std::shared_ptr<core::EnterValidateSetUint> p_unit){
-    std::vector<uint8_t>&& buf = p_unit->SerializeByte();
-    std::string str_data;
-    str_data.assign(buf.begin(), buf.end());
-    p_impl_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
+  LOG(INFO)<<__FUNCTION__<<p_unit->hash().encode_to_hex();
+  std::vector<uint8_t>&& buf = p_unit->SerializeByte();
+  std::string str_data;
+  str_data.assign(buf.begin(), buf.end());
+  p_impl_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
 }
 
 void ambr::syn::SynManager::BoardCastNewLeaveValidatorSetUnit(std::shared_ptr<core::LeaveValidateSetUint> p_unit){
-    std::vector<uint8_t>&& buf = p_unit->SerializeByte();
-    std::string str_data;
-    str_data.assign(buf.begin(), buf.end());
-    p_impl_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
+  LOG(INFO)<<__FUNCTION__<<p_unit->hash().encode_to_hex();
+  std::vector<uint8_t>&& buf = p_unit->SerializeByte();
+  std::string str_data;
+  str_data.assign(buf.begin(), buf.end());
+  p_impl_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
 }

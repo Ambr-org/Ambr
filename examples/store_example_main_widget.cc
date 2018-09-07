@@ -722,6 +722,7 @@ void StoreExampleMainWidget::on_btnInitDataBase_clicked(){
   command += ui->edtDatabasePath->text().toStdString();
   system(command.c_str());
   store_manager_->Init(ui->edtDatabasePath->text().toStdString());
+  google::SetLogDestination(google::GLOG_INFO, (ui->edtDatabasePath->text().toStdString()+"/log.log").c_str());
   ui->tabMain->setTabEnabled(0, true);
   ui->tabMain->setTabEnabled(1, true);
   ui->tabMain->setTabEnabled(3, true);
@@ -1205,7 +1206,7 @@ void StoreExampleMainWidget::AutoPublishTransThread(const ambr::core::PrivateKey
         std::cout<<"error:"<<err<<std::endl;
       }
     }
-    //boost::this_thread::sleep(boost::posix_time::millisec(qrand()%auto_trans_interval_));
+    boost::this_thread::sleep(boost::posix_time::millisec(qrand()%auto_trans_interval_));
   }
 }
 
