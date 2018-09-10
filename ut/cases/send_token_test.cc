@@ -14,7 +14,6 @@ public:
 
   bool OnReceiveNode(const CNetMessage& netmsg, CNode* p_node) {
     std::string tmp = netmsg.hdr.GetCommand();
-    std::cout << "tmp is " << tmp << std::endl;
     
     if(NetMsgType::UNIT == tmp){
        std::vector<uint8_t> buf;
@@ -22,7 +21,7 @@ public:
 
       p_Impl -> UnSerialize(buf);
       unit_ = ambr::core::Unit::CreateUnitByByte(buf);
-      std::cout <<  unit_->version()<< std::endl;
+      version = unit_->version();
     }
     else{
       p_Impl->OnReceiveNode(netmsg, p_node);
@@ -47,6 +46,9 @@ public:
   void SetImpl(ambr::syn::Impl* Impl){
     p_Impl = Impl;
   }
+
+public:
+  static uint32_t  version;
 
 private:
   ambr::syn::Impl* p_Impl;
@@ -121,6 +123,8 @@ protected:
   std::shared_ptr<ambr::syn::SynManager> SendTest::syn_manager;
   ambr::core::PrivateKey SendTest::test_pri;
   std::string SendTest::root_pri_key;
+  uint32_t TestCase::version;
+
 
   TEST_F(SendTest, SendOneTX){ 
     // waiting p2p module initialize  and get consensus
@@ -130,65 +134,31 @@ protected:
     
     ambr::core::UnitHash test_hash;
     std::shared_ptr<ambr::core::Unit> added_unit;
-    ambr::core::Amount send_ammout = 10000*store_manager->GetTransectionFeeBase();
+    ambr::core::Amount send_ammout = 100*store_manager->GetTransectionFeeBase();
+  
     std::string err;
     ambr::core::Amount balance_ori;
     ambr::core::Amount balance_used;
     ambr::core::Amount balance_remainder;
 
-    size_t used_byte = 0;
   //===last_unit_hash===========================
   //test send 1----->SendToAddress
 
     //make json for the add unit
     std::shared_ptr<ambr::core::SendUnit> unit = std::shared_ptr<ambr::core::SendUnit>(new ambr::core::SendUnit());
-    ambr::core::UnitHash prev_hash;
-    EXPECT_TRUE(store_manager -> GetLastUnitHashByPubKey(test_pub, prev_hash));
-    EXPECT_TRUE(store_manager->GetBalanceByPubKey(test_pub, balance_ori));
-
-    unit->set_version(0x00000001);
-    unit->set_type(ambr::core::UnitType::send);
-    unit->set_public_key(test_pub);
-    unit->set_prev_unit(prev_hash);
-    unit->set_balance(balance_ori);
-    unit->set_dest(test_pub);
-    unit->set_data_type(ambr::core::SendUnit::Normal);
-    unit->set_data("");
-    unit->set_balance(send_ammout);
-    unit->CalcHashAndFill();
-    unit->SignatureAndFill(root_pri_key);
-    std::shared_ptr<ambr::store::SendUnitStore> store = std::make_shared<ambr::store::SendUnitStore>(unit);
 
      //  send tx
-    EXPECT_TRUE(store_manager->GetBalanceByPubKey(ambr::core::GetPublicKeyByPrivateKey(root_pri_key), balance_ori));
-    balance_used = balance_used+send_ammout;
+    EXPECT_TRUE(store_manager->GetBalanceByPubKey(test_pub, balance_ori));
     bool result;
-    result = store_manager-> AddSendUnit(unit, &err);
-    EXPECT_TRUE(result);
+    EXPECT_TRUE((result = store_manager->SendToAddress(test_pub, send_ammout, root_pri_key, &test_hash, added_unit, &err)));
     if(!result){
       std::cout<<err<<std::endl;
     }
 
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-    EXPECT_EQ(tc.GetUnit()->version(), unit->version());
-
-    //param test
-
-    /*
-    ambr::core::Amount amount_test = 1000*manager->GetTransectionFeeBase();
-    EXPECT_TRUE(manager->SendToAddress(test_pub, amount_test, root_pri_key, nullptr, added_unit, nullptr));
-    balance_used = balance_used+amount_test;
-    used_byte+=added_unit->GetFeeSize();
-    EXPECT_TRUE(manager->GetBalanceByPubKey(ambr::core::GetPublicKeyByPrivateKey(root_pri_key), balance_remainder));
-    EXPECT_EQ(balance_remainder, balance_ori-balance_used);
-
-    //incorrect operate
-    //error private key
-    EXPECT_FALSE(manager->SendToAddress(test_pub, send_ammout, ambr::core::CreateRandomPrivateKey(), &test_hash, added_unit, &err));
-    //error send_ammout(bigger than remainder)
-    EXPECT_FALSE(manager->SendToAddress(test_pub, balance_remainder+amount_test, root_pri_key, &test_hash, added_unit, &err));
-    */
-
+    std::this_thread::sleep_for(std::chrono::seconds(4));
+    EXPECT_EQ(TestCase::version, added_unit->version());
+    store_manager->GetBalanceByPubKey(test_pub, balance_remainder);
+    EXPECT_EQ(balance_ori - send_ammout, balance_remainder);
   }
 
 
