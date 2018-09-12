@@ -15,6 +15,7 @@
 #include <p2p/net_processing.h>
 #include <p2p/init.h>
 #include <glog/logging.h>
+#include <boost/format.hpp>
 #include "store/store_manager.h"
 #include "synchronization/syn_manager.h"
 #include "rpc/rpc_server.h"
@@ -48,10 +49,8 @@ int DoServer(const std::string& db_path, uint16_t rpc_port, uint16_t p2p_prot, c
   config.use_nat_pmp_ = false;
   config.use_natp_ = false;
   config.heart_time_ = 88;
-  ambr::syn::IPConfig stuIPConfig;
-  stuIPConfig.port_ = seed_port;
-  stuIPConfig.str_ip_ = seed_ip;
-  config.vec_seed_.push_back(stuIPConfig);
+
+  config.vec_seed_.push_back((boost::format("%s:%d")%seed_ip%seed_port).str());
 
   p_syn_manager->Init(config);
 

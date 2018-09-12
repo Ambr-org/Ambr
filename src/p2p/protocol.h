@@ -13,6 +13,7 @@
 #include <netaddress.h>
 #include <serialize.h>
 #include <uint256.h>
+#include <version.h>
 
 #include <atomic>
 #include <stdint.h>
@@ -322,7 +323,11 @@ void SetServiceFlagsIBDCache(bool status);
  * == GetDesirableServiceFlags(services), ie determines whether the given
  * set of service flags are sufficient for a peer to be "relevant".
  */
+#include <iostream>
 static inline bool HasAllDesirableServiceFlags(ServiceFlags services) {
+    std::cout<<std::hex<<services<<std::endl;
+    std::cout<<std::hex<<GetDesirableServiceFlags(services)<<std::endl;
+    std::cout<<std::hex<<~services<<std::endl;
     return !(GetDesirableServiceFlags(services) & (~services));
 }
 
@@ -351,12 +356,12 @@ public:
         if (ser_action.ForRead())
             Init();
         int nVersion = s.GetVersion();
-       /* if (s.GetType() & SER_DISK)
+        if (s.GetType() & SER_DISK)
             READWRITE(nVersion);
         if ((s.GetType() & SER_DISK) ||
             (nVersion >= CADDR_TIME_VERSION && !(s.GetType() & SER_GETHASH)))
             READWRITE(nTime);
-            */
+
         uint64_t nServicesInt = nServices;
         READWRITE(nServicesInt);
         nServices = static_cast<ServiceFlags>(nServicesInt);

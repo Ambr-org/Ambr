@@ -1,3 +1,4 @@
+#if 0
 #include <netbase.h>
 #include <netaddress.h>
 #include <scheduler.h>
@@ -213,3 +214,4 @@ registerSignalHandler(SIGINT, HandleSIGTERM);
 
 return connman.Start(scheduler, connOptions);  
 }
+#endif

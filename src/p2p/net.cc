@@ -79,7 +79,7 @@ static const uint64_t RANDOMIZER_ID_LOCALHOSTNONCE = 0xd93e69e2bbfa5735ULL; // S
 bool fDiscover = true;
 bool fListen = true;
 bool fRelayTxes = true;
-CCriticalSection cs_mapLocalHost; 
+CCriticalSection cs_mapLocalHost;
 //TODO for testing,replace CNetAddr to CService
 //std::map<CNetAddr, LocalServiceInfo> mapLocalHost;
 std::map<CService, LocalServiceInfo> mapLocalHost;
@@ -150,7 +150,7 @@ static std::vector<CAddress> convertSeed6(const std::vector<SeedSpec6> &vSeedsIn
 // one by discovery.
 CAddress GetLocalAddress(const CNetAddr *paddrPeer, ServiceFlags nLocalServices)
 {
-    //TODO for testing 
+    //TODO for testing
     struct in_addr addr_;
     auto s =inet_pton(AF_INET, "127.0.0.1", &addr_);
     if (s != 1){
@@ -602,7 +602,7 @@ bool CConnman::Unban(const CSubNet &subNet) {
             return false;
         setBannedIsDirty = true;
     }
-    
+
     DumpBanlist(); //store banlist to disk immediately
     return true;
 }
@@ -625,7 +625,6 @@ void CConnman::SetBanned(const banmap_t &banMap)
 void CConnman::SweepBanned()
 {
     int64_t now = GetTime();
-    bool notifyUI = false;
     {
         LOCK(cs_setBanned);
         banmap_t::iterator it = setBanned.begin();
@@ -637,7 +636,6 @@ void CConnman::SweepBanned()
             {
                 setBanned.erase(it++);
                 setBannedIsDirty = true;
-                notifyUI = true;
                 LogPrint(BCLog::NET, "%s: Removed banned node ip/subnet from banlist.dat: %s\n", __func__, subNet.ToString());
             }
             else
@@ -921,7 +919,7 @@ size_t CConnman::SocketSendData(CNode *pnode) const
             if (pnode->hSocket == INVALID_SOCKET)
                 break;
             nBytes = send(pnode->hSocket, reinterpret_cast<const char*>(data.data()) + pnode->nSendOffset, data.size() - pnode->nSendOffset, MSG_NOSIGNAL | MSG_DONTWAIT);
-            
+
         }
         if (nBytes > 0) {
             pnode->nLastSend = GetSystemTimeInSeconds();
@@ -1173,9 +1171,9 @@ void CConnman::AcceptConnection(const ListenSocket& hListenSocket) {
     pnode->fWhitelisted = whitelisted;
 
     if(OnAcceptFunc){
-      OnAcceptFunc(pnode);      
+      OnAcceptFunc(pnode);
     }
-    
+
     m_msgproc->InitializeNode(pnode);
 
    // LogPrint(BCLog::NET, "connection from %s accepted\n", addr.ToString());
@@ -1190,7 +1188,7 @@ void CConnman::ThreadSocketHandler()
 {
     unsigned int nPrevNodeCount = 0;
 
-    while (!interruptNet) 
+    while (!interruptNet)
     {
         //
         // Disconnect nodes
@@ -1249,7 +1247,7 @@ void CConnman::ThreadSocketHandler()
         }
         if(vNodesSize != nPrevNodeCount) {
             nPrevNodeCount = vNodesSize;
-       
+
         }
 
         //
@@ -1781,8 +1779,8 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
     int64_t nStart = GetTime();
 
     // Minimum time before next feeler connection (in microseconds).
-  
-    int64_t nNextFeeler = PoissonNextSend(nStart, FEELER_INTERVAL); 
+
+    int64_t nNextFeeler = PoissonNextSend(nStart, FEELER_INTERVAL);
     bool fFeeler = true;
     while (!interruptNet)
     {
@@ -1793,7 +1791,7 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
         CSemaphoreGrant grant(*semOutbound);
         if (interruptNet)
             return;
-       
+
        /*
         // Add seed nodes if DNS seeds are all down (an infrastructure attack?).
         if (addrman.size() == 0 && (GetTime() - nStart > 60)) {
@@ -1844,7 +1842,7 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
         //    connections.
         //  * Only make a feeler connection once every few minutes.
         //
-       
+
         if (nOutbound < nMaxOutbound) {
             int64_t nTime = GetTimeMicros(); // The current time right now (in microseconds).
             if (nTime > nNextFeeler) {
@@ -1886,10 +1884,13 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
                 continue;
             }
 
+            // only consider very recently tried nodes after 30 failed attempts
+            if (nANow - addr.nLastTry < 600 && nTries < 30)
+                continue;
             // for non-feelers, require all the services we'll want,
             // for feelers, only require they be a full node (only because most
             // SPV clients don't have a good address DB available)
-            
+
             /*
 
             if (!fFeeler && !HasAllDesirableServiceFlags(addr.nServices)) {
@@ -2286,7 +2287,7 @@ bool CConnman::Bind(const CService &addr, unsigned int flags) {
         return false;
     std::string strError;
     if (!BindListenPort(addr, strError, (flags & BF_WHITELIST) != 0)) {
-        
+
         return false;
     }
     return true;
@@ -2330,7 +2331,7 @@ bool CConnman::Start(CScheduler& scheduler, const Options& connOptions)
     }
 
     if (fListen && !InitBinds(connOptions.vBinds, connOptions.vWhiteBinds)) {
-     
+
         return false;
     }
 
@@ -2338,10 +2339,10 @@ bool CConnman::Start(CScheduler& scheduler, const Options& connOptions)
         AddOneShot(strDest);
     }
 
-   
+
     // Load addresses from peers.dat
     //TODO disable read address from file
-    /*
+
     int64_t nStart = GetTimeMillis();
     {
         CAddrDB adb;
@@ -2353,10 +2354,9 @@ bool CConnman::Start(CScheduler& scheduler, const Options& connOptions)
             DumpAddresses();
         }
     }
-    */
-   
+
+
     // Load addresses from banlist.dat
-     /*
     nStart = GetTimeMillis();
     CBanDB bandb;
     banmap_t banmap;
@@ -2372,7 +2372,7 @@ bool CConnman::Start(CScheduler& scheduler, const Options& connOptions)
         SetBannedSetDirty(true); // force write
         DumpBanlist();
     }
-       */
+
     fAddressesInitialized = true;
 
     if (semOutbound == nullptr) {
@@ -2384,7 +2384,7 @@ bool CConnman::Start(CScheduler& scheduler, const Options& connOptions)
         // initialize semaphore
         semAddnode = MakeUnique<CSemaphore>(nMaxAddnode);
     }
- 
+
     //
     // Start threads
     //
@@ -2397,11 +2397,11 @@ bool CConnman::Start(CScheduler& scheduler, const Options& connOptions)
         std::unique_lock<std::mutex> lock(mutexMsgProc);
         fMsgProcWake = false;
     }
-    
+
 
     // Send and receive from sockets, accept connections
     threadSocketHandler = std::thread(&TraceThread<std::function<void()> >, "net", std::function<void()>(std::bind(&CConnman::ThreadSocketHandler, this)));
-    
+
 
     // Initiate outbound connections from -addnode
     threadOpenAddedConnections = std::thread(&TraceThread<std::function<void()> >, "addcon", std::function<void()>(std::bind(&CConnman::ThreadOpenAddedConnections, this)));
@@ -2756,7 +2756,7 @@ CNode::CNode(NodeId idIn, ServiceFlags nLocalServicesIn, int nMyStartingHeightIn
     nLocalServices(nLocalServicesIn),
     //nMyStartingHeight(nMyStartingHeightIn)
     nMyStartingHeight(0),
-    nSendVersion(0) 
+    nSendVersion(0)
 {
     nMyStartingHeight =0;
     nServices = NODE_NONE;
@@ -2830,7 +2830,7 @@ const static std::vector<std::string> NetMessageTypes(allNetMessageTypes, allNet
     for (auto msg : NetMessageTypes){
        mapRecvBytesPerMsgCmd[msg] = 0;
     }
-       
+
     mapRecvBytesPerMsgCmd[NET_MESSAGE_COMMAND_OTHER] = 0;
 
     if (fLogIPs) {
@@ -2902,20 +2902,20 @@ void CConnman::PushMessage(CNode* pnode, CSerializedNetMsg&& msg)
     {
         LOCK(pnode->cs_vSend);
         bool optimisticSend(pnode->vSendMsg.empty());
-
         //log total amount of bytes per command
         pnode->mapSendBytesPerMsgCmd[msg.command] += nTotalSize;
         pnode->nSendSize += nTotalSize;
 
         if (pnode->nSendSize > nSendBufferMaxSize)
             pnode->fPauseSend = true;
+
         pnode->vSendMsg.push_back(std::move(serializedHeader));
         if (nMessageSize)
             pnode->vSendMsg.push_back(std::move(msg.data));
 
         // If write queue empty, attempt "optimistic write"
-        if (optimisticSend == true)
-            nBytesSent = SocketSendData(pnode);
+        //if (optimisticSend == true)
+        nBytesSent = SocketSendData(pnode);
     }
     if (nBytesSent)
         RecordBytesSent(nBytesSent);

@@ -1021,10 +1021,7 @@ void StoreExampleMainWidget::on_btnP2PStart_clicked(){
   config.max_out_peer_for_optimize_ = 8;
   config.listen_port_ = ui->edtP2PListenPort->text().toInt();
 
-  ambr::syn::IPConfig stuIPConfig;
-  stuIPConfig.port_ = ui->edtP2PSeedAddr->text().split(":")[1].toInt();
-  stuIPConfig.str_ip_ = ui->edtP2PSeedAddr->text().split(":")[0].toStdString();
-  config.vec_seed_.push_back(stuIPConfig);
+  config.vec_seed_.push_back(ui->edtP2PSeedAddr->text().toStdString());
   config.use_upnp_ = false;
   config.use_nat_pmp_ = false;
   config.use_natp_ = false;

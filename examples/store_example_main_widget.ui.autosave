@@ -1,0 +1,3191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>StoreExampleMainWidget</class>
+ <widget class="QWidget" name="StoreExampleMainWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1290</width>
+    <height>923</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget{ 
+  background-color:rgba(50,50,50,255); 
+  color:rgb(222,222,222); 
+   
+} 
+QPushButton{ 
+  color:rgb(238,138,65); 
+  border:none; 
+  border-width:5px; 
+  border-image: url(:/rs/btn_black_normal.png)  5; 
+  min-width:40px; 
+  min-height:40px; 
+} 
+QPushButton:hover{ 
+  border:none; 
+  border-width:5px; 
+  border-image: url(:/rs/btn_black_hover.png)  5; 
+} 
+QPushButton:pressed{ 
+  border:none; 
+  border-width:5px; 
+  border-image: url(:/rs/btn_black_pushed.png)  5; 
+} 
+ 
+QPushButton:disabled{ 
+  border:none; 
+  border-width:5px; 
+  border-image: url(:/rs/btn_black_disable.png)  5; 
+} 
+ 
+QLineEdit{ 
+  border-width:4px; 
+  border-image: url(:/rs/edit_normal.png) 4 ; 
+} 
+QLineEdit:hover{ 
+  border-image: url(:/rs/edit_hover.png) 4 ; 
+} 
+QLineEdit:focus  { 
+  border-image: url(:/rs/edit_hover.png) 4 ; 
+} 
+ 
+QComboBox { 
+   border-width:4px; 
+  border-image: url(:/rs/edit_normal.png) 4; 
+  border-image: url(:/rs/edit_hover.png) 4; 
+  margin-right:52px; 
+  min-height:36px; 
+} 
+QComboBox:hover{ 
+  border-image: url(:/rs/edit_hover.png) 4 ; 
+} 
+QComboBox:focus{ 
+  border-image: url(:/rs/edit_hover.png) 4 ; 
+} 
+QComboBox::drop-down { 
+      subcontrol-origin: margin; 
+      subcontrol-position: top right; 
+      width:52px; 
+     border:none; 
+  } 
+QComboBox::down-arrow{ 
+  image: url(:/rs/downn_cmb_btn_normal.png); 
+  } 
+QComboBox::down-arrow:hover{ 
+  image: url(:/rs/down_cmb_btn_hover.png); 
+  } 
+QComboBox::down-arrow:pressed{ 
+  image: url(:/rs/down_cmb_btn_pushed.png); 
+  } 
+ 
+ 
+QRadioButton::indicator::unchecked { 
+    image: url(:/rs/radio_unselect.png); 
+} 
+QRadioButton::indicator::unchecked:hover{ 
+    image:url(:/rs/radio_unselect_hover.png); 
+} 
+ 
+QRadioButton::indicator::checked { 
+     image: url(:/rs/radio_selected.png); 
+} 
+QRadioButton::indicator::checked:hover { 
+     image: url(:/rs/radio_selected_hover.png); 
+} 
+ 
+QPlainTextEdit{ 
+    border-width:4px; 
+  border-image: url(:/rs/edit_normal.png) 4 ; 
+} 
+ 
+QTabWidget::tab-bar { 
+      left: 5px; /* move to the right by 5px */ 
+  } 
+ 
+  /* Style the tab using the tab sub-control. Note that 
+      it reads QTabBar _not_ QTabWidget */ 
+  QTabBar::tab { 
+    height:32px; 
+  } 
+QTabBar::tab:selected { 
+      color:rgb(235,135,65); 
+  } 
+QTabBar::tab:disabled { 
+      color:rgb(125,125,125); 
+  } 
+QScrollBar:vertical { 
+       border: none; 
+    border-top-width:12px; 
+    border-bottom-width:12px; 
+    border-image: url(:/rs/v_scroll_scallbar.png) 12 0; 
+       width: 24px; 
+       margin:16px 0; 
+} 
+QScrollBar::handle:vertical { 
+       border-width:5 2; 
+    min-height:32px; 
+    border-image: url(:/rs/v_scroll_handle.png) 5 2; 
+    image:url(:/rs/v_scroll_handle_image.png); 
+} 
+QScrollBar::handle:vertical:hover{ 
+    border-image: url(:/rs/v_scroll_handle_hover.png); 
+ } 
+QScrollBar::handle:vertical:pressed{ 
+    border-image:url(:/rs/v_scroll_handle_pressed.png); 
+ } 
+ 
+QScrollBar::add-line:vertical { 
+       border:none; 
+    margin-top:4px; 
+       height: 12px; 
+    width:16px; 
+       subcontrol-position: bottom; 
+       subcontrol-origin: margin; 
+} 
+ 
+QScrollBar::sub-line:vertical { 
+       border:none; 
+    margin-bottom:4px; 
+       height: 12px; 
+    width:16px; 
+       subcontrol-position: top; 
+       subcontrol-origin: margin; 
+} 
+ 
+QScrollBar::up-arrow:vertical{ 
+  border:none; 
+   width:16px; 
+  height:12px; 
+  image:url(:/rs/v_scroll_btn_up.png); 
+} 
+QScrollBar::up-arrow:vertical:hover{ 
+  image:url(:/rs/v_scroll_btn_up_hover.png); 
+} 
+QScrollBar::up-arrow:vertical:pressed{ 
+  image:url(:/rs/v_scroll_btn_up_pressed.png); 
+} 
+ 
+QScrollBar::down-arrow:vertical{ 
+  border:none; 
+   width:16px; 
+  height:12px; 
+  image:url(:/rs/v_scroll_btn_down.png); 
+} 
+QScrollBar::down-arrow:vertical:hover{ 
+  image:url(:/rs/v_scroll_btn_down_hover.png); 
+} 
+QScrollBar::down-arrow:vertical:pressed{ 
+  image:url(:/rs/v_scroll_btn_down_pressed.png); 
+} 
+ 
+ 
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { 
+   background: none; 
+} 
+ 
+QScrollBar:horizontal { 
+    border: none; 
+  border-left-width:12px; 
+  border-right-width:12px; 
+  border-image: url(:/rs/h_scroll_scallbar.png)  0 12; 
+   height: 24px; 
+   margin:0 16px; 
+} 
+ 
+QScrollBar::handle:horizontal { 
+   border-width:2 5; 
+  min-width:32px; 
+  border-image: url(:/rs/h_scroll_handle.png) 2 5; 
+  image: url(:/rs/h_scroll_handle_image.png); 
+} 
+ 
+QScrollBar::handle:horizontal:hover{ 
+  border-image: url(:/rs/h_scroll_handle_hover.png); 
+} 
+ 
+QScrollBar::handle:horizontal:pressed{ 
+  border-image:url(:/rs/h_scroll_handle_pressed.png); 
+} 
+ 
+ 
+QScrollBar::add-line:horizontal { 
+   border:none; 
+  margin-right:4px; 
+   height: 12px; 
+  width:16px; 
+   subcontrol-position: right; 
+   subcontrol-origin: margin; 
+} 
+ 
+QScrollBar::sub-line:horizontal { 
+   border:none; 
+  margin-left:4px; 
+   height: 12px; 
+  width:16px; 
+   subcontrol-position: left; 
+   subcontrol-origin: margin; 
+} 
+ 
+ 
+ 
+ 
+QScrollBar::left-arrow:horizontal{ 
+  border:none; 
+   width:12px; 
+  height:16px; 
+  image:url(:/rs/h_scroll_btn_left.png); 
+} 
+QScrollBar::left-arrow:horizontal:hover{ 
+  image:url(:/rs/h_scroll_btn_left_hover.png); 
+} 
+QScrollBar::left-arrow:horizontal:pressed{ 
+  image:url(:/rs/h_scroll_btn_left_pressed.png); 
+} 
+ 
+QScrollBar::right-arrow:horizontal{ 
+  border:none; 
+   width:12px; 
+  height:16px; 
+  image:url(:/rs/h_scroll_btn_right.png); 
+} 
+QScrollBar::right-arrow:horizontal:hover{ 
+  image:url(:/rs/h_scroll_btn_right_hover.png); 
+} 
+QScrollBar::right-arrow:horizontal:pressed{ 
+  image:url(:/rs/h_scroll_btn_right_pressed.png); 
+} 
+ 
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal { 
+     background: none; 
+} </string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout_19">
+   <item>
+    <widget class="QTabWidget" name="tabMain">
+     <property name="currentIndex">
+      <number>2</number>
+     </property>
+     <widget class="QWidget" name="tab_7">
+      <attribute name="title">
+       <string>调试操作</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout_12">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_18">
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_14">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_16">
+             <item>
+              <widget class="QTabWidget" name="tabDebugUp">
+               <property name="currentIndex">
+                <number>3</number>
+               </property>
+               <widget class="QWidget" name="tab">
+                <attribute name="title">
+                 <string>交易单元查询</string>
+                </attribute>
+                <layout class="QVBoxLayout" name="verticalLayout_16">
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout">
+                   <item>
+                    <widget class="QLabel" name="label_2">
+                     <property name="text">
+                      <string>交易单元查询</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="Line" name="line_3">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout">
+                     <item>
+                      <widget class="QLabel" name="label">
+                       <property name="text">
+                        <string>哈希值:</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="edtUnit"/>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="btnUnit">
+                     <property name="text">
+                      <string>查询</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPlainTextEdit" name="edtUnitPlainEdit"/>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </widget>
+               <widget class="QWidget" name="tab_2">
+                <attribute name="title">
+                 <string>账户列表查询</string>
+                </attribute>
+                <layout class="QVBoxLayout" name="verticalLayout_17">
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_2">
+                   <item>
+                    <widget class="QLabel" name="label_3">
+                     <property name="text">
+                      <string>账户列表查询</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="Line" name="line_4">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_4"/>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="btnAccountList">
+                     <property name="text">
+                      <string>查询</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPlainTextEdit" name="edtALPlanEdit"/>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </widget>
+               <widget class="QWidget" name="tab_11">
+                <attribute name="title">
+                 <string>未验证列表查询</string>
+                </attribute>
+                <layout class="QVBoxLayout" name="verticalLayout_38">
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_37">
+                   <item>
+                    <widget class="QLabel" name="label_41">
+                     <property name="text">
+                      <string>账户列表查询</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="Line" name="line_14">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QTableWidget" name="tbAccountNew">
+                     <column>
+                      <property name="text">
+                       <string>账户公钥</string>
+                      </property>
+                     </column>
+                     <column>
+                      <property name="text">
+                       <string>最新交易单元</string>
+                      </property>
+                     </column>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="btnAccountNew">
+                     <property name="styleSheet">
+                      <string notr="true"/>
+                     </property>
+                     <property name="text">
+                      <string>flush</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </widget>
+               <widget class="QWidget" name="tab_3">
+                <attribute name="title">
+                 <string>账户余额查询</string>
+                </attribute>
+                <layout class="QVBoxLayout" name="verticalLayout_18">
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_3">
+                   <item>
+                    <widget class="QLabel" name="label_4">
+                     <property name="text">
+                      <string>账户余额查询</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="Line" name="line_6">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_5">
+                     <item>
+                      <widget class="QWidget" name="widget_4" native="true">
+                       <layout class="QHBoxLayout" name="horizontalLayout_21">
+                        <item>
+                         <widget class="QRadioButton" name="rdoABPub">
+                          <property name="text">
+                           <string>公钥</string>
+                          </property>
+                          <property name="checked">
+                           <bool>true</bool>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QRadioButton" name="rdoABAddr">
+                          <property name="text">
+                           <string>地址</string>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <widget class="QLineEdit" name="edtABEdit"/>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="btnAccountBalance">
+                     <property name="text">
+                      <string>查询</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPlainTextEdit" name="edtABPlanEdit"/>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </widget>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="Line" name="line">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_17">
+             <item>
+              <widget class="QTabWidget" name="tabDebugDown">
+               <property name="currentIndex">
+                <number>2</number>
+               </property>
+               <widget class="QWidget" name="tab_4">
+                <attribute name="title">
+                 <string>账户未接收交易查询</string>
+                </attribute>
+                <layout class="QVBoxLayout" name="verticalLayout_19">
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_4">
+                   <item>
+                    <widget class="QLabel" name="label_5">
+                     <property name="text">
+                      <string>账户未接收交易查询</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="Line" name="line_7">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_6">
+                     <item>
+                      <widget class="QWidget" name="widget_5" native="true">
+                       <layout class="QHBoxLayout" name="horizontalLayout_22">
+                        <item>
+                         <widget class="QRadioButton" name="rdoURPubKey">
+                          <property name="text">
+                           <string>公钥</string>
+                          </property>
+                          <property name="checked">
+                           <bool>true</bool>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QRadioButton" name="radioButton_6">
+                          <property name="text">
+                           <string>地址</string>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <widget class="QLineEdit" name="edtUREdit"/>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="btnUnReceived">
+                     <property name="text">
+                      <string>查询</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPlainTextEdit" name="edtURPlanText"/>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </widget>
+               <widget class="QWidget" name="tab_5">
+                <attribute name="title">
+                 <string>账户交易历史</string>
+                </attribute>
+                <layout class="QVBoxLayout" name="verticalLayout_20">
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_5">
+                   <item>
+                    <widget class="QLabel" name="label_6">
+                     <property name="text">
+                      <string>账户交易历史</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="Line" name="line_10">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_7">
+                     <item>
+                      <widget class="QWidget" name="widget_6" native="true">
+                       <layout class="QHBoxLayout" name="horizontalLayout_23">
+                        <item>
+                         <widget class="QRadioButton" name="rdoTHPubKey">
+                          <property name="text">
+                           <string>公钥</string>
+                          </property>
+                          <property name="checked">
+                           <bool>true</bool>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QRadioButton" name="radioButton_8">
+                          <property name="text">
+                           <string>地址</string>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <widget class="QLineEdit" name="edtTHEdit"/>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="btnTranslateHistory">
+                     <property name="text">
+                      <string>查询</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPlainTextEdit" name="edtTHPlanText"/>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </widget>
+               <widget class="QWidget" name="tab_6">
+                <attribute name="title">
+                 <string>交易</string>
+                </attribute>
+                <layout class="QVBoxLayout" name="verticalLayout_21">
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_9">
+                   <item>
+                    <layout class="QVBoxLayout" name="verticalLayout_6">
+                     <item>
+                      <widget class="QLabel" name="label_7">
+                       <property name="text">
+                        <string>交易</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="Line" name="line_11">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <widget class="QScrollArea" name="scrollArea_3">
+                     <property name="widgetResizable">
+                      <bool>true</bool>
+                     </property>
+                     <widget class="QWidget" name="scrollAreaWidgetContents_3">
+                      <property name="geometry">
+                       <rect>
+                        <x>0</x>
+                        <y>0</y>
+                        <width>579</width>
+                        <height>586</height>
+                       </rect>
+                      </property>
+                      <layout class="QVBoxLayout" name="verticalLayout_48">
+                       <property name="leftMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="topMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="rightMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item>
+                        <widget class="QWidget" name="widget_14" native="true">
+                         <layout class="QVBoxLayout" name="verticalLayout_47">
+                          <item>
+                           <widget class="QWidget" name="widget_7" native="true">
+                            <layout class="QHBoxLayout" name="horizontalLayout_24">
+                             <item>
+                              <widget class="QRadioButton" name="radioButton_9">
+                               <property name="text">
+                                <string>发送交易</string>
+                               </property>
+                               <property name="checked">
+                                <bool>true</bool>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QRadioButton" name="radioButton_10">
+                               <property name="text">
+                                <string>接收交易</string>
+                               </property>
+                               <property name="checked">
+                                <bool>false</bool>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QRadioButton" name="radioButton_11">
+                               <property name="text">
+                                <string>提交保证金</string>
+                               </property>
+                               <property name="checked">
+                                <bool>false</bool>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QRadioButton" name="radioButton_12">
+                               <property name="text">
+                                <string>取出保证金</string>
+                               </property>
+                               <property name="checked">
+                                <bool>false</bool>
+                               </property>
+                              </widget>
+                             </item>
+                            </layout>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QStackedWidget" name="stackTranslate">
+                            <property name="currentIndex">
+                             <number>0</number>
+                            </property>
+                            <widget class="QWidget" name="page">
+                             <layout class="QVBoxLayout" name="verticalLayout_8">
+                              <property name="spacing">
+                               <number>6</number>
+                              </property>
+                              <property name="leftMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="topMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="rightMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="bottomMargin">
+                               <number>0</number>
+                              </property>
+                              <item>
+                               <widget class="QWidget" name="widget" native="true">
+                                <layout class="QVBoxLayout" name="verticalLayout_7">
+                                 <property name="spacing">
+                                  <number>1</number>
+                                 </property>
+                                 <property name="leftMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="topMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="rightMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="bottomMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <item>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_2">
+                                   <item>
+                                    <widget class="QLabel" name="label_8">
+                                     <property name="text">
+                                      <string>私钥</string>
+                                     </property>
+                                    </widget>
+                                   </item>
+                                   <item>
+                                    <widget class="QLineEdit" name="edtTSPrivate"/>
+                                   </item>
+                                  </layout>
+                                 </item>
+                                 <item>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_13">
+                                   <item>
+                                    <widget class="QWidget" name="widget_8" native="true">
+                                     <layout class="QHBoxLayout" name="horizontalLayout_25">
+                                      <item>
+                                       <widget class="QRadioButton" name="rdoTSPubKey">
+                                        <property name="text">
+                                         <string>公钥</string>
+                                        </property>
+                                        <property name="checked">
+                                         <bool>true</bool>
+                                        </property>
+                                       </widget>
+                                      </item>
+                                      <item>
+                                       <widget class="QRadioButton" name="rdoTSAddress">
+                                        <property name="text">
+                                         <string>地址</string>
+                                        </property>
+                                       </widget>
+                                      </item>
+                                     </layout>
+                                    </widget>
+                                   </item>
+                                  </layout>
+                                 </item>
+                                 <item>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_3">
+                                   <item>
+                                    <widget class="QLabel" name="label_9">
+                                     <property name="text">
+                                      <string>目的账户</string>
+                                     </property>
+                                    </widget>
+                                   </item>
+                                   <item>
+                                    <widget class="QLineEdit" name="edtTSDest"/>
+                                   </item>
+                                  </layout>
+                                 </item>
+                                 <item>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_8">
+                                   <item>
+                                    <widget class="QLabel" name="label_10">
+                                     <property name="text">
+                                      <string>数量</string>
+                                     </property>
+                                    </widget>
+                                   </item>
+                                   <item>
+                                    <widget class="QLineEdit" name="edtTSAmount"/>
+                                   </item>
+                                  </layout>
+                                 </item>
+                                 <item>
+                                  <widget class="QLabel" name="label_70">
+                                   <property name="text">
+                                    <string>附加消息</string>
+                                   </property>
+                                   <property name="alignment">
+                                    <set>Qt::AlignCenter</set>
+                                   </property>
+                                  </widget>
+                                 </item>
+                                 <item>
+                                  <spacer name="verticalSpacer_2">
+                                   <property name="orientation">
+                                    <enum>Qt::Vertical</enum>
+                                   </property>
+                                   <property name="sizeHint" stdset="0">
+                                    <size>
+                                     <width>20</width>
+                                     <height>40</height>
+                                    </size>
+                                   </property>
+                                  </spacer>
+                                 </item>
+                                 <item>
+                                  <widget class="QWidget" name="widget_13" native="true">
+                                   <layout class="QHBoxLayout" name="horizontalLayout_83">
+                                    <item>
+                                     <widget class="QRadioButton" name="rdoTSNormal">
+                                      <property name="text">
+                                       <string>普通交易</string>
+                                      </property>
+                                      <property name="checked">
+                                       <bool>true</bool>
+                                      </property>
+                                     </widget>
+                                    </item>
+                                    <item>
+                                     <widget class="QRadioButton" name="rdoTSCreateContract">
+                                      <property name="text">
+                                       <string>  创建合约</string>
+                                      </property>
+                                     </widget>
+                                    </item>
+                                    <item>
+                                     <widget class="QRadioButton" name="rdoTSRunContract">
+                                      <property name="text">
+                                       <string>执行合约</string>
+                                      </property>
+                                     </widget>
+                                    </item>
+                                   </layout>
+                                  </widget>
+                                 </item>
+                                 <item>
+                                  <widget class="QPlainTextEdit" name="edtTSAddtion"/>
+                                 </item>
+                                 <item>
+                                  <widget class="QPushButton" name="btnTranslateSend">
+                                   <property name="text">
+                                    <string>发送</string>
+                                   </property>
+                                  </widget>
+                                 </item>
+                                 <item>
+                                  <widget class="QPlainTextEdit" name="edtTSPlainEdit"/>
+                                 </item>
+                                </layout>
+                               </widget>
+                              </item>
+                             </layout>
+                            </widget>
+                            <widget class="QWidget" name="page_2">
+                             <layout class="QVBoxLayout" name="verticalLayout_11">
+                              <property name="spacing">
+                               <number>0</number>
+                              </property>
+                              <property name="leftMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="topMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="rightMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="bottomMargin">
+                               <number>0</number>
+                              </property>
+                              <item>
+                               <widget class="QWidget" name="widget_2" native="true">
+                                <layout class="QVBoxLayout" name="verticalLayout_10">
+                                 <property name="spacing">
+                                  <number>6</number>
+                                 </property>
+                                 <property name="leftMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="topMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="rightMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="bottomMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <item>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_10">
+                                   <item>
+                                    <widget class="QLabel" name="label_11">
+                                     <property name="text">
+                                      <string>私钥</string>
+                                     </property>
+                                    </widget>
+                                   </item>
+                                   <item>
+                                    <widget class="QLineEdit" name="edtTRPriKey"/>
+                                   </item>
+                                  </layout>
+                                 </item>
+                                 <item>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_14">
+                                   <item>
+                                    <widget class="QWidget" name="widget_9" native="true">
+                                     <layout class="QHBoxLayout" name="horizontalLayout_26">
+                                      <item>
+                                       <widget class="QRadioButton" name="rdoTRPublic">
+                                        <property name="text">
+                                         <string>公钥</string>
+                                        </property>
+                                        <property name="checked">
+                                         <bool>true</bool>
+                                        </property>
+                                       </widget>
+                                      </item>
+                                      <item>
+                                       <widget class="QRadioButton" name="radioButton_16">
+                                        <property name="text">
+                                         <string>地址</string>
+                                        </property>
+                                       </widget>
+                                      </item>
+                                     </layout>
+                                    </widget>
+                                   </item>
+                                  </layout>
+                                 </item>
+                                 <item>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_11">
+                                   <item>
+                                    <widget class="QLabel" name="label_12">
+                                     <property name="text">
+                                      <string>来源哈希</string>
+                                     </property>
+                                    </widget>
+                                   </item>
+                                   <item>
+                                    <widget class="QLineEdit" name="edtTRFrom"/>
+                                   </item>
+                                  </layout>
+                                 </item>
+                                 <item>
+                                  <spacer name="verticalSpacer">
+                                   <property name="orientation">
+                                    <enum>Qt::Vertical</enum>
+                                   </property>
+                                   <property name="sizeHint" stdset="0">
+                                    <size>
+                                     <width>20</width>
+                                     <height>40</height>
+                                    </size>
+                                   </property>
+                                  </spacer>
+                                 </item>
+                                 <item>
+                                  <widget class="QPushButton" name="btnTranslateReceive">
+                                   <property name="text">
+                                    <string>发送</string>
+                                   </property>
+                                  </widget>
+                                 </item>
+                                 <item>
+                                  <widget class="QPlainTextEdit" name="edtTRPlaintEdit"/>
+                                 </item>
+                                </layout>
+                               </widget>
+                              </item>
+                             </layout>
+                            </widget>
+                            <widget class="QWidget" name="page_3">
+                             <layout class="QVBoxLayout" name="verticalLayout_36">
+                              <property name="leftMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="topMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="rightMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="bottomMargin">
+                               <number>0</number>
+                              </property>
+                              <item>
+                               <widget class="QWidget" name="widget_15" native="true">
+                                <layout class="QVBoxLayout" name="verticalLayout_35">
+                                 <property name="spacing">
+                                  <number>6</number>
+                                 </property>
+                                 <property name="leftMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="topMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="rightMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="bottomMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <item>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_51">
+                                   <item>
+                                    <widget class="QLabel" name="label_37">
+                                     <property name="text">
+                                      <string>私钥</string>
+                                     </property>
+                                    </widget>
+                                   </item>
+                                   <item>
+                                    <widget class="QLineEdit" name="edtTCPrivate"/>
+                                   </item>
+                                  </layout>
+                                 </item>
+                                 <item>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_53"/>
+                                 </item>
+                                 <item>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_55">
+                                   <item>
+                                    <widget class="QLabel" name="label_39">
+                                     <property name="text">
+                                      <string>数量</string>
+                                     </property>
+                                    </widget>
+                                   </item>
+                                   <item>
+                                    <widget class="QLineEdit" name="edtTCAmount"/>
+                                   </item>
+                                  </layout>
+                                 </item>
+                                 <item>
+                                  <spacer name="verticalSpacer_7">
+                                   <property name="orientation">
+                                    <enum>Qt::Vertical</enum>
+                                   </property>
+                                   <property name="sizeHint" stdset="0">
+                                    <size>
+                                     <width>20</width>
+                                     <height>40</height>
+                                    </size>
+                                   </property>
+                                  </spacer>
+                                 </item>
+                                 <item>
+                                  <widget class="QPushButton" name="btnTranslateCashDisposite">
+                                   <property name="text">
+                                    <string>发送</string>
+                                   </property>
+                                  </widget>
+                                 </item>
+                                 <item>
+                                  <widget class="QPlainTextEdit" name="edtTCPlainEdit"/>
+                                 </item>
+                                </layout>
+                               </widget>
+                              </item>
+                             </layout>
+                            </widget>
+                            <widget class="QWidget" name="page_4">
+                             <layout class="QHBoxLayout" name="horizontalLayout_50">
+                              <property name="leftMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="topMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="rightMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="bottomMargin">
+                               <number>0</number>
+                              </property>
+                              <item>
+                               <widget class="QWidget" name="widget_12" native="true">
+                                <layout class="QVBoxLayout" name="verticalLayout_34">
+                                 <property name="spacing">
+                                  <number>6</number>
+                                 </property>
+                                 <property name="leftMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="topMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="rightMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="bottomMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <item>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_48">
+                                   <item>
+                                    <widget class="QLabel" name="label_36">
+                                     <property name="text">
+                                      <string>私钥</string>
+                                     </property>
+                                    </widget>
+                                   </item>
+                                   <item>
+                                    <widget class="QLineEdit" name="edtTUPrivate"/>
+                                   </item>
+                                  </layout>
+                                 </item>
+                                 <item>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_49"/>
+                                 </item>
+                                 <item>
+                                  <layout class="QHBoxLayout" name="horizontalLayout_52">
+                                   <item>
+                                    <widget class="QLabel" name="label_38">
+                                     <property name="text">
+                                      <string>数量</string>
+                                     </property>
+                                    </widget>
+                                   </item>
+                                   <item>
+                                    <widget class="QLineEdit" name="edtTUAmount"/>
+                                   </item>
+                                  </layout>
+                                 </item>
+                                 <item>
+                                  <spacer name="verticalSpacer_6">
+                                   <property name="orientation">
+                                    <enum>Qt::Vertical</enum>
+                                   </property>
+                                   <property name="sizeHint" stdset="0">
+                                    <size>
+                                     <width>20</width>
+                                     <height>40</height>
+                                    </size>
+                                   </property>
+                                  </spacer>
+                                 </item>
+                                 <item>
+                                  <widget class="QPushButton" name="btnTranslateUnfreeze">
+                                   <property name="text">
+                                    <string>发送</string>
+                                   </property>
+                                  </widget>
+                                 </item>
+                                 <item>
+                                  <widget class="QPlainTextEdit" name="edtTUPlainEdit"/>
+                                 </item>
+                                </layout>
+                               </widget>
+                              </item>
+                             </layout>
+                            </widget>
+                           </widget>
+                          </item>
+                         </layout>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </widget>
+               <widget class="QWidget" name="tab_10">
+                <attribute name="title">
+                 <string> 发布验证单元</string>
+                </attribute>
+                <layout class="QHBoxLayout" name="horizontalLayout_40">
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QScrollArea" name="scrollArea_2">
+                   <property name="widgetResizable">
+                    <bool>true</bool>
+                   </property>
+                   <widget class="QWidget" name="scrollAreaWidgetContents_2">
+                    <property name="geometry">
+                     <rect>
+                      <x>0</x>
+                      <y>0</y>
+                      <width>176</width>
+                      <height>1420</height>
+                     </rect>
+                    </property>
+                    <layout class="QVBoxLayout" name="verticalLayout_31">
+                     <property name="spacing">
+                      <number>0</number>
+                     </property>
+                     <property name="leftMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="topMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <widget class="QWidget" name="widget_11" native="true">
+                       <layout class="QHBoxLayout" name="horizontalLayout_39">
+                        <property name="leftMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="topMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="bottomMargin">
+                         <number>0</number>
+                        </property>
+                        <item>
+                         <layout class="QVBoxLayout" name="verticalLayout_30">
+                          <item>
+                           <widget class="QLabel" name="label_24">
+                            <property name="text">
+                             <string> 发布验证单元</string>
+                            </property>
+                            <property name="alignment">
+                             <set>Qt::AlignCenter</set>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="Line" name="line_12">
+                            <property name="orientation">
+                             <enum>Qt::Horizontal</enum>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <layout class="QHBoxLayout" name="horizontalLayout_32">
+                            <item>
+                             <widget class="QLabel" name="label_25">
+                              <property name="text">
+                               <string>私钥</string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QLineEdit" name="edtPVPriKey"/>
+                            </item>
+                           </layout>
+                          </item>
+                          <item>
+                           <layout class="QHBoxLayout" name="horizontalLayout_33">
+                            <item>
+                             <widget class="QLabel" name="label_26">
+                              <property name="text">
+                               <string>时间戳</string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QLineEdit" name="edtPVTime"/>
+                            </item>
+                            <item>
+                             <widget class="QPushButton" name="btnPVTime">
+                              <property name="text">
+                               <string>获取当前时间</string>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </item>
+                          <item>
+                           <layout class="QHBoxLayout" name="horizontalLayout_34">
+                            <item>
+                             <widget class="QLabel" name="label_27">
+                              <property name="text">
+                               <string>nonce</string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QLineEdit" name="edtPVNonce"/>
+                            </item>
+                           </layout>
+                          </item>
+                          <item>
+                           <layout class="QHBoxLayout" name="horizontalLayout_38">
+                            <item>
+                             <widget class="QLabel" name="label_33">
+                              <property name="text">
+                               <string>上一个交易单元</string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QLineEdit" name="edtPVPrvUnit"/>
+                            </item>
+                           </layout>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_30">
+                            <property name="text">
+                             <string>所验证的交易单元</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <layout class="QHBoxLayout" name="horizontalLayout_35">
+                            <item>
+                             <widget class="QListWidget" name="lstPVCheck"/>
+                            </item>
+                            <item>
+                             <widget class="QPushButton" name="btnPVRemoveCheck">
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="text">
+                               <string>x</string>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </item>
+                          <item>
+                           <layout class="QHBoxLayout" name="horizontalLayout_36">
+                            <item>
+                             <widget class="QLineEdit" name="edtPVCheckHash"/>
+                            </item>
+                            <item>
+                             <widget class="QPushButton" name="btnPVAddCheck">
+                              <property name="text">
+                               <string>+</string>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_31">
+                            <property name="text">
+                             <string>收集到的投票</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <layout class="QHBoxLayout" name="horizontalLayout_37">
+                            <item>
+                             <widget class="QListWidget" name="lstPVVote">
+                              <property name="minimumSize">
+                               <size>
+                                <width>0</width>
+                                <height>0</height>
+                               </size>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QPushButton" name="btnPVRemoveVote">
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="text">
+                               <string>x</string>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </item>
+                          <item>
+                           <layout class="QVBoxLayout" name="verticalLayout_32">
+                            <item>
+                             <layout class="QHBoxLayout" name="horizontalLayout_42">
+                              <item>
+                               <widget class="QLabel" name="label_28">
+                                <property name="text">
+                                 <string>投票目标hash</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QLineEdit" name="edtPVArmHash"/>
+                              </item>
+                             </layout>
+                            </item>
+                            <item>
+                             <layout class="QHBoxLayout" name="horizontalLayout_43">
+                              <item>
+                               <widget class="QLabel" name="label_29">
+                                <property name="text">
+                                 <string>投票者私钥</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QLineEdit" name="edtPVVotePriKey"/>
+                              </item>
+                             </layout>
+                            </item>
+                            <item>
+                             <layout class="QHBoxLayout" name="horizontalLayout_41">
+                              <item>
+                               <widget class="QLabel" name="label_32">
+                                <property name="text">
+                                 <string>是否赞同</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QCheckBox" name="cbPVAccept">
+                                <property name="text">
+                                 <string/>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QPushButton" name="btnPVAddVote">
+                                <property name="text">
+                                 <string>+</string>
+                                </property>
+                               </widget>
+                              </item>
+                             </layout>
+                            </item>
+                            <item>
+                             <widget class="QPushButton" name="btnPVValidatorUnit">
+                              <property name="text">
+                               <string>添加验证单元</string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QPlainTextEdit" name="edtPVLOG">
+                              <property name="minimumSize">
+                               <size>
+                                <width>0</width>
+                                <height>0</height>
+                               </size>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <layout class="QVBoxLayout" name="verticalLayout_39">
+                              <item>
+                               <widget class="Line" name="line_16">
+                                <property name="orientation">
+                                 <enum>Qt::Horizontal</enum>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QLabel" name="label_43">
+                                <property name="text">
+                                 <string>添加简易验证单元</string>
+                                </property>
+                                <property name="alignment">
+                                 <set>Qt::AlignCenter</set>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <layout class="QHBoxLayout" name="horizontalLayout_54">
+                                <item>
+                                 <widget class="QLabel" name="label_42">
+                                  <property name="text">
+                                   <string>私钥</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QLineEdit" name="edtSVPriKey"/>
+                                </item>
+                               </layout>
+                              </item>
+                              <item>
+                               <widget class="QPushButton" name="btnAddSV">
+                                <property name="text">
+                                 <string>快捷添加验证单元</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QPlainTextEdit" name="edtSVLOG">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>0</width>
+                                  <height>0</height>
+                                 </size>
+                                </property>
+                               </widget>
+                              </item>
+                             </layout>
+                            </item>
+                            <item>
+                             <widget class="Line" name="line_15">
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QLabel" name="label_45">
+                              <property name="text">
+                               <string>快捷投票</string>
+                              </property>
+                              <property name="alignment">
+                               <set>Qt::AlignCenter</set>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <layout class="QHBoxLayout" name="horizontalLayout_56">
+                              <item>
+                               <widget class="QLabel" name="label_46">
+                                <property name="text">
+                                 <string>私钥</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QLineEdit" name="edtVotePri"/>
+                              </item>
+                             </layout>
+                            </item>
+                            <item>
+                             <widget class="QCheckBox" name="cbAccept">
+                              <property name="text">
+                               <string>accept</string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QPushButton" name="btnVote">
+                              <property name="text">
+                               <string>快捷投票</string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QPlainTextEdit" name="edtVoteLOG">
+                              <property name="minimumSize">
+                               <size>
+                                <width>0</width>
+                                <height>0</height>
+                               </size>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </item>
+                         </layout>
+                        </item>
+                       </layout>
+                      </widget>
+                     </item>
+                    </layout>
+                   </widget>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="Line" name="line_5">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QWidget" name="widget_3" native="true">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>600</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_20">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_13">
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_12">
+                <item>
+                 <widget class="QLabel" name="label_15">
+                  <property name="text">
+                   <string>创世密钥</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="lineEdit_14">
+                  <property name="text">
+                   <string>25E25210DCE702D4E36B6C8A17E18DC1D02A9E4F0D1D31C4AEE77327CF1641CC</string>
+                  </property>
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="lineEdit_13">
+                  <property name="text">
+                   <string>F5F15DCA2FD88EB50702DA3AF1D9BD5F661932442F3A8D040250E780B530B3F8</string>
+                  </property>
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="Line" name="line_9">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_14">
+                  <property name="text">
+                   <string>测试密钥</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QComboBox" name="cmbTestPrivateKey">
+                  <property name="editable">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_16">
+                  <property name="text">
+                   <string>测试公钥</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="edtTestPublicKey"/>
+                </item>
+                <item>
+                 <widget class="Line" name="line_8">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="edtTx1"/>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_15">
+                  <item>
+                   <widget class="QPushButton" name="btnPriKey2PubKey">
+                    <property name="text">
+                     <string>私钥-&gt;公钥</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="btnPubKey2Addr">
+                    <property name="text">
+                     <string>公钥-&gt;地址</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="edtTx2"/>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="Line" name="line_2">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton">
+                <property name="styleSheet">
+                 <string notr="true"/>
+                </property>
+                <property name="text">
+                 <string>test</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_13">
+                <property name="text">
+                 <string>日志</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPlainTextEdit" name="plainTextEdit_6">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_8">
+      <attribute name="title">
+       <string>结构展示</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_15">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_27">
+         <item>
+          <widget class="QScrollArea" name="scrollArea">
+           <property name="widgetResizable">
+            <bool>true</bool>
+           </property>
+           <widget class="QWidget" name="scrollAreaWidgetContents">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>840</width>
+              <height>793</height>
+             </rect>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_22">
+             <item>
+              <widget class="QWidget" name="wgtPaint" native="true">
+               <property name="mouseTracking">
+                <bool>true</bool>
+               </property>
+               <property name="styleSheet">
+                <string notr="true"/>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+         </item>
+         <item>
+          <widget class="QScrollArea" name="scrollArea_4">
+           <property name="maximumSize">
+            <size>
+             <width>400</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="widgetResizable">
+            <bool>true</bool>
+           </property>
+           <widget class="QWidget" name="scrollAreaWidgetContents_4">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>374</width>
+              <height>1272</height>
+             </rect>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_49">
+             <item>
+              <widget class="QWidget" name="widget_10" native="true">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_23">
+                <property name="leftMargin">
+                 <number>0</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_28">
+                  <item>
+                   <widget class="QLabel" name="label_17">
+                    <property name="text">
+                     <string> 账户链绘制长度:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="edtPTLength">
+                    <property name="text">
+                     <string>10</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="btnPTLength">
+                    <property name="text">
+                     <string> 确定</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_93">
+                  <item>
+                   <widget class="QLabel" name="label_80">
+                    <property name="text">
+                     <string>模拟交易间隔(1~1000)ms</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="edtPTSimTransSpeed">
+                    <property name="text">
+                     <string>10</string>
+                    </property>
+                    <property name="placeholderText">
+                     <string>1~10000</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="btnPTSimTransSpeed">
+                    <property name="text">
+                     <string> 确定</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_94">
+                  <item>
+                   <widget class="QLabel" name="label_81">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="text">
+                     <string>模拟验证速度(1~10000)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="edtPTSimValidateSpeed">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="placeholderText">
+                     <string>1~10000</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="btnPTSimValidateSpeed">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="text">
+                     <string> 确定</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_96">
+                  <item>
+                   <widget class="QLabel" name="label_83">
+                    <property name="text">
+                     <string>实时TPS</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="edtRunTimeTps">
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="placeholderText">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btnStartAllTest">
+                  <property name="text">
+                   <string>一键自动测试</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_40">
+                  <property name="text">
+                   <string>验证者集合</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QTableWidget" name="tbValidatorSet">
+                  <column>
+                   <property name="text">
+                    <string>ValidatorHash</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string>Balance</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string>EnterNonce</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string>LeaveNonce</string>
+                   </property>
+                  </column>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btnFlushValidatorSet">
+                  <property name="text">
+                   <string>刷新</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="Line" name="line_13">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_44">
+                  <property name="text">
+                   <string>当前投票状态</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QTableWidget" name="tbVote">
+                  <column>
+                   <property name="text">
+                    <string>VoteTo</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string>Balance</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string>Accept</string>
+                   </property>
+                  </column>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPlainTextEdit" name="lblVote">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>201</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btnFlushVote">
+                  <property name="text">
+                   <string>刷新</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPlainTextEdit" name="edtShowJson">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_71">
+                  <property name="text">
+                   <string>单元hash值</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="edtForRemove"/>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnForRemove">
+               <property name="text">
+                <string>删除未经确认的单元</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPlainTextEdit" name="edtLogForRemove">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnPTRepaint">
+         <property name="text">
+          <string>刷新视图</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_9">
+      <attribute name="title">
+       <string>P2P测试</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout_79">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_78">
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_45">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_30">
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_29">
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_31">
+                 <item>
+                  <widget class="QLabel" name="label_23">
+                   <property name="text">
+                    <string>Database Path</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLineEdit" name="edtDatabasePath">
+                   <property name="text">
+                    <string>./unit</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_4">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QPushButton" name="btnInitDataBase">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>50</width>
+                   <height>50</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>112</height>
+                  </size>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true"/>
+                 </property>
+                 <property name="text">
+                  <string>Init Database</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_26">
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_29">
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_24">
+                   <item>
+                    <widget class="QLabel" name="label_20">
+                     <property name="text">
+                      <string>Seed Address</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="label_19">
+                     <property name="text">
+                      <string>Listen Port</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_25">
+                   <item>
+                    <widget class="QLineEdit" name="edtP2PSeedAddr">
+                     <property name="text">
+                      <string>127.0.0.1:9991</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLineEdit" name="edtP2PListenPort">
+                     <property name="text">
+                      <string>9992</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_3">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QPushButton" name="btnP2PStart">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>50</width>
+                   <height>50</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>112</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Start</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_77">
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_27">
+               <item>
+                <widget class="QLabel" name="label_21">
+                 <property name="text">
+                  <string>Connection In</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QTableWidget" name="tbP2PConnectionIn">
+                 <column>
+                  <property name="text">
+                   <string>IP</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>Port</string>
+                  </property>
+                 </column>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_28">
+               <item>
+                <widget class="QLabel" name="label_22">
+                 <property name="text">
+                  <string>Connection Out</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QTableWidget" name="tbP2PConnectionOut">
+                 <column>
+                  <property name="text">
+                   <string>IP</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>Port</string>
+                  </property>
+                 </column>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QPlainTextEdit" name="plainTextEdit"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_18">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_12">
+      <attribute name="title">
+       <string>验证者模式</string>
+      </attribute>
+      <widget class="QGroupBox" name="groupBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>0</y>
+         <width>1251</width>
+         <height>661</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>动验证模式</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_46">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_81">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_33">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_47">
+              <item>
+               <widget class="QLabel" name="label_35">
+                <property name="text">
+                 <string>私钥</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="edtMVSPriv_1">
+                <property name="text">
+                 <string>25E25210DCE702D4E36B6C8A17E18DC1D02A9E4F0D1D31C4AEE77327CF1641CC</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_44">
+              <item>
+               <widget class="QLabel" name="label_34">
+                <property name="text">
+                 <string>验证者账户资金</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="edtMVSBalacne_1"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_45">
+              <item>
+               <widget class="QLabel" name="label_47">
+                <property name="text">
+                 <string>验证者保证金    </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="edtMVSCashDeposit_1"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_46">
+              <item>
+               <widget class="QLabel" name="label_48">
+                <property name="text">
+                 <string>验证者总资金    </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="edtMVSAllBalance_1"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btnMSVStart_1">
+              <property name="text">
+               <string>开始验证</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btnMSVStop_1">
+              <property name="text">
+               <string>停止验证</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_40">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_57">
+              <item>
+               <widget class="QLabel" name="label_49">
+                <property name="text">
+                 <string>私钥</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="edtMVSPriv_2">
+                <property name="text">
+                 <string>F49E1B9F671D0B244744E07289EA0807FAE09F8335F0C1B0629F1BF924CA64E1</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_58">
+              <item>
+               <widget class="QLabel" name="label_50">
+                <property name="text">
+                 <string>验证者账户资金</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="edtMVSBalacne_2"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_59">
+              <item>
+               <widget class="QLabel" name="label_51">
+                <property name="text">
+                 <string>验证者保证金    </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="edtMVSCashDeposit_2"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_60">
+              <item>
+               <widget class="QLabel" name="label_52">
+                <property name="text">
+                 <string>验证者总资金    </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="edtMVSAllBalance_2"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btnMSVStart_2">
+              <property name="text">
+               <string>开始验证</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btnMSVStop_2">
+              <property name="text">
+               <string>停止验证</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_41">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_61">
+              <item>
+               <widget class="QLabel" name="label_53">
+                <property name="text">
+                 <string>私钥</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="edtMVSPriv_3">
+                <property name="text">
+                 <string>9812383BF3CE164A3D968186BEBA1CCFF299C9C59448A19BF3C0582336E01301</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_62">
+              <item>
+               <widget class="QLabel" name="label_54">
+                <property name="text">
+                 <string>验证者账户资金</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="edtMVSBalacne_3"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_63">
+              <item>
+               <widget class="QLabel" name="label_55">
+                <property name="text">
+                 <string>验证者保证金    </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="edtMVSCashDeposit_3"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_64">
+              <item>
+               <widget class="QLabel" name="label_56">
+                <property name="text">
+                 <string>验证者总资金    </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="edtMVSAllBalance_3"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btnMSVStart_3">
+              <property name="text">
+               <string>开始验证</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btnMSVStop_3">
+              <property name="text">
+               <string>停止验证</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_80">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_42">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_65">
+              <item>
+               <widget class="QLabel" name="label_57">
+                <property name="text">
+                 <string>私钥</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="edtMVSPriv_4">
+                <property name="text">
+                 <string>29176270484F74852C5ABCBFEF26C4193FE4C2E4C522984D833329EDD502DC84</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_66">
+              <item>
+               <widget class="QLabel" name="label_58">
+                <property name="text">
+                 <string>验证者账户资金</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="edtMVSBalacne_4"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_67">
+              <item>
+               <widget class="QLabel" name="label_59">
+                <property name="text">
+                 <string>验证者保证金    </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="edtMVSCashDeposit_4"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_68">
+              <item>
+               <widget class="QLabel" name="label_60">
+                <property name="text">
+                 <string>验证者总资金    </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="edtMVSAllBalance_4"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btnMSVStart_4">
+              <property name="text">
+               <string>开始验证</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btnMSVStop_4">
+              <property name="text">
+               <string>停止验证</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_43">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_69">
+              <item>
+               <widget class="QLabel" name="label_61">
+                <property name="text">
+                 <string>私钥</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="edtMVSPriv_5">
+                <property name="text">
+                 <string>C99FC6C3EF33BAB82A8DC27C3D6C26D90DFF3FBE1EB7BA6996A88662A34E031E</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_70">
+              <item>
+               <widget class="QLabel" name="label_62">
+                <property name="text">
+                 <string>验证者账户资金</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="edtMVSBalacne_5"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_71">
+              <item>
+               <widget class="QLabel" name="label_63">
+                <property name="text">
+                 <string>验证者保证金    </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="edtMVSCashDeposit_5"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_72">
+              <item>
+               <widget class="QLabel" name="label_64">
+                <property name="text">
+                 <string>验证者总资金    </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="edtMVSAllBalance_5"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btnMSVStart_5">
+              <property name="text">
+               <string>开始验证</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btnMSVStop_5">
+              <property name="text">
+               <string>停止验证</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_44">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_73">
+              <item>
+               <widget class="QLabel" name="label_65">
+                <property name="text">
+                 <string>私钥</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="edtMVSPriv_6">
+                <property name="text">
+                 <string>C56E273AE386A16846D5710F2B04DE75DE5D4DD086D15ABBFF0B184BC01F81C5</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_74">
+              <item>
+               <widget class="QLabel" name="label_66">
+                <property name="text">
+                 <string>验证者账户资金</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="edtMVSBalacne_6"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_75">
+              <item>
+               <widget class="QLabel" name="label_67">
+                <property name="text">
+                 <string>验证者保证金    </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="edtMVSCashDeposit_6"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_76">
+              <item>
+               <widget class="QLabel" name="label_68">
+                <property name="text">
+                 <string>验证者总资金    </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="edtMVSAllBalance_6"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btnMSVStart_6">
+              <property name="text">
+               <string>开始验证</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btnMSVStop_6">
+              <property name="text">
+               <string>停止验证</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="layoutWidget_7">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>750</y>
+         <width>601</width>
+         <height>52</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_88">
+        <item>
+         <widget class="QLabel" name="label_75">
+          <property name="text">
+           <string>账户私钥</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="edtMVSAutoTrans_2">
+          <property name="text">
+           <string>F49E1B9F671D0B244744E07289EA0807FAE09F8335F0C1B0629F1BF924CA64E1</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnMSVStartTrans_2">
+          <property name="text">
+           <string>开始自动交易</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnMSVStopTrans_2">
+          <property name="text">
+           <string> 停止自动交易</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="layoutWidget_8">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>800</y>
+         <width>601</width>
+         <height>52</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_89">
+        <item>
+         <widget class="QLabel" name="label_76">
+          <property name="text">
+           <string>账户私钥</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="edtMVSAutoTrans_3">
+          <property name="text">
+           <string>9812383BF3CE164A3D968186BEBA1CCFF299C9C59448A19BF3C0582336E01301</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnMSVStartTrans_3">
+          <property name="text">
+           <string>开始自动交易</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnMSVStopTrans_3">
+          <property name="text">
+           <string> 停止自动交易</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="layoutWidget_9">
+       <property name="geometry">
+        <rect>
+         <x>650</x>
+         <y>680</y>
+         <width>601</width>
+         <height>52</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_90">
+        <item>
+         <widget class="QLabel" name="label_77">
+          <property name="text">
+           <string>账户私钥</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="edtMVSAutoTrans_4">
+          <property name="text">
+           <string>29176270484F74852C5ABCBFEF26C4193FE4C2E4C522984D833329EDD502DC84</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnMSVStartTrans_4">
+          <property name="text">
+           <string>开始自动交易</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnMSVStopTrans_4">
+          <property name="text">
+           <string> 停止自动交易</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="layoutWidget_10">
+       <property name="geometry">
+        <rect>
+         <x>650</x>
+         <y>750</y>
+         <width>601</width>
+         <height>52</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_91">
+        <item>
+         <widget class="QLabel" name="label_78">
+          <property name="text">
+           <string>账户私钥</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="edtMVSAutoTrans_5">
+          <property name="text">
+           <string>C99FC6C3EF33BAB82A8DC27C3D6C26D90DFF3FBE1EB7BA6996A88662A34E031E</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnMSVStartTrans_5">
+          <property name="text">
+           <string>开始自动交易</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnMSVStopTrans_5">
+          <property name="text">
+           <string> 停止自动交易</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="layoutWidget_11">
+       <property name="geometry">
+        <rect>
+         <x>650</x>
+         <y>810</y>
+         <width>601</width>
+         <height>52</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_92">
+        <item>
+         <widget class="QLabel" name="label_79">
+          <property name="text">
+           <string>账户私钥</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="edtMVSAutoTrans_6">
+          <property name="text">
+           <string>C56E273AE386A16846D5710F2B04DE75DE5D4DD086D15ABBFF0B184BC01F81C5</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnMSVStartTrans_6">
+          <property name="text">
+           <string>开始自动交易</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnMSVStopTrans_6">
+          <property name="text">
+           <string> 停止自动交易</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="layoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>690</y>
+         <width>601</width>
+         <height>52</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_82">
+        <item>
+         <widget class="QLabel" name="label_69">
+          <property name="text">
+           <string>账户私钥</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="edtMVSAutoTrans_1">
+          <property name="text">
+           <string>25E25210DCE702D4E36B6C8A17E18DC1D02A9E4F0D1D31C4AEE77327CF1641CC</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnMSVStartTrans_1">
+          <property name="text">
+           <string>开始自动交易</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnMSVStopTrans_1">
+          <property name="text">
+           <string> 停止自动交易</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

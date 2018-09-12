@@ -38,15 +38,16 @@ bool ambr::syn::Impl::Init(const SynManagerConfig &config){
     LOG(INFO)<< "Error : " << e.what();
     return false;
   }
-  p_peerLogicValidation_ = std::make_shared<PeerLogicValidation>(this, *p_scheduler, gArgs.GetBoolArg("-enablebip61", DEFAULT_ENABLE_BIP61));
+  p_peerLogicValidation_ = std::make_shared<PeerLogicValidation>(this, *p_scheduler);
 
   CConnman::Options connOptions;
   connOptions.nMaxConnections = MAX_CONNECTIONS;
-  connOptions.nLocalServices = ServiceFlags(NODE_NETWORK | NODE_NETWORK_LIMITED);
+  connOptions.nLocalServices = ServiceFlags(NODE_NETWORK | NODE_WITNESS);
   connOptions.nMaxOutbound = std::min(MAX_OUTBOUND_CONNECTIONS, connOptions.nMaxConnections);
   connOptions.nMaxAddnode = MAX_ADDNODE_CONNECTIONS;
   connOptions.m_msgproc = p_peerLogicValidation_.get();
-  connOptions.m_added_nodes = gArgs.GetArgs("-addnode");
+  connOptions.vSeedNodes = config.vec_seed_;
+  /*connOptions.m_added_nodes = gArgs.GetArgs("-addnode");
 
   for (const std::string& strBind : gArgs.GetArgs("-bind")) {
       CService addrBind;
@@ -82,19 +83,19 @@ bool ambr::syn::Impl::Init(const SynManagerConfig &config){
   }
 
   connOptions.vSeedNodes = gArgs.GetArgs("-seednode");
-
-  std::vector<CAddress> vec_addrs;
+*/
+ /* std::vector<CAddress> vec_addrs;
   for(auto& it : config.vec_seed_){
     struct in_addr addr_;
-    if(1 != inet_pton(AF_INET, it.str_ip_.c_str(), &addr_)){
+    if(1 != inet_pton(AF_INET, "127.0.0.1", &addr_)){
       LOG(INFO) << "convert failed";
       return false;
     }
-    CAddress addr(CService(addr_, it.port_), NODE_NONE);
+    CAddress addr(CService(addr_, atoi(it.c_str())), NODE_NONE);
     vec_addrs.push_back(addr);
   }
 
-  AddNewAddresses(vec_addrs, CAddress());
+  AddNewAddresses(vec_addrs, CAddress());*/
 
   if(Start(*p_scheduler.get(), connOptions)){
     WaitForShutdown();

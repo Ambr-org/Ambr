@@ -12,7 +12,7 @@
 #include <tinyformat.h>
 #include <util.h>
 #include <utilstrencodings.h>
-
+#include <netinet/tcp.h>
 #include <atomic>
 
 #ifndef WIN32
@@ -447,9 +447,6 @@ SOCKET CreateSocket(const CService &addrConnect)
         return INVALID_SOCKET;
     }
     
-    //testing code
-    auto s =((struct sockaddr*)&sockaddr)->sa_family;
-
     SOCKET hSocket = socket(((struct sockaddr*)&sockaddr)->sa_family, SOCK_STREAM, IPPROTO_TCP);
     if (hSocket == INVALID_SOCKET)
         return INVALID_SOCKET;
@@ -738,11 +735,9 @@ bool SetSocketNonBlocking(const SOCKET& hSocket, bool fNonBlocking)
 
 bool SetSocketNoDelay(const SOCKET& hSocket)
 {
-    /*int set = 1;
+    int set = 1;
     int rc = setsockopt(hSocket, IPPROTO_TCP, TCP_NODELAY, (const char*)&set, sizeof(int));
-    return rc == 0; */
-
-    // can not add tcp.h
+    return rc == 0;
 }
 
 void InterruptSocks5(bool interrupt)

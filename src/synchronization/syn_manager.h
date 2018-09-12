@@ -40,11 +40,6 @@ struct NetMessage{
   static const uint32_t HEAD_SIZE = 12;
 };
 
-struct IPConfig{
-  uint32_t port_;
-  std::string str_ip_;
-};
-
 struct SynManagerConfig{
   uint32_t max_in_peer_;
   uint32_t max_out_peer_;
@@ -55,7 +50,7 @@ struct SynManagerConfig{
   bool use_upnp_;
   bool use_natp_;
   bool use_nat_pmp_;
-  std::vector<IPConfig> vec_seed_;
+  std::vector<std::string> vec_seed_;
 };
 
 class Impl : public CConnman{

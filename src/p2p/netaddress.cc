@@ -4,6 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "netaddress.h"
+#include "hash.h"
 #include "utilstrencodings.h"
 #include "tinyformat.h"
 
@@ -376,12 +377,10 @@ std::vector<unsigned char> CNetAddr::GetGroup() const
 
 uint64_t CNetAddr::GetHash() const
 {
- /*
-    uint256 hash = Hash(&ip[0], &ip[16]);
-    memcpy(&nRet, &hash, sizeof(nRet));
-*/
-    uint64_t nRet;
-    return nRet;
+  uint256 hash = Hash(&ip[0], &ip[16]);
+  uint64_t nRet;
+  memcpy(&nRet, &hash, sizeof(nRet));
+  return nRet;
 }
 
 // private extensions to enum Network, only returned by GetExtNetwork,

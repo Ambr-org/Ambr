@@ -39,7 +39,7 @@ private:
     CConnman* const connman;
 
 public:
-    explicit PeerLogicValidation(CConnman* connman, CScheduler &scheduler, bool enable_bip61);
+    explicit PeerLogicValidation(CConnman* connman, CScheduler &scheduler);
 
    
     /** Initialize a peer by adding it to mapNodeState and pushing a message requesting its version */
