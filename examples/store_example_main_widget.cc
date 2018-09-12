@@ -47,9 +47,9 @@ StoreExampleMainWidget::StoreExampleMainWidget(std::shared_ptr<ambr::store::Stor
   test_pri_key_list_.push_back("6EDB77B51291C19D82B1105A507008D10B5A0C5CCB5459129D64A3AD8D8AEEFC");
   ui->cmbTestPrivateKey->insertItems(0, test_pri_key_list_);
 
-  connect(this, SIGNAL(sgAccept(CNode*)), this, SLOT(onDealAccept(CNode*)));
-  connect(this, SIGNAL(sgConnect(CNode*)), this, SLOT(onDealConnect(CNode*)));
-  connect(this, SIGNAL(sgDisconnected(CNode*)), this, SLOT(onDealDisconnected(CNode*)));
+  connect(this, SIGNAL(sgAccept(QString)), this, SLOT(onDealAccept(QString)));
+  connect(this, SIGNAL(sgConnect(QString)), this, SLOT(onDealConnect(QString)));
+  connect(this, SIGNAL(sgDisconnected(QString)), this, SLOT(onDealDisconnected(QString)));
 
   store_manager_->AddCallBackReceiveNewSendUnit(std::bind(&ambr::syn::SynManager::BoardCastNewSendUnit, p_syn_manager.get(), std::placeholders::_1));
   store_manager_->AddCallBackReceiveNewReceiveUnit(std::bind(&ambr::syn::SynManager::BoardCastNewReceiveUnit, p_syn_manager.get(), std::placeholders::_1));
@@ -349,15 +349,15 @@ bool StoreExampleMainWidget::OnMousePress(QEvent *event){
 }
 
 void StoreExampleMainWidget::OnAcceptNode(CNode* p_node){
-  emit sgAccept(p_node);
+  emit sgAccept(p_node->GetAddrName().c_str());
 }
 
 void StoreExampleMainWidget::OnConnectNode(CNode* p_node){
-  emit sgConnect(p_node);
+  emit sgConnect(p_node->GetAddrName().c_str());
 }
 
 void StoreExampleMainWidget::OnDisconnectedNode(CNode* p_node){
-  emit sgDisconnected(p_node);
+  emit sgDisconnected(p_node->GetAddrName().c_str());
 }
 
 void StoreExampleMainWidget::CheckValidatorUnit(){
@@ -924,22 +924,22 @@ BTN_STOP_TRANS_FUNC(4)
 BTN_STOP_TRANS_FUNC(5)
 BTN_STOP_TRANS_FUNC(6)
 
-void StoreExampleMainWidget::onDealAccept(CNode* p_node){
+void StoreExampleMainWidget::onDealAccept(QString addr){
     ui->tbP2PConnectionIn->insertRow(0);
-    QStringList&& list_addr = QString(p_node->GetAddrName().c_str()).split(':');
+    QStringList list_addr = addr.split(':');
     ui->tbP2PConnectionIn->setItem(0, 0, new QTableWidgetItem(list_addr.at(0)));
     ui->tbP2PConnectionIn->setItem(0, 1, new QTableWidgetItem(list_addr.at(1)));
 }
 
-void StoreExampleMainWidget::onDealConnect(CNode* p_node){
+void StoreExampleMainWidget::onDealConnect(QString addr){
     ui->tbP2PConnectionOut->insertRow(0);
-    QStringList&& list_addr = QString(p_node->GetAddrName().c_str()).split(':');
+    QStringList list_addr = addr.split(':');
     ui->tbP2PConnectionOut->setItem(0, 0, new QTableWidgetItem(list_addr.at(0)));
     ui->tbP2PConnectionOut->setItem(0, 1, new QTableWidgetItem(list_addr.at(1)));
 }
 
-void StoreExampleMainWidget::onDealDisconnected(CNode* p_node){
-    QStringList&& list_addr = QString(p_node->GetAddrName().c_str()).split(':');
+void StoreExampleMainWidget::onDealDisconnected(QString addr){
+    QStringList list_addr = addr.split(':');
     int out_count = ui->tbP2PConnectionOut->rowCount();
     for(int i = 0; i < out_count; i++){
       if(ui->tbP2PConnectionOut->item(i, 0)->text() == list_addr.at(0)

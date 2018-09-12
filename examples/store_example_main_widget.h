@@ -35,9 +35,9 @@ public:
   explicit StoreExampleMainWidget(std::shared_ptr<ambr::store::StoreManager> store_manager,std::shared_ptr<ambr::syn::SynManager> syn_manager, QWidget *parent = 0);
   ~StoreExampleMainWidget();
 signals:
-  void sgAccept(CNode*);
-  void sgConnect(CNode*);
-  void sgDisconnected(CNode*);
+  void sgAccept(QString addr);
+  void sgConnect(QString addr);
+  void sgDisconnected(QString addr);
 private slots:
   void on_btnPTRepaint_clicked();
   void on_btnTranslateReceive_clicked();
@@ -101,9 +101,9 @@ private slots:
   void on_btnStartAllTest_clicked();
   void on_btnForRemove_clicked();
 
-  void onDealAccept(CNode*);
-  void onDealConnect(CNode*);
-  void onDealDisconnected(CNode*);
+  void onDealAccept(QString addr);
+  void onDealConnect(QString addr);
+  void onDealDisconnected(QString addr);
   void OnDrawTimerOut();
   void OnTpsTimer();
 protected:
