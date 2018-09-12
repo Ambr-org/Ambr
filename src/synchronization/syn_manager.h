@@ -53,56 +53,12 @@ struct SynManagerConfig{
   std::vector<std::string> vec_seed_;
 };
 
-class Impl : public CConnman{
-public:
-  Impl(Ptr_StoreManager p_store_manager);
-  bool Init(const SynManagerConfig& config);
-  void RemoveNode(CNode* p_node, uint32_t second);
-  void SendMessage(CSerializedNetMsg&& msg, CNode* p_node);
-  void SetOnAccept(const std::function<void(CNode*)>& func);
-  void SetOnConnected(const std::function<void(CNode*)>& func);
-  void SetOnDisconnect(const std::function<void(CNode*)>& func);
-  void BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node);
-
-  void AddListInNode(CNode *pnode){
-    list_in_nodes_.push_back(pnode);
-  }
-  bool OnReceiveNode(const CNetMessage& netmsg, CNode* p_node);
-  void UnSerialize(std::vector<uint8_t>& vec_bytes);
-private:
-  void Shutdown();
-  void WaitForShutdown();
-  void OnAcceptNode(CNode* p_node);
-  void OnConnectNode(CNode* p_node);
-  void OnDisConnectNode(CNode* p_node);
-  
-  
-
-private:
-  bool exit_;
-  SynManagerConfig config_;
-  Ptr_CScheduler p_scheduler;
-  Ptr_StoreManager p_storemanager_;
-  std::list<CNode*> list_in_nodes_;
-  std::list<CNode*> list_out_nodes_;
-  std::list<Ptr_Unit> list_ptr_unit_;
-  std::list<CNode*> list_in_nodes_wait_;
-  std::list<CNode*> list_out_nodes_wait_;
-  Ptr_PeerLogicValidation p_peerLogicValidation_;
-
-  std::function<void(CNode*)> on_accept_node_func_;
-  std::function<void(CNode*)> on_connect_node_func_;
-  std::function<void(CNode*)> on_disconnect_node_func_;
-};
-
 class SynManager{
 public:
+  class Impl;
   SynManager(Ptr_StoreManager p_storemanager);
   bool Init(const SynManagerConfig& config);
 
-  Impl* GetImpl(){
-    return p_impl_;
-  }
   void RemovePeer(CNode* p_node, uint32_t second);
   void BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node);
   void SetOnAcceptNode(const std::function<void(CNode*)>& func);

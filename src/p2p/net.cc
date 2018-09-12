@@ -918,8 +918,9 @@ size_t CConnman::SocketSendData(CNode *pnode) const
             LOCK(pnode->cs_hSocket);
             if (pnode->hSocket == INVALID_SOCKET)
                 break;
-            nBytes = send(pnode->hSocket, reinterpret_cast<const char*>(data.data()) + pnode->nSendOffset, data.size() - pnode->nSendOffset, MSG_NOSIGNAL | MSG_DONTWAIT);
-
+            nBytes = send(pnode->hSocket, reinterpret_cast<const char*>(data.data()) + pnode->nSendOffset, data.size() - pnode->nSendOffset, MSG_DONTWAIT);
+            if(nBytes>0)
+              std::cout<<std::dec<<data.size()<<","<<nBytes<<std::endl;
         }
         if (nBytes > 0) {
             pnode->nLastSend = GetSystemTimeInSeconds();
@@ -1302,10 +1303,10 @@ void CConnman::ThreadSocketHandler()
                 hSocketMax = std::max(hSocketMax, pnode->hSocket);
                 have_fds = true;
 
-                if (select_send) {
+                /*if (select_send) {
                     FD_SET(pnode->hSocket, &fdsetSend);
                     continue;
-                }
+                }*/
                 if (select_recv) {
                     FD_SET(pnode->hSocket, &fdsetRecv);
                 }
@@ -1433,7 +1434,7 @@ void CConnman::ThreadSocketHandler()
             //
             // Send
             //
-            if (sendSet)
+            //if (sendSet)
             {
                 LOCK(pnode->cs_vSend);
                 size_t nBytes =
@@ -2914,8 +2915,8 @@ void CConnman::PushMessage(CNode* pnode, CSerializedNetMsg&& msg)
             pnode->vSendMsg.push_back(std::move(msg.data));
 
         // If write queue empty, attempt "optimistic write"
-        //if (optimisticSend == true)
-        nBytesSent = SocketSendData(pnode);
+        if (optimisticSend == true)
+          nBytesSent = SocketSendData(pnode);
     }
     if (nBytesSent)
         RecordBytesSent(nBytesSent);
