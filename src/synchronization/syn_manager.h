@@ -64,14 +64,19 @@ public:
   void SetOnDisconnect(const std::function<void(CNode*)>& func);
   void BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node);
 
+  void AddListInNode(CNode *pnode){
+    list_in_nodes_.push_back(pnode);
+  }
+  bool OnReceiveNode(const CNetMessage& netmsg, CNode* p_node);
+  void UnSerialize(std::vector<uint8_t>& vec_bytes);
 private:
   void Shutdown();
   void WaitForShutdown();
   void OnAcceptNode(CNode* p_node);
   void OnConnectNode(CNode* p_node);
   void OnDisConnectNode(CNode* p_node);
-  void UnSerialize(std::vector<uint8_t>& vec_bytes);
-  bool OnReceiveNode(const CNetMessage& netmsg, CNode* p_node);
+  
+  
 
 private:
   bool exit_;
@@ -94,6 +99,10 @@ class SynManager{
 public:
   SynManager(Ptr_StoreManager p_storemanager);
   bool Init(const SynManagerConfig& config);
+
+  Impl* GetImpl(){
+    return p_impl_;
+  }
   void RemovePeer(CNode* p_node, uint32_t second);
   void BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node);
   void SetOnAcceptNode(const std::function<void(CNode*)>& func);
