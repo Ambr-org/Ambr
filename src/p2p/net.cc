@@ -919,8 +919,8 @@ size_t CConnman::SocketSendData(CNode *pnode) const
             if (pnode->hSocket == INVALID_SOCKET)
                 break;
             nBytes = send(pnode->hSocket, reinterpret_cast<const char*>(data.data()) + pnode->nSendOffset, data.size() - pnode->nSendOffset, MSG_DONTWAIT);
-            if(nBytes>0)
-              std::cout<<std::dec<<data.size()<<","<<nBytes<<std::endl;
+            /*if(nBytes>0)
+              std::cout<<std::dec<<data.size()<<","<<nBytes<<std::endl;*/
         }
         if (nBytes > 0) {
             pnode->nLastSend = GetSystemTimeInSeconds();
@@ -2944,6 +2944,28 @@ int64_t CConnman::PoissonNextSendInbound(int64_t now, int average_interval_secon
         m_next_send_inv_to_incoming = PoissonNextSend(now, average_interval_seconds);
     }
     return m_next_send_inv_to_incoming;
+}
+
+bool CConnman::GetIfPauseReceive(const std::string &addr){
+  LOCK(cs_vNodes);
+  // Disconnect unused nodes
+  for(CNode* pNode:vNodes){
+    if(pNode->addrName == addr){
+      return pNode->fPauseRecv;
+    }
+  }
+  return false;
+}
+
+bool CConnman::GetIfPauseSend(const std::string &addr){
+  LOCK(cs_vNodes);
+  // Disconnect unused nodes
+  for(CNode* pNode:vNodes){
+    if(pNode->addrName == addr){
+      return pNode->fPauseSend;
+    }
+  }
+  return true;
 }
 
 int64_t PoissonNextSend(int64_t now, int average_interval_seconds)

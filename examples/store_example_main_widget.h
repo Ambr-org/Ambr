@@ -106,6 +106,7 @@ private slots:
   void onDealDisconnected(QString addr);
   void OnDrawTimerOut();
   void OnTpsTimer();
+  void OnNetStateTimer();
 protected:
   bool eventFilter(QObject *target, QEvent *event);
 
@@ -134,6 +135,7 @@ private://tps
 private:
   QTimer chain_draw_timer;
   QTimer tps_timer_;
+  QTimer net_state_timer_;
   uint32_t max_chain_length_for_draw_;
   std::unordered_map<ambr::core::UnitHash, std::list<std::shared_ptr<DrawItem>>> unit_list_;
   std::unordered_map<ambr::core::UnitHash, std::shared_ptr<DrawItem>> unit_map_;

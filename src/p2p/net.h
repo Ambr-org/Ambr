@@ -331,6 +331,8 @@ public:
     */
     int64_t PoissonNextSendInbound(int64_t now, int average_interval_seconds);
 
+    bool GetIfPauseReceive(const std::string& addr);
+    bool GetIfPauseSend(const std::string& addr);
 private:
     struct ListenSocket {
         SOCKET socket;

@@ -611,3 +611,11 @@ void ambr::syn::SynManager::BoardCastNewLeaveValidatorSetUnit(std::shared_ptr<co
   str_data.assign(buf.begin(), buf.end());
   p_impl_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
 }
+
+bool ambr::syn::SynManager::GetNodeIfPauseSend(const std::string &node_addr){
+  return p_impl_->GetIfPauseSend(node_addr);
+}
+
+bool ambr::syn::SynManager::GetNodeIfPauseReceive(const std::string &node_addr){
+  return p_impl_->GetIfPauseReceive(node_addr);
+}

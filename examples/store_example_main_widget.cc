@@ -70,6 +70,8 @@ StoreExampleMainWidget::StoreExampleMainWidget(std::shared_ptr<ambr::store::Stor
   connect(&chain_draw_timer, SIGNAL(timeout()), this, SLOT(OnDrawTimerOut()));
   tps_timer_.start(1000);
   connect(&tps_timer_, SIGNAL(timeout()), this, SLOT(OnTpsTimer()));
+  net_state_timer_.start(1000);
+  connect(&net_state_timer_, SIGNAL(timeout()), this, SLOT(OnNetStateTimer()));
 }
 
 StoreExampleMainWidget::~StoreExampleMainWidget(){
@@ -1007,6 +1009,19 @@ void StoreExampleMainWidget::OnTpsTimer(){
   time = QTime::currentTime();
   ui->edtRunTimeTps->setText(QString::number(tps_count_*1000/((len==0)?1:len)));
   tps_count_ = 0;
+}
+
+void StoreExampleMainWidget::OnNetStateTimer(){
+  for(int i = 0; i < ui->tbP2PConnectionIn->rowCount(); i++){
+    std::string str_addr = ui->tbP2PConnectionIn->item(i, 0)->text().toStdString()+":"+ui->tbP2PConnectionIn->item(i, 1)->text().toStdString();
+    ui->tbP2PConnectionIn->setItem(i,2, new QTableWidgetItem(p_syn_manager->GetNodeIfPauseSend(str_addr)?"yes":"no"));
+    ui->tbP2PConnectionIn->setItem(i,3, new QTableWidgetItem(p_syn_manager->GetNodeIfPauseReceive(str_addr)?"yes":"no"));
+  }
+  for(int i = 0; i < ui->tbP2PConnectionOut->rowCount(); i++){
+    std::string str_addr = ui->tbP2PConnectionOut->item(i, 0)->text().toStdString()+":"+ui->tbP2PConnectionOut->item(i, 1)->text().toStdString();
+    ui->tbP2PConnectionOut->setItem(i,2, new QTableWidgetItem(p_syn_manager->GetNodeIfPauseSend(str_addr)?"yes":"no"));
+    ui->tbP2PConnectionOut->setItem(i,3, new QTableWidgetItem(p_syn_manager->GetNodeIfPauseReceive(str_addr)?"yes":"no"));
+  }
 }
 
 void StoreExampleMainWidget::on_btnP2PStart_clicked(){

@@ -269,7 +269,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
    <item>
     <widget class="QTabWidget" name="tabMain">
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab_7">
       <attribute name="title">
@@ -516,7 +516,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
              <item>
               <widget class="QTabWidget" name="tabDebugDown">
                <property name="currentIndex">
-                <number>2</number>
+                <number>3</number>
                </property>
                <widget class="QWidget" name="tab_4">
                 <attribute name="title">
@@ -692,7 +692,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                        <rect>
                         <x>0</x>
                         <y>0</y>
-                        <width>579</width>
+                        <width>472</width>
                         <height>586</height>
                        </rect>
                       </property>
@@ -1281,7 +1281,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                      <rect>
                       <x>0</x>
                       <y>0</y>
-                      <width>176</width>
+                      <width>599</width>
                       <height>1420</height>
                      </rect>
                     </property>
@@ -2399,6 +2399,16 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                    <string>Port</string>
                   </property>
                  </column>
+                 <column>
+                  <property name="text">
+                   <string>PauseSend</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>PauseReceive</string>
+                  </property>
+                 </column>
                 </widget>
                </item>
               </layout>
@@ -2422,6 +2432,16 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                  <column>
                   <property name="text">
                    <string>Port</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>PauseSend</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>PauseReceive</string>
                   </property>
                  </column>
                 </widget>

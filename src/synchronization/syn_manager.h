@@ -70,6 +70,9 @@ public:
   void BoardCastNewValidatorUnit(std::shared_ptr<core::ValidatorUnit> p_unit);
   void BoardCastNewJoinValidatorSetUnit(std::shared_ptr<core::EnterValidateSetUint> p_unit);
   void BoardCastNewLeaveValidatorSetUnit(std::shared_ptr<core::LeaveValidateSetUint> p_unit);
+public:
+  bool GetNodeIfPauseSend(const std::string& node_addr);
+  bool GetNodeIfPauseReceive(const std::string& node_addr);
 private:
   Impl* p_impl_;
 };
