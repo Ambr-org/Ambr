@@ -184,8 +184,6 @@ public:
     bool GetNetworkActive() const;
     void SetNetworkActive(bool active);
     std::vector<CNode*>& GetVectorNodes();
-    void SetAcceptFunc(const std::function<void(CNode*)>& func);
-    void SetConnectFunc(const std::function<void(CNode*)>& func);
 
     void OpenNetworkConnection(const CAddress& addrConnect, bool fCountFailure, CSemaphoreGrant *grantOutbound = nullptr, const char *strDest = nullptr, bool fOneShot = false, bool fFeeler = false, bool manual_connection = false);
     bool CheckIncomingNonce(uint64_t nonce);
@@ -459,9 +457,6 @@ private:
     std::atomic_bool m_try_another_outbound_peer;
 
     std::atomic<int64_t> m_next_send_inv_to_incoming{0};
-    std::function<void(CNode*)> OnAcceptFunc;
-    std::function<void(CNode*)> OnConnectFunc;
-
     friend struct CConnmanTest;
 };
 extern std::unique_ptr<CConnman> g_connman;
@@ -496,7 +491,7 @@ public:
     virtual bool ProcessMessages(CNode* pnode, std::atomic<bool>& interrupt) = 0;
     virtual bool SendMessages(CNode* pnode) = 0;
     virtual void InitializeNode(CNode* pnode) = 0;
-    virtual void FinalizeNode(NodeId id, bool& update_connection_time) = 0;
+    virtual void FinalizeNode(CNode* pnode, bool& update_connection_time) = 0;
 
 protected:
     /**
@@ -802,10 +797,6 @@ public:
     }
 
     bool ReceiveMsgBytes(const char *pch, unsigned int nBytes, bool& complete);
-
-    void SetDisConnectNodeFunc(const std::function<void(CNode*)>& p_DisConnectNodeFunc);
-
-    void SetReceiveNodeFunc(const std::function<bool(const CNetMessage&, CNode*)>& p_ReceiveNodeFunc);
 
     void SetRecvVersion(int nVersionIn)
     {

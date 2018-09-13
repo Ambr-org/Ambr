@@ -477,9 +477,6 @@ CNode* CConnman::ConnectNode(CAddress addrConnect, const char *pszDest, bool fCo
     CNode* pnode = new CNode(id, nLocalServices, GetBestHeight(), hSocket, addrConnect, CalculateKeyedNetGroup(addrConnect), nonce, addr_bind, pszDest ? pszDest : "", false);
     pnode->AddRef();
     bindMaps[pnode] == addrConnect;
-    if(OnConnectFunc){
-      OnConnectFunc(pnode);
-    }
     return pnode;
 }
 
@@ -804,14 +801,6 @@ bool CNode::ReceiveMsgBytes(const char *pch, unsigned int nBytes, bool& complete
     }
 
     return true;
-}
-
-void CNode::SetDisConnectNodeFunc(const std::function<void(CNode*)>& p_DisConnectNodeFunc){
-  OnDisConnectNodeFunc = p_DisConnectNodeFunc;
-}
-
-void CNode::SetReceiveNodeFunc(const std::function<bool(const CNetMessage&, CNode*)>& p_ReceiveNodeFunc){
-  OnReceiveNodeFunc = p_ReceiveNodeFunc;
 }
 
 void CNode::SetSendVersion(int nVersionIn)
@@ -1170,10 +1159,6 @@ void CConnman::AcceptConnection(const ListenSocket& hListenSocket) {
     CNode* pnode = new CNode(id, nLocalServices, GetBestHeight(), hSocket, addr, CalculateKeyedNetGroup(addr), nonce, addr_bind, "", true);
     pnode->AddRef();
     pnode->fWhitelisted = whitelisted;
-
-    if(OnAcceptFunc){
-      OnAcceptFunc(pnode);
-    }
 
     m_msgproc->InitializeNode(pnode);
 
@@ -2012,14 +1997,6 @@ std::vector<CNode*>& CConnman::GetVectorNodes(){
   return vNodes;
 }
 
-void CConnman::SetAcceptFunc(const std::function<void(CNode*)>& func){
-  OnAcceptFunc = func;
-}
-
-void CConnman::SetConnectFunc(const std::function<void(CNode*)>& func){
-  OnConnectFunc = func;
-}
-
 // if successful, this moves the passed grant to the constructed node
 void CConnman::OpenNetworkConnection(const CAddress& addrConnect, bool fCountFailure, CSemaphoreGrant *grantOutbound, const char *pszDest, bool fOneShot, bool fFeeler, bool manual_connection)
 {
@@ -2508,7 +2485,7 @@ void CConnman::DeleteNode(CNode* pnode)
 {
     assert(pnode);
     bool fUpdateConnectionTime = false;
-    m_msgproc->FinalizeNode(pnode->GetId(), fUpdateConnectionTime);
+    m_msgproc->FinalizeNode(pnode, fUpdateConnectionTime);
     if(fUpdateConnectionTime) {
         addrman.Connected(pnode->addr);
     }

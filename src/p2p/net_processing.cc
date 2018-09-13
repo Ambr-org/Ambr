@@ -404,10 +404,15 @@ void PeerLogicValidation::InitializeNode(CNode *pnode) {
     if(!pnode->fInbound){
        pnode->nSendOffset = 0;
        PushNodeVersion(pnode, connman, GetTime());
+       DoConnect(pnode);
+    }else{
+      DoAccept(pnode);
     }
 }
 
-void PeerLogicValidation::FinalizeNode(NodeId nodeid, bool& fUpdateConnectionTime) {
+void PeerLogicValidation::FinalizeNode(CNode* pnode, bool& fUpdateConnectionTime) {
+    NodeId nodeid = pnode->GetId();
+    DoDisConnect(pnode);
     fUpdateConnectionTime = false;
     LOCK(cs_process);
     CNodeState *state = State(nodeid);
@@ -652,7 +657,6 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
     }
      
     std::cout << "Command = " << strCommand << std::endl;
-
     if (!(pfrom->GetLocalServices() & NODE_BLOOM) &&
               (strCommand == NetMsgType::FILTERLOAD ||
                strCommand == NetMsgType::FILTERADD))
@@ -1220,7 +1224,7 @@ bool PeerLogicValidation::ProcessMessages(CNode* pfrom, std::atomic<bool>& inter
            HexStr(hdr.pchChecksum, hdr.pchChecksum+CMessageHeader::CHECKSUM_SIZE));
         return fMoreWork;
     }
-
+    DoMoreProcess(msg, pfrom);
     // Process message
     bool fRet = false;
     try

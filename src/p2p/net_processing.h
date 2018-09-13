@@ -8,7 +8,7 @@
 
 #include <net.h>
 #include <consensus/params.h>
-
+#include <boost/signals2.hpp>
 
 /** Default for -maxorphantx, maximum number of orphan transactions kept in memory */
 static const unsigned int DEFAULT_MAX_ORPHAN_TRANSACTIONS = 100;
@@ -45,7 +45,7 @@ public:
     /** Initialize a peer by adding it to mapNodeState and pushing a message requesting its version */
     void InitializeNode(CNode* pnode) override;
     /** Handle removal of a peer by updating various state and removing it from mapNodeState */
-    void FinalizeNode(NodeId nodeid, bool& fUpdateConnectionTime) override;
+    void FinalizeNode(CNode* pnode, bool& fUpdateConnectionTime) override;
     /**
     * Process protocol messages received from a given node
     *
@@ -68,11 +68,27 @@ public:
     /** If we have extra outbound peers, try to disconnect the one with the oldest block announcement */
     void EvictExtraOutboundPeers(int64_t time_in_seconds);
 
+    boost::signals2::connection AddOnConnectCallback(std::function<void(CNode*)> cb){
+      return DoConnect.connect(cb);
+    }
+    boost::signals2::connection AddOnAcceptCallback(std::function<void(CNode*)> cb){
+      return DoAccept.connect(cb);
+    }
+    boost::signals2::connection AddOnDisConnectCallback(std::function<void(CNode*)> cb){
+      return DoDisConnect.connect(cb);
+    }
+    boost::signals2::connection AddOnMoreProcessCallback(std::function<void(const CNetMessage& netmsg, CNode* p_node)> cb){
+      return DoMoreProcess.connect(cb);
+    }
 private:
     int64_t m_stale_tip_check_time; //! Next time to check for stale tip
 
     /** Enable BIP61 (sending reject messages) */
     const bool m_enable_bip61;
+    boost::signals2::signal<void(CNode*)> DoConnect;
+    boost::signals2::signal<void(CNode*)> DoAccept;
+    boost::signals2::signal<void(CNode*)> DoDisConnect;
+    boost::signals2::signal<void(const CNetMessage& netmsg, CNode* p_node)> DoMoreProcess;
 };
 
 struct CNodeStateStats {
