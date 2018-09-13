@@ -42,8 +42,8 @@ private:
 private:
   bool exit_;
   SynManagerConfig config_;
-  Ptr_CScheduler p_scheduler;
   Ptr_StoreManager p_storemanager_;
+  Ptr_CScheduler p_scheduler;
   std::list<CNode*> list_in_nodes_;
   std::list<CNode*> list_out_nodes_;
   std::list<Ptr_Unit> list_ptr_unit_;
@@ -58,10 +58,10 @@ private:
 
 
 ambr::syn::SynManager::Impl::Impl(Ptr_StoreManager p_store_manager)
-  : exit_(false)
+  : CConnman(ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max()), ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max()))
+  , exit_(false)
   , p_storemanager_(p_store_manager)
-  , p_scheduler(std::make_shared<CScheduler>())
-  , CConnman(ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max()), ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max())){
+  , p_scheduler(std::make_shared<CScheduler>()){
 
 }
 
@@ -181,9 +181,6 @@ void ambr::syn::SynManager::Impl::BoardcastMessage(CSerializedNetMsg&& msg, CNod
     if(it != p_node){
       if(!it->fPauseSend){
         PushMessage(it, std::forward<CSerializedNetMsg>(msg));
-      }else{
-        int fordebug;
-        fordebug = 1;
       }
     }
   }
@@ -269,10 +266,10 @@ bool ambr::syn::SynManager::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode
       }
       else*/
       {
-        bool is_wait = false;
+        //bool is_wait = false;
         for(auto& item : list_in_nodes_wait_){
         if(item == p_node){
-            is_wait = true;
+            //is_wait = true;
             list_in_nodes_wait_.remove(p_node);
             list_in_nodes_.push_back(p_node);
             LOG(INFO) << "Right node version:" << std::hex << std::setw(8) << std::setfill('0') << "save"
@@ -283,7 +280,7 @@ bool ambr::syn::SynManager::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode
 
         for(auto& it:list_out_nodes_wait_){
           if(it == p_node){
-            is_wait = true;
+            //is_wait = true;
             list_out_nodes_wait_.remove(p_node);
             list_out_nodes_.push_back(p_node);
             LOG(INFO) << "Right node version:" << std::hex << std::setw(8) << std::setfill('0') << "save"

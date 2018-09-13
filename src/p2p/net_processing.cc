@@ -306,6 +306,7 @@ static void PushNodeVersion(CNode *pnode, CConnman* connman, int64_t nTime)
 // Requires cs_process.
 // Returns a bool indicating whether we requested this block.
 // Also used if a block was /not/ received and timed out or started with another peer
+#if 0
 static bool MarkBlockAsReceived(const uint256& hash) {
     std::map<uint256, std::pair<NodeId, std::list<QueuedBlock>::iterator> >::iterator itInFlight = mapBlocksInFlight.find(hash);
     if (itInFlight != mapBlocksInFlight.end()) {
@@ -328,7 +329,7 @@ static bool MarkBlockAsReceived(const uint256& hash) {
     }
     return false;
 }
-
+#endif
 
 /**
  * When a peer sends us a valid block, instruct it to announce blocks to us
@@ -336,6 +337,7 @@ static bool MarkBlockAsReceived(const uint256& hash) {
  * lNodesAnnouncingHeaderAndIDs, and keeping that list under a certain size by
  * removing the first element if necessary.
  */
+#if 0
 static void MaybeSetPeerAsAnnouncingHeaderAndIDs(NodeId nodeid, CConnman* connman) {
     AssertLockHeld(cs_process);
     CNodeState* nodestate = State(nodeid);
@@ -368,7 +370,8 @@ static void MaybeSetPeerAsAnnouncingHeaderAndIDs(NodeId nodeid, CConnman* connma
         });
     }
 }
-
+#endif
+#if 0
 static bool TipMayBeStale(const Consensus::Params &consensusParams)
 {
     AssertLockHeld(cs_process);
@@ -377,13 +380,16 @@ static bool TipMayBeStale(const Consensus::Params &consensusParams)
     }
     return g_last_tip_update < GetTime() - consensusParams.nPowTargetSpacing * 3 && mapBlocksInFlight.empty();
 }
-
+#endif
 // Requires cs_process
+#if 0
 static bool CanDirectFetch(const Consensus::Params &consensusParams)
 {
-   // return chainActive.Tip()->GetBlockTime() > GetAdjustedTime() - consensusParams.nPowTargetSpacing * 20;
+  (void)consensusParams;
+  return true;
+    //return chainActive.Tip()->GetBlockTime() > GetAdjustedTime() - consensusParams.nPowTargetSpacing * 20;
 }
-
+#endif
 } // namespace
 
 
@@ -493,7 +499,7 @@ PeerLogicValidation::PeerLogicValidation(CConnman* connmanIn, CScheduler &schedu
 // All of the following cache a recent block, and are protected by cs_most_recent_block
 static CCriticalSection cs_most_recent_block;
 static uint256 most_recent_block_hash;
-static bool fWitnessesPresentInMostRecentCompactBlock;
+//static bool fWitnessesPresentInMostRecentCompactBlock;
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -554,7 +560,7 @@ void static ProcessGetData(CNode* pfrom, const CChainParams& chainparams, CConnm
             if (pfrom->fPauseSend)
                 break;
 
-            const CInv &inv = *it;
+            //const CInv &inv = *it;
             it++;
         }
     } // release cs_process
@@ -573,7 +579,7 @@ void static ProcessGetData(CNode* pfrom, const CChainParams& chainparams, CConnm
         connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::NOTFOUND, vNotFound));
     }
 }
-
+#if 0
 static uint32_t GetFetchFlags(CNode* pfrom) {
     uint32_t nFetchFlags = 0;
     if ((pfrom->GetLocalServices() & NODE_WITNESS) && State(pfrom->GetId())->fHaveWitness) {
@@ -581,10 +587,15 @@ static uint32_t GetFetchFlags(CNode* pfrom) {
     }
     return nFetchFlags;
 }
-
-
+#endif
+#if 0
 bool static ProcessHeadersMessage(CNode *pfrom, CConnman *connman, const CChainParams& chainparams, bool punish_duplicate_invalid)
 {
+  (void)pfrom;
+  (void)connman;
+  (void)chainparams;
+  (void)punish_duplicate_invalid;
+
     const CNetMsgMaker msgMaker(pfrom->GetSendVersion());
 
 
@@ -630,7 +641,7 @@ bool static ProcessHeadersMessage(CNode *pfrom, CConnman *connman, const CChainP
 
     return true;
 }
-
+#endif
 bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStream& vRecv, int64_t nTimeReceived, const CChainParams& chainparams, CConnman* connman, const std::atomic<bool>& interruptMsgProc, bool enable_bip61)
 {
     LogPrint(BCLog::NET, "received: %s (%u bytes) peer=%d\n", SanitizeString(strCommand), vRecv.size(), pfrom->GetId());
@@ -704,7 +715,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         int nSendVersion;
         std::string strSubVer;
         std::string cleanSubVer;
-        int nStartingHeight = -1;
+        //int nStartingHeight = -1;
         bool fRelay = true;
 
         vRecv >> nVersion >> nServiceInt >> nTime >> addrMe;
@@ -1351,7 +1362,7 @@ void PeerLogicValidation::CheckForStaleTipAndEvictPeers(const Consensus::Params 
 
 bool PeerLogicValidation::SendMessages(CNode* pto)
 {
-    const Consensus::Params& consensusParams = Params().GetConsensus();
+    //const Consensus::Params& consensusParams = Params().GetConsensus();
     {
         auto  nNow = GetTimeMicros();
         // Don't send anything until the version handshake is complete

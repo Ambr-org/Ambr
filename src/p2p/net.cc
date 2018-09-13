@@ -125,7 +125,7 @@ bool GetLocal(CService& addr, const CNetAddr *paddrPeer)
 }
 
 //! Convert the pnSeed6 array into usable address objects.
-static std::vector<CAddress> convertSeed6(const std::vector<SeedSpec6> &vSeedsIn)
+/*static std::vector<CAddress> convertSeed6(const std::vector<SeedSpec6> &vSeedsIn)
 {
     // It'll only connect to one or two seed nodes because once it connects,
     // it'll get a pile of addresses with newer timestamps.
@@ -142,7 +142,7 @@ static std::vector<CAddress> convertSeed6(const std::vector<SeedSpec6> &vSeedsIn
         vSeedsOut.push_back(addr);
     }
     return vSeedsOut;
-}
+}*/
 
 // get best local address for a particular peer as a CAddress
 // Otherwise, return the unroutable 0.0.0.0 but filled in with
@@ -1289,11 +1289,11 @@ void CConnman::ThreadSocketHandler()
                 //   blocking here.
 
                 bool select_recv = !pnode->fPauseRecv;
-                bool select_send;
+                /*bool select_send = true;
                 {
                     LOCK(pnode->cs_vSend);
                     select_send = !pnode->vSendMsg.empty();
-                }
+                }*/
 
                 LOCK(pnode->cs_hSocket);
                 if (pnode->hSocket == INVALID_SOCKET)
@@ -1435,6 +1435,8 @@ void CConnman::ThreadSocketHandler()
             // Send
             //
             //if (sendSet)
+            //always send, if pause ,resume later
+            (void)sendSet;
             {
                 LOCK(pnode->cs_vSend);
                 size_t nBytes =
@@ -2306,12 +2308,8 @@ bool CConnman::InitBinds(const std::vector<CService>& binds, const std::vector<C
         struct in_addr inaddr_any;
         inaddr_any.s_addr = INADDR_ANY;
         struct in6_addr inaddr6_any = IN6ADDR_ANY_INIT;
-
-        //TODO::
-       // fBound |= Bind(CService(inaddr6_any, GetListenPort()), BF_NONE);
-       // fBound |= Bind(CService(inaddr_any, GetListenPort()), !fBound ? BF_REPORT_ERROR : BF_NONE);
-
-       fBound = Bind(CService(inaddr_any, GetListenPort()), BF_NONE);
+        fBound |= Bind(CService(inaddr6_any, GetListenPort()), BF_NONE);
+        fBound |= Bind(CService(inaddr_any, GetListenPort()), !fBound ? BF_REPORT_ERROR : BF_NONE);
     }
     return fBound;
 }

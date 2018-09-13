@@ -1199,11 +1199,12 @@ int GetNumCores()
 {
     return std::thread::hardware_concurrency();
 }
-
+#if 0
 std::string CopyrightHolders(const std::string& strPrefix)
 {
     
 }
+#endif
 
 // Obtain the application startup time (used for uptime calculation)
 int64_t GetStartupTime()
