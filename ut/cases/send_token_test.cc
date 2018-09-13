@@ -22,6 +22,7 @@ public:
      p_Impl -> UnSerialize(buf);
      unit_ = ambr::core::Unit::CreateUnitByByte(buf);
      version = unit_->version();
+     balance = unit_->balance();
    }
    else{
     p_Impl->OnReceiveNode(netmsg, p_node);
@@ -49,6 +50,7 @@ void SetImpl(ambr::syn::Impl* Impl){
 
 public:
   static uint32_t  version;
+  static ambr::core::Amount  balance;
 
 private:
   ambr::syn::Impl* p_Impl;
@@ -127,6 +129,8 @@ protected:
   TestCase  SendTest::tc;
 
   uint32_t TestCase::version;
+  ambr::core::Amount TestCase::balance;
+
 
 
   TEST_F(SendTest, SendOneTX){ 
@@ -158,7 +162,7 @@ protected:
     std::this_thread::sleep_for(std::chrono::seconds(4));
     EXPECT_EQ(TestCase::version, added_unit->version());
     store_manager->GetBalanceByPubKey(test_pub, balance_remainder);
-    EXPECT_EQ(balance_ori - send_ammout, balance_remainder);
+    EXPECT_EQ(tc.balance, balance_remainder);
   }
 
   TEST_F(SendTest, SendMoreTX){ 
@@ -187,5 +191,5 @@ protected:
 
     EXPECT_EQ(TestCase::version, added_unit->version());
     store_manager->GetBalanceByPubKey(test_pub, balance_remainder);
-    EXPECT_EQ(balance_ori - send_ammout * sendtimes,  balance_remainder);     
+    EXPECT_EQ(tc.balance,  balance_remainder);     
   }
