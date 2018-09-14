@@ -10,7 +10,7 @@
 #include <p2p/version.h>
 #include <p2p/netmessagemaker.h>
 #include <p2p/utiltime.h>
-
+#if 0
 class P2PTest: public ::testing::Test{
 protected:
   void SetUp() override {
@@ -162,3 +162,4 @@ TEST_F(P2PTest, SerializeMessageToString){
    ASSERT_EQ(data, error_msg);
 
 }
+#endif

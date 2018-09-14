@@ -45,7 +45,7 @@ std::string ambr::store::SendUnitStore::SerializeJson() const{
     boost::property_tree::read_json(stream, pt);
     store_pt.put("version", version_);
     store_pt.put("receive_unit_hash", receive_unit_hash_.encode_to_hex());
-    store_pt.put("is_validate", is_validate_);
+    store_pt.put("validated_hash", validated_hash_.encode_to_hex());
     pt.add_child("store_addtion", store_pt);
   }catch(...){
     assert(1);
@@ -63,7 +63,7 @@ bool ambr::store::SendUnitStore::DeSerializeJson(const std::string &json){
     version_ = pt.get<uint32_t>("store_addtion.version");
     if(version_ == 0x00000001){
       receive_unit_hash_.decode_from_hex(pt.get<std::string>("store_addtion.receive_unit_hash"));
-      is_validate_ = pt.get<uint8_t>("store_addtion.is_validate");
+      validated_hash_.decode_from_hex(pt.get<std::string>("store_addtion.validated_hash"));
     }else{
       return false;
     }
@@ -87,7 +87,7 @@ std::vector<uint8_t> ambr::store::SendUnitStore::SerializeByte() const{
   rtn.insert(rtn.begin(),len_buf.begin(),len_buf.end());
   rtn.insert(rtn.end(), (uint8_t*)&version_, (uint8_t*)&version_+sizeof(version_));
   rtn.insert(rtn.end(),receive_unit_hash_.bytes().begin(), receive_unit_hash_.bytes().end());
-  rtn.push_back(is_validate_);
+  rtn.insert(rtn.end(),validated_hash_.bytes().begin(), validated_hash_.bytes().end());
   return rtn;
 }
 
@@ -107,12 +107,12 @@ bool ambr::store::SendUnitStore::DeSerializeByte(const std::vector<uint8_t> &buf
   memcpy(&version_, src, sizeof(version_));
   src += sizeof(version_);
   if(version_ == 0x00000001){
-    if(buf.size()-used_count < sizeof(version_)+sizeof(receive_unit_hash_)+sizeof(is_validate_)){
+    if(buf.size()-used_count < sizeof(version_)+sizeof(receive_unit_hash_)+sizeof(validated_hash_)){
       return false;
     }
     memcpy(&receive_unit_hash_, src, sizeof(receive_unit_hash_));
     src += sizeof(receive_unit_hash_);
-    memcpy(&is_validate_, src, sizeof(is_validate_));
+    memcpy(&validated_hash_, src, sizeof(validated_hash_));
     return true;
   }//else if(other version)
   return false;
@@ -141,7 +141,7 @@ std::string ambr::store::ReceiveUnitStore::SerializeJson() const{
   try{
     boost::property_tree::read_json(stream, pt);
     store_pt.put("version", version_);
-    store_pt.put("is_validate", is_validate_);
+    store_pt.put("validated_hash", validated_hash_.encode_to_hex());
     pt.add_child("store_addtion", store_pt);
   }catch(...){
     assert(1);
@@ -159,7 +159,7 @@ bool ambr::store::ReceiveUnitStore::DeSerializeJson(const std::string &json){
     version_ = pt.get<uint32_t>("store_addtion.version");
     if(version_ == 0x00000001){
       //deserialize other addtion
-      is_validate_ = pt.get<uint8_t>("store_addtion.is_validate");
+      validated_hash_.decode_from_hex(pt.get<std::string>("store_addtion.validated_hash"));
     }
     unit_ = std::make_shared<core::ReceiveUnit>();
     if(!unit_->DeSerializeJson(json)){
@@ -180,7 +180,7 @@ std::vector<uint8_t> ambr::store::ReceiveUnitStore::SerializeByte() const{
   memcpy(len_buf.data(),&len,sizeof(len));
   rtn.insert(rtn.begin(),len_buf.begin(),len_buf.end());
   rtn.insert(rtn.end(), (uint8_t*)&version_, (uint8_t*)&version_+sizeof(version_));
-  rtn.push_back(is_validate_);
+  rtn.insert(rtn.end(), validated_hash_.bytes().begin(), validated_hash_.bytes().end());
   return rtn;
 }
 
@@ -200,10 +200,10 @@ bool ambr::store::ReceiveUnitStore::DeSerializeByte(const std::vector<uint8_t> &
   memcpy(&version_, src, sizeof(version_));
   src += sizeof(version_);
   if(version_ == 0x00000001){
-    if(buf.size()-used_count < sizeof(version_)+sizeof(is_validate_)){
+    if(buf.size()-used_count < sizeof(version_)+sizeof(validated_hash_)){
       return false;
     }
-    memcpy(&is_validate_, src, sizeof(is_validate_));
+    memcpy(&validated_hash_, src, sizeof(validated_hash_));
     return true;
   }//else if(other version)
   return false;
@@ -231,7 +231,7 @@ std::string ambr::store::EnterValidatorSetUnitStore::SerializeJson() const{
   try{
     boost::property_tree::read_json(stream, pt);
     store_pt.put("version", version_);
-    store_pt.put("is_validate", is_validate_);
+    store_pt.put("validated_hash", validated_hash_.encode_to_hex());
     pt.add_child("store_addtion", store_pt);
   }catch(...){
     assert(1);
@@ -249,7 +249,7 @@ bool ambr::store::EnterValidatorSetUnitStore::DeSerializeJson(const std::string 
     version_ = pt.get<uint32_t>("store_addtion.version");
     if(version_ == 0x00000001){
       //deserialize other addtion
-      is_validate_ = pt.get<uint8_t>("store_addtion.is_validate");
+      validated_hash_.decode_from_hex(pt.get<std::string>("store_addtion.validated_hash"));
     }
     unit_ = std::make_shared<core::EnterValidateSetUint>();
     if(!unit_->DeSerializeJson(json)){
@@ -265,7 +265,7 @@ std::vector<uint8_t> ambr::store::EnterValidatorSetUnitStore::SerializeByte() co
   assert(unit_);
   std::vector<uint8_t> rtn = unit_->SerializeByte();
   rtn.insert(rtn.end(), (uint8_t*)&version_, (uint8_t*)&version_+sizeof(version_));
-  rtn.push_back(is_validate_);
+  rtn.insert(rtn.end(), validated_hash_.bytes().begin(), validated_hash_.bytes().end());
   return rtn;
 }
 
@@ -273,7 +273,7 @@ bool ambr::store::EnterValidatorSetUnitStore::DeSerializeByte(const std::vector<
   unit_ = std::make_shared<core::EnterValidateSetUint>();
   size_t used_count = 0;
   std::vector<uint8_t> buf_new;
-  buf_new.resize(buf.size() - sizeof(version_)-sizeof(is_validate_));
+  buf_new.resize(buf.size() - sizeof(version_)-sizeof(validated_hash_));
   memcpy(buf_new.data(), buf.data(), buf_new.size());
   if(!unit_->DeSerializeByte(buf_new, &used_count)){
     return false;
@@ -286,10 +286,10 @@ bool ambr::store::EnterValidatorSetUnitStore::DeSerializeByte(const std::vector<
   memcpy(&version_, src, sizeof(version_));
   src += sizeof(version_);
   if(version_ == 0x00000001){
-    if(buf.size()-used_count < sizeof(version_)+sizeof(is_validate_)){
+    if(buf.size()-used_count < sizeof(version_)+sizeof(validated_hash_)){
       return false;
     }
-    memcpy(&is_validate_, src, sizeof(is_validate_));
+    memcpy(&validated_hash_, src, sizeof(validated_hash_));
     //deserialize addtion
     return true;
   }//else if(other version)
@@ -318,7 +318,7 @@ std::string ambr::store::LeaveValidatorSetUnitStore::SerializeJson() const{
   try{
     boost::property_tree::read_json(stream, pt);
     store_pt.put("version", version_);
-    store_pt.put("is_validate", is_validate_);
+    store_pt.put("validated_hash", validated_hash_.encode_to_hex());
     pt.add_child("store_addtion", store_pt);
   }catch(...){
     assert(1);
@@ -336,7 +336,7 @@ bool ambr::store::LeaveValidatorSetUnitStore::DeSerializeJson(const std::string 
     version_ = pt.get<uint32_t>("store_addtion.version");
     if(version_ == 0x00000001){
       //deserialize other addtion
-      is_validate_ = pt.get<uint8_t>("store_addtion.is_validate");
+      validated_hash_.decode_from_hex(pt.get<std::string>("store_addtion.validated_hash"));
     }
     unit_ = std::make_shared<core::LeaveValidateSetUint>();
     if(!unit_->DeSerializeJson(json)){
@@ -352,7 +352,7 @@ std::vector<uint8_t> ambr::store::LeaveValidatorSetUnitStore::SerializeByte() co
   assert(unit_);
   std::vector<uint8_t> rtn = unit_->SerializeByte();
   rtn.insert(rtn.end(), (uint8_t*)&version_, (uint8_t*)&version_+sizeof(version_));
-  rtn.push_back(is_validate_);
+  rtn.insert(rtn.end(), validated_hash_.bytes().begin(), validated_hash_.bytes().end());
   return rtn;
 }
 
@@ -369,10 +369,10 @@ bool ambr::store::LeaveValidatorSetUnitStore::DeSerializeByte(const std::vector<
   memcpy(&version_, src, sizeof(version_));
   src += sizeof(version_);
   if(version_ == 0x00000001){
-    if(buf.size()-used_count < sizeof(version_)+sizeof(is_validate_)){
+    if(buf.size()-used_count < sizeof(version_)+sizeof(validated_hash_)){
       return false;
     }
-    memcpy(&is_validate_, src, sizeof(is_validate_));
+    memcpy(&validated_hash_, src, sizeof(validated_hash_));
     //deserialize addtion
     return true;
   }//else if(other version)

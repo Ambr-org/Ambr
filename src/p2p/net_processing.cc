@@ -485,9 +485,9 @@ void Misbehaving(NodeId pnode, int howmuch, const std::string& message)
 
 
 
-PeerLogicValidation::PeerLogicValidation(CConnman* connmanIn, CScheduler &scheduler)
+PeerLogicValidation::PeerLogicValidation(CConnman* connmanIn, CScheduler &scheduler, bool no_use)
     : connman(connmanIn), m_stale_tip_check_time(0), m_enable_bip61(false) {
-
+    (void)no_use;
     // Initialize global variables that cannot be constructed at startup.
   //  recentRejects.reset(new CRollingBloomFilter(120000, 0.000001));
 

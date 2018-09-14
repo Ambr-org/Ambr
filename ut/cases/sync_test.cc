@@ -8,7 +8,7 @@
 #include "store/unit_store.h"
 #include <synchronization/syn_manager.h>
 #include <boost/thread.hpp>
-
+#if 0
 class TestCase {
 public:
   TestCase()=default;
@@ -311,3 +311,4 @@ protected:
     store_client->GetBalanceByPubKey(test_pub, balance_remainder);
     EXPECT_NE(tc.balance, balance_remainder);
   }
+#endif

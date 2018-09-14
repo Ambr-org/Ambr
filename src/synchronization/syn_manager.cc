@@ -67,9 +67,6 @@ ambr::syn::SynManager::Impl::Impl(Ptr_StoreManager p_store_manager)
 
 bool ambr::syn::SynManager::Impl::Init(const SynManagerConfig &config){
   config_ = std::move(config);
-  SetAcceptFunc(std::bind(&ambr::syn::SynManager::Impl::OnAcceptNode, this, std::placeholders::_1));
-  SetConnectFunc(std::bind(&ambr::syn::SynManager::Impl::OnConnectNode, this, std::placeholders::_1));
-
   try{
     SelectParams(gArgs.GetChainName(), config.listen_port_);
   }
@@ -78,7 +75,10 @@ bool ambr::syn::SynManager::Impl::Init(const SynManagerConfig &config){
     return false;
   }
   p_peerLogicValidation_ = std::make_shared<PeerLogicValidation>(this, *p_scheduler);
-
+  p_peerLogicValidation_->AddOnAcceptCallback(std::bind(&ambr::syn::SynManager::Impl::OnAcceptNode, this, std::placeholders::_1));
+  p_peerLogicValidation_->AddOnConnectCallback(std::bind(&ambr::syn::SynManager::Impl::OnConnectNode, this, std::placeholders::_1));
+  p_peerLogicValidation_->AddOnDisConnectCallback(std::bind(&ambr::syn::SynManager::Impl::OnDisConnectNode, this, std::placeholders::_1));
+  p_peerLogicValidation_->AddOnMoreProcessCallback(std::bind(&ambr::syn::SynManager::Impl::OnReceiveNode, this, std::placeholders::_1, std::placeholders::_2));
   CConnman::Options connOptions;
   connOptions.nMaxConnections = MAX_CONNECTIONS;
   connOptions.nLocalServices = ServiceFlags(NODE_NETWORK | NODE_WITNESS);
@@ -86,55 +86,6 @@ bool ambr::syn::SynManager::Impl::Init(const SynManagerConfig &config){
   connOptions.nMaxAddnode = MAX_ADDNODE_CONNECTIONS;
   connOptions.m_msgproc = p_peerLogicValidation_.get();
   connOptions.vSeedNodes = config.vec_seed_;
-  /*connOptions.m_added_nodes = gArgs.GetArgs("-addnode");
-
-  for (const std::string& strBind : gArgs.GetArgs("-bind")) {
-      CService addrBind;
-      if (!Lookup(strBind.c_str(), addrBind, GetListenPort(), false)) {
-          std::cerr <<"Invalid -bind address or hostname: " << strBind << std::endl;
-          return 1;
-      }
-      connOptions.vBinds.push_back(addrBind);
-  }
-
-  for (const std::string& strBind : gArgs.GetArgs("-whitebind")) {
-      CService addrBind;
-      if (!Lookup(strBind.c_str(), addrBind, 0, false)) {
-            std::cerr <<"Invalid -whitebind address or hostname: " << strBind << std::endl;
-            return 1;
-      }
-      if (addrBind.GetPort() == 0) {
-            std::cerr <<"Invalid -whitebind address or hostname: "  << std::endl;
-              return 1;
-      }
-      connOptions.vWhiteBinds.push_back(addrBind);
-    }
-
-  for (const auto& net : gArgs.GetArgs("-whitelist")) {
-      CSubNet subnet;
-      LookupSubNet(net.c_str(), subnet);
-      if (!subnet.IsValid()){
-          std::cerr <<"Invalid netmask specified in -whitelist: "  << net << std::endl;
-          return 1;
-      }
-
-      connOptions.vWhitelistedRange.push_back(subnet);
-  }
-
-  connOptions.vSeedNodes = gArgs.GetArgs("-seednode");
-*/
- /* std::vector<CAddress> vec_addrs;
-  for(auto& it : config.vec_seed_){
-    struct in_addr addr_;
-    if(1 != inet_pton(AF_INET, "127.0.0.1", &addr_)){
-      LOG(INFO) << "convert failed";
-      return false;
-    }
-    CAddress addr(CService(addr_, atoi(it.c_str())), NODE_NONE);
-    vec_addrs.push_back(addr);
-  }
-
-  AddNewAddresses(vec_addrs, CAddress());*/
 
   if(Start(*p_scheduler.get(), connOptions)){
     WaitForShutdown();
@@ -207,8 +158,6 @@ void ambr::syn::SynManager::Impl::OnAcceptNode(CNode* p_node){
     }
     list_in_nodes_wait_.remove(p_node);
     list_in_nodes_wait_.push_back(p_node);
-    p_node->SetDisConnectNodeFunc(std::bind(&ambr::syn::SynManager::Impl::OnDisConnectNode, this, std::placeholders::_1));
-    p_node->SetReceiveNodeFunc(std::bind(&ambr::syn::SynManager::Impl::OnReceiveNode, this, std::placeholders::_1, std::placeholders::_2));
   }
 }
 
@@ -219,8 +168,6 @@ void ambr::syn::SynManager::Impl::OnConnectNode(CNode* p_node){
     }
     list_out_nodes_wait_.remove(p_node);
     list_out_nodes_wait_.push_back(p_node);
-    p_node->SetDisConnectNodeFunc(std::bind(&ambr::syn::SynManager::Impl::OnDisConnectNode, this, std::placeholders::_1));
-    p_node->SetReceiveNodeFunc(std::bind(&ambr::syn::SynManager::Impl::OnReceiveNode, this, std::placeholders::_1, std::placeholders::_2));
   }
 }
 

@@ -39,7 +39,7 @@ private:
     CConnman* const connman;
 
 public:
-    explicit PeerLogicValidation(CConnman* connman, CScheduler &scheduler);
+    explicit PeerLogicValidation(CConnman* connman, CScheduler &scheduler, bool no_use = false);
 
    
     /** Initialize a peer by adding it to mapNodeState and pushing a message requesting its version */

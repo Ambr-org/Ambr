@@ -30,10 +30,10 @@ public:
     ST_EnterValidatorSet = 3,
     ST_LeaveValidatorSet = 4
   };
-  uint32_t version(){return version_;};
-  void set_version(uint32_t version){version_ = version;};
-  uint8_t is_validate(){return is_validate_;};//is validate by validator set
-  void set_is_validate(uint8_t validate){is_validate_ = validate;};
+  uint32_t version(){return version_;}
+  void set_version(uint32_t version){version_ = version;}
+  uint8_t is_validate(){return !validated_hash_.is_zero();}//is validate by validator set
+  void set_is_validate(const ambr::core::UnitHash& validate_unit_hash){validated_hash_ = validate_unit_hash;}
   virtual std::string SerializeJson () const = 0;
   virtual bool DeSerializeJson(const std::string& json) = 0;
   virtual std::vector<uint8_t> SerializeByte() const = 0;
@@ -43,10 +43,11 @@ public:
   StoreType type(){return type_;}
   void set_type(StoreType type){type = type;}
 protected:
-  UnitStore(StoreType type):type_(type),version_(0x00000001),is_validate_(false){}
+  UnitStore(StoreType type):type_(type),version_(0x00000001){}
   StoreType type_;
   uint32_t version_;
-  uint8_t is_validate_;
+  //uint8_t is_validate_;
+  ambr::core::UnitHash validated_hash_;//was validated by
 };
 
 

@@ -29,8 +29,11 @@ aux_source_directory(${CUR_DIR}/src/p2p/crypto  DIR_P2P_SRCS)
 aux_source_directory(${CUR_DIR}/src/p2p/support DIR_P2P_SRCS)
 aux_source_directory(${CUR_DIR}/src/p2p/consensus DIR_P2P_SRCS)
 aux_source_directory(${CUR_DIR}/src/p2p/compat DIR_P2P_SRCS)
-aux_source_directory(${CUR_DIR}/ut/cases DIR_UT_SRCS)
 aux_source_directory(${CUR_DIR}/src/proto DIR_PROTO_SRCS)
+aux_source_directory(${CUR_DIR}/src/synchronization DIR_SYNC_SRCS)
+aux_source_directory(${CUR_DIR}/src/rpc DIR_RPC_SRCS)
+aux_source_directory(${CUR_DIR}/ut/cases DIR_UT_SRCS)
+
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(SERVER_DIR ${CUR_DIR}/src/server)
@@ -44,6 +47,7 @@ set(GLOG_DIR ${CUR_DIR}/libs/glog)
 set(P2P_DIR ${CUR_DIR}/src/p2p)
 set(UT_DIR ${CUR_DIR}/ut)
 set(PROTOBUF_DIR ${CUR_DIR}/libs/grpc/third_party/protobuf)
+set(RPC_LIB_DIR ${CUR_DIR}/libs/grpc)
 
 include_directories(${MAIN_DIR})
 include_directories(${CROW_DIR}/include)
@@ -62,7 +66,8 @@ link_directories(${ROCKSDB_DIR})
 link_directories(${GLOG_DIR}/.libs)
 link_directories(${UT_DIR}/googletest/googletest)
 link_directories(${UT_DIR}/googletest/googlemock)
-link_directories(${CUR_DIR}/libs/grpc/libs/opt/protobuf)
+include_directories(${RPC_LIB_DIR}/include)
+include_directories(${RPC_LIB_DIR}/third_party/protobuf/src)
 
 link_libraries(boost_chrono)
 link_libraries(boost_filesystem)
@@ -78,6 +83,7 @@ link_libraries(gtest)
 link_libraries(gmock)
 link_libraries(protobuf)
 link_libraries(protoc)
+link_libraries(grpc++)
 SET(CMAKE_C_COMPILER gcc)
 set(CMAKE_CXX_FLAGS "-std=c++14 -Wall")
 set(CMAKE_CXX_FLAGS "-Wall")
@@ -108,8 +114,10 @@ add_executable(test_case
     ${DIR_P2P_SRCS}
     ${DIR_PROTO_SRCS}
     ${DIR_PROTO_HDRS}
+    ${DIR_SYNC_SRCS}
     ${CUR_DIR}/libs/ed25519-donna/ed25519.c
-    ${DIR_UT_SRCS})
+    ${DIR_UT_SRCS}
+    ${DIR_RPC_SRCS})
 
 
 
