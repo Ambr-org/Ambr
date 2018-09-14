@@ -116,7 +116,7 @@ void ambr::store::StoreManager::Init(const std::string& path){
       rocksdb::WriteBatch batch;
       std::shared_ptr<ReceiveUnitStore> rec_store = std::make_shared<ReceiveUnitStore>(unit);
       rec_store->set_version((uint32_t)0x00000001);
-      rec_store->set_is_validate(true);
+      rec_store->set_is_validate(unit_validate->hash());
       std::vector<uint8_t> bytes = rec_store->SerializeByte();
       std::array<uint8_t,sizeof(ambr::core::UnitHash::ArrayType)> hash_bytes = unit->hash().bytes();
       batch.Put(handle_receive_unit_,
@@ -124,7 +124,7 @@ void ambr::store::StoreManager::Init(const std::string& path){
                 rocksdb::Slice((const char*)bytes.data(), bytes.size()));
       std::shared_ptr<EnterValidatorSetUnitStore> enter_store = std::make_shared<EnterValidatorSetUnitStore>(enter_unit);
       enter_store->set_version((uint32_t)0x00000001);
-      enter_store->set_is_validate(true);
+      enter_store->set_is_validate(unit_validate->hash());
       std::vector<uint8_t> enter_buf = enter_store->SerializeByte();
       batch.Put(handle_enter_validator_unit_,
                 rocksdb::Slice((const char*)enter_unit->hash().bytes().data(), enter_unit->hash().bytes().size()),
@@ -715,7 +715,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
                 over = true;
                 break;
               }
-              send_unit->set_is_validate(true);
+              send_unit->set_is_validate(prv_validate_unit->hash());
               std::vector<uint8_t> buf = send_unit->SerializeByte();
               status = batch.Put(
                     handle_send_unit_,
@@ -732,7 +732,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
                 over = true;
                 break;
               }
-              receive_unit->set_is_validate(true);
+              receive_unit->set_is_validate(prv_validate_unit->hash());
               std::vector<uint8_t> buf = receive_unit->SerializeByte();
               status = batch.Put(
                     handle_receive_unit_,
@@ -749,7 +749,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
                 over = true;
                 break;
               }
-              enter_unit->set_is_validate(true);
+              enter_unit->set_is_validate(prv_validate_unit->hash());
               std::vector<uint8_t> buf = enter_unit->SerializeByte();
               status = batch.Put(
                     handle_enter_validator_unit_,
@@ -777,7 +777,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
                 over = true;
                 break;
               }
-              leave_unit->set_is_validate(true);
+              leave_unit->set_is_validate(prv_validate_unit->hash());
               std::vector<uint8_t> buf = leave_unit->SerializeByte();
               status = batch.Put(
                     handle_enter_validator_unit_,
