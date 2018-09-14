@@ -7,6 +7,7 @@
 #define AMBR_UNIT_STORE_H_
 #include <memory>
 #include <core/key.h>
+#include <core/unit.h>
 #include <vector>
 #include <list>
 #include <unordered_map>
@@ -28,7 +29,8 @@ public:
     ST_SendUnit = 1,
     ST_ReceiveUnit = 2,
     ST_EnterValidatorSet = 3,
-    ST_LeaveValidatorSet = 4
+    ST_LeaveValidatorSet = 4,
+    ST_Validator = 5
   };
   uint32_t version(){return version_;}
   void set_version(uint32_t version){version_ = version;}
@@ -86,6 +88,23 @@ private:
   std::shared_ptr<core::ReceiveUnit> unit_;
 };
 
+class ValidatorUnitStore:public UnitStore{
+public:
+  ValidatorUnitStore(std::shared_ptr<core::ValidatorUnit> unit = nullptr);
+public:
+  std::shared_ptr<core::ValidatorUnit> unit();
+public:
+  virtual std::string SerializeJson() const override;
+  virtual bool DeSerializeJson(const std::string& json) override;
+  virtual std::vector<uint8_t> SerializeByte() const override;
+  virtual bool DeSerializeByte(const std::vector<uint8_t>& buf) override;
+  virtual std::shared_ptr<ambr::core::Unit> GetUnit() override;
+  core::UnitHash next_validator_hash();
+  void set_next_validator_hash(const core::UnitHash& unit_hash);
+private:
+  std::shared_ptr<core::ValidatorUnit> unit_;
+  core::UnitHash next_validator_hash_;
+};
 
 class EnterValidatorSetUnitStore:public UnitStore{
 public:

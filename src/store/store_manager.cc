@@ -131,12 +131,13 @@ void ambr::store::StoreManager::Init(const std::string& path){
                 rocksdb::Slice((const char*)enter_buf.data(), enter_buf.size()));
       batch.Put(handle_account_,
                 rocksdb::Slice((const char*)unit->public_key().bytes().data(), unit->public_key().bytes().size()),
-                rocksdb::Slice((const char*)enter_unit->hash().bytes().data(), enter_unit->hash().bytes().size()));
-      std::vector<uint8_t> validate_buf = unit_validate->SerializeByte();
+                rocksdb::Slice((const char*)enter_unit->hash().bytes().data(), enter_unit->hash().bytes().size())); 
+      std::vector<uint8_t> validate_buf = std::make_shared<ambr::store::ValidatorUnitStore>(unit_validate)->SerializeByte();
       batch.Put(handle_validator_unit_,
                 rocksdb::Slice((const char*)unit_validate->hash().bytes().data(), unit_validate->hash().bytes().size()),
                 rocksdb::Slice((const char*)validate_buf.data(), validate_buf.size())
                 );
+
       batch.Put(handle_validator_unit_,
                 rocksdb::Slice(last_validate_key),
                 rocksdb::Slice((const char*)unit_validate->hash().bytes().data(), unit_validate->hash().bytes().size())
@@ -440,6 +441,8 @@ bool ambr::store::StoreManager::AddEnterValidatorSetUnit(std::shared_ptr<ambr::c
           }
         }
         break;
+      default:
+        break;
     }
     if(!validated){
       break;
@@ -544,7 +547,14 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
     }
     return false;
   }
-  std::shared_ptr<ambr::core::ValidatorUnit> prv_validate_unit = GetValidateUnit(unit->prev_unit());
+  std::shared_ptr<ValidatorUnitStore> prv_validate_unit_store = GetValidateUnit(unit->prev_unit());
+  if(!prv_validate_unit_store){
+    if(err){
+      *err = "Previous validator unit is not exist";
+    }
+    return false;
+  }
+  std::shared_ptr<ambr::core::ValidatorUnit> prv_validate_unit = prv_validate_unit_store->unit();
   if(!prv_validate_unit){
     if(err){
       *err = "Previous validator unit is not exist";
@@ -683,7 +693,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
   }
 
   //write to db
-  std::vector<uint8_t> buf = unit->SerializeByte();
+  std::vector<uint8_t> buf = std::make_shared<ValidatorUnitStore>(unit)->SerializeByte();
   rocksdb::WriteBatch batch;
   rocksdb::Status status = batch.Put(
      handle_validator_unit_,
@@ -824,7 +834,14 @@ bool ambr::store::StoreManager::AddVote(std::shared_ptr<ambr::core::VoteUnit> un
     }
     return false;
   }
-  std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = GetValidateUnit(last_validate_unit_hash);
+  std::shared_ptr<ValidatorUnitStore> validator_unit_store = GetValidateUnit(last_validate_unit_hash);
+  if(!validator_unit_store){
+    if(err){
+      *err = "last validator unit is not found";
+    }
+    return false;
+  }
+  std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = validator_unit_store->unit();
   if(!validator_unit){
     if(err){
       *err = "last validator unit is not found";
@@ -906,8 +923,9 @@ std::list<std::shared_ptr<ambr::core::ValidatorUnit> > ambr::store::StoreManager
     return rtn;
   }
   for(size_t i = 0; i < count; i++){
-    std::shared_ptr<core::ValidatorUnit> unit = GetValidateUnit(unit_hash);
-    if(!unit){
+    std::shared_ptr<ValidatorUnitStore> unit_store = GetValidateUnit(unit_hash);
+    std::shared_ptr<core::ValidatorUnit> unit;// = GetValidateUnit(unit_hash);
+    if(!unit_store || !(unit = unit_store->unit())){
       return rtn;
     }
     rtn.push_back(unit);
@@ -1386,7 +1404,8 @@ bool ambr::store::StoreManager::PublishValidator(
 
   unit->set_percent((uint32_t)(vote_balance*ambr::core::Amount(PERCENT_MAX) / all_balance).data());
   //check percent
-  std::shared_ptr<ambr::core::ValidatorUnit> last_validator_unit = GetLastestValidateUnit();
+  std::shared_ptr<ValidatorUnitStore> last_validator_unit_store = GetLastestValidateUnit();
+  std::shared_ptr<ambr::core::ValidatorUnit> last_validator_unit = last_validator_unit_store->unit();
   if(unit->percent() > PASS_PERCENT){//passed
     if(!last_validator_unit){
       if(err){
@@ -1493,6 +1512,8 @@ std::shared_ptr<ambr::store::UnitStore> ambr::store::StoreManager::GetUnit(const
     return unit;
   }else if(unit = GetLeaveValidatorSetUnit(hash)){
     return unit;
+  }else if(unit = GetValidateUnit(hash)){
+    return unit;
   }else{
     return nullptr;
   }
@@ -1533,9 +1554,9 @@ std::shared_ptr<ambr::store::ReceiveUnitStore> ambr::store::StoreManager::GetRec
   return std::shared_ptr<ambr::store::ReceiveUnitStore>();
 }
 
-std::shared_ptr<ambr::core::ValidatorUnit> ambr::store::StoreManager::GetValidateUnit(const ambr::core::UnitHash &hash){
+std::shared_ptr<ambr::store::ValidatorUnitStore> ambr::store::StoreManager::GetValidateUnit(const ambr::core::UnitHash &hash){
   LockGrade lk(mutex_);
-  std::shared_ptr<ambr::core::ValidatorUnit> rtn;
+  std::shared_ptr<ambr::store::ValidatorUnitStore> rtn;
   std::string string_readed;
   rocksdb::Status status = db_unit_->Get(
                                       rocksdb::ReadOptions(),
@@ -1546,20 +1567,20 @@ std::shared_ptr<ambr::core::ValidatorUnit> ambr::store::StoreManager::GetValidat
     return rtn;
   }
   assert(status.ok());
-  rtn = std::make_shared<ambr::core::ValidatorUnit>();
+  rtn = std::make_shared<ambr::store::ValidatorUnitStore>();
   if(rtn->DeSerializeByte(std::vector<uint8_t>(string_readed.begin(), string_readed.end()))){
     return rtn;
   }
-  return std::shared_ptr<ambr::core::ValidatorUnit>();
+  return std::shared_ptr<ambr::store::ValidatorUnitStore>();
 }
 
-std::shared_ptr<ambr::core::ValidatorUnit> ambr::store::StoreManager::GetLastestValidateUnit(){
+std::shared_ptr<ambr::store::ValidatorUnitStore> ambr::store::StoreManager::GetLastestValidateUnit(){
   LockGrade lk(mutex_);
   core::UnitHash last_validate_unit_hash;
   if(!GetLastValidateUnit(last_validate_unit_hash)){
     return nullptr;
   }
-  std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = GetValidateUnit(last_validate_unit_hash);
+  std::shared_ptr<ambr::store::ValidatorUnitStore> validator_unit = GetValidateUnit(last_validate_unit_hash);
   if(!validator_unit){
     return nullptr;
   }
@@ -1617,8 +1638,6 @@ bool ambr::store::StoreManager::RemoveUnit(const ambr::core::UnitHash &hash, std
   std::shared_ptr<ambr::store::UnitStore> store_unit = GetUnit(hash);
   if(store_unit){
     will_remove.push_back(store_unit->GetUnit());
-  }else if (std::shared_ptr<core::Unit> validator_unit = GetValidateUnit(hash)){
-    will_remove.push_back(validator_unit);
   }else{
     if(err)*err = "can't find unit";
     return false;
@@ -1875,7 +1894,7 @@ bool ambr::store::StoreManager::RemoveUnit(const ambr::core::UnitHash &hash, std
             }
           }
           //find validator
-          std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = GetLastestValidateUnit();
+          std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = GetLastestValidateUnit()->unit();
           assert(validator_unit);
           while(1){
             assert(validator_unit);
@@ -1888,7 +1907,11 @@ bool ambr::store::StoreManager::RemoveUnit(const ambr::core::UnitHash &hash, std
             if(validator_unit->percent() >= GetPassPercent()){
               break;
             }
-            validator_unit = GetValidateUnit(validator_unit->prev_unit());
+            std::shared_ptr<ValidatorUnitStore> validator_unit_store = GetValidateUnit(validator_unit->prev_unit());
+            if(!validator_unit_store){
+              break;
+            }
+            validator_unit = validator_unit_store->unit();
             if(!validator_unit){
               break;
             }
@@ -1901,7 +1924,7 @@ bool ambr::store::StoreManager::RemoveUnit(const ambr::core::UnitHash &hash, std
         }
       }
     }else{
-      std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = GetLastestValidateUnit();
+      std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = GetLastestValidateUnit()->unit();
       assert(validator_unit);
       while(1){
         assert(validator_unit);
@@ -1916,7 +1939,11 @@ bool ambr::store::StoreManager::RemoveUnit(const ambr::core::UnitHash &hash, std
         if(validator_unit->hash() == remove_item->hash()){
           break;
         }
-        validator_unit = GetValidateUnit(validator_unit->prev_unit());
+        std::shared_ptr<ValidatorUnitStore> validator_unit_store = GetValidateUnit(validator_unit->prev_unit());
+        if(!validator_unit_store){
+          break;
+        }
+        validator_unit = validator_unit_store->unit();
       }
     }
   }

@@ -298,8 +298,9 @@ bool ambr::syn::SynManager::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode
 
             if(p_storemanager_->GetLastValidateUnit(newest_unithash)){
               while(last_unithash != newest_unithash){
-                ptr_unit = p_storemanager_->GetValidateUnit(newest_unithash);
-                if(ptr_unit){
+                std::shared_ptr<ambr::store::ValidatorUnitStore> ptr_unit_store = p_storemanager_->GetValidateUnit(newest_unithash);
+
+                if(ptr_unit_store && (ptr_unit = ptr_unit_store->unit())){
                   newest_unithash = ptr_unit->prev_unit();
                 }
                 else{
@@ -359,7 +360,12 @@ bool ambr::syn::SynManager::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode
             p_unit = p_unitstore->GetUnit();
           }
           else{
-            p_unit = p_storemanager_->GetValidateUnit(lasthash);
+            std::shared_ptr<ambr::store::ValidatorUnitStore> unit_store = p_storemanager_->GetValidateUnit(lasthash);
+            if(!unit_store){
+              p_unit = nullptr;
+            }else{
+              p_unit = unit_store->unit();
+            }
           }
 
           if(p_unit){
@@ -376,7 +382,12 @@ bool ambr::syn::SynManager::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode
             p_prevunit = p_prevunitstore->GetUnit();
           }
           else{
-            p_prevunit = p_storemanager_->GetValidateUnit(p_unit->prev_unit());
+            std::shared_ptr<ambr::store::ValidatorUnitStore> unit_store = p_storemanager_->GetValidateUnit(p_unit->prev_unit());
+            if(!unit_store){
+              p_prevunit = nullptr;
+            }else{
+              p_prevunit = unit_store->unit();
+            }
           }
 
           if(p_prevunit){
@@ -442,8 +453,8 @@ bool ambr::syn::SynManager::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode
 
                   if(p_storemanager_->GetLastValidateUnit(newest_unithash)){
                     while(last_unithash != newest_unithash){
-                      ptr_unit = p_storemanager_->GetValidateUnit(newest_unithash);
-                      if(ptr_unit){
+                      std::shared_ptr<ambr::store::ValidatorUnitStore> unit_store = p_storemanager_->GetValidateUnit(newest_unithash);
+                      if(unit_store && (ptr_unit = unit_store->unit())){
                         newest_unithash = ptr_unit->prev_unit();
                       }
                       else{

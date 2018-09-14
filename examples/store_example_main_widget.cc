@@ -339,8 +339,9 @@ bool StoreExampleMainWidget::OnMousePress(QEvent *event){
       if(unit){
         ui->edtShowJson->setPlainText(unit->SerializeJson().c_str());
       }else{
-        std::shared_ptr<ambr::core::ValidatorUnit> unit_validator = store_manager_->GetValidateUnit(selected_unit_);
-        if(unit_validator){
+        std::shared_ptr<ambr::store::ValidatorUnitStore> unit_validator_store = store_manager_->GetValidateUnit(selected_unit_);
+        std::shared_ptr<ambr::core::ValidatorUnit> unit_validator;
+        if(unit_validator_store && (unit_validator = unit_validator_store->unit())){
           ui->edtShowJson->setPlainText(unit_validator->SerializeJson().c_str());
         }
       }
@@ -809,7 +810,11 @@ void StoreExampleMainWidget::on_btnFlushVote_clicked(){
   if(!validator_set_list){
     return;
   }
-  std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = store_manager_->GetLastestValidateUnit();
+  std::shared_ptr<ambr::store::ValidatorUnitStore> validator_unit_store = store_manager_->GetLastestValidateUnit();
+  if(!validator_unit_store){
+    return;
+  }
+  std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = validator_unit_store->unit();
   if(!validator_unit){
     return;
   }
