@@ -40,15 +40,18 @@ private:
   void OnConnectNode(CNode* p_node);
   void OnDisConnectNode(CNode* p_node);
 private:
+  //get all node count
+  uint32_t GetNodeCount();
+private:
   bool exit_;
+  std::mutex state_mutex_;
+  SynState state_;
   SynManagerConfig config_;
   Ptr_StoreManager p_storemanager_;
   Ptr_CScheduler p_scheduler;
   std::list<CNode*> list_in_nodes_;
   std::list<CNode*> list_out_nodes_;
   std::list<Ptr_Unit> list_ptr_unit_;
-  std::list<CNode*> list_in_nodes_wait_;
-  std::list<CNode*> list_out_nodes_wait_;
   Ptr_PeerLogicValidation p_peerLogicValidation_;
 
   std::function<void(CNode*)> on_accept_node_func_;
@@ -98,8 +101,9 @@ bool ambr::syn::SynManager::Impl::Init(const SynManagerConfig &config){
 }
 
 void ambr::syn::SynManager::Impl::RemoveNode(CNode* p_node, uint32_t second){
-  list_in_nodes_.remove(p_node);
-  list_out_nodes_.remove(p_node);
+  /*list_in_nodes_.remove(p_node);
+  list_out_nodes_.remove(p_node);*/
+  p_node->fDisconnect = true;
 }
 
 void ambr::syn::SynManager::Impl::SendMessage(CSerializedNetMsg&& msg, CNode* p_node){
@@ -152,22 +156,34 @@ void ambr::syn::SynManager::Impl::WaitForShutdown(){
 }
 
 void ambr::syn::SynManager::Impl::OnAcceptNode(CNode* p_node){
+  {
+    std::lock_guard<std::mutex> lk(state_mutex_);
+    if(GetNodeCount() == 0){
+      state_.is_online_ = true;
+    }
+  }
   if(p_node){
     if(on_accept_node_func_){
       on_accept_node_func_(p_node);
     }
-    list_in_nodes_wait_.remove(p_node);
-    list_in_nodes_wait_.push_back(p_node);
+    list_in_nodes_.remove(p_node);
+    list_in_nodes_.push_back(p_node);
   }
 }
 
 void ambr::syn::SynManager::Impl::OnConnectNode(CNode* p_node){
+  {
+    std::lock_guard<std::mutex> lk(state_mutex_);
+    if(GetNodeCount() == 0){
+      state_.is_online_ = true;
+    }
+  }
   if(p_node){
     if(on_connect_node_func_){
       on_connect_node_func_(p_node);
     }
-    list_out_nodes_wait_.remove(p_node);
-    list_out_nodes_wait_.push_back(p_node);
+    list_out_nodes_.remove(p_node);
+    list_out_nodes_.push_back(p_node);
   }
 }
 
@@ -177,6 +193,16 @@ void ambr::syn::SynManager::Impl::OnDisConnectNode(CNode* p_node){
       list_out_nodes_.remove(p_node);
       on_disconnect_node_func_(p_node);
     }
+    {
+      std::lock_guard<std::mutex> lk(state_mutex_);
+      if(GetNodeCount() == 0){
+        state_.is_online_ = false;
+      }
+    }
+}
+
+uint32_t ambr::syn::SynManager::Impl::GetNodeCount(){
+  return list_in_nodes_.size()+list_out_nodes_.size();
 }
 
 void ambr::syn::SynManager::Impl::UnSerialize(std::vector<uint8_t>& vec_bytes){
@@ -201,50 +227,7 @@ void ambr::syn::SynManager::Impl::UnSerialize(std::vector<uint8_t>& vec_bytes){
 
 bool ambr::syn::SynManager::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode* p_node){
     std::string&& tmp = netmsg.hdr.GetCommand();
-    if(NetMsgType::VERSION == tmp){
-      /*if(0x00000001 != msg->version_){
-        LOG(WARNING) << "Error peer version:" << std::hex << std::setw(8) << std::setfill('0') << msg->version_
-                     << "in" << p_node->GetAddrLocal().ToStringIP() << ":" << std::dec << std::setw(0) << p_node->GetAddrLocal().GetPort();
-        RemoveNode(p_node, 0);
-        list_in_nodes_.remove(p_node);
-        list_out_nodes_.remove(p_node);
-        list_in_nodes_wait_.remove(p_node);
-        list_out_nodes_wait_.remove(p_node);
-      }
-      else*/
-      {
-        //bool is_wait = false;
-        for(auto& item : list_in_nodes_wait_){
-        if(item == p_node){
-            //is_wait = true;
-            list_in_nodes_wait_.remove(p_node);
-            list_in_nodes_.push_back(p_node);
-            LOG(INFO) << "Right node version:" << std::hex << std::setw(8) << std::setfill('0') << "save"
-                      << p_node->GetAddrLocal().ToStringIP() << ":" << std::dec << std::setw(0) << p_node->GetAddrLocal().GetPort() << "to in_peers";
-            break;
-          }
-        }
-
-        for(auto& it:list_out_nodes_wait_){
-          if(it == p_node){
-            //is_wait = true;
-            list_out_nodes_wait_.remove(p_node);
-            list_out_nodes_.push_back(p_node);
-            LOG(INFO) << "Right node version:" << std::hex << std::setw(8) << std::setfill('0') << "save"
-                      << p_node->GetAddrLocal().ToStringIP() << ":" << std::dec << std::setw(0) << p_node->GetAddrLocal().GetPort() << "to out_peers";
-            //Send addr msg
-            {
-              SendMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::ADDR, ""), p_node);
-              break;
-            }
-          }
-        }
-      }
-    }
-    else if(NetMsgType::ADDR == tmp){
-
-    }
-    else if(NetMsgType::UNIT == tmp){
+    if(NetMsgType::UNIT == tmp){
       std::vector<uint8_t> buf;
       buf.assign(netmsg.vRecv.begin(), netmsg.vRecv.end());
       UnSerialize(buf);
@@ -561,6 +544,13 @@ void ambr::syn::SynManager::BoardCastNewJoinValidatorSetUnit(std::shared_ptr<cor
 }
 
 void ambr::syn::SynManager::BoardCastNewLeaveValidatorSetUnit(std::shared_ptr<core::LeaveValidateSetUint> p_unit){
+  std::vector<uint8_t>&& buf = p_unit->SerializeByte();
+  std::string str_data;
+  str_data.assign(buf.begin(), buf.end());
+  p_impl_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::UNIT, str_data), nullptr);
+}
+
+void ambr::syn::SynManager::BoardCastNewVoteUnit(std::shared_ptr<ambr::core::VoteUnit> p_unit){
   std::vector<uint8_t>&& buf = p_unit->SerializeByte();
   std::string str_data;
   str_data.assign(buf.begin(), buf.end());

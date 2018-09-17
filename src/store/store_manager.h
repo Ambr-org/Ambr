@@ -38,6 +38,7 @@ public:
   boost::signals2::connection AddCallBackReceiveNewJoinValidatorSetUnit(std::function<void(std::shared_ptr<core::EnterValidateSetUint>)> callback);
   boost::signals2::connection AddCallBackReceiveNewLeaveValidatorSetUnit(std::function<void(std::shared_ptr<core::LeaveValidateSetUint>)> callback);
   boost::signals2::connection AddCallBackReceiveNewValidatorUnit(std::function<void(std::shared_ptr<core::ValidatorUnit>)> callback);
+  boost::signals2::connection AddCallBackReceiveNewVoteUnit(std::function<void(std::shared_ptr<core::VoteUnit>)> callback);
 public:
   //bool AddUnit(std::shared_ptr<core::Unit> unit, std::string* err);
   bool AddSendUnit(std::shared_ptr<core::SendUnit> send_unit, std::string* err);
@@ -180,6 +181,7 @@ private:
   boost::signals2::signal<void(std::shared_ptr<core::EnterValidateSetUint>)> DoReceiveNewEnterValidateSetUnit;
   boost::signals2::signal<void(std::shared_ptr<core::LeaveValidateSetUint>)> DoReceiveNewLeaveValidateSetUnit;
   boost::signals2::signal<void(std::shared_ptr<core::ValidatorUnit>)> DoReceiveNewValidatorUnit;
+  boost::signals2::signal<void(std::shared_ptr<core::VoteUnit>)> DoReceiveNewVoteUnit;
 };
 }
 }

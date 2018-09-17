@@ -178,6 +178,10 @@ boost::signals2::connection ambr::store::StoreManager::AddCallBackReceiveNewVali
   return DoReceiveNewValidatorUnit.connect(callback);
 }
 
+boost::signals2::connection ambr::store::StoreManager::AddCallBackReceiveNewVoteUnit(std::function<void (std::shared_ptr<ambr::core::VoteUnit>)> callback){
+  return DoReceiveNewVoteUnit.connect(callback);
+}
+
 
 bool ambr::store::StoreManager::AddSendUnit(std::shared_ptr<ambr::core::SendUnit> send_unit, std::string *err){
   LockGrade lk(mutex_);
@@ -865,6 +869,7 @@ bool ambr::store::StoreManager::AddVote(std::shared_ptr<ambr::core::VoteUnit> un
     }
   }
   vote_list_.push_back(unit);
+  DoReceiveNewVoteUnit(unit);
   return true;
 }
 

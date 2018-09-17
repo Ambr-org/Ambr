@@ -53,11 +53,18 @@ struct SynManagerConfig{
   std::vector<std::string> vec_seed_;
 };
 
+class SynState{
+public:
+  bool is_sync_ = false;
+  bool is_online_ = false;
+};
+
 class SynManager{
 public:
   class Impl;
   SynManager(Ptr_StoreManager p_storemanager);
   bool Init(const SynManagerConfig& config);
+
 
   void RemovePeer(CNode* p_node, uint32_t second);
   void BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node);
@@ -70,6 +77,7 @@ public:
   void BoardCastNewValidatorUnit(std::shared_ptr<core::ValidatorUnit> p_unit);
   void BoardCastNewJoinValidatorSetUnit(std::shared_ptr<core::EnterValidateSetUint> p_unit);
   void BoardCastNewLeaveValidatorSetUnit(std::shared_ptr<core::LeaveValidateSetUint> p_unit);
+  void BoardCastNewVoteUnit(std::shared_ptr<core::VoteUnit> p_unit);
 public:
   bool GetNodeIfPauseSend(const std::string& node_addr);
   bool GetNodeIfPauseReceive(const std::string& node_addr);

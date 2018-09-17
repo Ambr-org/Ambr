@@ -35,6 +35,7 @@ int DoServer(const std::string& db_path, uint16_t rpc_port, uint16_t p2p_prot, c
   p_store_manager->AddCallBackReceiveNewValidatorUnit(std::bind(&ambr::syn::SynManager::BoardCastNewValidatorUnit, p_syn_manager.get(), std::placeholders::_1));
   p_store_manager->AddCallBackReceiveNewJoinValidatorSetUnit(std::bind(&ambr::syn::SynManager::BoardCastNewJoinValidatorSetUnit, p_syn_manager.get(), std::placeholders::_1));
   p_store_manager->AddCallBackReceiveNewLeaveValidatorSetUnit(std::bind(&ambr::syn::SynManager::BoardCastNewLeaveValidatorSetUnit, p_syn_manager.get(), std::placeholders::_1));
+  p_store_manager->AddCallBackReceiveNewVoteUnit(std::bind(&ambr::syn::SynManager::BoardCastNewVoteUnit, p_syn_manager.get(), std::placeholders::_1));
 
   p_rpc->StartRpcServer(p_store_manager, rpc_port);
 
