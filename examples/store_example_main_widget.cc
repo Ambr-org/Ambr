@@ -56,6 +56,7 @@ StoreExampleMainWidget::StoreExampleMainWidget(std::shared_ptr<ambr::store::Stor
   store_manager_->AddCallBackReceiveNewValidatorUnit(std::bind(&ambr::syn::SynManager::BoardCastNewValidatorUnit, p_syn_manager.get(), std::placeholders::_1));
   store_manager_->AddCallBackReceiveNewJoinValidatorSetUnit(std::bind(&ambr::syn::SynManager::BoardCastNewJoinValidatorSetUnit, p_syn_manager.get(), std::placeholders::_1));
   store_manager_->AddCallBackReceiveNewLeaveValidatorSetUnit(std::bind(&ambr::syn::SynManager::BoardCastNewLeaveValidatorSetUnit, p_syn_manager.get(), std::placeholders::_1));
+  store_manager_->AddCallBackReceiveNewVoteUnit(std::bind(&ambr::syn::SynManager::BoardCastNewVoteUnit, p_syn_manager.get(), std::placeholders::_1));
 
 
   store_manager_->AddCallBackReceiveNewSendUnit(std::bind(&StoreExampleMainWidget::OnGetNewUnit, this));
