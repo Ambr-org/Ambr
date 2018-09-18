@@ -269,7 +269,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
    <item>
     <widget class="QTabWidget" name="tabMain">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab_7">
       <attribute name="title">
@@ -516,7 +516,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
              <item>
               <widget class="QTabWidget" name="tabDebugDown">
                <property name="currentIndex">
-                <number>3</number>
+                <number>2</number>
                </property>
                <widget class="QWidget" name="tab_4">
                 <attribute name="title">
@@ -691,8 +691,8 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                       <property name="geometry">
                        <rect>
                         <x>0</x>
-                        <y>0</y>
-                        <width>472</width>
+                        <y>-12</y>
+                        <width>579</width>
                         <height>586</height>
                        </rect>
                       </property>
@@ -761,7 +761,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                           <item>
                            <widget class="QStackedWidget" name="stackTranslate">
                             <property name="currentIndex">
-                             <number>0</number>
+                             <number>3</number>
                             </property>
                             <widget class="QWidget" name="page">
                              <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -1197,20 +1197,6 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                                   <layout class="QHBoxLayout" name="horizontalLayout_49"/>
                                  </item>
                                  <item>
-                                  <layout class="QHBoxLayout" name="horizontalLayout_52">
-                                   <item>
-                                    <widget class="QLabel" name="label_38">
-                                     <property name="text">
-                                      <string>数量</string>
-                                     </property>
-                                    </widget>
-                                   </item>
-                                   <item>
-                                    <widget class="QLineEdit" name="edtTUAmount"/>
-                                   </item>
-                                  </layout>
-                                 </item>
-                                 <item>
                                   <spacer name="verticalSpacer_6">
                                    <property name="orientation">
                                     <enum>Qt::Vertical</enum>
@@ -1280,7 +1266,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                     <property name="geometry">
                      <rect>
                       <x>0</x>
-                      <y>0</y>
+                      <y>-24</y>
                       <width>599</width>
                       <height>1420</height>
                      </rect>
@@ -1827,6 +1813,16 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                </widget>
               </item>
               <item>
+               <widget class="QPushButton" name="btnTextPrintAllBalance">
+                <property name="styleSheet">
+                 <string notr="true"/>
+                </property>
+                <property name="text">
+                 <string>打印全网资金</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QLabel" name="label_13">
                 <property name="text">
                  <string>日志</string>
@@ -1914,7 +1910,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
               <x>0</x>
               <y>0</y>
               <width>374</width>
-              <height>1272</height>
+              <height>1663</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_49">
@@ -2158,6 +2154,40 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                 </item>
                 <item>
                  <widget class="QPushButton" name="btnFlushVote">
+                  <property name="text">
+                   <string>刷新</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_72">
+                  <property name="text">
+                   <string> 当前验证者利润池</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QTableWidget" name="tbValidatorIncome">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>300</height>
+                   </size>
+                  </property>
+                  <column>
+                   <property name="text">
+                    <string>PublicKey</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string>Balance</string>
+                   </property>
+                  </column>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btnFlushValidatorIncome">
                   <property name="text">
                    <string>刷新</string>
                   </property>

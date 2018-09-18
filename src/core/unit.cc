@@ -903,7 +903,6 @@ std::string ambr::core::LeaveValidateSetUint::SerializeJson() const{
   unit_pt.put("balance", balance_.encode_to_hex());
   unit_pt.put("hash", hash_.encode_to_hex());
   unit_pt.put("sign", sign_.encode_to_hex());
-  unit_pt.put("unfreeze_count", unfreeze_count_.encode_to_hex());
   ::boost::property_tree::ptree pt;
   pt.add_child("unit", unit_pt);
   ::std::ostringstream stream;
@@ -923,7 +922,6 @@ bool ambr::core::LeaveValidateSetUint::DeSerializeJson(const std::string& json){
     balance_.decode_from_hex(pt.get<std::string>("unit.balance"));
     hash_.decode_from_hex(pt.get<std::string>("unit.hash"));
     sign_.decode_from_hex(pt.get<std::string>("unit.sign"));
-    unfreeze_count_.decode_from_hex(pt.get<std::string>("unit.unfreeze_count"));
     if(type_ != ambr::core::UnitType::LeaveValidateSet){
       return false;
     }
@@ -944,7 +942,6 @@ std::vector<uint8_t> ambr::core::LeaveValidateSetUint::SerializeByte( ) const {
   obj.set_balance_(balance_.bytes().data(), balance_.bytes().size());
   obj.set_hash_(hash_.bytes().data(), hash_.bytes().size());
   obj.set_sign_(sign_.bytes().data(), sign_.bytes().size());
-  obj.set_unfreeze_count_(unfreeze_count_.bytes().data(), unfreeze_count_.bytes().size());
   size_t len=obj.ByteSize();
   buf.resize(obj.ByteSize());
   obj.SerializeToArray(buf.data(), len);
@@ -962,7 +959,6 @@ bool ambr::core::LeaveValidateSetUint::DeSerializeByte(const std::vector<uint8_t
     balance_.set_bytes(obj.balance_().data(), obj.balance_().size());
     hash_.set_bytes(obj.hash_().data(), obj.hash_().size());
     sign_.set_bytes(obj.sign_().data(), obj.sign_().size());
-    unfreeze_count_.set_bytes(obj.unfreeze_count_().data(), obj.unfreeze_count_().size());
     if(type_ != ambr::core::UnitType::LeaveValidateSet){
       return false;
     }
@@ -979,7 +975,6 @@ ambr::core::UnitHash ambr::core::LeaveValidateSetUint::CalcHash() const {
   hasher.process(public_key_);
   hasher.process(prev_unit_);
   hasher.process(balance_);
-  hasher.process(unfreeze_count_);
   hasher.finish();
   UnitHash::ArrayType array;
   hasher.get_hash_bytes(array.begin(), array.end());
@@ -1017,16 +1012,9 @@ bool ambr::core::LeaveValidateSetUint::Validate(std::string *err) const{
   return true;
 }
 
-ambr::core::Amount ambr::core::LeaveValidateSetUint::unfreeze_count(){
-  return unfreeze_count_;
-}
-
-void ambr::core::LeaveValidateSetUint::set_unfreeze_count(const ambr::core::Amount& count){
-  unfreeze_count_ = count;
-}
 
 int32_t ambr::core::LeaveValidateSetUint::GetFeeSize(){
-  return Unit::GetFeeSize()+sizeof(unfreeze_count_);
+  return sizeof(unfreeze_count_);
 }
 
 

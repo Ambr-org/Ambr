@@ -1741,20 +1741,6 @@ class LeaveValidateSetUint : public ::google::protobuf::Message /* @@protoc_inse
   ::std::string* release_sign_();
   void set_allocated_sign_(::std::string* sign_);
 
-  // bytes unfreeze_count_ = 8;
-  void clear_unfreeze_count_();
-  static const int kUnfreezeCountFieldNumber = 8;
-  const ::std::string& unfreeze_count_() const;
-  void set_unfreeze_count_(const ::std::string& value);
-  #if LANG_CXX11
-  void set_unfreeze_count_(::std::string&& value);
-  #endif
-  void set_unfreeze_count_(const char* value);
-  void set_unfreeze_count_(const void* value, size_t size);
-  ::std::string* mutable_unfreeze_count_();
-  ::std::string* release_unfreeze_count_();
-  void set_allocated_unfreeze_count_(::std::string* unfreeze_count_);
-
   // uint32 version_ = 1;
   void clear_version_();
   static const int kVersionFieldNumber = 1;
@@ -1776,7 +1762,6 @@ class LeaveValidateSetUint : public ::google::protobuf::Message /* @@protoc_inse
   ::google::protobuf::internal::ArenaStringPtr balance__;
   ::google::protobuf::internal::ArenaStringPtr hash__;
   ::google::protobuf::internal::ArenaStringPtr sign__;
-  ::google::protobuf::internal::ArenaStringPtr unfreeze_count__;
   ::google::protobuf::uint32 version__;
   int type__;
   mutable ::google::protobuf::internal::CachedSize _cached_size_;
@@ -4019,59 +4004,6 @@ inline void LeaveValidateSetUint::set_allocated_sign_(::std::string* sign_) {
   }
   sign__.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), sign_);
   // @@protoc_insertion_point(field_set_allocated:ambr.protobuf.LeaveValidateSetUint.sign_)
-}
-
-// bytes unfreeze_count_ = 8;
-inline void LeaveValidateSetUint::clear_unfreeze_count_() {
-  unfreeze_count__.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-inline const ::std::string& LeaveValidateSetUint::unfreeze_count_() const {
-  // @@protoc_insertion_point(field_get:ambr.protobuf.LeaveValidateSetUint.unfreeze_count_)
-  return unfreeze_count__.GetNoArena();
-}
-inline void LeaveValidateSetUint::set_unfreeze_count_(const ::std::string& value) {
-  
-  unfreeze_count__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:ambr.protobuf.LeaveValidateSetUint.unfreeze_count_)
-}
-#if LANG_CXX11
-inline void LeaveValidateSetUint::set_unfreeze_count_(::std::string&& value) {
-  
-  unfreeze_count__.SetNoArena(
-    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:ambr.protobuf.LeaveValidateSetUint.unfreeze_count_)
-}
-#endif
-inline void LeaveValidateSetUint::set_unfreeze_count_(const char* value) {
-  GOOGLE_DCHECK(value != NULL);
-  
-  unfreeze_count__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:ambr.protobuf.LeaveValidateSetUint.unfreeze_count_)
-}
-inline void LeaveValidateSetUint::set_unfreeze_count_(const void* value, size_t size) {
-  
-  unfreeze_count__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
-      ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:ambr.protobuf.LeaveValidateSetUint.unfreeze_count_)
-}
-inline ::std::string* LeaveValidateSetUint::mutable_unfreeze_count_() {
-  
-  // @@protoc_insertion_point(field_mutable:ambr.protobuf.LeaveValidateSetUint.unfreeze_count_)
-  return unfreeze_count__.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-inline ::std::string* LeaveValidateSetUint::release_unfreeze_count_() {
-  // @@protoc_insertion_point(field_release:ambr.protobuf.LeaveValidateSetUint.unfreeze_count_)
-  
-  return unfreeze_count__.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-inline void LeaveValidateSetUint::set_allocated_unfreeze_count_(::std::string* unfreeze_count_) {
-  if (unfreeze_count_ != NULL) {
-    
-  } else {
-    
-  }
-  unfreeze_count__.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), unfreeze_count_);
-  // @@protoc_insertion_point(field_set_allocated:ambr.protobuf.LeaveValidateSetUint.unfreeze_count_)
 }
 
 #ifdef __GNUC__

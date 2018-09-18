@@ -41,9 +41,7 @@ void ambr::utils::ValidatorAuto::StartAutoRun(const ambr::core::PrivateKey &pri_
             core::UnitHash tx_hash;
             std::shared_ptr<ambr::core::ValidatorUnit> unit_validator;
             std::string err;
-            if(store_manager_->PublishValidator(pri_key, &tx_hash, unit_validator, &err)){
-              LOG(INFO)<<"Send Validator Success, tx_hash:"<<tx_hash.encode_to_hex()<<",public:"<<now_pub_key.encode_to_hex()<<std::endl;
-            }else{
+            if(!store_manager_->PublishValidator(pri_key, &tx_hash, unit_validator, &err)){
               LOG(WARNING)<<"Send Validator Faild,public:"<<now_pub_key.encode_to_hex()<<err<<std::endl;
             }
           }

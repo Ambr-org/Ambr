@@ -239,7 +239,6 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::ambr::protobuf::LeaveValidateSetUint, balance__),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::ambr::protobuf::LeaveValidateSetUint, hash__),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::ambr::protobuf::LeaveValidateSetUint, sign__),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::ambr::protobuf::LeaveValidateSetUint, unfreeze_count__),
 };
 static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::ambr::protobuf::SendUnit)},
@@ -325,19 +324,18 @@ void AddDescriptorsImpl() {
       "\r\n\005hash_\030\006 \001(\014\022\r\n\005sign_\030\007 \001(\014\"r\n\004Type\022\016\n"
       "\nInvalidate\020\000\022\010\n\004send\020\001\022\013\n\007receive\020\002\022\010\n\004"
       "Vote\020\003\022\r\n\tValidator\020\004\022\024\n\020EnterValidateSe"
-      "t\020\005\022\024\n\020LeaveValidateSet\020\006\"\307\002\n\024LeaveValid"
+      "t\020\005\022\024\n\020LeaveValidateSet\020\006\"\256\002\n\024LeaveValid"
       "ateSetUint\022\020\n\010version_\030\001 \001(\r\0227\n\005type_\030\002 "
       "\001(\0162(.ambr.protobuf.LeaveValidateSetUint"
       ".Type\022\023\n\013public_key_\030\003 \001(\014\022\022\n\nprev_unit_"
       "\030\004 \001(\014\022\020\n\010balance_\030\005 \001(\014\022\r\n\005hash_\030\006 \001(\014\022"
-      "\r\n\005sign_\030\007 \001(\014\022\027\n\017unfreeze_count_\030\010 \001(\014\""
-      "r\n\004Type\022\016\n\nInvalidate\020\000\022\010\n\004send\020\001\022\013\n\007rec"
-      "eive\020\002\022\010\n\004Vote\020\003\022\r\n\tValidator\020\004\022\024\n\020Enter"
-      "ValidateSet\020\005\022\024\n\020LeaveValidateSet\020\006b\006pro"
-      "to3"
+      "\r\n\005sign_\030\007 \001(\014\"r\n\004Type\022\016\n\nInvalidate\020\000\022\010"
+      "\n\004send\020\001\022\013\n\007receive\020\002\022\010\n\004Vote\020\003\022\r\n\tValid"
+      "ator\020\004\022\024\n\020EnterValidateSet\020\005\022\024\n\020LeaveVal"
+      "idateSet\020\006b\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 2163);
+      descriptor, 2138);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "unit.proto", &protobuf_RegisterTypes);
 }
@@ -3547,7 +3545,6 @@ const int LeaveValidateSetUint::kPrevUnitFieldNumber;
 const int LeaveValidateSetUint::kBalanceFieldNumber;
 const int LeaveValidateSetUint::kHashFieldNumber;
 const int LeaveValidateSetUint::kSignFieldNumber;
-const int LeaveValidateSetUint::kUnfreezeCountFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 LeaveValidateSetUint::LeaveValidateSetUint()
@@ -3581,10 +3578,6 @@ LeaveValidateSetUint::LeaveValidateSetUint(const LeaveValidateSetUint& from)
   if (from.sign_().size() > 0) {
     sign__.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.sign__);
   }
-  unfreeze_count__.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.unfreeze_count_().size() > 0) {
-    unfreeze_count__.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.unfreeze_count__);
-  }
   ::memcpy(&version__, &from.version__,
     static_cast<size_t>(reinterpret_cast<char*>(&type__) -
     reinterpret_cast<char*>(&version__)) + sizeof(type__));
@@ -3597,7 +3590,6 @@ void LeaveValidateSetUint::SharedCtor() {
   balance__.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   hash__.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   sign__.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  unfreeze_count__.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(&version__, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&type__) -
       reinterpret_cast<char*>(&version__)) + sizeof(type__));
@@ -3614,7 +3606,6 @@ void LeaveValidateSetUint::SharedDtor() {
   balance__.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   hash__.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   sign__.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  unfreeze_count__.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 
 void LeaveValidateSetUint::SetCachedSize(int size) const {
@@ -3642,7 +3633,6 @@ void LeaveValidateSetUint::Clear() {
   balance__.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   hash__.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   sign__.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  unfreeze_count__.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(&version__, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&type__) -
       reinterpret_cast<char*>(&version__)) + sizeof(type__));
@@ -3748,18 +3738,6 @@ bool LeaveValidateSetUint::MergePartialFromCodedStream(
         break;
       }
 
-      // bytes unfreeze_count_ = 8;
-      case 8: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(66u /* 66 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
-                input, this->mutable_unfreeze_count_()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
       default: {
       handle_unusual:
         if (tag == 0) {
@@ -3827,12 +3805,6 @@ void LeaveValidateSetUint::SerializeWithCachedSizes(
       7, this->sign_(), output);
   }
 
-  // bytes unfreeze_count_ = 8;
-  if (this->unfreeze_count_().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
-      8, this->unfreeze_count_(), output);
-  }
-
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
@@ -3893,13 +3865,6 @@ void LeaveValidateSetUint::SerializeWithCachedSizes(
         7, this->sign_(), target);
   }
 
-  // bytes unfreeze_count_ = 8;
-  if (this->unfreeze_count_().size() > 0) {
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
-        8, this->unfreeze_count_(), target);
-  }
-
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
@@ -3950,13 +3915,6 @@ size_t LeaveValidateSetUint::ByteSizeLong() const {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::BytesSize(
         this->sign_());
-  }
-
-  // bytes unfreeze_count_ = 8;
-  if (this->unfreeze_count_().size() > 0) {
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::BytesSize(
-        this->unfreeze_count_());
   }
 
   // uint32 version_ = 1;
@@ -4019,10 +3977,6 @@ void LeaveValidateSetUint::MergeFrom(const LeaveValidateSetUint& from) {
 
     sign__.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.sign__);
   }
-  if (from.unfreeze_count_().size() > 0) {
-
-    unfreeze_count__.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.unfreeze_count__);
-  }
   if (from.version_() != 0) {
     set_version_(from.version_());
   }
@@ -4064,8 +4018,6 @@ void LeaveValidateSetUint::InternalSwap(LeaveValidateSetUint* other) {
   hash__.Swap(&other->hash__, &::google::protobuf::internal::GetEmptyStringAlreadyInited(),
     GetArenaNoVirtual());
   sign__.Swap(&other->sign__, &::google::protobuf::internal::GetEmptyStringAlreadyInited(),
-    GetArenaNoVirtual());
-  unfreeze_count__.Swap(&other->unfreeze_count__, &::google::protobuf::internal::GetEmptyStringAlreadyInited(),
     GetArenaNoVirtual());
   swap(version__, other->version__);
   swap(type__, other->type__);

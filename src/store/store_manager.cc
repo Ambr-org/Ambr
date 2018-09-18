@@ -12,12 +12,13 @@
 #include <rocksdb/db.h>
 #include <rocksdb/slice.h>
 #include <rocksdb/options.h>
+#include <glog/logging.h>
 #include <core/key.h>
 #include "unit_store.h"
 static const int use_log = true;
 std::shared_ptr<ambr::store::StoreManager> ambr::store::StoreManager::instance_ = std::shared_ptr<ambr::store::StoreManager>();
 static const std::string init_addr = "ambr_y4bwxzwwrze3mt4i99n614njtsda6s658uqtue9ytjp7i5npg6pz47qdjhx3";
-static const ambr::core::Amount init_balance=(boost::multiprecision::uint128_t)530000000000*1000;
+static const ambr::core::Amount init_balance=(boost::multiprecision::uint128_t)630000000000*1000;
 static const ambr::core::Amount init_validate=(boost::multiprecision::uint128_t)100000000000*1000;
 static const std::string last_validate_key = "lv";
 static const std::string validate_set_key = "validate_set_key";
@@ -42,6 +43,7 @@ void ambr::store::StoreManager::Init(const std::string& path){
   column_families.push_back(rocksdb::ColumnFamilyDescriptor("enter_validator_unit", rocksdb::ColumnFamilyOptions()));
   column_families.push_back(rocksdb::ColumnFamilyDescriptor("leave_validator_unit", rocksdb::ColumnFamilyOptions()));
   column_families.push_back(rocksdb::ColumnFamilyDescriptor("validator_set", rocksdb::ColumnFamilyOptions()));
+  column_families.push_back(rocksdb::ColumnFamilyDescriptor("handle_validator_balance_", rocksdb::ColumnFamilyOptions()));
   rocksdb::Status status = rocksdb::DB::Open(options, path, column_families, &column_families_handle, &db_unit_);
   assert(status.ok());
   handle_send_unit_ = column_families_handle[0];
@@ -53,6 +55,7 @@ void ambr::store::StoreManager::Init(const std::string& path){
   handle_enter_validator_unit_ = column_families_handle[6];
   handle_leave_validator_unit_ = column_families_handle[7];
   handle_validator_set_ = column_families_handle[8];
+  handle_validator_balance_ = column_families_handle[9];
 
   {//first time init db
     core::Amount balance = core::Amount();
@@ -147,6 +150,11 @@ void ambr::store::StoreManager::Init(const std::string& path){
                 rocksdb::Slice(validate_set_key),
                 rocksdb::Slice((const char*)validator_set_buf.data(), validator_set_buf.size())
                 );
+      batch.Put(handle_validator_balance_,
+                rocksdb::Slice((const char*)item.validator_public_key_.bytes().data(), item.validator_public_key_.bytes().size()),
+                rocksdb::Slice((const char*)item.balance_.bytes().data(), item.balance_.bytes().size())
+                );
+
       rocksdb::Status status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
       /*if(use_log){//TODO:use log
         std::cout<<"genesis create"<<std::endl;
@@ -510,7 +518,12 @@ bool ambr::store::StoreManager::AddLeaveValidatorSetUnit(std::shared_ptr<ambr::c
     return false;
   }
 
-  //TODO banlance validate
+  if(!GetValidatorSet()->IsValidator(unit->public_key())){
+    if(err){
+      *err = "Public key is not in validator set";
+    }
+    return false;
+  }
   //write to db
   std::shared_ptr<LeaveValidatorSetUnitStore> store = std::make_shared<LeaveValidatorSetUnitStore>(unit);
   std::vector<uint8_t> buf = store->SerializeByte();
@@ -656,7 +669,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
   for(ambr::store::ValidatorItem validator_item: validator_set_list->validator_list()){
     if(unit->nonce() >= validator_item.enter_nonce_ &&
     (unit->nonce() < validator_item.leave_nonce_ || validator_item.leave_nonce_ == 0)){
-      all_balance = all_balance+validator_item.balance_;
+      all_balance += validator_item.balance_;
 
     }
   }
@@ -686,9 +699,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
   }
   ambr::core::Amount max_percent;
   max_percent.set_data(PERCENT_MAX);
-  if(max_percent < (vote_balance / all_balance)){
-    assert(0);
-  }
+
   if(unit->percent() != (vote_balance*max_percent / all_balance).data()){
     if(err){
       *err = "Error percent";
@@ -717,9 +728,14 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
     validator_set_list->set_current_nonce(unit->nonce());
     validator_set_list->set_current_validator(unit->public_key());
     std::vector<ambr::core::UnitHash> checked_list = prv_validate_unit->check_list();
+    ambr::core::Amount all_balance_count = 0;
     for(const ambr::core::UnitHash& hash: checked_list){
       std::shared_ptr<ambr::store::UnitStore> unit_tmp = GetUnit(hash);
       while(unit_tmp){
+        assert(unit_tmp->GetUnit());
+        if(!unit_tmp->is_validate()){
+          all_balance_count += unit_tmp->GetUnit()->GetFeeSize()*GetTransectionFeeBase();
+        }
         bool over = false;
         switch(unit_tmp->type()){
           case ambr::store::UnitStore::ST_SendUnit:{
@@ -769,7 +785,6 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
                     handle_enter_validator_unit_,
                     rocksdb::Slice((const char*)enter_unit->unit()->hash().bytes().data(), enter_unit->unit()->hash().bytes().size()),
                     rocksdb::Slice((const char*)buf.data(), buf.size()));
-
               assert(status.ok());
 
               core::Amount new_balance = enter_unit->unit()->balance();
@@ -781,7 +796,14 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
               validator_item.enter_nonce_ = unit->nonce()+2;
               validator_item.leave_nonce_ = 0;
               validator_set_list->JoinValidator(validator_item);
-
+              //save bail to income
+              core::Amount amount_tmp = GetValidatorIncome(validator_item.validator_public_key_);
+              amount_tmp += validator_item.balance_;
+              status = batch.Put(
+                    handle_validator_balance_,
+                    rocksdb::Slice((const char*)validator_item.validator_public_key_.bytes().data(), validator_item.validator_public_key_.bytes().size()),
+                    rocksdb::Slice((const char*)amount_tmp.bytes().data(), amount_tmp.bytes().size()));
+              assert(status.ok());
               break;
             }
           case ambr::store::UnitStore::ST_LeaveValidatorSet:{
@@ -797,6 +819,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
                     handle_enter_validator_unit_,
                     rocksdb::Slice((const char*)leave_unit->unit()->hash().bytes().data(), leave_unit->unit()->hash().bytes().size()),
                     rocksdb::Slice((const char*)buf.data(), buf.size()));
+              assert(status.ok());
               unit_tmp = GetUnit(leave_unit->GetUnit()->prev_unit());
               validator_set_list->LeaveValidator(leave_unit->unit()->public_key(), unit->nonce());
               break;
@@ -807,6 +830,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
         if(over)break;
       }
     }
+    DispositionTransectionFee(all_balance_count, &batch);
   }
   std::vector<uint8_t> validator_set_buf = validator_set_list->SerializeByte();
   status = batch.Put(handle_validator_set_,
@@ -816,7 +840,6 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
   status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
   assert(status.ok());
   DoReceiveNewValidatorUnit(unit);
-  std::cout << "Add Validator Unit: " << unit->hash().encode_to_hex() << std::endl;
   return true;
 }
 
@@ -1291,7 +1314,6 @@ bool ambr::store::StoreManager::JoinValidatorSet(const core::PrivateKey& pri_key
 }
 
 bool ambr::store::StoreManager::LeaveValidatorSet(const core::PrivateKey& pri_key,
-                                                  const core::Amount& count,
                                                   core::UnitHash* tx_hash,
                                                   std::shared_ptr<ambr::core::Unit>& unit_leave,
                                                   std::string* err)
@@ -1317,9 +1339,6 @@ bool ambr::store::StoreManager::LeaveValidatorSet(const core::PrivateKey& pri_ke
   unit->set_type(ambr::core::UnitType::LeaveValidateSet);
   unit->set_public_key(pub_key);
   unit->set_prev_unit(last_hash);
-  unit->set_unfreeze_count(count);
-  //TODO unfreeze validate
-
   unit->set_balance(last_unit->GetUnit()->balance());
   unit->CalcHashAndFill();
   unit->SignatureAndFill(pri_key);
@@ -1636,6 +1655,23 @@ std::list<std::shared_ptr<ambr::core::VoteUnit>> ambr::store::StoreManager::GetV
   return vote_list_;
 }
 
+ambr::core::Amount ambr::store::StoreManager::GetValidatorIncome(const ambr::core::PublicKey &pub_key){
+  std::string string_readed;
+  ambr::core::Amount rtn;
+  rocksdb::Status status = db_unit_->Get(
+    rocksdb::ReadOptions(),
+    handle_validator_balance_,
+    rocksdb::Slice((const char*)pub_key.bytes().data(), pub_key.bytes().size()),
+    &string_readed);
+  if(!status.ok() && status.IsNotFound()){
+    return 0;
+  }
+  assert(status.ok());
+  assert(string_readed.size() == sizeof(rtn));
+  rtn.set_bytes(string_readed.data(), sizeof(rtn));
+  return rtn;
+}
+
 bool ambr::store::StoreManager::RemoveUnit(const ambr::core::UnitHash &hash, std::string* err){
   std::map<core::UnitHash, std::shared_ptr<core::Unit>> unit_for_remove;
   std::list<std::shared_ptr<core::Unit>> will_remove;
@@ -1647,144 +1683,7 @@ bool ambr::store::StoreManager::RemoveUnit(const ambr::core::UnitHash &hash, std
     if(err)*err = "can't find unit";
     return false;
   }
-#if 0
-  while(will_remove.size()){
-    core::UnitHash after_item_hash;
-    auto remove_item = will_remove.front();
-    will_remove.pop_front();
-    if(remove_item->type() != ambr::core::UnitType::Validator){
-      if(GetLastUnitHashByPubKey(remove_item->public_key(), after_item_hash)){
-        std::shared_ptr<store::UnitStore> unit = GetUnit(after_item_hash);
-        while(1){
-          assert(unit);
-          std::shared_ptr<core::Unit> core_unit = unit->GetUnit();
-          assert(core_unit);
-          if(unit->is_validate()){
-            if(err)*err = "can't remove this unit, is validated";
-            return false;
-          }
-          unit_for_remove.insert(std::pair<core::UnitHash, std::shared_ptr<core::Unit>>(core_unit->hash(), core_unit));
-          if(unit->type() == store::UnitStore::StoreType::ST_SendUnit){
-            std::shared_ptr<store::SendUnitStore> send_store = std::dynamic_pointer_cast<store::SendUnitStore>(unit);
-            core::UnitHash unit_hash = send_store->receive_unit_hash();
-            if(!unit_hash.is_zero()){
-              std::shared_ptr<store::ReceiveUnitStore> receive_unit = GetReceiveUnit(unit_hash);
-              assert(receive_unit);
-              assert(receive_unit->GetUnit());
-              will_remove.push_back(receive_unit->GetUnit());
-            }
-          }
 
-          if(unit->GetUnit()->hash() == remove_item->hash()){
-            break;
-          }
-          unit = GetUnit(unit->GetUnit()->prev_unit());
-        }
-      }
-    }else{
-      std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = GetLastestValidateUnit();
-      assert(validator_unit);
-      while(1){
-        assert(validator_unit);
-        if(validator_unit->percent() > GetPassPercent() && validator_unit->hash() != remove_item->hash()){
-          unit_for_remove.insert(std::make_pair(validator_unit->hash(), validator_unit));
-        }
-        if(validator_unit->hash() == remove_item->hash()){
-          break;item.first
-        }
-        validator_unit = GetValidateUnit(validator_unit->prev_unit());
-      }
-    }
-  }
-
-  //remove in db
-  {
-    rocksdb::WriteBatch batch;
-    rocksdb::Status status;
-    // <public_key, <will add list, will remove list>
-    std::map<core::PublicKey,  std::pair<std::set<core::UnitHash>, std::set<core::UnitHash> > > wait_remove_list;
-    for(const std::pair<core::UnitHash, std::shared_ptr<core::Unit>>& item: unit_for_remove){
-      assert(item.second);
-      switch(item.second->type()){
-        case core::UnitType::send:{
-            //unit
-            status = batch.Delete(handle_send_unit_, rocksdb::Slice((const char*)item.first.bytes().data(), item.first.bytes().size()));
-            assert(status.ok());
-            //account
-            if(!item.second->prev_unit().is_zero()){
-              status = batch.Put(handle_account_, rocksdb::Slice((const char*)item.second->public_key().bytes().data(), item.second->public_key().bytes().size()),
-                        rocksdb::Slice((const char*)item.second->prev_unit().bytes().data(), item.second->prev_unit().bytes().size()));
-              assert(status.ok());
-            }else{
-              status = batch.Delete(handle_account_, rocksdb::Slice((const char*)item.second->public_key().bytes().data(), item.second->public_key().bytes().size()));
-            }
-            //wait list
-            wait_remove_list[item.second->public_key()].second.insert(item.first);
-            break;
-          }
-        case core::UnitType::receive:{
-            //unit
-            status = batch.Delete(handle_receive_unit_, rocksdb::Slice((const char*)item.first.bytes().data(), item.first.bytes().size()));
-            assert(status.ok());
-            //account
-            if(!item.second->prev_unit().is_zero()){
-              status = batch.Put(handle_account_, rocksdb::Slice((const char*)item.second->public_key().bytes().data(), item.second->public_key().bytes().size()),
-                        rocksdb::Slice((const char*)item.second->prev_unit().bytes().data(), item.second->prev_unit().bytes().size()));
-              assert(status.ok());
-            }else{
-              status = batch.Delete(handle_account_, rocksdb::Slice((const char*)item.second->public_key().bytes().data(), item.second->public_key().bytes().size()));
-            }
-            //wait list
-            wait_remove_list[item.second->public_key()].first.insert(item.first);
-            break;
-          }
-
-        case core::UnitType::EnterValidateSet:{
-            //unit
-            status = batch.Delete(handle_enter_validator_unit_, rocksdb::Slice((const char*)item.first.bytes().data(), item.first.bytes().size()));
-            assert(status.ok());
-            //account
-            if(!item.second->prev_unit().is_zero()){
-              status = batch.Put(handle_account_, rocksdb::Slice((const char*)item.second->public_key().bytes().data(), item.second->public_key().bytes().size()),
-                        rocksdb::Slice((const char*)item.second->prev_unit().bytes().data(), item.second->prev_unit().bytes().size()));
-              assert(status.ok());
-            }else{
-              status = batch.Delete(handle_account_, rocksdb::Slice((const char*)item.second->public_key().bytes().data(), item.second->public_key().bytes().size()));
-            }
-            break;
-          }
-        case core::UnitType::LeaveValidateSet:{
-            //unit
-            status = batch.Delete(handle_leave_validator_unit_, rocksdb::Slice((const char*)item.first.bytes().data(), item.first.bytes().size()));
-            assert(status.ok());
-            //account
-            if(!item.second->prev_unit().is_zero()){
-              status = batch.Put(handle_account_, rocksdb::Slice((const char*)item.second->public_key().bytes().data(), item.second->public_key().bytes().size()),
-                        rocksdb::Slice((const char*)item.second->prev_unit().bytes().data(), item.second->prev_unit().bytes().size()));
-              assert(status.ok());
-            }else{
-              status = batch.Delete(handle_account_, rocksdb::Slice((const char*)item.second->public_key().bytes().data(), item.second->public_key().bytes().size()));
-            }
-            break;
-          }
-        case core::UnitType::Validator:{
-            //latest unit
-            status = batch.Delete(handle_validator_unit_, rocksdb::Slice((const char*)item.first.bytes().data(), item.first.bytes().size()));
-            assert(status.ok());
-            batch.Put(handle_validator_unit_, rocksdb::Slice(last_validate_key),
-                      rocksdb::Slice((const char*)item.second->prev_unit().bytes().data(), item.second->prev_unit().bytes().size()));
-            break;
-          }
-        default:
-          assert(0);
-          break;
-      }
-    }
-
-    status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
-    assert(status.ok());
-  }
-#endif
   rocksdb::WriteBatch batch;
   rocksdb::Status status;
   // <public_key, <will add list, will remove list>
@@ -1877,6 +1776,7 @@ bool ambr::store::StoreManager::RemoveUnit(const ambr::core::UnitHash &hash, std
                   }else{
                     status = batch.Delete(handle_account_, rocksdb::Slice((const char*)core_unit->public_key().bytes().data(), core_unit->public_key().bytes().size()));
                   }
+                  //todo:receive from this ,must remove
                 }
                 break;
               }
@@ -2023,7 +1923,7 @@ std::list<ambr::core::UnitHash> ambr::store::StoreManager::GetAccountListFromAcc
   return rtn_list;
 }
 
-std::list<ambr::core::UnitHash> ambr::store::StoreManager::GetAccountListFromWaitForReceiveForDebug(){
+std::list<ambr::core::PublicKey> ambr::store::StoreManager::GetAccountListFromWaitForReceiveForDebug(){
   LockGrade lk(mutex_);
   std::list<ambr::core::UnitHash> rtn_list;
   rocksdb::Iterator* it = db_unit_->NewIterator(rocksdb::ReadOptions(), handle_wait_for_receive_);
@@ -2035,6 +1935,48 @@ std::list<ambr::core::UnitHash> ambr::store::StoreManager::GetAccountListFromWai
   }
   delete it;
   return rtn_list;
+}
+
+std::list<std::pair<ambr::core::PublicKey, ambr::core::Amount> > ambr::store::StoreManager::GetValidatorIncomeListForDebug(){
+  LockGrade lk(mutex_);
+  std::list<std::pair<ambr::core::PublicKey, ambr::core::Amount> > rtn_list;
+  rocksdb::Iterator* it = db_unit_->NewIterator(rocksdb::ReadOptions(), handle_validator_balance_);
+  for (it->SeekToFirst(); it->Valid(); it->Next()) {
+    assert(it->status().ok());
+    ambr::core::PublicKey pub_key;
+    ambr::core::Amount amount;
+    pub_key.set_bytes(it->key().data(), it->key().size());
+    amount.set_bytes(it->value().data(), it->value().size());
+    rtn_list.push_back(std::make_pair(pub_key, amount));
+  }
+  delete it;
+  return rtn_list;
+}
+
+ambr::core::Amount ambr::store::StoreManager::GetBalanceAllForDebug(){
+  ambr::core::Amount rtn;
+  std::list<ambr::core::UnitHash> account_list = GetAccountListFromAccountForDebug();
+  for(ambr::core::UnitHash hash: account_list){
+    ambr::core::Amount tmp;
+    if(GetBalanceByPubKey(hash, tmp)){
+      rtn += tmp;
+    }
+  }
+  std::list<ambr::core::UnitHash> wait_list =  GetAccountListFromWaitForReceiveForDebug();
+  for(ambr::core::PublicKey pub_key: wait_list){
+    std::list<ambr::core::UnitHash> wait_list_for_pubkey = GetWaitForReceiveList(pub_key);
+    for(ambr::core::UnitHash hash:wait_list_for_pubkey){
+      ambr::core::Amount amount_tmp;
+      if(GetSendAmount(hash, amount_tmp, nullptr)){
+        rtn += amount_tmp;
+      }
+    }
+  }
+  std::list<std::pair<core::PublicKey, core::Amount>> validator_income_list = GetValidatorIncomeListForDebug();
+  for(std::pair<core::PublicKey, core::Amount> item:validator_income_list){
+    rtn += item.second;
+  }
+  return rtn;
 }
 
 void ambr::store::StoreManager::AddWaitForReceiveUnit(const ambr::core::PublicKey &pub_key, const ambr::core::UnitHash &hash, rocksdb::WriteBatch* batch){
@@ -2082,6 +2024,42 @@ void ambr::store::StoreManager::RemoveWaitForReceiveUnit(const ambr::core::Publi
                            rocksdb::Slice((const char*)pub_key.bytes().data(), pub_key.bytes().size()),
                            rocksdb::Slice((const char*)vec_for_write.data(), vec_for_write.size()));
   }
+}
+
+void ambr::store::StoreManager::DispositionTransectionFee(const ambr::core::Amount& count, rocksdb::WriteBatch* batch){
+  LockGrade lk(mutex_);
+  ambr::core::Amount count_for_disposition = count;
+  std::shared_ptr<ambr::store::ValidatorSetStore> validator_set = GetValidatorSet();
+
+  //calc all_amount
+  core::Amount all_amount;
+  for(ambr::store::ValidatorItem validator_item:validator_set->validator_list()){
+    all_amount += validator_item.balance_;
+  }
+  //disposition transection fee
+  count_for_disposition += GetValidatorIncome(ambr::core::PublicKey());//add odd first
+  std::map<core::PublicKey, core::Amount> disposition_map;
+  for(ambr::store::ValidatorItem validator_item:validator_set->validator_list()){
+    core::Amount amount_for_disposistion = count_for_disposition*validator_item.balance_/all_amount;
+    disposition_map[validator_item.validator_public_key_] = amount_for_disposistion;
+    core::Amount amount_item = GetValidatorIncome(validator_item.validator_public_key_);
+    amount_item += amount_for_disposistion;
+    rocksdb::Status status = batch->Put(handle_validator_balance_,
+                           rocksdb::Slice((const char*)validator_item.validator_public_key_.bytes().data(), validator_item.validator_public_key_.bytes().size()),
+                           rocksdb::Slice((const char*)amount_item.bytes().data(), amount_item.bytes().size()));
+    assert(status.ok());
+  }
+  //save odd
+  core::Amount odd = count_for_disposition;
+  for(std::pair<core::PublicKey, core::Amount> item:disposition_map){
+    odd -= item.second;
+  }
+  ambr::core::PublicKey pub_key_tmp;
+  pub_key_tmp.clear();
+  rocksdb::Status status = batch->Put(handle_validator_balance_,
+                      rocksdb::Slice((const char*)pub_key_tmp.bytes().data(), pub_key_tmp.bytes().size()),
+                      rocksdb::Slice((const char*)odd.bytes().data(), odd.bytes().size()));
+  assert(status.ok());
 }
 
 ambr::store::StoreManager::StoreManager():db_unit_(nullptr){

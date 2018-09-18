@@ -104,7 +104,6 @@ public:
                         std::shared_ptr<ambr::core::Unit>& unit_join,
                         std::string* err);
   bool LeaveValidatorSet(const core::PrivateKey& pri_key,
-                         const core::Amount& count,
                          core::UnitHash* tx_hash,
                          std::shared_ptr<ambr::core::Unit>& unit_leave,
                          std::string* err);
@@ -127,6 +126,7 @@ public:
   std::shared_ptr<EnterValidatorSetUnitStore> GetEnterValidatorSetUnit(const core::UnitHash& hash);
   std::shared_ptr<LeaveValidatorSetUnitStore> GetLeaveValidatorSetUnit(const core::UnitHash& hash);
   std::list<std::shared_ptr<core::VoteUnit>> GetVoteList();
+  core::Amount GetValidatorIncome(const core::PublicKey& pub_key);
 public:
   //could rm not final confirmation unit
   //all unit that depend on this unit will be removed too.
@@ -138,12 +138,17 @@ public:
   uint64_t GetPassPercent(){return PASS_PERCENT;}
   uint64_t GetNonceByNowTime();
   std::recursive_mutex& GetMutex(){return mutex_;}
-  static uint64_t GetTransectionFeeBase(){return 1;};
-  static const ambr::core::Amount GetMinValidatorBalance() { return (boost::multiprecision::uint128_t)100000000*1000;};
+  static uint64_t GetTransectionFeeBase(){return 1;}
+  static const ambr::core::Amount GetMinValidatorBalance() { return (boost::multiprecision::uint128_t)100000000*1000;}
   uint64_t GetTransectionFeeCountWhenReceive(std::shared_ptr<core::Unit> send_unit);
 public://for debug
   std::list<core::UnitHash> GetAccountListFromAccountForDebug();
-  std::list<core::UnitHash> GetAccountListFromWaitForReceiveForDebug();
+  std::list<core::PublicKey> GetAccountListFromWaitForReceiveForDebug();
+  std::list<std::pair<core::PublicKey, core::Amount>> GetValidatorIncomeListForDebug();
+  //this is not always equal to init.
+  //because transaction fee maybe didn't receive by validator.
+  //but, it always less than init.
+  ambr::core::Amount GetBalanceAllForDebug();
 public:
   static std::shared_ptr<StoreManager> instance(){
     if(!instance_)
@@ -151,10 +156,10 @@ public:
     return instance_;
   }
 private:
-
-  //if batch == 0 writedb without batch
   void AddWaitForReceiveUnit(const core::PublicKey& pub_key, const core::UnitHash& hash, rocksdb::WriteBatch* batch);
   void RemoveWaitForReceiveUnit(const core::PublicKey& pub_key, const core::UnitHash& hash, rocksdb::WriteBatch* batch);
+private:
+  void DispositionTransectionFee(const ambr::core::Amount& count, rocksdb::WriteBatch* batch);
 private:
   static std::shared_ptr<StoreManager> instance_;
 
@@ -169,6 +174,7 @@ private:
   rocksdb::ColumnFamilyHandle* handle_enter_validator_unit_;//unit_hash->EnterValidatorUnitStore
   rocksdb::ColumnFamilyHandle* handle_leave_validator_unit_;//unit_hash->LeaveValidatorUnitStore
   rocksdb::ColumnFamilyHandle* handle_validator_set_;//unit_hash->validator_set
+  rocksdb::ColumnFamilyHandle* handle_validator_balance_;//validator_hash->balance
   std::list<std::shared_ptr<core::VoteUnit>> vote_list_;
   const uint64_t PERCENT_MAX=10000u;
   const uint64_t PASS_PERCENT=10000u*7/10;
