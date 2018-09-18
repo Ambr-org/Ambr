@@ -88,8 +88,8 @@ protected:
     root_pri_key = "25E25210DCE702D4E36B6C8A17E18DC1D02A9E4F0D1D31C4AEE77327CF1641CC";
     test_prikey1= ambr::core::CreateRandomPrivateKey();
     test_prikey2= ambr::core::CreateRandomPrivateKey();
-    store_client->Init("./client", root_pri_key);
-    store_server->Init("./server", test_prikey1);
+    store_client->Init("./client");
+    store_server->Init("./server");
 
 
     ClientSendUnitConn = store_client->AddCallBackReceiveNewSendUnit(std::bind(&ambr::syn::SynManager::BoardCastNewSendUnit, sync_client.get(), std::placeholders::_1));
@@ -184,7 +184,7 @@ protected:
  // ambr::core::Amount TestCase::balance;
 
 // test case
-
+/*
   TEST_F(SyncTest, SendOneTX){ 
     // waiting p2p module initialize  and get consensus
     std::this_thread::sleep_for(std::chrono::seconds(5));
@@ -312,37 +312,9 @@ protected:
     store_server->GetBalanceByPubKey(test_pub, balance_remainder);
     EXPECT_NE(balance_ori - send_ammout, balance_remainder);
   }
-
+*/
 
   TEST_F(SyncTest, PublishValidator){
-      uint64_t last_nonce = 0;
-      uint64_t now_nonce = 0;
-      uint64_t interval = 0;
-      ambr::core::UnitHash tx_hash;
-      std::shared_ptr<ambr::core::ValidatorUnit> unit_validator;
-      std::string err;
-
-      boost::posix_time::ptime pt = boost::posix_time::microsec_clock::universal_time();
-      boost::posix_time::ptime pt_ori(boost::gregorian::date(1970, boost::gregorian::Jan, 1));
-      boost::posix_time::time_duration duration = pt-pt_ori;
-      interval = duration.total_milliseconds() - store_client->GetGenesisTime();
-      now_nonce = (interval/store_client->GetValidateUnitInterval());
-      EXPECT_GT(now_nonce, last_nonce);
-
-      last_nonce = now_nonce;
-      ambr::core::PublicKey test_pub = ambr::core::GetPublicKeyByPrivateKey(test_prikey1);
-      LockGrade lk(store_server->GetMutex());
-      ambr::core::PublicKey now_pub_key;
-      auto validator_set_list  = store_server->GetValidatorSet();
-      EXPECT_TRUE (validator_set_list->IsValidator(test_pub));
-      auto d = validator_set_list -> GetNonceTurnValidator(now_nonce, now_pub_key);
-      EXPECT_TRUE(store_server->GetValidatorSet()->GetNonceTurnValidator(now_nonce, now_pub_key));
-      EXPECT_EQ(now_pub_key, ambr::core::GetPublicKeyByPrivateKey(test_prikey1));
-      EXPECT_TRUE(store_server->PublishValidator(test_prikey1, &tx_hash, unit_validator, &err));
-      LOG(INFO)<<"Send Validator Success, tx_hash:"<<tx_hash.encode_to_hex()<<",public:"<<now_pub_key.encode_to_hex()<<std::endl;
-  }
-
-  TEST_F(SyncTest, CheckPreValidator){
       uint64_t last_nonce = 0;
       uint64_t now_nonce = 0;
       uint64_t interval = 0;
@@ -361,11 +333,19 @@ protected:
       ambr::core::PublicKey test_pub = ambr::core::GetPublicKeyByPrivateKey(root_pri_key);
       LockGrade lk(store_client->GetMutex());
       ambr::core::PublicKey now_pub_key;
-      auto validator_set_list  = store_client->GetValidatorSet();
+      auto validator_set_list  = store_server->GetValidatorSet();
       EXPECT_TRUE (validator_set_list->IsValidator(test_pub));
       auto d = validator_set_list -> GetNonceTurnValidator(now_nonce, now_pub_key);
       EXPECT_TRUE(store_client->GetValidatorSet()->GetNonceTurnValidator(now_nonce, now_pub_key));
       EXPECT_EQ(now_pub_key, ambr::core::GetPublicKeyByPrivateKey(root_pri_key));
       EXPECT_TRUE(store_client->PublishValidator(root_pri_key, &tx_hash, unit_validator, &err));
       LOG(INFO)<<"Send Validator Success, tx_hash:"<<tx_hash.encode_to_hex()<<",public:"<<now_pub_key.encode_to_hex()<<std::endl;
+      std::this_thread::sleep_for(std::chrono::seconds(3));
   }
+
+  TEST_F(SyncTest, CheckPreValidator){
+      std::string err;
+      std::shared_ptr<ambr::core::VoteUnit> vote_unit;
+      EXPECT_TRUE(store_client->PublishVote(root_pri_key, true, vote_unit, &err)) << err  << std::endl;
+  }
+
