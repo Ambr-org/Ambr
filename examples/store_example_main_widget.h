@@ -100,6 +100,7 @@ private slots:
   void on_btnPTSimTransSpeed_clicked();
   void on_btnStartAllTest_clicked();
   void on_btnForRemove_clicked();
+  void on_btnFlushValidatorIncome_clicked();
 
   void onDealAccept(QString addr);
   void onDealConnect(QString addr);
@@ -107,9 +108,12 @@ private slots:
   void OnDrawTimerOut();
   void OnTpsTimer();
   void OnNetStateTimer();
+
 protected:
   bool eventFilter(QObject *target, QEvent *event);
 
+private slots:
+  void on_btnTextPrintAllBalance_clicked();
 
 private:
   Ui::StoreExampleMainWidget *ui;

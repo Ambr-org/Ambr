@@ -998,6 +998,18 @@ void StoreExampleMainWidget::on_btnForRemove_clicked(){
   }
 }
 
+void StoreExampleMainWidget::on_btnFlushValidatorIncome_clicked(){
+  std::list<std::pair<ambr::core::PublicKey, ambr::core::Amount> > list = store_manager_->GetValidatorIncomeListForDebug();
+  while(ui->tbValidatorIncome->rowCount()){
+    ui->tbValidatorIncome->removeRow(0);
+  }
+  for(std::pair<ambr::core::PublicKey, ambr::core::Amount> item: list){
+    ui->tbValidatorIncome->insertRow(0);
+    ui->tbValidatorIncome->setItem(0, 0, new QTableWidgetItem(item.first.encode_to_hex().c_str()));
+    ui->tbValidatorIncome->setItem(0, 1, new QTableWidgetItem(item.second.encode_to_dec().c_str()));
+  }
+}
+
 void StoreExampleMainWidget::on_btnPTSimValidateSpeed_clicked(){
   QString str = ui->edtPTSimValidateSpeed->text();
   uint32_t num = str.toUInt()>10000?10000:str.toInt();
@@ -1175,13 +1187,10 @@ void StoreExampleMainWidget::on_btnTranslateCashDisposite_clicked(){
 void StoreExampleMainWidget::on_btnTranslateUnfreeze_clicked(){
   ambr::core::PrivateKey pri_key;
   pri_key.decode_from_hex(ui->edtTUPrivate->text().toStdString());
-  ambr::core::Amount amount;
-  amount.set_data((boost::multiprecision::uint128_t)ui->edtTUAmount->text().toULongLong());
-
   ambr::core::UnitHash tx_hash;
   std::shared_ptr<ambr::core::Unit> unit;
   std::string str_err;
-  if(store_manager_->LeaveValidatorSet(pri_key, amount, &tx_hash, unit, &str_err)){
+  if(store_manager_->LeaveValidatorSet(pri_key, &tx_hash, unit, &str_err)){
     ui->edtTCPlainEdit->setPlainText(QString("Send success:")+unit->SerializeJson().c_str());
   }else{
     ui->edtTCPlainEdit->setPlainText(QString("Send Faild:")+str_err.c_str());
@@ -1235,4 +1244,9 @@ void StoreExampleMainWidget::StopPublishTrans(const ambr::core::PrivateKey &pri_
     auto_publish_trans_thread_map_[pri_key].second->join();
     auto_publish_trans_thread_map_.erase(pri_key);
   }
+}
+
+
+void StoreExampleMainWidget::on_btnTextPrintAllBalance_clicked(){
+  LOG(INFO)<<store_manager_->GetBalanceAllForDebug().encode_to_dec();
 }

@@ -6,13 +6,11 @@
 
 #include "store/store_manager.h"
 #include <boost/thread.hpp>
-
 TEST (ValidatorTest, JoinValidator) {
-  std::cout<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"<<std::endl;
   std::string root_pri_key = "25E25210DCE702D4E36B6C8A17E18DC1D02A9E4F0D1D31C4AEE77327CF1641CC";
   ambr::store::StoreManager* manager = new ambr::store::StoreManager();
-  ambr::core::PrivateKey test_pri = ambr::core::CreateRandomPrivateKey();
-  ambr::core::PublicKey test_pub = ambr::core::GetPublicKeyByPrivateKey(test_pri);
+  //ambr::core::PrivateKey test_pri = ambr::core::CreateRandomPrivateKey();
+  //ambr::core::PublicKey test_pub = ambr::core::GetPublicKeyByPrivateKey(test_pri);
 
   system("rm -fr ./bbb");
   manager->Init("./bbb");
@@ -30,6 +28,13 @@ TEST (ValidatorTest, JoinValidator) {
   EXPECT_TRUE(manager->JoinValidatorSet(validator_pri[0],
     ambr::store::StoreManager::GetMinValidatorBalance()+ambr::core::EnterValidateSetUint().GetFeeSize()*ambr::store::StoreManager::GetTransectionFeeBase(),
     &test_hash, added_unit, &err));
+  //twice enter validator set
+  EXPECT_FALSE(manager->JoinValidatorSet(validator_pri[0],
+    ambr::store::StoreManager::GetMinValidatorBalance()+ambr::core::EnterValidateSetUint().GetFeeSize()*ambr::store::StoreManager::GetTransectionFeeBase(),
+    &test_hash, added_unit, &err));
+
+  //leave validator when it didn't enter validator set
+  EXPECT_FALSE(manager->LeaveValidatorSet(validator_pri[0], &test_hash, added_unit, &err));
 
   std::shared_ptr<ambr::core::ValidatorUnit> unit_validator;
   std::shared_ptr<ambr::core::VoteUnit> vote_unit;

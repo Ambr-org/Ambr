@@ -133,8 +133,7 @@ message LeaveValidateSetUint {
 	bytes prev_unit_=4;
 	bytes balance_=5;
 	bytes hash_=6;
-	bytes sign_=7;
-	bytes unfreeze_count_=8;  
+  bytes sign_=7;
 } 
 
 
