@@ -347,8 +347,6 @@ public:
   virtual bool Validate(std::string* err) const override;
 public:
   virtual int32_t GetFeeSize();
-private:
-  ambr::core::Amount unfreeze_count_;
 };
 
 }

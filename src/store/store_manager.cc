@@ -804,9 +804,16 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
                     rocksdb::Slice((const char*)validator_item.validator_public_key_.bytes().data(), validator_item.validator_public_key_.bytes().size()),
                     rocksdb::Slice((const char*)amount_tmp.bytes().data(), amount_tmp.bytes().size()));
               assert(status.ok());
+              //write validator_set to db
+              std::vector<uint8_t> validator_set_buf = validator_set_list->SerializeByte();
+              status = batch.Put(handle_validator_set_,
+                                 rocksdb::Slice(validate_set_key),
+                                 rocksdb::Slice((const char*)validator_set_buf.data(), validator_set_buf.size()));
+              assert(status.ok());
               break;
             }
           case ambr::store::UnitStore::ST_LeaveValidatorSet:{
+              //set unit is validated
               std::shared_ptr<ambr::store::LeaveValidatorSetUnitStore> leave_unit =
                   std::dynamic_pointer_cast<ambr::store::LeaveValidatorSetUnitStore>(unit_tmp);
               if(!leave_unit || leave_unit->is_validate()){
@@ -816,12 +823,19 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
               leave_unit->set_is_validate(prv_validate_unit->hash());
               std::vector<uint8_t> buf = leave_unit->SerializeByte();
               status = batch.Put(
-                    handle_enter_validator_unit_,
+                    handle_leave_validator_unit_,
                     rocksdb::Slice((const char*)leave_unit->unit()->hash().bytes().data(), leave_unit->unit()->hash().bytes().size()),
                     rocksdb::Slice((const char*)buf.data(), buf.size()));
               assert(status.ok());
               unit_tmp = GetUnit(leave_unit->GetUnit()->prev_unit());
-              validator_set_list->LeaveValidator(leave_unit->unit()->public_key(), unit->nonce());
+              validator_set_list->LeaveValidator(leave_unit->unit()->public_key(), prv_validate_unit->nonce());
+              validator_set_list->Update(prv_validate_unit->nonce());
+              //write validator_set to db
+              std::vector<uint8_t> validator_set_buf = validator_set_list->SerializeByte();
+              status = batch.Put(handle_validator_set_,
+                                 rocksdb::Slice(validate_set_key),
+                                 rocksdb::Slice((const char*)validator_set_buf.data(), validator_set_buf.size()));
+              assert(status.ok());
               break;
             }
           default:
@@ -832,11 +846,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
     }
     DispositionTransectionFee(all_balance_count, &batch);
   }
-  std::vector<uint8_t> validator_set_buf = validator_set_list->SerializeByte();
-  status = batch.Put(handle_validator_set_,
-                     rocksdb::Slice(validate_set_key),
-                     rocksdb::Slice((const char*)validator_set_buf.data(), validator_set_buf.size()));
-  assert(status.ok());
+
   status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
   assert(status.ok());
   DoReceiveNewValidatorUnit(unit);

@@ -366,6 +366,7 @@ std::vector<uint8_t> ambr::store::EnterValidatorSetUnitStore::SerializeByte() co
   assert(unit_);
   std::vector<uint8_t> rtn = unit_->SerializeByte();
   rtn.insert(rtn.end(), (uint8_t*)&version_, (uint8_t*)&version_+sizeof(version_));
+  rtn.insert(rtn.end(), (uint8_t*)&type_, (uint8_t*)&type_+sizeof(type_));
   rtn.insert(rtn.end(), validated_hash_.bytes().begin(), validated_hash_.bytes().end());
   return rtn;
 }
@@ -374,7 +375,7 @@ bool ambr::store::EnterValidatorSetUnitStore::DeSerializeByte(const std::vector<
   unit_ = std::make_shared<core::EnterValidateSetUint>();
   size_t used_count = 0;
   std::vector<uint8_t> buf_new;
-  buf_new.resize(buf.size() - sizeof(version_)-sizeof(validated_hash_));
+  buf_new.resize(buf.size() -  sizeof(version_)-sizeof(type_) -sizeof(validated_hash_));
   memcpy(buf_new.data(), buf.data(), buf_new.size());
   if(!unit_->DeSerializeByte(buf_new, &used_count)){
     return false;
@@ -387,9 +388,11 @@ bool ambr::store::EnterValidatorSetUnitStore::DeSerializeByte(const std::vector<
   memcpy(&version_, src, sizeof(version_));
   src += sizeof(version_);
   if(version_ == 0x00000001){
-    if(buf.size()-used_count < sizeof(version_)+sizeof(validated_hash_)){
+    if(buf.size()-used_count < sizeof(version_)+sizeof(type_)+sizeof(validated_hash_)){
       return false;
     }
+    memcpy(&validated_hash_, src, sizeof(type_));
+    src += sizeof(type_);
     memcpy(&validated_hash_, src, sizeof(validated_hash_));
     //deserialize addtion
     return true;
@@ -453,28 +456,37 @@ std::vector<uint8_t> ambr::store::LeaveValidatorSetUnitStore::SerializeByte() co
   assert(unit_);
   std::vector<uint8_t> rtn = unit_->SerializeByte();
   rtn.insert(rtn.end(), (uint8_t*)&version_, (uint8_t*)&version_+sizeof(version_));
+  rtn.insert(rtn.end(), (uint8_t*)&type_, (uint8_t*)&type_+sizeof(type_));
   rtn.insert(rtn.end(), validated_hash_.bytes().begin(), validated_hash_.bytes().end());
+
   return rtn;
 }
 
 bool ambr::store::LeaveValidatorSetUnitStore::DeSerializeByte(const std::vector<uint8_t> &buf){
   unit_ = std::make_shared<core::LeaveValidateSetUint>();
   size_t used_count = 0;
-  if(!unit_->DeSerializeByte(buf, &used_count)){
+  std::vector<uint8_t> buf_new;
+  buf_new.resize(buf.size()-sizeof(version_)-sizeof(type_)-sizeof(validated_hash_));
+  memcpy(buf_new.data(), buf.data(), buf_new.size());
+  if(!unit_->DeSerializeByte(buf_new, &used_count)){
     return false;
   }
+  used_count = buf_new.size();
   if(buf.size()-used_count < sizeof(version_)){
     return false;
   }
+  //deserialize addtion
   const uint8_t* src = &buf[used_count];
   memcpy(&version_, src, sizeof(version_));
   src += sizeof(version_);
   if(version_ == 0x00000001){
-    if(buf.size()-used_count < sizeof(version_)+sizeof(validated_hash_)){
+    if(buf.size()-used_count < sizeof(version_)+sizeof(type_  )+sizeof(validated_hash_)){
       return false;
     }
+    memcpy(&type_, src, sizeof(type_));
+    src += sizeof(type_);
     memcpy(&validated_hash_, src, sizeof(validated_hash_));
-    //deserialize addtion
+
     return true;
   }//else if(other version)
   return false;
@@ -563,7 +575,7 @@ void ambr::store::ValidatorSetStore::LeaveValidator(const ambr::core::PublicKey 
   for(std::list<ValidatorItem>::iterator iter = validator_list_.begin();
     iter != validator_list_.end(); iter++){
     if(iter->validator_public_key_ == pub_key){
-      iter->leave_nonce_ = leave_nonce+2;
+      iter->leave_nonce_ = leave_nonce;
     }
   }
 }

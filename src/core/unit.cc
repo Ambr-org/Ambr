@@ -763,7 +763,7 @@ int32_t ambr::core::ValidatorUnit::GetFeeSize(){
 
 
 ambr::core::EnterValidateSetUint::EnterValidateSetUint():Unit(){
-
+  type_ = ambr::core::UnitType::EnterValidateSet;
 }
 
 std::string ambr::core::EnterValidateSetUint::SerializeJson() const{
@@ -891,7 +891,7 @@ int32_t ambr::core::EnterValidateSetUint::GetFeeSize(){
 
 
 ambr::core::LeaveValidateSetUint::LeaveValidateSetUint():Unit(){
-
+  type_ = ambr::core::UnitType::LeaveValidateSet;
 }
 
 std::string ambr::core::LeaveValidateSetUint::SerializeJson() const{
@@ -945,6 +945,7 @@ std::vector<uint8_t> ambr::core::LeaveValidateSetUint::SerializeByte( ) const {
   size_t len=obj.ByteSize();
   buf.resize(obj.ByteSize());
   obj.SerializeToArray(buf.data(), len);
+
   return buf;
 }
 
@@ -1014,7 +1015,7 @@ bool ambr::core::LeaveValidateSetUint::Validate(std::string *err) const{
 
 
 int32_t ambr::core::LeaveValidateSetUint::GetFeeSize(){
-  return sizeof(unfreeze_count_);
+  return Unit::GetFeeSize();
 }
 
 
