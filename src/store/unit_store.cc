@@ -234,6 +234,7 @@ std::string ambr::store::ValidatorUnitStore::SerializeJson() const{
     boost::property_tree::read_json(stream, pt);
     store_pt.put("version", version_);
     store_pt.put("validated_hash", validated_hash_.encode_to_hex());
+    store_pt.put("next_validator_hash", next_validator_hash_.encode_to_hex());
     pt.add_child("store_addtion", store_pt);
   }catch(...){
     assert(1);
@@ -252,6 +253,7 @@ bool ambr::store::ValidatorUnitStore::DeSerializeJson(const std::string &json){
     if(version_ == 0x00000001){
       //deserialize other addtion
       validated_hash_.decode_from_hex(pt.get<std::string>("store_addtion.validated_hash"));
+      next_validator_hash_.decode_from_hex(pt.get<std::string>("store_addtion.next_validator_hash"));
     }
     unit_ = std::make_shared<core::ValidatorUnit>();
     if(!unit_->DeSerializeJson(json)){
@@ -273,6 +275,7 @@ std::vector<uint8_t> ambr::store::ValidatorUnitStore::SerializeByte() const{
   rtn.insert(rtn.begin(),len_buf.begin(),len_buf.end());
   rtn.insert(rtn.end(), (uint8_t*)&version_, (uint8_t*)&version_+sizeof(version_));
   rtn.insert(rtn.end(), validated_hash_.bytes().begin(), validated_hash_.bytes().end());
+  rtn.insert(rtn.end(), next_validator_hash_.bytes().begin(), next_validator_hash_.bytes().end());
   return rtn;
 }
 
@@ -296,6 +299,8 @@ bool ambr::store::ValidatorUnitStore::DeSerializeByte(const std::vector<uint8_t>
       return false;
     }
     memcpy(&validated_hash_, src, sizeof(validated_hash_));
+    src += sizeof(validated_hash_);
+    memcpy(&next_validator_hash_, src, sizeof(next_validator_hash_));
     return true;
   }//else if(other version)
   return false;

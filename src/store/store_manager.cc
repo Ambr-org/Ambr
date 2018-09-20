@@ -715,6 +715,16 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
      rocksdb::Slice((const char*)unit->hash().bytes().data(), unit->hash().bytes().size()),
      rocksdb::Slice((const char*)buf.data(), buf.size()));
   assert(status.ok());
+
+  std::shared_ptr<ValidatorUnitStore> prv_validator_store = std::make_shared<ValidatorUnitStore>(prv_validate_unit);
+  prv_validator_store->set_next_validator_hash(unit->hash());
+  std::vector<uint8_t> buf_prv = prv_validator_store->SerializeByte();
+  status = batch.Put(
+     handle_validator_unit_,
+     rocksdb::Slice((const char*)prv_validate_unit->hash().bytes().data(), prv_validate_unit->hash().bytes().size()),
+     rocksdb::Slice((const char*)buf_prv.data(), buf_prv.size()));
+  assert(status.ok());
+
   status = batch.Put(
      handle_validator_unit_,
      rocksdb::Slice(last_validate_key),
@@ -1015,6 +1025,25 @@ bool ambr::store::StoreManager::GetBalanceByPubKey(const ambr::core::PublicKey &
     }
   }
   return false;
+}
+
+bool ambr::store::StoreManager::GetNextValidatorHashByHash(const ambr::core::UnitHash &hash_input, ambr::core::UnitHash &hash_output, std::string *err){
+  LockGrade lk(mutex_);
+  std::shared_ptr<ambr::store::ValidatorUnitStore> unit_store = GetValidateUnit(hash_input);
+  if(!unit_store){
+    if(err){
+      *err = "Validator Unit is not found";
+    }
+    return false;
+  }
+  hash_output = unit_store->next_validator_hash();
+  if(hash_output.is_zero()){
+    if(err){
+      *err = "Validator have no next unit";
+    }
+    return false;
+  }
+  return true;
 }
 
 std::list<std::shared_ptr<ambr::store::UnitStore> > ambr::store::StoreManager::GetTradeHistoryByPubKey(const ambr::core::PublicKey &pub_key, size_t count){
@@ -1843,15 +1872,29 @@ bool ambr::store::StoreManager::RemoveUnit(const ambr::core::UnitHash &hash, std
       assert(validator_unit);
       while(1){
         assert(validator_unit);
+
         if(validator_unit->percent() < GetPassPercent() || validator_unit->hash() == remove_item->hash()){
           if(unit_for_remove.find(validator_unit->hash()) == unit_for_remove.end()){
             status = batch.Delete(handle_validator_unit_, rocksdb::Slice((const char*)validator_unit->hash().bytes().data(), validator_unit->hash().bytes().size()));
-            batch.Put(handle_validator_unit_, rocksdb::Slice(last_validate_key),
+            assert(status.ok());
+            status = batch.Put(handle_validator_unit_, rocksdb::Slice(last_validate_key),
                       rocksdb::Slice((const char*)validator_unit->prev_unit().bytes().data(), validator_unit->prev_unit().bytes().size()));
+            assert(status.ok());
             unit_for_remove.insert(std::make_pair(validator_unit->hash(), validator_unit));
           }
+        }else{
+          return false;
         }
         if(validator_unit->hash() == remove_item->hash()){
+          //remove it's value of next validator unit
+          std::shared_ptr<ValidatorUnitStore> final_store = GetValidateUnit(validator_unit->hash());
+          core::UnitHash hash_null;
+          hash_null.clear();
+          final_store->set_next_validator_hash(hash_null);
+          std::vector<uint8_t> buf = final_store->SerializeByte();
+          status = batch.Put(handle_validator_unit_, rocksdb::Slice((const char*)final_store->unit()->hash().bytes().data(), final_store->unit()->hash().bytes().size()),
+                    rocksdb::Slice((const char*)buf.data(), buf.size()));
+          assert(status.ok());
           break;
         }
         std::shared_ptr<ValidatorUnitStore> validator_unit_store = GetValidateUnit(validator_unit->prev_unit());
