@@ -54,6 +54,7 @@ public:
   std::list<std::shared_ptr<core::ValidatorUnit>> GetValidateHistory(size_t count);
   bool GetLastUnitHashByPubKey(const core::PublicKey& pub_key, core::UnitHash& hash);
   bool GetBalanceByPubKey(const core::PublicKey& pub_key, core::Amount& balance);
+  //hash_input is input hash of validator,hash_output is hash for out put
   bool GetNextValidatorHashByHash(const ambr::core::UnitHash &hash_input, ambr::core::UnitHash &hash_output, std::string *err);
 
   std::list<std::shared_ptr<store::UnitStore>>
