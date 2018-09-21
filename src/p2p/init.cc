@@ -1,4 +1,4 @@
-#if 0
+
 #include <netbase.h>
 #include <netaddress.h>
 #include <scheduler.h>
@@ -6,14 +6,15 @@
 #include <chainparams.h>
 #include <init.h>
 #include <shutdown.h>
+#include <logging.h>
 
+#define PACKAGE_NAME "P2P"
 #ifndef WIN32
 #include <signal.h>
 #endif
 
 std::unique_ptr<CConnman> g_connman;
 PeerLogicValidation *peerLogic;   //TODO: protoype  std::unique_ptr<PeerLogicValidation>
-CCriticalSection cs_process;
 static CScheduler scheduler;
 static const bool DEFAULT_PROXYRANDOMIZE = true;
 ServiceFlags nLocalServices = ServiceFlags(NODE_NETWORK | NODE_NETWORK_LIMITED);
@@ -66,6 +67,31 @@ void ambr::p2p::Shutdown(){
   g_connman.reset();
 }
 
+void InitLogging()
+{
+    g_logger->m_print_to_file = true;
+    g_logger->m_file_path = AbsPathForConfigVal(gArgs.GetArg("-debuglogfile", DEFAULT_DEBUGLOGFILE));
+
+    // Add newlines to the logfile to distinguish this execution from the last
+    // one; called before console logging is set up, so this is only sent to
+    // debug.log.
+    LogPrintf("\n\n\n\n\n");
+
+    g_logger->m_print_to_console = gArgs.GetBoolArg("-printtoconsole", !gArgs.GetBoolArg("-daemon", false));
+    g_logger->m_log_timestamps = gArgs.GetBoolArg("-logtimestamps", DEFAULT_LOGTIMESTAMPS);
+    g_logger->m_log_time_micros = gArgs.GetBoolArg("-logtimemicros", DEFAULT_LOGTIMEMICROS);
+
+    fLogIPs = gArgs.GetBoolArg("-logips", DEFAULT_LOGIPS);
+
+    std::string version_string = std::to_string(P2P_VERSION);
+#ifdef DEBUG
+    version_string += " (debug build)";
+#else
+    version_string += " (release build)";
+#endif
+    LogPrintf(PACKAGE_NAME " version %s\n", version_string);
+}
+
 bool ambr::p2p::init(CConnman::Options&& connOptions){
     /*TODO import config from some class or files
     options: 
@@ -110,6 +136,7 @@ bool ambr::p2p::init(CConnman::Options&& connOptions){
         return false;
     }
     // Check for host lookup allowed before parsing any network related parameters
+    InitLogging();
     fNameLookup = gArgs.GetBoolArg("-dns", DEFAULT_NAME_LOOKUP);
 
     bool proxyRandomize = gArgs.GetBoolArg("-proxyrandomize", DEFAULT_PROXYRANDOMIZE);
@@ -214,4 +241,4 @@ registerSignalHandler(SIGINT, HandleSIGTERM);
 
 return connman.Start(scheduler, connOptions);  
 }
-#endif
+
