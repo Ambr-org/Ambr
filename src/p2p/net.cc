@@ -150,14 +150,6 @@ bool GetLocal(CService& addr, const CNetAddr *paddrPeer)
 // one by discovery.
 CAddress GetLocalAddress(const CNetAddr *paddrPeer, ServiceFlags nLocalServices)
 {
-    //TODO for testing
-    struct in_addr addr_;
-    auto s =inet_pton(AF_INET, "127.0.0.1", &addr_);
-    if (s != 1){
-        std::cerr << "convert failed" << std::endl;
-        exit(1);
-    }
-    //CAddress ret(CService(addr_ ,GetListenPort()), nLocalServices);
     CAddress ret(CService(CNetAddr(),GetListenPort()), nLocalServices);
     CService addr;
     if (GetLocal(addr, paddrPeer))
@@ -406,7 +398,7 @@ CNode* CConnman::ConnectNode(CAddress addrConnect, const char *pszDest, bool fCo
     if (pszDest) {
         std::vector<CService> resolved;
         if (Lookup(pszDest, resolved,  default_port, fNameLookup && !HaveNameProxy(), 256) && !resolved.empty()) {
-            //TODO : ambr::p2p::GetRand function will block ,replace it to constant value
+            //TODO : ambr::p2p::GetRand function will block ,replace it to std::rand
             std::srand(std::time(nullptr));
             auto s =std::rand() % resolved.size();
             addrConnect = CAddress(resolved[s], NODE_NONE);
@@ -2043,8 +2035,6 @@ void CConnman::OpenNetworkConnection(const CAddress& addrConnect, bool fCountFai
 
 void CConnman::ThreadMessageHandler()
 {
-    //TODO: for testing,set flagInterruptMsgProc to false
-
     while (!flagInterruptMsgProc)
     {
         std::vector<CNode*> vNodesCopy;
@@ -2317,7 +2307,6 @@ bool CConnman::Start(CScheduler& scheduler, const Options& connOptions)
 
 
     // Load addresses from peers.dat
-    //TODO disable read address from file
 
     int64_t nStart = GetTimeMillis();
     {
@@ -2751,7 +2740,7 @@ CNode::CNode(NodeId idIn, ServiceFlags nLocalServicesIn, int nMyStartingHeightIn
     m_manual_connection = false;
     fClient = false; // set by version message
     m_limited_node = false; // set by version message
-    fFeeler = false;
+    fFeeler = true;
     fSuccessfullyConnected = false;
     fDisconnect = false;
     nRefCount = 0;

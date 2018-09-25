@@ -2,7 +2,7 @@
 #include <netbase.h>
 #include <netaddress.h>
 #include <scheduler.h>
-#include <net_processing.h> 
+#include <net_processing.h>
 #include <chainparams.h>
 #include <init.h>
 #include <shutdown.h>
@@ -43,7 +43,7 @@ void ambr::p2p::Interrupt(){
 }
 
 void ambr::p2p::WaitForShutdown(){
-  while (!ShutdownRequested()){  
+  while (!ShutdownRequested()){
     MilliSleep(200);
   }
 
@@ -94,7 +94,7 @@ void InitLogging()
 
 bool ambr::p2p::init(CConnman::Options&& connOptions){
     /*TODO import config from some class or files
-    options: 
+    options:
         onlynet
         dns
         proxyrandomize
@@ -161,7 +161,7 @@ bool ambr::p2p::init(CConnman::Options&& connOptions){
      SetProxy(NET_IPV6, addrProxy);
      SetProxy(NET_ONION, addrProxy);
      SetNameProxy(addrProxy);
-        SetLimited(NET_ONION, false); // by default, -proxy sets onion as reachable, unless -noonion later
+     SetLimited(NET_ONION, false); // by default, -proxy sets onion as reachable, unless -noonion later
     }
     Discover();
 
@@ -210,35 +210,35 @@ bool ambr::p2p::init(CConnman::Options&& connOptions){
      connOptions.vWhiteBinds.push_back(addrBind);
  }
 
- for (const auto& net : gArgs.GetArgs("-whitelist")) {
-    CSubNet subnet;
-    LookupSubNet(net.c_str(), subnet);
-    if (!subnet.IsValid()){
-     std::cerr <<"Invalid netmask specified in -whitelist: "  << net << std::endl;
-     return false;
- }
-
- connOptions.vWhitelistedRange.push_back(subnet);
-}
-
-connOptions.vSeedNodes = gArgs.GetArgs("-seednode");
-
-    // Initiate outbound connections unless connect=0
-
-connOptions.m_use_addrman_outgoing = !gArgs.IsArgSet("-connect");
-if (!connOptions.m_use_addrman_outgoing) {
-    const auto connect = gArgs.GetArgs("-connect");
-    if (connect.size() != 1 || connect[0] != "0") {
-        connOptions.m_specified_outgoing = connect;
+    for (const auto& net : gArgs.GetArgs("-whitelist")) {
+       CSubNet subnet;
+       LookupSubNet(net.c_str(), subnet);
+       if (!subnet.IsValid()){
+        std::cerr <<"Invalid netmask specified in -whitelist: "  << net << std::endl;
+        return false;
     }
-}
 
-    // Clean shutdown on SIGTERM
-    #ifndef WIN32
-registerSignalHandler(SIGTERM, HandleSIGTERM);
-registerSignalHandler(SIGINT, HandleSIGTERM);
-    #endif
+    connOptions.vWhitelistedRange.push_back(subnet);
+   }
 
-return connman.Start(scheduler, connOptions);  
+   connOptions.vSeedNodes = gArgs.GetArgs("-seednode");
+
+       // Initiate outbound connections unless connect=0
+
+   connOptions.m_use_addrman_outgoing = !gArgs.IsArgSet("-connect");
+   if (!connOptions.m_use_addrman_outgoing) {
+       const auto connect = gArgs.GetArgs("-connect");
+       if (connect.size() != 1 || connect[0] != "0") {
+           connOptions.m_specified_outgoing = connect;
+       }
+   }
+
+       // Clean shutdown on SIGTERM
+   #ifndef WIN32
+   registerSignalHandler(SIGTERM, HandleSIGTERM);
+   registerSignalHandler(SIGINT, HandleSIGTERM);
+   #endif
+
+    return connman.Start(scheduler, connOptions);
 }
 
