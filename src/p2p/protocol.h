@@ -246,9 +246,12 @@ extern const char *BLOCKTXN;
 extern const char *GETLISTENPORT;
 extern const char *LISTENPORT;
 
-extern const char *UNIT;
-extern const char *SECTION;
-extern const char *SECTIONUNIT;
+extern const char *ACCOUNTUNIT;
+extern const char *NOACCOUNTUNIT;
+extern const char *REQUESTACCOUNTLUNIT;
+extern const char *VALIDATORUNIT;
+extern const char *REQUESTVALUNIT;
+extern const char *NOVALIDATORUNIT;
 }
 
 /* Get a vector of all valid message types (see above) */

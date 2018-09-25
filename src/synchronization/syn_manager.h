@@ -19,6 +19,7 @@
 
 #pragma pack(1)
 
+using Ptr_CConnman = std::shared_ptr<CConnman>;
 using Ptr_Unit = std::shared_ptr<ambr::core::Unit>;
 using Ptr_CScheduler = std::shared_ptr<CScheduler>;
 using Ptr_UnitStore = std::shared_ptr<ambr::store::UnitStore>;
