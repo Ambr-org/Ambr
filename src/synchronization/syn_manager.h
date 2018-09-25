@@ -66,8 +66,7 @@ public:
   SynManager(Ptr_StoreManager p_storemanager);
   bool Init(const SynManagerConfig& config);
 
-
-  void RemovePeer(CNode* p_node, uint32_t second);
+  void RemoveNode(CNode* p_node, uint32_t second);
   void BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node);
   void SetOnAcceptNode(const std::function<void(CNode*)>& func);
   void SetOnConnectedNode(const std::function<void(CNode*)>& func);
