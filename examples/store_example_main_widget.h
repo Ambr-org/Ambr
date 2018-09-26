@@ -101,6 +101,8 @@ private slots:
   void on_btnStartAllTest_clicked();
   void on_btnForRemove_clicked();
   void on_btnFlushValidatorIncome_clicked();
+  void on_btnTextPrintAllBalance_clicked();
+  void on_btnShowAllUnitByValidator_clicked();
 
   void onDealAccept(QString addr);
   void onDealConnect(QString addr);
@@ -111,9 +113,6 @@ private slots:
 
 protected:
   bool eventFilter(QObject *target, QEvent *event);
-
-private slots:
-  void on_btnTextPrintAllBalance_clicked();
 
 private:
   Ui::StoreExampleMainWidget *ui;

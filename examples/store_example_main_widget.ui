@@ -691,7 +691,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                       <property name="geometry">
                        <rect>
                         <x>0</x>
-                        <y>0</y>
+                        <y>-16</y>
                         <width>579</width>
                         <height>586</height>
                        </rect>
@@ -1267,8 +1267,8 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                      <rect>
                       <x>0</x>
                       <y>0</y>
-                      <width>170</width>
-                      <height>1278</height>
+                      <width>599</width>
+                      <height>1420</height>
                      </rect>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_31">
@@ -1908,9 +1908,9 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-870</y>
+              <y>-1184</y>
               <width>374</width>
-              <height>1841</height>
+              <height>2105</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_49">
@@ -2204,6 +2204,13 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                  </widget>
                 </item>
                 <item>
+                 <widget class="Line" name="line_17">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
                  <widget class="QLabel" name="label_71">
                   <property name="text">
                    <string>单元hash值</string>
@@ -2220,6 +2227,40 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
               <widget class="QPushButton" name="btnForRemove">
                <property name="text">
                 <string>删除未经确认的单元</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="Line" name="line_18">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_73">
+               <property name="text">
+                <string>验证单元hash值</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="edtValidatorUnit"/>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnShowAllUnitByValidator">
+               <property name="text">
+                <string>查看朝代所有交易单元</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPlainTextEdit" name="edtAllUnitByValidator">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
                </property>
               </widget>
              </item>

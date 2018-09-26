@@ -969,6 +969,91 @@ bool ambr::store::StoreManager::GetLastValidateUnit(core::UnitHash& hash){
   return true;
 }
 
+ambr::core::UnitHash ambr::store::StoreManager::GetNextValidatorHash(const ambr::core::UnitHash &hash){
+  std::shared_ptr<ambr::store::ValidatorUnitStore> unit_store = GetValidateUnit(hash);
+  if(unit_store){
+    return unit_store->next_validator_hash();
+  }
+  return core::UnitHash();
+}
+
+std::list<std::shared_ptr<ambr::core::Unit> > ambr::store::StoreManager::GetAllUnitByValidatorUnitHash(const ambr::core::UnitHash &hash){
+  std::list<std::shared_ptr<core::Unit>> rtn;
+  struct Item{
+    Item(std::shared_ptr<core::Unit> unit):unit_(unit){}
+    std::shared_ptr<core::Unit> unit_;
+    std::list<core::UnitHash> depends_list_;
+    bool operator <(const Item& it){
+      return it.depends_list_.size() > depends_list_.size();
+    }
+  };
+  std::list<Item> item_list;
+  std::shared_ptr<ambr::store::ValidatorUnitStore> validator_store = GetValidateUnit(hash);
+  if(!validator_store){
+    return rtn;
+  }
+  //validated_hash, if this validator_unit is not effective, validated unit is not this unit's hash
+  core::UnitHash validated_unit_hash;
+  bool b_first = true;
+  for(core::UnitHash item_hash: validator_store->unit()->check_list()){
+    while(1){
+      std::shared_ptr<ambr::store::UnitStore> unit_store = GetUnit(item_hash);
+      if(!unit_store){
+        break;
+      }
+      if(b_first){
+        validated_unit_hash = unit_store->validated_hash();
+        b_first = false;
+      }
+      if(validated_unit_hash != unit_store->validated_hash()){
+        break;
+      }
+      //add previous unit has to depends
+      std::shared_ptr<ambr::core::Unit> unit = unit_store->GetUnit();
+      assert(unit);
+      std::shared_ptr<store::UnitStore> unit_store_prv = GetUnit(unit->prev_unit());
+      assert(unit_store_prv);
+      core::UnitHash prv_unit_hash = unit->prev_unit();
+      Item item(unit);
+
+      if(unit_store_prv->validated_hash() == validated_unit_hash){
+        item.depends_list_.push_back(prv_unit_hash);
+      }
+
+      if(unit_store->type() == store::UnitStore::ST_ReceiveUnit){
+        std::shared_ptr<core::ReceiveUnit> receive_unit = std::dynamic_pointer_cast<core::ReceiveUnit>(unit_store->GetUnit());
+        assert(receive_unit);
+        core::UnitHash hash_from = receive_unit->from();
+        Item item(receive_unit);
+        std::shared_ptr<store::UnitStore> unit_tmp;
+        unit_tmp = GetUnit(hash_from);
+        assert(unit_tmp);
+        if(unit_tmp->validated_hash() == validated_unit_hash){
+          item.depends_list_.push_back(hash_from);
+        }
+      }
+      item_hash = unit->prev_unit();
+      item_list.push_back(item);
+    }
+  }
+  item_list.sort();
+  while(item_list.size()){
+    Item item = item_list.front();
+    assert(!item.depends_list_.size());
+    rtn.push_back(item.unit_);
+    item_list.pop_front();
+    core::UnitHash rm_hash = item.unit_->hash();
+
+    for(std::list<Item>::iterator iter = item_list.begin(); iter != item_list.end(); iter++){
+      iter->depends_list_.remove_if([&](const core::UnitHash& hash){
+        return  (hash == rm_hash);
+      });
+    }
+    item_list.sort();
+  }
+  return rtn;
+}
+
 std::list<std::shared_ptr<ambr::core::ValidatorUnit> > ambr::store::StoreManager::GetValidateHistory(size_t count){
   LockGrade lk(mutex_);
   std::list<std::shared_ptr<ambr::core::ValidatorUnit> > rtn;

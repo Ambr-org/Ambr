@@ -999,15 +999,29 @@ void StoreExampleMainWidget::on_btnForRemove_clicked(){
 }
 
 void StoreExampleMainWidget::on_btnFlushValidatorIncome_clicked(){
-  std::list<std::pair<ambr::core::PublicKey, ambr::core::Amount> > list = store_manager_->GetValidatorIncomeListForDebug();
+  std::list<std::pair<ambr::core::PublicKey, ambr::store::ValidatorBalanceStore> > list = store_manager_->GetValidatorIncomeListForDebug();
   while(ui->tbValidatorIncome->rowCount()){
     ui->tbValidatorIncome->removeRow(0);
   }
-  for(std::pair<ambr::core::PublicKey, ambr::core::Amount> item: list){
+  for(std::pair<ambr::core::PublicKey, ambr::store::ValidatorBalanceStore> item: list){
     ui->tbValidatorIncome->insertRow(0);
     ui->tbValidatorIncome->setItem(0, 0, new QTableWidgetItem(item.first.encode_to_hex().c_str()));
-    ui->tbValidatorIncome->setItem(0, 1, new QTableWidgetItem(item.second.encode_to_dec().c_str()));
+    ui->tbValidatorIncome->setItem(0, 1, new QTableWidgetItem(item.second.balance_.encode_to_dec().c_str()));
   }
+}
+
+void StoreExampleMainWidget::on_btnTextPrintAllBalance_clicked(){
+  LOG(INFO)<<store_manager_->GetBalanceAllForDebug().encode_to_dec();
+}
+
+void StoreExampleMainWidget::on_btnShowAllUnitByValidator_clicked(){
+  ambr::core::UnitHash unit_hash(ui->edtValidatorUnit->text().toStdString());
+  std::list<std::shared_ptr<ambr::core::Unit> > list_unit = store_manager_->GetAllUnitByValidatorUnitHash(unit_hash);
+  std::string str;
+  for(std::shared_ptr<ambr::core::Unit> unit:list_unit){
+    str+= unit->hash().encode_to_hex()+"\r\n";
+  }
+  ui->edtAllUnitByValidator->setPlainText(QString::fromStdString(str));
 }
 
 void StoreExampleMainWidget::on_btnPTSimValidateSpeed_clicked(){
@@ -1244,9 +1258,4 @@ void StoreExampleMainWidget::StopPublishTrans(const ambr::core::PrivateKey &pri_
     auto_publish_trans_thread_map_[pri_key].second->join();
     auto_publish_trans_thread_map_.erase(pri_key);
   }
-}
-
-
-void StoreExampleMainWidget::on_btnTextPrintAllBalance_clicked(){
-  LOG(INFO)<<store_manager_->GetBalanceAllForDebug().encode_to_dec();
 }

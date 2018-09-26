@@ -51,6 +51,10 @@ public:
   void UpdateNewUnitMap(const std::vector<core::UnitHash>& validator_check_list);
 
   bool GetLastValidateUnit(core::UnitHash& hash);
+  //get next validator hash for syn
+  core::UnitHash GetNextValidatorHash(const core::UnitHash& hash);
+  // get all unit validated by which validator unit hash is 'hash'
+  std::list<std::shared_ptr<core::Unit>> GetAllUnitByValidatorUnitHash(const core::UnitHash& hash);
   std::list<std::shared_ptr<core::ValidatorUnit>> GetValidateHistory(size_t count);
   bool GetLastUnitHashByPubKey(const core::PublicKey& pub_key, core::UnitHash& hash);
   bool GetBalanceByPubKey(const core::PublicKey& pub_key, core::Amount& balance);
