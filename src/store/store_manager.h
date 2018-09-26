@@ -96,7 +96,13 @@ public:
       std::shared_ptr<ambr::core::Unit>& unit_sended,
       std::string* err);
   bool ReceiveFromUnitHash(
-      const core::UnitHash unit_hash,
+      const core::UnitHash& unit_hash,
+      const core::PrivateKey& pri_key,
+      core::UnitHash* tx_hash,
+      std::shared_ptr<ambr::core::Unit>& unit_received,
+      std::string* err);
+  //get out chash disposit
+  bool ReceiveFromValidator(
       const core::PrivateKey& pri_key,
       core::UnitHash* tx_hash,
       std::shared_ptr<ambr::core::Unit>& unit_received,
@@ -129,7 +135,7 @@ public:
   std::shared_ptr<EnterValidatorSetUnitStore> GetEnterValidatorSetUnit(const core::UnitHash& hash);
   std::shared_ptr<LeaveValidatorSetUnitStore> GetLeaveValidatorSetUnit(const core::UnitHash& hash);
   std::list<std::shared_ptr<core::VoteUnit>> GetVoteList();
-  core::Amount GetValidatorIncome(const core::PublicKey& pub_key);
+  bool GetValidatorIncome(const core::PublicKey& pub_key, ValidatorBalanceStore& out);
 public:
   //could rm not final confirmation unit
   //all unit that depend on this unit will be removed too.
@@ -147,7 +153,7 @@ public:
 public://for debug
   std::list<core::UnitHash> GetAccountListFromAccountForDebug();
   std::list<core::PublicKey> GetAccountListFromWaitForReceiveForDebug();
-  std::list<std::pair<core::PublicKey, core::Amount>> GetValidatorIncomeListForDebug();
+  std::list<std::pair<ambr::core::PublicKey, ambr::store::ValidatorBalanceStore> > GetValidatorIncomeListForDebug();
   //this is not always equal to init.
   //because transaction fee maybe didn't receive by validator.
   //but, it always less than init.
@@ -162,7 +168,7 @@ private:
   void AddWaitForReceiveUnit(const core::PublicKey& pub_key, const core::UnitHash& hash, rocksdb::WriteBatch* batch);
   void RemoveWaitForReceiveUnit(const core::PublicKey& pub_key, const core::UnitHash& hash, rocksdb::WriteBatch* batch);
 private:
-  void DispositionTransectionFee(const ambr::core::Amount& count, rocksdb::WriteBatch* batch);
+  void DispositionTransectionFee(const ambr::core::UnitHash& validator_hash, const ambr::core::Amount& count, rocksdb::WriteBatch* batch);
 private:
   static std::shared_ptr<StoreManager> instance_;
 

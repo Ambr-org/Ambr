@@ -745,3 +745,27 @@ bool ambr::store::ValidatorSetStore::GetNonceTurnValidator(uint64_t nonce, core:
 }
 
 
+
+ambr::store::ValidatorBalanceStore::ValidatorBalanceStore(){
+
+}
+
+ambr::store::ValidatorBalanceStore::ValidatorBalanceStore(
+    const ambr::core::UnitHash& last_update_by,
+    const ambr::core::Amount& balance):balance_(balance), last_update_by_(last_update_by){
+}
+
+std::string ambr::store::ValidatorBalanceStore::SerializeByte(){
+  std::string str_rtn;
+  str_rtn.append((const char*)&balance_, sizeof(balance_));
+  str_rtn.append((const char*)&last_update_by_, sizeof(last_update_by_));
+  return str_rtn;
+}
+
+bool ambr::store::ValidatorBalanceStore::DeSerializeByte(const std::string &buf){
+  if(buf.size() == sizeof(*this)){
+    memcpy(this, buf.data(), buf.size());
+    return true;
+  }
+  return false;
+}

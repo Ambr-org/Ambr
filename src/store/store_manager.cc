@@ -15,6 +15,7 @@
 #include <glog/logging.h>
 #include <core/key.h>
 #include "unit_store.h"
+//TODO: when income has cash disposit,can't enter validator set. when leave use ReceiveFromValidator to receive cash
 static const int use_log = true;
 std::shared_ptr<ambr::store::StoreManager> ambr::store::StoreManager::instance_ = std::shared_ptr<ambr::store::StoreManager>();
 static const std::string init_addr = "ambr_y4bwxzwwrze3mt4i99n614njtsda6s658uqtue9ytjp7i5npg6pz47qdjhx3";
@@ -152,7 +153,7 @@ void ambr::store::StoreManager::Init(const std::string& path){
                 );
       batch.Put(handle_validator_balance_,
                 rocksdb::Slice((const char*)item.validator_public_key_.bytes().data(), item.validator_public_key_.bytes().size()),
-                rocksdb::Slice((const char*)item.balance_.bytes().data(), item.balance_.bytes().size())
+                rocksdb::Slice(ValidatorBalanceStore(unit_validate->hash(), item.balance_).SerializeByte())
                 );
 
       rocksdb::Status status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
@@ -219,7 +220,7 @@ bool ambr::store::StoreManager::AddSendUnit(std::shared_ptr<ambr::core::SendUnit
     core::UnitHash hash;
     if(!GetLastUnitHashByPubKey(send_unit->public_key(), hash)){
       if(err){
-        *err = "Con't find account address";
+        *err = "can't find account address";
       }
       return false;
     }
@@ -286,7 +287,7 @@ bool ambr::store::StoreManager::AddReceiveUnit(std::shared_ptr<ambr::core::Recei
   //chain check
   std::shared_ptr<SendUnitStore> send_unit_store = GetSendUnit(receive_unit->from());
   if(!send_unit_store){
-    if(err)*err = "Con't find send unit store.";
+    if(err)*err = "can't find send unit store.";
     return false;
   }
 
@@ -806,13 +807,18 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
               validator_item.enter_nonce_ = unit->nonce()+2;
               validator_item.leave_nonce_ = 0;
               validator_set_list->JoinValidator(validator_item);
-              //save bail to income
-              core::Amount amount_tmp = GetValidatorIncome(validator_item.validator_public_key_);
+              //save cash disopsit to income
+              ValidatorBalanceStore store_out;
+              core::Amount amount_tmp;
+              amount_tmp.clear();
+              GetValidatorIncome(validator_item.validator_public_key_, store_out);
+              amount_tmp += store_out.balance_;
               amount_tmp += validator_item.balance_;
               status = batch.Put(
                     handle_validator_balance_,
                     rocksdb::Slice((const char*)validator_item.validator_public_key_.bytes().data(), validator_item.validator_public_key_.bytes().size()),
-                    rocksdb::Slice((const char*)amount_tmp.bytes().data(), amount_tmp.bytes().size()));
+                    rocksdb::Slice(ValidatorBalanceStore(prv_validator_store->unit()->hash(), amount_tmp).SerializeByte())
+                    );
               assert(status.ok());
               //write validator_set to db
               std::vector<uint8_t> validator_set_buf = validator_set_list->SerializeByte();
@@ -854,7 +860,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
         if(over)break;
       }
     }
-    DispositionTransectionFee(all_balance_count, &batch);
+    DispositionTransectionFee(prv_validate_unit->hash(), all_balance_count, &batch);
   }
 
   status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
@@ -1071,7 +1077,7 @@ bool ambr::store::StoreManager::GetSendAmount(const ambr::core::UnitHash &unit_h
   core::Amount balance_send;
   std::shared_ptr<SendUnitStore> send_store = GetSendUnit(unit_hash);
   if(!send_store){
-    if(err)*err = "con't find send unit.";
+    if(err)*err = "can't find send unit.";
     return false;
   }
   balance_send = send_store->unit()->balance();
@@ -1079,7 +1085,7 @@ bool ambr::store::StoreManager::GetSendAmount(const ambr::core::UnitHash &unit_h
   core::Amount balance_send_pre;
   std::shared_ptr<UnitStore> store_pre = GetUnit(send_store->unit()->prev_unit());
   if(!store_pre){
-    if(err)*err = "con't find send unit's pre unit.";
+    if(err)*err = "can't find send unit's pre unit.";
     return false;
   }
   balance_send_pre = store_pre->GetUnit()->balance();
@@ -1093,7 +1099,7 @@ bool ambr::store::StoreManager::GetSendAmountWithTransactionFee(const ambr::core
   core::Amount balance_send;
   std::shared_ptr<SendUnitStore> send_store = GetSendUnit(unit_hash);
   if(!send_store){
-    if(err)*err = "con't find send unit.";
+    if(err)*err = "can't find send unit.";
     return false;
   }
   balance_send = send_store->unit()->balance();
@@ -1101,7 +1107,7 @@ bool ambr::store::StoreManager::GetSendAmountWithTransactionFee(const ambr::core
   core::Amount balance_send_pre;
   std::shared_ptr<UnitStore> store_pre = GetUnit(send_store->unit()->prev_unit());
   if(!store_pre){
-    if(err)*err = "con't find send unit's pre unit.";
+    if(err)*err = "can't find send unit's pre unit.";
     return false;
   }
   balance_send_pre = store_pre->GetUnit()->balance();
@@ -1114,7 +1120,7 @@ bool ambr::store::StoreManager::GetReceiveAmount(const ambr::core::UnitHash &uni
   core::Amount balance_now;
   std::shared_ptr<ReceiveUnitStore> receive_store = GetReceiveUnit(unit_hash);
   if(!receive_store){
-    if(err)*err = "con't find receive unit.";
+    if(err)*err = "can't find receive unit.";
     return false;
   }
   balance_now = receive_store->unit()->balance();
@@ -1254,15 +1260,14 @@ bool ambr::store::StoreManager::SendContract(const ambr::core::PrivateKey &prv_k
       tx_hash,
       unit_sended,
       err);
-
 }
 
 bool ambr::store::StoreManager::ReceiveFromUnitHash(
-    const core::UnitHash unit_hash,
-    const ambr::core::PrivateKey &pri_key,
+    const core::UnitHash& unit_hash,
+    const core::PrivateKey& pri_key,
     core::UnitHash* tx_hash,
     std::shared_ptr<ambr::core::Unit>& unit_received,
-    std::string *err){
+    std::string* err){
   LockGrade lk(mutex_);
   std::shared_ptr<core::ReceiveUnit> unit = std::shared_ptr<core::ReceiveUnit>(new core::ReceiveUnit());
   core::PublicKey pub_key = ambr::core::GetPublicKeyByPrivateKey(pri_key);
@@ -1278,7 +1283,7 @@ bool ambr::store::StoreManager::ReceiveFromUnitHash(
   core::Amount balance_send;
   std::shared_ptr<SendUnitStore> send_store = GetSendUnit(unit_hash);
   if(!send_store){
-    if(err)*err = "con't find send unit.";
+    if(err)*err = "can't find send unit.";
     return false;
   }
   balance_send = send_store->unit()->balance();
@@ -1286,7 +1291,7 @@ bool ambr::store::StoreManager::ReceiveFromUnitHash(
   core::Amount balance_send_pre;
   std::shared_ptr<UnitStore> store_pre = GetUnit(send_store->unit()->prev_unit());
   if(!store_pre){
-    if(err)*err = "con't find send unit's pre unit.";
+    if(err)*err = "can't find send unit's pre unit.";
     return false;
   }
   balance_send_pre = store_pre->GetUnit()->balance();
@@ -1304,6 +1309,51 @@ bool ambr::store::StoreManager::ReceiveFromUnitHash(
   unit_received = unit;
   if(tx_hash)*tx_hash = unit->hash();
   return AddReceiveUnit(unit, err);
+}
+
+
+bool ambr::store::StoreManager::ReceiveFromValidator(
+    const core::PrivateKey& pri_key,
+    core::UnitHash* tx_hash,
+    std::shared_ptr<ambr::core::Unit>& unit_received,
+    std::string* err){
+#if 0
+  LockGrade lk(mutex_);
+  std::shared_ptr<core::ReceiveUnit> unit = std::shared_ptr<core::ReceiveUnit>(new core::ReceiveUnit());
+  core::PublicKey pub_key = ambr::core::GetPublicKeyByPrivateKey(pri_key);
+  core::UnitHash prev_hash;
+  if(!GetLastUnitHashByPubKey(pub_key, prev_hash)){
+    prev_hash.clear();
+  }
+  core::Amount balance;
+  if(!GetBalanceByPubKey(pub_key, balance)){
+    balance.clear();
+  }
+  //get income
+  ValidatorBalanceStore balance_store;
+  if(!GetValidatorIncome(pub_key, balance_store) || balance_store.balance_.is_zero()){
+    if(err){
+      *err = "receiver in validator set has no income";
+    }
+    return false;
+  }
+  core::Amount income = balance_store.balance_;
+  balance.set_data(balance.data()+(balance_send_pre.data()-balance_send.data())-GetTransectionFeeCountWhenReceive(send_store->unit()));
+
+
+  unit->set_version(0x00000001);
+  unit->set_type(core::UnitType::receive);
+  unit->set_public_key(ambr::core::GetPublicKeyByPrivateKey(pri_key));
+  unit->set_prev_unit(prev_hash);
+  unit->set_balance(balance);
+  unit->set_from(unit_hash);
+  unit->CalcHashAndFill();
+  unit->SignatureAndFill(pri_key);
+  unit_received = unit;
+  if(tx_hash)*tx_hash = unit->hash();
+  return AddReceiveUnit(unit, err);
+#endif
+  return false;
 }
 
 bool ambr::store::StoreManager::JoinValidatorSet(const core::PrivateKey& pri_key,
@@ -1528,7 +1578,7 @@ bool ambr::store::StoreManager::PublishVote(const core::PrivateKey& pri_key,
   core::UnitHash last_validator_hash;
   if(!GetLastValidateUnit(last_validator_hash)){
     if(err){
-      *err = "Con't find last validator-unit hash";
+      *err = "can't find last validator-unit hash";
     }
     return false;
   }
@@ -1694,9 +1744,8 @@ std::list<std::shared_ptr<ambr::core::VoteUnit>> ambr::store::StoreManager::GetV
   return vote_list_;
 }
 
-ambr::core::Amount ambr::store::StoreManager::GetValidatorIncome(const ambr::core::PublicKey &pub_key){
+bool ambr::store::StoreManager::GetValidatorIncome(const core::PublicKey& pub_key, ValidatorBalanceStore& out){
   std::string string_readed;
-  ambr::core::Amount rtn;
   rocksdb::Status status = db_unit_->Get(
     rocksdb::ReadOptions(),
     handle_validator_balance_,
@@ -1706,9 +1755,10 @@ ambr::core::Amount ambr::store::StoreManager::GetValidatorIncome(const ambr::cor
     return 0;
   }
   assert(status.ok());
-  assert(string_readed.size() == sizeof(rtn));
-  rtn.set_bytes(string_readed.data(), sizeof(rtn));
-  return rtn;
+  if(out.DeSerializeByte(string_readed)){
+    return true;
+  }
+  return false;
 }
 
 bool ambr::store::StoreManager::RemoveUnit(const ambr::core::UnitHash &hash, std::string* err){
@@ -1990,17 +2040,17 @@ std::list<ambr::core::PublicKey> ambr::store::StoreManager::GetAccountListFromWa
   return rtn_list;
 }
 
-std::list<std::pair<ambr::core::PublicKey, ambr::core::Amount> > ambr::store::StoreManager::GetValidatorIncomeListForDebug(){
+std::list<std::pair<ambr::core::PublicKey, ambr::store::ValidatorBalanceStore> > ambr::store::StoreManager::GetValidatorIncomeListForDebug(){
   LockGrade lk(mutex_);
-  std::list<std::pair<ambr::core::PublicKey, ambr::core::Amount> > rtn_list;
+  std::list<std::pair<ambr::core::PublicKey, ambr::store::ValidatorBalanceStore> > rtn_list;
   rocksdb::Iterator* it = db_unit_->NewIterator(rocksdb::ReadOptions(), handle_validator_balance_);
   for (it->SeekToFirst(); it->Valid(); it->Next()) {
     assert(it->status().ok());
     ambr::core::PublicKey pub_key;
-    ambr::core::Amount amount;
+    ambr::store::ValidatorBalanceStore item;
     pub_key.set_bytes(it->key().data(), it->key().size());
-    amount.set_bytes(it->value().data(), it->value().size());
-    rtn_list.push_back(std::make_pair(pub_key, amount));
+    item.DeSerializeByte(it->value().ToString());
+    rtn_list.push_back(std::make_pair(pub_key, item));
   }
   delete it;
   return rtn_list;
@@ -2025,9 +2075,9 @@ ambr::core::Amount ambr::store::StoreManager::GetBalanceAllForDebug(){
       }
     }
   }
-  std::list<std::pair<core::PublicKey, core::Amount>> validator_income_list = GetValidatorIncomeListForDebug();
-  for(std::pair<core::PublicKey, core::Amount> item:validator_income_list){
-    rtn += item.second;
+  std::list<std::pair<core::PublicKey, store::ValidatorBalanceStore>> validator_income_list = GetValidatorIncomeListForDebug();
+  for(std::pair<core::PublicKey, store::ValidatorBalanceStore> item:validator_income_list){
+    rtn += item.second.balance_;
   }
   return rtn;
 }
@@ -2079,7 +2129,7 @@ void ambr::store::StoreManager::RemoveWaitForReceiveUnit(const ambr::core::Publi
   }
 }
 
-void ambr::store::StoreManager::DispositionTransectionFee(const ambr::core::Amount& count, rocksdb::WriteBatch* batch){
+void ambr::store::StoreManager::DispositionTransectionFee(const ambr::core::UnitHash& validator_hash, const ambr::core::Amount& count, rocksdb::WriteBatch* batch){
   LockGrade lk(mutex_);
   ambr::core::Amount count_for_disposition = count;
   std::shared_ptr<ambr::store::ValidatorSetStore> validator_set = GetValidatorSet();
@@ -2090,16 +2140,20 @@ void ambr::store::StoreManager::DispositionTransectionFee(const ambr::core::Amou
     all_amount += validator_item.balance_;
   }
   //disposition transection fee
-  count_for_disposition += GetValidatorIncome(ambr::core::PublicKey());//add odd first
+  ValidatorBalanceStore balance_store;
+  GetValidatorIncome(ambr::core::PublicKey(), balance_store);//add odd first
+  count_for_disposition += balance_store.balance_;
   std::map<core::PublicKey, core::Amount> disposition_map;
   for(ambr::store::ValidatorItem validator_item:validator_set->validator_list()){
     core::Amount amount_for_disposistion = count_for_disposition*validator_item.balance_/all_amount;
     disposition_map[validator_item.validator_public_key_] = amount_for_disposistion;
-    core::Amount amount_item = GetValidatorIncome(validator_item.validator_public_key_);
+    ValidatorBalanceStore balance_store;
+    GetValidatorIncome(validator_item.validator_public_key_, balance_store);
+    core::Amount amount_item = balance_store.balance_;
     amount_item += amount_for_disposistion;
     rocksdb::Status status = batch->Put(handle_validator_balance_,
                            rocksdb::Slice((const char*)validator_item.validator_public_key_.bytes().data(), validator_item.validator_public_key_.bytes().size()),
-                           rocksdb::Slice((const char*)amount_item.bytes().data(), amount_item.bytes().size()));
+                           rocksdb::Slice(ValidatorBalanceStore(validator_hash, amount_item).SerializeByte()));
     assert(status.ok());
   }
   //save odd
@@ -2111,7 +2165,7 @@ void ambr::store::StoreManager::DispositionTransectionFee(const ambr::core::Amou
   pub_key_tmp.clear();
   rocksdb::Status status = batch->Put(handle_validator_balance_,
                       rocksdb::Slice((const char*)pub_key_tmp.bytes().data(), pub_key_tmp.bytes().size()),
-                      rocksdb::Slice((const char*)odd.bytes().data(), odd.bytes().size()));
+                      rocksdb::Slice(ValidatorBalanceStore(core::UnitHash(), odd).SerializeByte()));
   assert(status.ok());
 }
 
@@ -2119,8 +2173,7 @@ ambr::store::StoreManager::StoreManager():db_unit_(nullptr){
   //Init();
 }
 
-ambr::store::StoreManager::~StoreManager()
-{
+ambr::store::StoreManager::~StoreManager(){
   if(db_unit_){
     db_unit_->Close();
   }

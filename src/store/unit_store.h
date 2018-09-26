@@ -181,6 +181,18 @@ private:
   core::PublicKey current_validator_;
   std::list<ValidatorItem> validator_list_;
 };
+
+
+struct ValidatorBalanceStore{
+public:
+  ValidatorBalanceStore();
+  ValidatorBalanceStore(const core::UnitHash& last_update_by, const core::Amount& balance);
+  std::string SerializeByte();
+  bool DeSerializeByte(const std::string& buf);
+public:
+  core::Amount balance_;
+  core::UnitHash last_update_by_;
+};
 }//ambr
 }//store
 
