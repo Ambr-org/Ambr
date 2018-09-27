@@ -44,6 +44,8 @@ public:
 public:
   StoreType type(){return type_;}
   void set_type(StoreType type){type = type;}
+  ambr::core::UnitHash validated_hash(){return validated_hash_;}
+  void set_validated_hash(const ambr::core::UnitHash& hash){validated_hash_ = hash;}
 protected:
   UnitStore(StoreType type):type_(type),version_(0x00000001){}
   StoreType type_;
@@ -180,6 +182,18 @@ private:
   uint64_t current_nonce_;
   core::PublicKey current_validator_;
   std::list<ValidatorItem> validator_list_;
+};
+
+
+struct ValidatorBalanceStore{
+public:
+  ValidatorBalanceStore();
+  ValidatorBalanceStore(const core::UnitHash& last_update_by, const core::Amount& balance);
+  std::string SerializeByte();
+  bool DeSerializeByte(const std::string& buf);
+public:
+  core::Amount balance_;
+  core::UnitHash last_update_by_;
 };
 }//ambr
 }//store

@@ -688,25 +688,35 @@ void StoreExampleMainWidget::on_btnTranslateReceive_clicked(){
     }
     from = ambr::core::GetPublicKeyByAddress(addr);
   }
-  ambr::core::Amount amount;
-  amount.set_data(ui->edtTSAmount->text().toLongLong());
-  std::string err;
-  QString str;
-  ambr::core::UnitHash hash;
-  std::shared_ptr<ambr::core::Unit> unit_out;
-  if(store_manager_->ReceiveFromUnitHash(from, pri_key, &hash, unit_out, &err)){
-    {//boardcast to net
-      std::vector<uint8_t> buf = unit_out->SerializeByte();
-      std::string str_data;
-      str_data.assign(buf.begin(), buf.end());
-    }
+  if(ui->rdoTRFromSend->isChecked()){
     ambr::core::Amount amount;
-    assert(store_manager_->GetSendAmount(from, amount, &err));
-    str = str + "Receive " + amount.encode_to_dec().c_str() + "success.tx_hash:" + hash.encode_to_hex().c_str();
+    amount.set_data(ui->edtTSAmount->text().toLongLong());
+    std::string err;
+    QString str;
+    ambr::core::UnitHash hash;
+    std::shared_ptr<ambr::core::Unit> unit_out;
+    if(store_manager_->ReceiveFromUnitHash(from, pri_key, &hash, unit_out, &err)){
+      ambr::core::Amount amount;
+      assert(store_manager_->GetSendAmount(from, amount, &err));
+      str = str + "Receive " + amount.encode_to_dec().c_str() + "success.tx_hash:" + hash.encode_to_hex().c_str();
+    }else{
+      str = str + "Receive faild. tx_hash:" + err.c_str();
+    }
+    ui->edtTRPlaintEdit->setPlainText(str);
   }else{
-    str = str + "Receive faild. tx_hash:" + err.c_str();
+    ambr::core::Amount amount;
+    amount.set_data(ui->edtTSAmount->text().toLongLong());
+    std::string err;
+    QString str;
+    ambr::core::UnitHash hash;
+    std::shared_ptr<ambr::core::Unit> unit_out;
+    if(store_manager_->ReceiveFromValidator(pri_key, &hash, unit_out, &err)){
+      str = str + "Receive success. tx_hash:" + hash.encode_to_hex().c_str();
+    }else{
+      str = str + "Receive faild. tx_hash:" + err.c_str();
+    }
+    ui->edtTRPlaintEdit->setPlainText(str);
   }
-  ui->edtTRPlaintEdit->setPlainText(str);
 }
 
 void StoreExampleMainWidget::on_btnPTLength_clicked(){
@@ -999,15 +1009,29 @@ void StoreExampleMainWidget::on_btnForRemove_clicked(){
 }
 
 void StoreExampleMainWidget::on_btnFlushValidatorIncome_clicked(){
-  std::list<std::pair<ambr::core::PublicKey, ambr::core::Amount> > list = store_manager_->GetValidatorIncomeListForDebug();
+  std::list<std::pair<ambr::core::PublicKey, ambr::store::ValidatorBalanceStore> > list = store_manager_->GetValidatorIncomeListForDebug();
   while(ui->tbValidatorIncome->rowCount()){
     ui->tbValidatorIncome->removeRow(0);
   }
-  for(std::pair<ambr::core::PublicKey, ambr::core::Amount> item: list){
+  for(std::pair<ambr::core::PublicKey, ambr::store::ValidatorBalanceStore> item: list){
     ui->tbValidatorIncome->insertRow(0);
     ui->tbValidatorIncome->setItem(0, 0, new QTableWidgetItem(item.first.encode_to_hex().c_str()));
-    ui->tbValidatorIncome->setItem(0, 1, new QTableWidgetItem(item.second.encode_to_dec().c_str()));
+    ui->tbValidatorIncome->setItem(0, 1, new QTableWidgetItem(item.second.balance_.encode_to_dec().c_str()));
   }
+}
+
+void StoreExampleMainWidget::on_btnTextPrintAllBalance_clicked(){
+  LOG(INFO)<<store_manager_->GetBalanceAllForDebug().encode_to_dec();
+}
+
+void StoreExampleMainWidget::on_btnShowAllUnitByValidator_clicked(){
+  ambr::core::UnitHash unit_hash(ui->edtValidatorUnit->text().toStdString());
+  std::list<std::shared_ptr<ambr::core::Unit> > list_unit = store_manager_->GetAllUnitByValidatorUnitHash(unit_hash);
+  std::string str;
+  for(std::shared_ptr<ambr::core::Unit> unit:list_unit){
+    str+= unit->hash().encode_to_hex()+"\r\n";
+  }
+  ui->edtAllUnitByValidator->setPlainText(QString::fromStdString(str));
 }
 
 void StoreExampleMainWidget::on_btnPTSimValidateSpeed_clicked(){
@@ -1244,9 +1268,4 @@ void StoreExampleMainWidget::StopPublishTrans(const ambr::core::PrivateKey &pri_
     auto_publish_trans_thread_map_[pri_key].second->join();
     auto_publish_trans_thread_map_.erase(pri_key);
   }
-}
-
-
-void StoreExampleMainWidget::on_btnTextPrintAllBalance_clicked(){
-  LOG(INFO)<<store_manager_->GetBalanceAllForDebug().encode_to_dec();
 }
