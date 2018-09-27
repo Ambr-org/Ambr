@@ -269,7 +269,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
    <item>
     <widget class="QTabWidget" name="tabMain">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab_7">
       <attribute name="title">
@@ -691,7 +691,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                       <property name="geometry">
                        <rect>
                         <x>0</x>
-                        <y>-16</y>
+                        <y>-60</y>
                         <width>579</width>
                         <height>586</height>
                        </rect>
@@ -761,7 +761,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                           <item>
                            <widget class="QStackedWidget" name="stackTranslate">
                             <property name="currentIndex">
-                             <number>3</number>
+                             <number>1</number>
                             </property>
                             <widget class="QWidget" name="page">
                              <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -1013,6 +1013,29 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                                     </widget>
                                    </item>
                                   </layout>
+                                 </item>
+                                 <item>
+                                  <widget class="QWidget" name="widget_16" native="true">
+                                   <layout class="QHBoxLayout" name="horizontalLayout_52">
+                                    <item>
+                                     <widget class="QRadioButton" name="rdoTRFromSend">
+                                      <property name="text">
+                                       <string>来源发送单元</string>
+                                      </property>
+                                      <property name="checked">
+                                       <bool>true</bool>
+                                      </property>
+                                     </widget>
+                                    </item>
+                                    <item>
+                                     <widget class="QRadioButton" name="radioButton_17">
+                                      <property name="text">
+                                       <string>来源验证单元</string>
+                                      </property>
+                                     </widget>
+                                    </item>
+                                   </layout>
+                                  </widget>
                                  </item>
                                  <item>
                                   <layout class="QHBoxLayout" name="horizontalLayout_11">
@@ -1908,7 +1931,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-1184</y>
+              <y>0</y>
               <width>374</width>
               <height>2105</height>
              </rect>

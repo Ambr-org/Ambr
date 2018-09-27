@@ -265,6 +265,7 @@ bool ambr::store::StoreManager::AddSendUnit(std::shared_ptr<ambr::core::SendUnit
 
 bool ambr::store::StoreManager::AddReceiveUnit(std::shared_ptr<ambr::core::ReceiveUnit> receive_unit, std::string *err){
   LockGrade lk(mutex_);
+  rocksdb::WriteBatch batch;
   if(!receive_unit){
     if(err)*err = "receive_unit is nullptr.";
     return false;
@@ -285,65 +286,120 @@ bool ambr::store::StoreManager::AddReceiveUnit(std::shared_ptr<ambr::core::Recei
     }
   }
   //chain check
-  std::shared_ptr<SendUnitStore> send_unit_store = GetSendUnit(receive_unit->from());
-  if(!send_unit_store){
+  std::shared_ptr<SendUnitStore> send_unit_store;
+  std::shared_ptr<ValidatorUnitStore> validator_unit_store;
+  if(send_unit_store = GetSendUnit(receive_unit->from())){
+    if(!send_unit_store->receive_unit_hash().is_zero()){//received
+      return false;
+    }
+    //check receive member
+    if(send_unit_store->unit()->dest() != receive_unit->public_key()){
+      if(err)*err = "This receiver is not right.";
+      return false;
+    }
+
+    //check receive count
+    core::Amount balance_old;
+    std::shared_ptr<store::UnitStore> prev_receive_store = GetUnit(receive_unit->prev_unit());
+    if(prev_receive_store){
+      balance_old.set_data(receive_unit->balance().data()-prev_receive_store->GetUnit()->balance().data());
+    }else{
+      balance_old.set_data(receive_unit->balance().data());
+    }
+    std::shared_ptr<store::UnitStore> prev_send_store = GetUnit(send_unit_store->unit()->prev_unit());
+    if(!prev_send_store){
+      if(err){
+        *err = "Send unit's previous unit is not found";
+      }
+      return false;
+    }
+
+    core::Amount send_amount;
+    if(!GetSendAmount(receive_unit->from(), send_amount, err)){
+      return false;
+    }
+    if(balance_old != send_amount){
+      if(err)*err = "Error balance number.";
+      return false;
+    }
+    {// db operate
+      auto receive_unit_store = std::make_shared<ReceiveUnitStore>(receive_unit);
+      std::vector<uint8_t> bytes = receive_unit_store->SerializeByte();
+      std::array<uint8_t,sizeof(ambr::core::UnitHash::ArrayType)> hash_bytes = receive_unit->hash().bytes();
+      rocksdb::Status status = batch.Put(handle_receive_unit_, rocksdb::Slice((const char*)hash_bytes.data(), hash_bytes.size()),
+                rocksdb::Slice((const char*)bytes.data(), bytes.size()));
+      assert(status.ok());
+      status = batch.Put(handle_account_, rocksdb::Slice((const char*)receive_unit->public_key().bytes().data(), receive_unit->public_key().bytes().size()),
+                rocksdb::Slice((const char*)receive_unit->hash().bytes().data(), receive_unit->hash().bytes().size()));
+      assert(status.ok());
+      status = batch.Put(handle_new_account_, rocksdb::Slice((const char*)receive_unit->public_key().bytes().data(), receive_unit->public_key().bytes().size()),
+                rocksdb::Slice((const char*)receive_unit->hash().bytes().data(), receive_unit->hash().bytes().size()));
+      assert(status.ok());
+      send_unit_store->set_receive_unit_hash(receive_unit->hash());
+      bytes = send_unit_store->SerializeByte();
+      status = batch.Put(handle_send_unit_, rocksdb::Slice((const char*)send_unit_store->unit()->hash().bytes().begin(), send_unit_store->unit()->hash().bytes().size()),
+                rocksdb::Slice((const char*)bytes.data(), bytes.size()));
+      assert(status.ok());
+      RemoveWaitForReceiveUnit(receive_unit->public_key(), receive_unit->from(), &batch);
+    }
+  }else if(validator_unit_store = GetValidateUnit(receive_unit->from())){
+    //check receive count
+    core::Amount receive_count;
+    std::shared_ptr<store::UnitStore> prev_receive_store = GetUnit(receive_unit->prev_unit());
+    assert(prev_receive_store);
+    assert(prev_receive_store->GetUnit());
+    receive_count = receive_unit->balance() - prev_receive_store->GetUnit()->balance() + receive_unit->GetFeeSize()*GetTransectionFeeBase();
+
+    //check income count
+    store::ValidatorBalanceStore income_store;
+    if(!GetValidatorIncome(receive_unit->public_key(), income_store)){
+      if(err)*err = "this account has no income";
+      return false;
+    }
+    if(receive_count != income_store.balance_){
+      if(err)*err = "error balance";
+      return false;
+    }
+    if(receive_unit->from() != income_store.last_update_by_){
+      if(err)* err = "error param of 'from'";
+      return false;
+    }
+    //check account is out of validator set
+    std::shared_ptr<ambr::store::ValidatorSetStore> validator_set = GetValidatorSet();
+    if(!validator_set){
+      if(err)*err = "get validator set faild";
+      return false;
+    }
+    ambr::store::ValidatorItem validator_set_item;
+    if(validator_set->GetValidator(receive_unit->public_key(), validator_set_item)){
+      if(err) *err = "account is already in validator set";
+      return false;
+    }
+    {// db operate
+      auto receive_unit_store = std::make_shared<ReceiveUnitStore>(receive_unit);
+      std::vector<uint8_t> bytes = receive_unit_store->SerializeByte();
+      std::array<uint8_t,sizeof(ambr::core::UnitHash::ArrayType)> hash_bytes = receive_unit->hash().bytes();
+      rocksdb::Status status = batch.Put(handle_receive_unit_, rocksdb::Slice((const char*)hash_bytes.data(), hash_bytes.size()),
+                rocksdb::Slice((const char*)bytes.data(), bytes.size()));
+      assert(status.ok());
+      status = batch.Put(handle_account_, rocksdb::Slice((const char*)receive_unit->public_key().bytes().data(), receive_unit->public_key().bytes().size()),
+                rocksdb::Slice((const char*)receive_unit->hash().bytes().data(), receive_unit->hash().bytes().size()));
+      assert(status.ok());
+      status = batch.Put(handle_new_account_, rocksdb::Slice((const char*)receive_unit->public_key().bytes().data(), receive_unit->public_key().bytes().size()),
+                rocksdb::Slice((const char*)receive_unit->hash().bytes().data(), receive_unit->hash().bytes().size()));
+      assert(status.ok());
+      status = batch.Delete(handle_validator_balance_,
+                       rocksdb::Slice((const char*)receive_unit->public_key().bytes().data(), receive_unit->public_key().bytes().size())
+          );
+      assert(status.ok());
+    }
+
+  }else{
     if(err)*err = "can't find send unit store.";
     return false;
   }
 
-  if(!send_unit_store->receive_unit_hash().is_zero()){//received
-    return false;
-  }
-  //check receive member
-  if(send_unit_store->unit()->dest() != receive_unit->public_key()){
-    if(err)*err = "This receiver is not right.";
-    return false;
-  }
-
-  //check receive count
-  core::Amount balance_old;
-  std::shared_ptr<store::UnitStore> prev_receive_store = GetUnit(receive_unit->prev_unit());
-  if(prev_receive_store){
-    balance_old.set_data(receive_unit->balance().data()-prev_receive_store->GetUnit()->balance().data());
-  }else{
-    balance_old.set_data(receive_unit->balance().data());
-  }
-  std::shared_ptr<store::UnitStore> prev_send_store = GetUnit(send_unit_store->unit()->prev_unit());
-  if(!prev_send_store){
-    if(err){
-      *err = "Send unit's previous unit is not found";
-    }
-    return false;
-  }
-
-  core::Amount send_amount;
-  if(!GetSendAmount(receive_unit->from(), send_amount, err)){
-    return false;
-  }
-  if(balance_old != send_amount){
-    if(err)*err = "Error balance number.";
-    return false;
-  }
-
-  rocksdb::WriteBatch batch;
-  auto receive_unit_store = std::make_shared<ReceiveUnitStore>(receive_unit);
-  std::vector<uint8_t> bytes = receive_unit_store->SerializeByte();
-  std::array<uint8_t,sizeof(ambr::core::UnitHash::ArrayType)> hash_bytes = receive_unit->hash().bytes();
-  rocksdb::Status status = batch.Put(handle_receive_unit_, rocksdb::Slice((const char*)hash_bytes.data(), hash_bytes.size()),
-            rocksdb::Slice((const char*)bytes.data(), bytes.size()));
-  assert(status.ok());
-  status = batch.Put(handle_account_, rocksdb::Slice((const char*)receive_unit->public_key().bytes().data(), receive_unit->public_key().bytes().size()),
-            rocksdb::Slice((const char*)receive_unit->hash().bytes().data(), receive_unit->hash().bytes().size()));
-  assert(status.ok());
-  status = batch.Put(handle_new_account_, rocksdb::Slice((const char*)receive_unit->public_key().bytes().data(), receive_unit->public_key().bytes().size()),
-            rocksdb::Slice((const char*)receive_unit->hash().bytes().data(), receive_unit->hash().bytes().size()));
-  assert(status.ok());
-  send_unit_store->set_receive_unit_hash(receive_unit->hash());
-  bytes = send_unit_store->SerializeByte();
-  status = batch.Put(handle_send_unit_, rocksdb::Slice((const char*)send_unit_store->unit()->hash().bytes().begin(), send_unit_store->unit()->hash().bytes().size()),
-            rocksdb::Slice((const char*)bytes.data(), bytes.size()));
-  assert(status.ok());
-  RemoveWaitForReceiveUnit(receive_unit->public_key(), receive_unit->from(), &batch);
+  rocksdb::Status status;
   status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
   assert(status.ok());
   DoReceiveNewReceiveUnit(receive_unit);
@@ -1402,7 +1458,6 @@ bool ambr::store::StoreManager::ReceiveFromValidator(
     core::UnitHash* tx_hash,
     std::shared_ptr<ambr::core::Unit>& unit_received,
     std::string* err){
-#if 0
   LockGrade lk(mutex_);
   std::shared_ptr<core::ReceiveUnit> unit = std::shared_ptr<core::ReceiveUnit>(new core::ReceiveUnit());
   core::PublicKey pub_key = ambr::core::GetPublicKeyByPrivateKey(pri_key);
@@ -1422,23 +1477,20 @@ bool ambr::store::StoreManager::ReceiveFromValidator(
     }
     return false;
   }
-  core::Amount income = balance_store.balance_;
-  balance.set_data(balance.data()+(balance_send_pre.data()-balance_send.data())-GetTransectionFeeCountWhenReceive(send_store->unit()));
-
+  //core::Amount income = balance_store.balance_;
+  balance += balance_store.balance_-core::ReceiveUnit().GetFeeSize();
 
   unit->set_version(0x00000001);
   unit->set_type(core::UnitType::receive);
   unit->set_public_key(ambr::core::GetPublicKeyByPrivateKey(pri_key));
   unit->set_prev_unit(prev_hash);
   unit->set_balance(balance);
-  unit->set_from(unit_hash);
+  unit->set_from(balance_store.last_update_by_);
   unit->CalcHashAndFill();
   unit->SignatureAndFill(pri_key);
   unit_received = unit;
   if(tx_hash)*tx_hash = unit->hash();
   return AddReceiveUnit(unit, err);
-#endif
-  return false;
 }
 
 bool ambr::store::StoreManager::JoinValidatorSet(const core::PrivateKey& pri_key,
