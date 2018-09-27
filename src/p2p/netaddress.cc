@@ -219,8 +219,6 @@ bool CNetAddr::IsValid() const
 
 bool CNetAddr::IsRoutable() const
 {
-   //TODO for tesing,RFC1918 is private network
-    //return IsValid() && !(IsRFC1918() || IsRFC2544() || IsRFC3927() || IsRFC4862() || IsRFC6598() || IsRFC5737() || (IsRFC4193() && !IsTor()) || IsRFC4843() || IsLocal() || IsInternal());
     return IsValid() && !(IsRFC2544() || IsRFC3927() || IsRFC4862() || IsRFC6598() || IsRFC5737() || (IsRFC4193() && !IsTor()) || IsRFC4843() || IsLocal() || IsInternal());
 }
 
@@ -291,7 +289,6 @@ bool CNetAddr::GetInAddr(struct in_addr* pipv4Addr) const
         return false;
     memcpy(pipv4Addr, ip+12, 4);
     return true;
-   // return inet_pton(AF_INET, "localhost", &pipv4Addr) < 0;
 }
 
 bool CNetAddr::GetIn6Addr(struct in6_addr* pipv6Addr) const
@@ -512,9 +509,7 @@ bool operator<(const CService& a, const CService& b)
 
 bool CService::GetSockAddr(struct sockaddr* paddr, socklen_t *addrlen) const
 {  
-       //TODO:: Testing
-       //if (IsIPv4()) {
-       if (true) {
+       if (IsIPv4()) {
         if (*addrlen < (socklen_t)sizeof(struct sockaddr_in))
             return false;
         *addrlen = sizeof(struct sockaddr_in);
@@ -529,8 +524,7 @@ bool CService::GetSockAddr(struct sockaddr* paddr, socklen_t *addrlen) const
         paddrin->sin_port = htons(port);
         return true;
       } 
-  ///  if (IsIPv6()) {
-      if (false) {
+     if (IsIPv6()) {
         if (*addrlen < (socklen_t)sizeof(struct sockaddr_in6))
             return false;
         *addrlen = sizeof(struct sockaddr_in6);
