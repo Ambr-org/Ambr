@@ -16,6 +16,7 @@
 #include <core/key.h>
 #include "unit_store.h"
 //TODO: when income has cash disposit,can't enter validator set. when leave use ReceiveFromValidator to receive cash
+//TODO: handle the situation delete receive unit which receive from validator
 static const int use_log = true;
 std::shared_ptr<ambr::store::StoreManager> ambr::store::StoreManager::instance_ = std::shared_ptr<ambr::store::StoreManager>();
 static const std::string init_addr = "ambr_y4bwxzwwrze3mt4i99n614njtsda6s658uqtue9ytjp7i5npg6pz47qdjhx3";
