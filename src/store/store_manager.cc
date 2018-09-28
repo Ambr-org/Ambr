@@ -877,12 +877,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
                     rocksdb::Slice(ValidatorBalanceStore(prv_validator_store->unit()->hash(), amount_tmp).SerializeByte())
                     );
               assert(status.ok());
-              //write validator_set to db
-              std::vector<uint8_t> validator_set_buf = validator_set_list->SerializeByte();
-              status = batch.Put(handle_validator_set_,
-                                 rocksdb::Slice(validate_set_key),
-                                 rocksdb::Slice((const char*)validator_set_buf.data(), validator_set_buf.size()));
-              assert(status.ok());
+
               break;
             }
           case ambr::store::UnitStore::ST_LeaveValidatorSet:{
@@ -903,12 +898,6 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
               unit_tmp = GetUnit(leave_unit->GetUnit()->prev_unit());
               validator_set_list->LeaveValidator(leave_unit->unit()->public_key(), prv_validate_unit->nonce());
               validator_set_list->Update(prv_validate_unit->nonce());
-              //write validator_set to db
-              std::vector<uint8_t> validator_set_buf = validator_set_list->SerializeByte();
-              status = batch.Put(handle_validator_set_,
-                                 rocksdb::Slice(validate_set_key),
-                                 rocksdb::Slice((const char*)validator_set_buf.data(), validator_set_buf.size()));
-              assert(status.ok());
               break;
             }
           default:
@@ -919,7 +908,12 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
     }
     DispositionTransectionFee(prv_validate_unit->hash(), all_balance_count, &batch);
   }
-
+  //write validator_set to db
+  std::vector<uint8_t> validator_set_buf = validator_set_list->SerializeByte();
+  status = batch.Put(handle_validator_set_,
+                     rocksdb::Slice(validate_set_key),
+                     rocksdb::Slice((const char*)validator_set_buf.data(), validator_set_buf.size()));
+  assert(status.ok());
   status = db_unit_->Write(rocksdb::WriteOptions(), &batch);
   assert(status.ok());
   DoReceiveNewValidatorUnit(unit);
