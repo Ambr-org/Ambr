@@ -10,6 +10,11 @@ namespace ambr{
     void Interrupt();
     void WaitForShutdown();
     void Shutdown();  
+
+    // p2p interface
+    void SendMessage(CNode* p_node, CSerializedNetMsg&& msg);
+    void BoardcastMessage(CSerializedNetMsg&& msg);
+    void RemoveNode(CNode* pNode);
   };
 };
 #endif
