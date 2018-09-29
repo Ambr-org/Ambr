@@ -19,15 +19,16 @@
 #include "store/store_manager.h"
 #include "synchronization/syn_manager.h"
 #include "rpc/rpc_server.h"
-extern std::unique_ptr<CConnman> g_connman;
-extern PeerLogicValidation *peerLogic;
+
+std::unique_ptr<ambr::rpc::RpcServer> p_rpc;
 
 namespace ambr {
 namespace server {
-int DoServer(const std::string& db_path, uint16_t rpc_port, uint16_t p2p_prot, const std::string& seed_ip, uint16_t seed_port) {
+int DoServer(const std::string& db_path, uint16_t rpc_port, uint16_t p2p_port, const std::string& seed_ip, uint16_t seed_port) {
   std::shared_ptr<ambr::store::StoreManager> p_store_manager = std::make_shared<ambr::store::StoreManager>();
   std::shared_ptr<ambr::syn::SynManager> p_syn_manager = std::make_shared<ambr::syn::SynManager>(p_store_manager);
-  std::shared_ptr<ambr::rpc::RpcServer> p_rpc = std::make_shared<ambr::rpc::RpcServer>();
+  p_rpc = std::unique_ptr<ambr::rpc::RpcServer>(new ambr::rpc::RpcServer());
+
   p_store_manager->Init(db_path);
   google::SetLogDestination(google::GLOG_INFO, (db_path+"/log.log").c_str());
   p_store_manager->AddCallBackReceiveNewSendUnit(std::bind(&ambr::syn::SynManager::BoardCastNewSendUnit, p_syn_manager.get(), std::placeholders::_1));
@@ -44,7 +45,7 @@ int DoServer(const std::string& db_path, uint16_t rpc_port, uint16_t p2p_prot, c
   config.max_out_peer_ = 8;
   config.max_in_peer_for_optimize_ = 8;
   config.max_out_peer_for_optimize_ = 8;
-  config.listen_port_ = p2p_prot;
+  config.listen_port_ = p2p_port;
 
   config.use_upnp_ = false;
   config.use_nat_pmp_ = false;
@@ -54,10 +55,6 @@ int DoServer(const std::string& db_path, uint16_t rpc_port, uint16_t p2p_prot, c
   config.vec_seed_.push_back((boost::format("%s:%d")%seed_ip%seed_port).str());
 
   p_syn_manager->Init(config);
-
-  while(getchar() == 'q'){
-    break;
-  }
   return 0;
 }
 

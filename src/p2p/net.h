@@ -331,6 +331,11 @@ public:
 
     bool GetIfPauseReceive(const std::string& addr);
     bool GetIfPauseSend(const std::string& addr);
+
+    std::vector<CNode*> GetNodes(){
+        return vNodes;
+    }
+
 private:
     struct ListenSocket {
         SOCKET socket;
@@ -459,7 +464,7 @@ private:
     std::atomic<int64_t> m_next_send_inv_to_incoming{0};
     friend struct CConnmanTest;
 };
-extern std::unique_ptr<CConnman> g_connman;
+
 void Discover();
 void StartMapPort();
 void InterruptMapPort();
