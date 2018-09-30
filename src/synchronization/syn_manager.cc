@@ -21,10 +21,13 @@ class ambr::syn::SynManager::Impl{
 public:
   Impl(Ptr_StoreManager p_store_manager);
 
+  uint32_t GetNodeCount();
   void RequestValidator();
+  void AddListInNode(CNode *pnode);
   bool GetIfPauseSend(const std::string &addr);
   bool GetIfPauseReceive(const std::string &addr);
   void RemoveNode(CNode* p_node, uint32_t second);
+  void UnSerialize(std::vector<uint8_t>& vec_bytes);
   bool Init(const ambr::syn::SynManagerConfig& config);
   void SendMessage(CSerializedNetMsg&& msg, CNode* p_node);
   void SetOnAccept(const std::function<void(CNode*)>& func);
@@ -32,11 +35,8 @@ public:
   void SetOnDisconnect(const std::function<void(CNode*)>& func);
   void BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node);
 
-  void AddListInNode(CNode *pnode){
-    list_in_nodes_.push_back(pnode);
-  }
   bool OnReceiveNode(const CNetMessage& netmsg, CNode* p_node);
-  void UnSerialize(std::vector<uint8_t>& vec_bytes);
+
 private:
   void Shutdown();
   void WaitForShutdown();
@@ -45,11 +45,10 @@ private:
   void OnDisConnectNode(CNode* p_node);
   void ReceiveUnit(const Ptr_Unit& p_unit, CNode* p_node);
   bool ReceiveValidatorUnit(const Ptr_Unit& p_unit, CNode* p_node);
+  void ReceiveAllUnit(const std::vector<uint8_t>& buf, CNode* p_node);
   void ReceiveNoValidatorUnit(const std::string& strTmp, CNode* p_node);
   void ReturnValidatorUnit(const std::vector<uint8_t>& buf, CNode* p_node);
-private:
-  //get all node count
-  uint32_t GetNodeCount();
+
 private:
   bool exit_;
   std::mutex state_mutex_;
@@ -71,10 +70,14 @@ private:
 
 ambr::syn::SynManager::Impl::Impl(Ptr_StoreManager p_store_manager)
   : exit_(false)
-  , p_storemanager_(p_store_manager)
+  , p_cconnman_(std::make_shared<CConnman>(ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max()), ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max())))
   , p_scheduler(std::make_shared<CScheduler>())
-  , p_cconnman_(std::make_shared<CConnman>(ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max()), ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max()))){
+  , p_storemanager_(p_store_manager){
 
+}
+
+uint32_t ambr::syn::SynManager::Impl::GetNodeCount(){
+  return list_in_nodes_.size()+list_out_nodes_.size();
 }
 
 void ambr::syn::SynManager::Impl::RequestValidator(){
@@ -89,6 +92,10 @@ void ambr::syn::SynManager::Impl::RequestValidator(){
   }
 }
 
+void ambr::syn::SynManager::Impl::AddListInNode(CNode *pnode){
+  list_in_nodes_.push_back(pnode);
+}
+
 bool ambr::syn::SynManager::Impl::GetIfPauseSend(const std::string &addr){
   return p_cconnman_->GetIfPauseSend(addr);
 }
@@ -101,6 +108,26 @@ void ambr::syn::SynManager::Impl::RemoveNode(CNode* p_node, uint32_t second){
   /*list_in_nodes_.remove(p_node);
   list_out_nodes_.remove(p_node);*/
   p_node->fDisconnect = true;
+}
+
+void ambr::syn::SynManager::Impl::UnSerialize(std::vector<uint8_t>& vec_bytes){
+  size_t data_length = vec_bytes.size();
+  if(253 >= data_length && 0 < data_length){
+    uint8_t msg_size = vec_bytes[0];
+    if(data_length - 1 == msg_size){
+      auto it = vec_bytes.begin();
+      vec_bytes.erase(it);
+    }
+  }
+  else if(std::numeric_limits<unsigned short>::max() + 3 >= data_length && 0 < data_length){
+    uint16_t msg_size = vec_bytes[2] * 256 + vec_bytes[1];
+    if(data_length - 3 == msg_size){
+      auto it = vec_bytes.begin();
+      for(int i = 0; i < 3; ++i){
+        vec_bytes.erase(it);
+      }
+    }
+  }
 }
 
 bool ambr::syn::SynManager::Impl::Init(const SynManagerConfig &config){
@@ -214,8 +241,8 @@ void ambr::syn::SynManager::Impl::OnConnectNode(CNode* p_node){
     list_out_nodes_.remove(p_node);
     list_out_nodes_.push_back(p_node);
 
-    std::thread initThread(&ambr::syn::SynManager::Impl::RequestValidator, this);
-    initThread.detach();
+    //std::thread initThread(&ambr::syn::SynManager::Impl::RequestValidator, this);
+    //initThread.detach();
   }
 }
 
@@ -300,24 +327,35 @@ bool ambr::syn::SynManager::Impl::ReceiveValidatorUnit(const Ptr_Unit& p_unit, C
     return false;
 }
 
+void ambr::syn::SynManager::Impl::ReceiveAllUnit(const std::vector<uint8_t>& buf, CNode* p_node){
+    auto first = buf.begin();
+    for(auto it = buf.begin(); buf.end() >= it; ++it){
+      if(('a' == *it && 'm' == *(it + 1) && 'b' == *(it + 2) && 'r' == *(it + 3)) || buf.end() == it){
+        std::vector<uint8_t> buf_data;
+        buf_data.assign(first ,it);
+        first = it + 4;
+        if(buf.end() == it){
+          ReceiveValidatorUnit(ambr::core::Unit::CreateUnitByByte(buf_data), p_node);
+        }
+        else{
+          ReceiveUnit(ambr::core::Unit::CreateUnitByByte(buf_data), p_node);
+        }
+      }
+    }
+}
+
 void ambr::syn::SynManager::Impl::ReceiveNoValidatorUnit(const std::string& strTmp, CNode* p_node){
     LOG(INFO) << "Get No Validator Unit:" << strTmp;
     ambr::core::UnitHash hash;
     hash.decode_from_hex(strTmp);
 
-    Ptr_UnitStore p_unitstore = p_storemanager_->GetUnit(hash);
-    Ptr_Unit p_unit;
-    if(p_unitstore){
-      p_unit = p_unitstore->GetUnit();
+    std::shared_ptr<ambr::core::ValidatorUnit> p_unit;
+    std::shared_ptr<ambr::store::ValidatorUnitStore> p_validator_unit_store = p_storemanager_->GetValidateUnit(hash);
+    if(p_validator_unit_store){
+      p_unit = p_validator_unit_store->unit();;
     }
     else{
-      std::shared_ptr<ambr::store::ValidatorUnitStore> p_validator_unit_store = p_storemanager_->GetValidateUnit(hash);
-      if(p_validator_unit_store){
-        p_unit = p_validator_unit_store->unit();;
-      }
-      else{
-        p_unit = nullptr;
-      }
+      p_unit = nullptr;
     }
 
     if(p_unit){
@@ -330,17 +368,41 @@ void ambr::syn::SynManager::Impl::ReceiveNoValidatorUnit(const std::string& strT
 
 void ambr::syn::SynManager::Impl::ReturnValidatorUnit(const std::vector<uint8_t>& buf, CNode* p_node){
     LOG(INFO) << "Get Validator Unit Hash:" << buf.data();
-    std::string str_error;
+    std::string str_error, str_hash;
+    str_hash.assign(buf.begin(), buf.end());
     ambr::core::UnitHash in_hash, out_hash;
-    in_hash.set_bytes(buf.data(), buf.size());
+    in_hash.decode_from_hex(str_hash);
     if(p_storemanager_->GetValidateUnit(in_hash))
     {
       if(p_storemanager_->GetNextValidatorHashByHash(in_hash, out_hash, &str_error)){
-        std::shared_ptr<ambr::store::ValidatorUnitStore> p_unit = p_storemanager_->GetValidateUnit(out_hash);
-        if(p_unit){
-          std::vector<uint8_t>&& unit_buf = p_unit->SerializeByte();
-          SendMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::VALIDATORUNIT, unit_buf), p_node);
-        }
+          std::shared_ptr<ambr::store::ValidatorUnitStore> p_unitstore = p_storemanager_->GetValidateUnit(out_hash);
+          if(p_unitstore){
+            std::shared_ptr<ambr::core::Unit> p_unit = p_unitstore->GetUnit();
+            if(p_unit){
+              std::vector<uint8_t> buf_data;
+              if(!p_unit->prev_unit().is_zero()){                
+                std::list<std::shared_ptr<ambr::core::Unit>> list_p_units = p_storemanager_->GetAllUnitByValidatorUnitHash(p_unit->hash());
+                for(auto& it:list_p_units){
+                  std::vector<uint8_t>&& unit_buf = it->SerializeByte();
+                  if(!buf_data.empty()){
+                    buf_data.push_back('a');
+                    buf_data.push_back('m');
+                    buf_data.push_back('b');
+                    buf_data.push_back('r');
+                  }
+                  buf_data.insert(buf_data.end(), unit_buf.begin(), unit_buf.end());
+                }
+                buf_data.push_back('a');
+                buf_data.push_back('m');
+                buf_data.push_back('b');
+                buf_data.push_back('r');
+              }
+
+              std::vector<uint8_t>&& unit_buf = p_unit->SerializeByte();
+              buf_data.insert(buf_data.end(), unit_buf.begin(), unit_buf.end());
+              SendMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::ALLUNIT, buf_data), p_node);
+            }
+          }
       }
     }
     else{
@@ -348,33 +410,16 @@ void ambr::syn::SynManager::Impl::ReturnValidatorUnit(const std::vector<uint8_t>
     }
 }
 
-uint32_t ambr::syn::SynManager::Impl::GetNodeCount(){
-  return list_in_nodes_.size()+list_out_nodes_.size();
-}
-
-void ambr::syn::SynManager::Impl::UnSerialize(std::vector<uint8_t>& vec_bytes){
-  size_t data_length = vec_bytes.size();
-  if(253 >= data_length && 0 < data_length){
-    uint8_t msg_size = vec_bytes[0];
-    if(data_length - 1 == msg_size){
-      auto it = vec_bytes.begin();
-      vec_bytes.erase(it);
-    }
-  }
-  else if(std::numeric_limits<unsigned short>::max() + 3 >= data_length && 0 < data_length){
-    uint16_t msg_size = vec_bytes[2] * 256 + vec_bytes[1];
-    if(data_length - 3 == msg_size){
-      auto it = vec_bytes.begin();
-      for(int i = 0; i < 3; ++i){
-        vec_bytes.erase(it);
-      }
-    }
-  }
-}
-
 bool ambr::syn::SynManager::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode* p_node){
     std::string&& tmp = netmsg.hdr.GetCommand();
-    if(NetMsgType::ACCOUNTUNIT == tmp){
+    if(NetMsgType::ALLUNIT == tmp){
+        std::vector<uint8_t> buf;
+        buf.assign(netmsg.vRecv.begin(), netmsg.vRecv.end());
+
+        UnSerialize(buf);
+        ReceiveAllUnit(buf, p_node);
+    }
+    else if(NetMsgType::ACCOUNTUNIT == tmp){
       std::vector<uint8_t> buf;
       buf.assign(netmsg.vRecv.begin(), netmsg.vRecv.end());
 
@@ -394,11 +439,11 @@ bool ambr::syn::SynManager::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode
       return ReceiveValidatorUnit(ambr::core::Unit::CreateUnitByByte(buf), p_node);
     }
     else if(NetMsgType::REQUESTVALUNIT == tmp){
-        std::vector<uint8_t> buf;
-        buf.assign(netmsg.vRecv.begin(), netmsg.vRecv.end());
+      std::vector<uint8_t> buf;
+      buf.assign(netmsg.vRecv.begin(), netmsg.vRecv.end());
 
-        UnSerialize(buf);
-        ReturnValidatorUnit(buf, p_node);
+      UnSerialize(buf);
+      ReturnValidatorUnit(buf, p_node);
     }
     else{
       //thread_pool_.schedule(boost::bind(on_receive_node_func_, msg, p_node));
@@ -406,8 +451,10 @@ bool ambr::syn::SynManager::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode
     return true;
 }
 
-ambr::syn::SynManager::SynManager(Ptr_StoreManager p_storemanager){
-  p_impl_ = new Impl(p_storemanager);
+ambr::syn::SynManager::SynManager(Ptr_StoreManager p_storemanager)
+  : p_impl_(new Impl(p_storemanager))
+  , p_storemanager_(p_storemanager){
+
 }
 
 bool ambr::syn::SynManager::Init(const ambr::syn::SynManagerConfig &config){
@@ -453,7 +500,29 @@ void ambr::syn::SynManager::BoardCastNewValidatorUnit(std::shared_ptr<core::Vali
   std::vector<uint8_t>&& buf = p_unit->SerializeByte();
   std::string str_data;
   str_data.assign(buf.begin(), buf.end());
-  p_impl_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::VALIDATORUNIT, str_data), nullptr);
+
+  std::vector<uint8_t> buf_data;
+  if(!p_unit->prev_unit().is_zero()){
+    std::list<std::shared_ptr<ambr::core::Unit>> list_p_units = p_storemanager_->GetAllUnitByValidatorUnitHash(p_unit->hash());
+    for(auto& it:list_p_units){
+      std::vector<uint8_t>&& unit_buf = it->SerializeByte();
+      if(!buf_data.empty()){
+        buf_data.push_back('a');
+        buf_data.push_back('m');
+        buf_data.push_back('b');
+        buf_data.push_back('r');
+      }
+      buf_data.insert(buf_data.end(), unit_buf.begin(), unit_buf.end());
+    }
+    buf_data.push_back('a');
+    buf_data.push_back('m');
+    buf_data.push_back('b');
+    buf_data.push_back('r');
+  }
+
+  std::vector<uint8_t>&& unit_buf = p_unit->SerializeByte();
+  buf_data.insert(buf_data.end(), unit_buf.begin(), unit_buf.end());
+  p_impl_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::ALLUNIT, buf_data), nullptr);
 }
 
 void ambr::syn::SynManager::BoardCastNewJoinValidatorSetUnit(std::shared_ptr<core::EnterValidateSetUint> p_unit){

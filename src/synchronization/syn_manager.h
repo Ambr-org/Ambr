@@ -83,6 +83,7 @@ public:
   bool GetNodeIfPauseReceive(const std::string& node_addr);
 private:
   Impl* p_impl_;
+  Ptr_StoreManager p_storemanager_;
 };
 }
 }
