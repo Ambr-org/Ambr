@@ -66,6 +66,7 @@ link_directories(${ROCKSDB_DIR})
 link_directories(${GLOG_DIR}/.libs)
 link_directories(${UT_DIR}/googletest/googletest)
 link_directories(${UT_DIR}/googletest/googlemock)
+link_directories(${RPC_LIB_DIR}/libs/opt/protobuf)
 include_directories(${RPC_LIB_DIR}/include)
 include_directories(${RPC_LIB_DIR}/third_party/protobuf/src)
 

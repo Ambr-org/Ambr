@@ -457,6 +457,10 @@ ambr::syn::SynManager::SynManager(Ptr_StoreManager p_storemanager)
 
 }
 
+void ambr::syn::SynManager::RequestValidator(){
+  p_impl_->RequestValidator();
+}
+
 bool ambr::syn::SynManager::Init(const ambr::syn::SynManagerConfig &config){
   return p_impl_->Init(config);
 }

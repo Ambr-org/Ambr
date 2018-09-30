@@ -11,7 +11,6 @@
 #include "netmessagemaker.h"
 #include <boost/thread.hpp>
 
-
 static uint32_t height_distance = 100;
 static uint32_t width_distance = 100;
 static uint32_t unit_width = 50;

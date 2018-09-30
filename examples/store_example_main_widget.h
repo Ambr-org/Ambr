@@ -140,8 +140,8 @@ private:
   QTimer tps_timer_;
   QTimer net_state_timer_;
   uint32_t max_chain_length_for_draw_;
-  std::unordered_map<ambr::core::UnitHash, std::list<std::shared_ptr<DrawItem>>> unit_list_;
-  std::unordered_map<ambr::core::UnitHash, std::shared_ptr<DrawItem>> unit_map_;
+  std::map<ambr::core::UnitHash, std::list<std::shared_ptr<DrawItem>>> unit_list_;
+  std::map<ambr::core::UnitHash, std::shared_ptr<DrawItem>> unit_map_;
   ambr::core::UnitHash active_unit_;
   ambr::core::UnitHash selected_unit_;
 private:

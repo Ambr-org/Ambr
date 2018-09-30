@@ -246,6 +246,7 @@ extern const char *BLOCKTXN;
 extern const char *GETLISTENPORT;
 extern const char *LISTENPORT;
 
+extern const char *ALLUNIT;
 extern const char *ACCOUNTUNIT;
 extern const char *NOACCOUNTUNIT;
 extern const char *REQUESTACCOUNTLUNIT;

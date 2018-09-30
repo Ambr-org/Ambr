@@ -311,7 +311,7 @@ std::shared_ptr<ambr::core::Unit> ambr::store::ValidatorUnitStore::GetUnit(){
 }
 
 ambr::core::UnitHash ambr::store::ValidatorUnitStore::next_validator_hash(){
-  return next_validator_hash();
+  return next_validator_hash_;
 }
 
 void ambr::store::ValidatorUnitStore::set_next_validator_hash(const ambr::core::UnitHash &unit_hash){
@@ -573,7 +573,14 @@ void ambr::store::ValidatorSetStore::set_current_validator(const ambr::core::Pub
 }
 
 void ambr::store::ValidatorSetStore::JoinValidator(const ambr::store::ValidatorItem &item){
-  validator_list_.push_back(item);
+  //insert new validator_item befor current_validator_, means to the end of validator_set list
+  auto iter_finded = std::find_if(validator_list_.begin(), validator_list_.end(),[&](const ambr::store::ValidatorItem& input)->bool{
+    if(input.validator_public_key_ == current_validator_){
+      return true;
+    }
+    return false;
+  });
+  validator_list_.insert(iter_finded, item);
 }
 
 void ambr::store::ValidatorSetStore::LeaveValidator(const ambr::core::PublicKey &pub_key, uint64_t leave_nonce){
@@ -734,7 +741,7 @@ bool ambr::store::ValidatorSetStore::GetNonceTurnValidator(uint64_t nonce, core:
   uint64_t distance = nonce-current_nonce_;
   uint64_t from_first = 0;
   for(size_t i = 0; i < pub_key_list.size(); i++){
-    if(pub_key_list[i] == pub_key){
+    if(pub_key_list[i] == current_validator_){
       from_first = i;
       break;
     }

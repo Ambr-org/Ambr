@@ -64,8 +64,9 @@ class SynManager{
 public:
   class Impl;
   SynManager(Ptr_StoreManager p_storemanager);
-  bool Init(const SynManagerConfig& config);
 
+  void RequestValidator();
+  bool Init(const SynManagerConfig& config);
   void RemoveNode(CNode* p_node, uint32_t second);
   void BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node);
   void SetOnAcceptNode(const std::function<void(CNode*)>& func);

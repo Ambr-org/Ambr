@@ -14,13 +14,8 @@
 #include <store/unit_store.h>
 #include <thread>
 #include <mutex>
-
+#include "db.h"
 typedef std::lock_guard<std::recursive_mutex> LockGrade;
-namespace rocksdb{
-class DB;
-class ColumnFamilyHandle;
-class WriteBatch;
-}
 
 namespace ambr {
 namespace store {
@@ -169,25 +164,26 @@ public:
     return instance_;
   }
 private:
-  void AddWaitForReceiveUnit(const core::PublicKey& pub_key, const core::UnitHash& hash, rocksdb::WriteBatch* batch);
-  void RemoveWaitForReceiveUnit(const core::PublicKey& pub_key, const core::UnitHash& hash, rocksdb::WriteBatch* batch);
+  void AddWaitForReceiveUnit(const core::PublicKey& pub_key, const core::UnitHash& hash, KeyValueDBInterface::WriteBatch* batch);
+  void RemoveWaitForReceiveUnit(const core::PublicKey& pub_key, const core::UnitHash& hash, KeyValueDBInterface::WriteBatch* batch);
 private:
-  void DispositionTransectionFee(const ambr::core::UnitHash& validator_hash, const ambr::core::Amount& count, rocksdb::WriteBatch* batch);
+  void DispositionTransectionFee(const ambr::core::UnitHash& validator_hash, const ambr::core::Amount& count, KeyValueDBInterface::WriteBatch* batch);
 private:
   static std::shared_ptr<StoreManager> instance_;
 
 private:
-  rocksdb::DB* db_unit_;
-  rocksdb::ColumnFamilyHandle* handle_send_unit_;//unit_hash->SendUnitStore
-  rocksdb::ColumnFamilyHandle* handle_receive_unit_;//unit_hash->ReceiveUnitStore
-  rocksdb::ColumnFamilyHandle* handle_account_;//AccoutPublicKey->LastUnitHash
-  rocksdb::ColumnFamilyHandle* handle_new_account_;//AccoutPublic(not validated by validator set)->last unit hash
-  rocksdb::ColumnFamilyHandle* handle_wait_for_receive_;//AccountPublic->ReceiveList
-  rocksdb::ColumnFamilyHandle* handle_validator_unit_;//unit_hash->validate unit
-  rocksdb::ColumnFamilyHandle* handle_enter_validator_unit_;//unit_hash->EnterValidatorUnitStore
-  rocksdb::ColumnFamilyHandle* handle_leave_validator_unit_;//unit_hash->LeaveValidatorUnitStore
-  rocksdb::ColumnFamilyHandle* handle_validator_set_;//unit_hash->validator_set
-  rocksdb::ColumnFamilyHandle* handle_validator_balance_;//validator_hash->balance
+  //rocksdb::DB* db_unit_;
+  KeyValueDBInterface db_;
+  KeyValueDBInterface::TableHandle* handle_send_unit_;//unit_hash->SendUnitStore
+  KeyValueDBInterface::TableHandle* handle_receive_unit_;//unit_hash->ReceiveUnitStore
+  KeyValueDBInterface::TableHandle* handle_account_;//AccoutPublicKey->LastUnitHash
+  KeyValueDBInterface::TableHandle* handle_new_account_;//AccoutPublic(not validated by validator set)->last unit hash
+  KeyValueDBInterface::TableHandle* handle_wait_for_receive_;//AccountPublic->ReceiveList
+  KeyValueDBInterface::TableHandle* handle_validator_unit_;//unit_hash->validate unit
+  KeyValueDBInterface::TableHandle* handle_enter_validator_unit_;//unit_hash->EnterValidatorUnitStore
+  KeyValueDBInterface::TableHandle* handle_leave_validator_unit_;//unit_hash->LeaveValidatorUnitStore
+  KeyValueDBInterface::TableHandle* handle_validator_set_;//unit_hash->validator_set
+  KeyValueDBInterface::TableHandle* handle_validator_balance_;//validator_hash->balance
   std::list<std::shared_ptr<core::VoteUnit>> vote_list_;
   const uint64_t PERCENT_MAX=10000u;
   const uint64_t PASS_PERCENT=10000u*7/10;

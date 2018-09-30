@@ -7,15 +7,19 @@
 #include <init.h>
 #include <shutdown.h>
 #include <logging.h>
+#include <rpc/rpc_server.h>
 
 #define PACKAGE_NAME "P2P"
 #ifndef WIN32
 #include <signal.h>
 #endif
 
+CCriticalSection cs_vNodes;
 std::unique_ptr<CConnman> g_connman;
 PeerLogicValidation *peerLogic;   //TODO: protoype  std::unique_ptr<PeerLogicValidation>
 static CScheduler scheduler;
+extern std::unique_ptr<ambr::rpc::RpcServer> p_rpc;
+
 static const bool DEFAULT_PROXYRANDOMIZE = true;
 ServiceFlags nLocalServices = ServiceFlags(NODE_NETWORK | NODE_NETWORK_LIMITED);
 
@@ -33,9 +37,29 @@ static void registerSignalHandler(int signal, void(*handler)(int))
 
 static void HandleSIGTERM(int)
 {
+    std::cout << "Start Shutdown...." << std::endl;
     StartShutdown();
 }
 #endif
+
+void ambr::p2p::SendMessage(CNode* p_node, CSerializedNetMsg&& msg){
+     assert(g_connman);
+     g_connman->PushMessage(p_node, std::forward<CSerializedNetMsg>(msg));
+}
+
+void ambr::p2p::BoardcastMessage(CSerializedNetMsg&& msg){
+    assert(g_connman);
+    LOCK(cs_vNodes);
+    for (CNode* pnode : g_connman->GetNodes()) {
+        SendMessage(pnode, std::forward<CSerializedNetMsg>(msg));
+    }
+
+}
+
+void ambr::p2p::RemoveNode(CNode* pNode){
+    pNode->fDisconnect = true;
+}
+
 
 void ambr::p2p::Interrupt(){
   if (g_connman)
@@ -65,6 +89,20 @@ void ambr::p2p::Shutdown(){
   if (g_connman) g_connman->Stop();
     //peerLogic.reset();
   g_connman.reset();
+
+  if(p_rpc){
+     LogPrintf("Stop RPC Server ...\n");
+     p_rpc->StopRpcServer();
+  }
+  p_rpc.reset();
+
+  /*
+  if(p_store_manager){
+     LogPrintf("Close Database ...\n");
+     //TODO: Call Close DB function
+  }
+   p_store_manager.reset();
+    */
 }
 
 void InitLogging()
@@ -171,7 +209,10 @@ bool ambr::p2p::init(CConnman::Options&& connOptions){
     std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 #endif
 
-    assert(!g_connman);
+    //assert(!g_connman);
+    if(g_connman){
+        g_connman.reset();
+    }
     g_connman = std::unique_ptr<CConnman>(new CConnman(ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max()), ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max())));
     CConnman& connman = *g_connman;
     peerLogic = (new PeerLogicValidation(&connman, scheduler, false));
@@ -239,6 +280,16 @@ bool ambr::p2p::init(CConnman::Options&& connOptions){
    registerSignalHandler(SIGINT, HandleSIGTERM);
    #endif
 
-    return connman.Start(scheduler, connOptions);
+   bool ret = g_connman->Start(scheduler, connOptions);
+
+    if(ret){
+      WaitForShutdown();
+    }
+    else{
+      Interrupt();
+    }
+    Shutdown();
+
+    return ret;
 }
 
