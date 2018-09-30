@@ -469,6 +469,10 @@ void ambr::syn::SynManager::RemoveNode(CNode* p_node, uint32_t second){
   p_impl_->RemoveNode(p_node, second);
 }
 
+bool ambr::syn::SynManager::OnReceiveNode(const CNetMessage& netmsg, CNode* p_node){
+  return p_impl_->OnReceiveNode(netmsg, p_node);
+}
+
 void ambr::syn::SynManager::BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node){
   p_impl_->BoardcastMessage(std::forward<CSerializedNetMsg>(msg), p_node);
 }

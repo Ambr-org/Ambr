@@ -68,6 +68,7 @@ public:
   void RequestValidator();
   bool Init(const SynManagerConfig& config);
   void RemoveNode(CNode* p_node, uint32_t second);
+  bool OnReceiveNode(const CNetMessage& netmsg, CNode* p_node);
   void BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node);
   void SetOnAcceptNode(const std::function<void(CNode*)>& func);
   void SetOnConnectedNode(const std::function<void(CNode*)>& func);
