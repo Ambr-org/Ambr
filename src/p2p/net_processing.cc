@@ -17,8 +17,12 @@
 #include <scheduler.h>
 #include <util.h>
 #include <utilstrencodings.h>
-
+#include <synchronization/syn_manager.h>
+#include <server/ambrd.h>
 #include <memory>
+
+
+extern std::shared_ptr<ambr::store::StoreManager> p_store_manager;
 CCriticalSection cs_process;
 #if defined(NDEBUG)
 # error "Bitcoin cannot be compiled without assertions."
@@ -404,9 +408,30 @@ void PeerLogicValidation::InitializeNode(CNode *pnode) {
     if(!pnode->fInbound){
        pnode->nSendOffset = 0;
        PushNodeVersion(pnode, connman, GetTime());
-       DoConnect(pnode);
+       // sync module
+       std::shared_ptr<ambr::store::ValidatorUnitStore> p_store = p_store_manager->GetLastestValidateUnit();
+       if(p_store){
+         std::shared_ptr<ambr::core::Unit> p_unit = p_store->GetUnit();
+         if(p_unit)
+         {
+            LogPrintf("p_unit is null ? %d\n", p_unit == nullptr);
+           //ambr::p2p::BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::REQUESTVALUNIT, p_unit->hash().encode_to_hex()));
+           connman->PushMessage(pnode, CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::REQUESTVALUNIT, p_unit->hash().encode_to_hex()));
+         }
+       }
+
     }else{
-      DoAccept(pnode);
+        // sync module
+        std::shared_ptr<ambr::store::ValidatorUnitStore> p_store = p_store_manager->GetLastestValidateUnit();
+        if(p_store){
+          std::shared_ptr<ambr::core::Unit> p_unit = p_store->GetUnit();
+          if(p_unit)
+          {
+             LogPrintf("p_unit is null ? %d\n", p_unit == nullptr);
+            //ambr::p2p::BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::REQUESTVALUNIT, p_unit->hash().encode_to_hex()));
+            connman->PushMessage(pnode, CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::REQUESTVALUNIT, p_unit->hash().encode_to_hex()));
+          }
+        }
     }
 }
 
@@ -887,6 +912,9 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         }
 
         pfrom->fSuccessfullyConnected = true;
+
+        //sync code
+       p_syn_manager->RequestValidator();
     }
 
 
@@ -1112,11 +1140,8 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
     }
 
     else {
-        // Ignore unknown commands for extensibility
-        LogPrint(BCLog::NET, "Unknown command \"%s\" from peer=%d\n", SanitizeString(strCommand), pfrom->GetId());
+        return false;
     }
-
-
 
     return true;
 }
@@ -1223,12 +1248,15 @@ bool PeerLogicValidation::ProcessMessages(CNode* pfrom, std::atomic<bool>& inter
            HexStr(hdr.pchChecksum, hdr.pchChecksum+CMessageHeader::CHECKSUM_SIZE));
         return fMoreWork;
     }
-    DoMoreProcess(msg, pfrom);
+   // DoMoreProcess(msg, pfrom);
     // Process message
     bool fRet = false;
     try
     {
         fRet = ProcessMessage(pfrom, strCommand, vRecv, msg.nTime, chainparams, connman, interruptMsgProc, m_enable_bip61);
+        if(!fRet){
+           fRet = p_syn_manager->OnReceiveNode(msg, pfrom);
+        }
         if (interruptMsgProc)
             return false;
         if (!pfrom->vRecvGetData.empty())

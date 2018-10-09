@@ -13,7 +13,7 @@ namespace ambr{
 
     // p2p interface
     void SendMessage(CNode* p_node, CSerializedNetMsg&& msg);
-    void BoardcastMessage(CSerializedNetMsg&& msg);
+    void BroadcastMessage(CSerializedNetMsg&& msg);
     void RemoveNode(CNode* pNode);
   };
 };

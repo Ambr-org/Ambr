@@ -69,7 +69,6 @@ public:
   bool Init(const SynManagerConfig& config);
   void RemoveNode(CNode* p_node, uint32_t second);
   bool OnReceiveNode(const CNetMessage& netmsg, CNode* p_node);
-  void BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node);
   void SetOnAcceptNode(const std::function<void(CNode*)>& func);
   void SetOnConnectedNode(const std::function<void(CNode*)>& func);
   void SetOnDisconnectNode(const std::function<void(CNode*)>& func);
@@ -83,7 +82,18 @@ public:
 public:
   bool GetNodeIfPauseSend(const std::string& node_addr);
   bool GetNodeIfPauseReceive(const std::string& node_addr);
+  void ReceiveUnit(const Ptr_Unit& p_unit, CNode* p_node);
+  bool ReceiveValidatorUnit(const Ptr_Unit& p_unit, CNode* p_node);
+  void ReceiveAllUnit(const std::vector<uint8_t>& buf, CNode* p_node);
+  void ReceiveNoValidatorUnit(const std::string& strTmp, CNode* p_node);
+  void ReturnValidatorUnit(const std::vector<uint8_t>& buf, CNode* p_node);
+
+  void SendMessage(CSerializedNetMsg&& msg, CNode* p_node);
+  void BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node);
+  void UnSerialize(std::vector<uint8_t>& vec_bytes);
+
 private:
+  std::mutex state_mutex_;
   Impl* p_impl_;
   Ptr_StoreManager p_storemanager_;
 };
