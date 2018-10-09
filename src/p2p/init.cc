@@ -47,7 +47,7 @@ void ambr::p2p::SendMessage(CNode* p_node, CSerializedNetMsg&& msg){
      g_connman->PushMessage(p_node, std::forward<CSerializedNetMsg>(msg));
 }
 
-void ambr::p2p::BoardcastMessage(CSerializedNetMsg&& msg){
+void ambr::p2p::BroadcastMessage(CSerializedNetMsg&& msg){
     assert(g_connman);
     LOCK(cs_vNodes);
     for (CNode* pnode : g_connman->GetNodes()) {

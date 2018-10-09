@@ -21,12 +21,14 @@
 #include "rpc/rpc_server.h"
 
 std::unique_ptr<ambr::rpc::RpcServer> p_rpc;
+std::shared_ptr<ambr::store::StoreManager> p_store_manager;
+std::shared_ptr<ambr::syn::SynManager> p_syn_manager;
 
 namespace ambr {
 namespace server {
 int DoServer(const std::string& db_path, uint16_t rpc_port, uint16_t p2p_port, const std::string& seed_ip, uint16_t seed_port) {
-  std::shared_ptr<ambr::store::StoreManager> p_store_manager = std::make_shared<ambr::store::StoreManager>();
-  std::shared_ptr<ambr::syn::SynManager> p_syn_manager = std::make_shared<ambr::syn::SynManager>(p_store_manager);
+  p_store_manager = std::make_shared<ambr::store::StoreManager>();
+  p_syn_manager = std::make_shared<ambr::syn::SynManager>(p_store_manager);
   p_rpc = std::unique_ptr<ambr::rpc::RpcServer>(new ambr::rpc::RpcServer());
 
   p_store_manager->Init(db_path);
@@ -54,8 +56,14 @@ int DoServer(const std::string& db_path, uint16_t rpc_port, uint16_t p2p_port, c
 
   config.vec_seed_.push_back((boost::format("%s:%d")%seed_ip%seed_port).str());
 
-  p_syn_manager->Init(config);
-  return 0;
+  CConnman::Options connOptions;
+  connOptions.nMaxConnections = 12;
+  connOptions.nLocalServices = ServiceFlags(NODE_NETWORK | NODE_WITNESS);
+  connOptions.nMaxOutbound = std::min(MAX_OUTBOUND_CONNECTIONS, connOptions.nMaxConnections);
+  connOptions.nMaxAddnode = 12;
+  connOptions.vSeedNodes = config.vec_seed_;
+  connOptions.nListenPort = config.listen_port_;
+  return ambr::p2p::init(std::move(connOptions));
 }
 
 }
