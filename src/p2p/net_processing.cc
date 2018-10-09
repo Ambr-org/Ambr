@@ -912,6 +912,9 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         }
 
         pfrom->fSuccessfullyConnected = true;
+
+        //sync code
+       p_syn_manager->RequestValidator();
     }
 
 
