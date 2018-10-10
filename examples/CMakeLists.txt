@@ -83,9 +83,9 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 find_package(Qt5 REQUIRED Widgets)
-qt5_wrap_cpp( MOC ${CUR_DIR}/examples/store_example_main_widget.h)
-qt5_wrap_ui( UIC ${CUR_DIR}/examples/store_example_main_widget.ui)
-QT5_ADD_RESOURCES(RCC ${CUR_DIR}/examples/store_example_main_widget.qrc)
+#qt5_wrap_cpp( MOC ${CUR_DIR}/examples/store_example_main_widget.h)
+#qt5_wrap_ui( UIC ${CUR_DIR}/examples/store_example_main_widget.ui)
+#QT5_ADD_RESOURCES(RCC ${CUR_DIR}/examples/store_example_main_widget.qrc)
 set(QT_SRC
   ${CUR_DIR}/examples/store_example_main_widget.cc
   ${CUR_DIR}/examples/store_example_main_widget.h
@@ -121,6 +121,8 @@ add_custom_command(OUTPUT ${CUR_DIR}/src/rpc/rpc.pb.cc ${CUR_DIR}/src/rpc/rpc.pb
   WORKING_DIRECTORY ${CUR_DIR}/src/rpc/
   DEPENDS ${CUR_DIR}/src/rpc/rpc.proto)
 
+set_property(SOURCE ${RPC_SRC} ${PROTO_SRC} PROPERTY SKIP_AUTOGEN ON)
+
 add_executable(unit_store_example
   ${DIR_ARCH_SRCS}
   ${DIR_CORE_SRCS}
@@ -138,8 +140,6 @@ add_executable(unit_store_example
   ${QT_SRC}
   ${RPC_SRC}
   ${PROTO_SRC}
-  ${MOC}
-  ${RCC}
   ${DIR_PROTO_SRCS}
   ${DIR_PROTO_HDRS}
   )

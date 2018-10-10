@@ -23,7 +23,12 @@ static const std::string last_validate_key = "lv";
 static const std::string validate_set_key = "validate_set_key";
 
 //TODO: db sync
-
+#define db_assert(expr){\
+  if(!expr){\
+    std::cout<<__FILE__<<__LINE__<<"DB error!"<<std::endl;\
+    exit(0);\
+  }\
+}
 void ambr::store::StoreManager::Init(const std::string& path){
   LockGrade lk(mutex_);
   std::vector<KeyValueDBInterface::TableHandle*> handle_out;
@@ -39,7 +44,7 @@ void ambr::store::StoreManager::Init(const std::string& path){
     "validator_set",
     "handle_validator_balance_"
   };
-  assert(db_.InitDB(path, table_list_name, &handle_out));
+  db_assert(db_.InitDB(path, table_list_name, &handle_out));
   handle_send_unit_ = handle_out[0];
   handle_receive_unit_ = handle_out[1];
   handle_account_ = handle_out[2];
@@ -149,7 +154,7 @@ void ambr::store::StoreManager::Init(const std::string& path){
                 std::string(ValidatorBalanceStore(unit_validate->hash(), item.balance_).SerializeByte())
                 );
 
-      assert(db_.Write(batch));
+      db_assert(db_.Write(batch));
     }
   }
 }
@@ -233,15 +238,15 @@ bool ambr::store::StoreManager::AddSendUnit(std::shared_ptr<ambr::core::SendUnit
   KeyValueDBInterface::WriteBatch batch;
   std::vector<uint8_t> bytes = store->SerializeByte();
   std::array<uint8_t,sizeof(ambr::core::UnitHash::ArrayType)> hash_bytes = send_unit->hash().bytes();
-  assert(batch.Write(handle_send_unit_, std::string((const char*)hash_bytes.data(), hash_bytes.size()),
+  db_assert(batch.Write(handle_send_unit_, std::string((const char*)hash_bytes.data(), hash_bytes.size()),
             std::string((const char*)bytes.data(), bytes.size())));
-  assert(batch.Write(handle_account_, std::string((const char*)send_unit->public_key().bytes().data(), send_unit->public_key().bytes().size()),
+  db_assert(batch.Write(handle_account_, std::string((const char*)send_unit->public_key().bytes().data(), send_unit->public_key().bytes().size()),
             std::string((const char*)send_unit->hash().bytes().data(), send_unit->hash().bytes().size())));
 
-  assert(batch.Write(handle_new_account_, std::string((const char*)send_unit->public_key().bytes().data(), send_unit->public_key().bytes().size()),
+  db_assert(batch.Write(handle_new_account_, std::string((const char*)send_unit->public_key().bytes().data(), send_unit->public_key().bytes().size()),
             std::string((const char*)send_unit->hash().bytes().data(), send_unit->hash().bytes().size())));
   AddWaitForReceiveUnit(send_unit->dest(), send_unit->hash(), &batch);
-  assert(db_.Write(batch));
+  db_assert(db_.Write(batch));
   DoReceiveNewSendUnit(send_unit);
   //std::cout << "Add Send Unit: " << send_unit->hash().encode_to_hex() << std::endl;
   return true;
@@ -310,15 +315,15 @@ bool ambr::store::StoreManager::AddReceiveUnit(std::shared_ptr<ambr::core::Recei
       auto receive_unit_store = std::make_shared<ReceiveUnitStore>(receive_unit);
       std::vector<uint8_t> bytes = receive_unit_store->SerializeByte();
       std::array<uint8_t,sizeof(ambr::core::UnitHash::ArrayType)> hash_bytes = receive_unit->hash().bytes();
-      assert(batch.Write(handle_receive_unit_, std::string((const char*)hash_bytes.data(), hash_bytes.size()),
+      db_assert(batch.Write(handle_receive_unit_, std::string((const char*)hash_bytes.data(), hash_bytes.size()),
                 std::string((const char*)bytes.data(), bytes.size())));
-      assert(batch.Write(handle_account_, std::string((const char*)receive_unit->public_key().bytes().data(), receive_unit->public_key().bytes().size()),
+      db_assert(batch.Write(handle_account_, std::string((const char*)receive_unit->public_key().bytes().data(), receive_unit->public_key().bytes().size()),
                 std::string((const char*)receive_unit->hash().bytes().data(), receive_unit->hash().bytes().size())));
-      assert(batch.Write(handle_new_account_, std::string((const char*)receive_unit->public_key().bytes().data(), receive_unit->public_key().bytes().size()),
+      db_assert(batch.Write(handle_new_account_, std::string((const char*)receive_unit->public_key().bytes().data(), receive_unit->public_key().bytes().size()),
                 std::string((const char*)receive_unit->hash().bytes().data(), receive_unit->hash().bytes().size())));
       send_unit_store->set_receive_unit_hash(receive_unit->hash());
       bytes = send_unit_store->SerializeByte();
-      assert(batch.Write(handle_send_unit_, std::string((const char*)send_unit_store->unit()->hash().bytes().begin(), send_unit_store->unit()->hash().bytes().size()),
+      db_assert(batch.Write(handle_send_unit_, std::string((const char*)send_unit_store->unit()->hash().bytes().begin(), send_unit_store->unit()->hash().bytes().size()),
                 std::string((const char*)bytes.data(), bytes.size())));
       RemoveWaitForReceiveUnit(receive_unit->public_key(), receive_unit->from(), &batch);
     }
@@ -326,8 +331,8 @@ bool ambr::store::StoreManager::AddReceiveUnit(std::shared_ptr<ambr::core::Recei
     //check receive count
     core::Amount receive_count;
     std::shared_ptr<store::UnitStore> prev_receive_store = GetUnit(receive_unit->prev_unit());
-    assert(prev_receive_store);
-    assert(prev_receive_store->GetUnit());
+    db_assert(prev_receive_store);
+    db_assert(prev_receive_store->GetUnit());
     receive_count = receive_unit->balance() - prev_receive_store->GetUnit()->balance() + receive_unit->GetFeeSize()*GetTransectionFeeBase();
 
     //check income count
@@ -359,13 +364,13 @@ bool ambr::store::StoreManager::AddReceiveUnit(std::shared_ptr<ambr::core::Recei
       auto receive_unit_store = std::make_shared<ReceiveUnitStore>(receive_unit);
       std::vector<uint8_t> bytes = receive_unit_store->SerializeByte();
       std::array<uint8_t,sizeof(ambr::core::UnitHash::ArrayType)> hash_bytes = receive_unit->hash().bytes();
-      assert(batch.Write(handle_receive_unit_, std::string((const char*)hash_bytes.data(), hash_bytes.size()),
+      db_assert(batch.Write(handle_receive_unit_, std::string((const char*)hash_bytes.data(), hash_bytes.size()),
                 std::string((const char*)bytes.data(), bytes.size())));
-      assert(batch.Write(handle_account_, std::string((const char*)receive_unit->public_key().bytes().data(), receive_unit->public_key().bytes().size()),
+      db_assert(batch.Write(handle_account_, std::string((const char*)receive_unit->public_key().bytes().data(), receive_unit->public_key().bytes().size()),
                 std::string((const char*)receive_unit->hash().bytes().data(), receive_unit->hash().bytes().size())));
-      assert(batch.Write(handle_new_account_, std::string((const char*)receive_unit->public_key().bytes().data(), receive_unit->public_key().bytes().size()),
+      db_assert(batch.Write(handle_new_account_, std::string((const char*)receive_unit->public_key().bytes().data(), receive_unit->public_key().bytes().size()),
                 std::string((const char*)receive_unit->hash().bytes().data(), receive_unit->hash().bytes().size())));
-      assert(batch.Delete(handle_validator_balance_,
+      db_assert(batch.Delete(handle_validator_balance_,
                        std::string((const char*)receive_unit->public_key().bytes().data(), receive_unit->public_key().bytes().size())
           ));
     }
@@ -375,7 +380,7 @@ bool ambr::store::StoreManager::AddReceiveUnit(std::shared_ptr<ambr::core::Recei
     return false;
   }
 
-  assert(db_.Write(batch));
+  db_assert(db_.Write(batch));
   DoReceiveNewReceiveUnit(receive_unit);
   //std::cout << "Add Receive Unit: " << receive_unit->hash().encode_to_hex() << std::endl;
   return true;
@@ -496,19 +501,19 @@ bool ambr::store::StoreManager::AddEnterValidatorSetUnit(std::shared_ptr<ambr::c
   std::shared_ptr<EnterValidatorSetUnitStore> store = std::make_shared<EnterValidatorSetUnitStore>(unit);
   std::vector<uint8_t> buf = store->SerializeByte();
   KeyValueDBInterface::WriteBatch batch;
-  assert(batch.Write(
+  db_assert(batch.Write(
      handle_enter_validator_unit_,
      std::string((const char*)unit->hash().bytes().data(), unit->hash().bytes().size()),
      std::string((const char*)buf.data(), buf.size())));
-  assert(batch.Write(
+  db_assert(batch.Write(
      handle_account_,
      std::string((const char*)unit->public_key().bytes().data(), unit->public_key().bytes().size()),
      std::string((const char*)unit->hash().bytes().data(), unit->hash().bytes().size())));
-  assert(batch.Write(
+  db_assert(batch.Write(
      handle_new_account_,
      std::string((const char*)unit->public_key().bytes().data(), unit->public_key().bytes().size()),
      std::string((const char*)unit->hash().bytes().data(), unit->hash().bytes().size())));
-  assert(db_.Write(batch));
+  db_assert(db_.Write(batch));
   DoReceiveNewEnterValidateSetUnit(unit);
   return true;
 }
@@ -555,19 +560,19 @@ bool ambr::store::StoreManager::AddLeaveValidatorSetUnit(std::shared_ptr<ambr::c
   std::shared_ptr<LeaveValidatorSetUnitStore> store = std::make_shared<LeaveValidatorSetUnitStore>(unit);
   std::vector<uint8_t> buf = store->SerializeByte();
   KeyValueDBInterface::WriteBatch batch;
-  assert(batch.Write(
+  db_assert(batch.Write(
      handle_leave_validator_unit_,
      std::string((const char*)unit->hash().bytes().data(), unit->hash().bytes().size()),
      std::string((const char*)buf.data(), buf.size())));
-  assert(batch.Write(
+  db_assert(batch.Write(
      handle_account_,
      std::string((const char*)unit->public_key().bytes().data(), unit->public_key().bytes().size()),
      std::string((const char*)unit->hash().bytes().data(), unit->hash().bytes().size())));
-  assert(batch.Write(
+  db_assert(batch.Write(
      handle_new_account_,
      std::string((const char*)unit->public_key().bytes().data(), unit->public_key().bytes().size()),
      std::string((const char*)unit->hash().bytes().data(), unit->hash().bytes().size())));
-  assert(db_.Write(batch));
+  db_assert(db_.Write(batch));
   DoReceiveNewLeaveValidateSetUnit(unit);
   return true;
 }
@@ -684,7 +689,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
           break;
         }
       default:
-        assert(0);
+        db_assert(0);
     }
   }
   //collect votes
@@ -733,7 +738,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
   //write to db
   std::vector<uint8_t> buf = std::make_shared<ValidatorUnitStore>(unit)->SerializeByte();
   KeyValueDBInterface::WriteBatch batch;
-  assert(batch.Write(
+  db_assert(batch.Write(
      handle_validator_unit_,
      std::string((const char*)unit->hash().bytes().data(), unit->hash().bytes().size()),
      std::string((const char*)buf.data(), buf.size())));
@@ -741,12 +746,12 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
   std::shared_ptr<ValidatorUnitStore> prv_validator_store = std::make_shared<ValidatorUnitStore>(prv_validate_unit);
   prv_validator_store->set_next_validator_hash(unit->hash());
   std::vector<uint8_t> buf_prv = prv_validator_store->SerializeByte();
-  assert(batch.Write(
+  db_assert(batch.Write(
      handle_validator_unit_,
      std::string((const char*)prv_validate_unit->hash().bytes().data(), prv_validate_unit->hash().bytes().size()),
      std::string((const char*)buf_prv.data(), buf_prv.size())));
 
-  assert(batch.Write(
+  db_assert(batch.Write(
      handle_validator_unit_,
      std::string(last_validate_key),
      std::string((const char*)unit->hash().bytes().data(), unit->hash().bytes().size())));
@@ -762,7 +767,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
     for(const ambr::core::UnitHash& hash: checked_list){
       std::shared_ptr<ambr::store::UnitStore> unit_tmp = GetUnit(hash);
       while(unit_tmp){
-        assert(unit_tmp->GetUnit());
+        db_assert(unit_tmp->GetUnit());
         if(!unit_tmp->is_validate()){
           all_balance_count += unit_tmp->GetUnit()->GetFeeSize()*GetTransectionFeeBase();
         }
@@ -777,7 +782,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
               }
               send_unit->set_is_validate(prv_validate_unit->hash());
               std::vector<uint8_t> buf = send_unit->SerializeByte();
-              assert(batch.Write(
+              db_assert(batch.Write(
                     handle_send_unit_,
                     std::string((const char*)send_unit->unit()->hash().bytes().data(), send_unit->unit()->hash().bytes().size()),
                     std::string((const char*)buf.data(), buf.size())));
@@ -793,7 +798,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
               }
               receive_unit->set_is_validate(prv_validate_unit->hash());
               std::vector<uint8_t> buf = receive_unit->SerializeByte();
-              assert(batch.Write(
+              db_assert(batch.Write(
                     handle_receive_unit_,
                     std::string((const char*)receive_unit->unit()->hash().bytes().data(), receive_unit->unit()->hash().bytes().size()),
                     std::string((const char*)buf.data(), buf.size())));
@@ -809,7 +814,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
               }
               enter_unit->set_is_validate(prv_validate_unit->hash());
               std::vector<uint8_t> buf = enter_unit->SerializeByte();
-              assert(batch.Write(
+              db_assert(batch.Write(
                     handle_enter_validator_unit_,
                     std::string((const char*)enter_unit->unit()->hash().bytes().data(), enter_unit->unit()->hash().bytes().size()),
                     std::string((const char*)buf.data(), buf.size())));
@@ -830,7 +835,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
               GetValidatorIncome(validator_item.validator_public_key_, store_out);
               amount_tmp += store_out.balance_;
               amount_tmp += validator_item.balance_;
-              assert(batch.Write(
+              db_assert(batch.Write(
                     handle_validator_balance_,
                     std::string((const char*)validator_item.validator_public_key_.bytes().data(), validator_item.validator_public_key_.bytes().size()),
                     std::string(ValidatorBalanceStore(prv_validator_store->unit()->hash(), amount_tmp).SerializeByte())
@@ -847,7 +852,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
               }
               leave_unit->set_is_validate(prv_validate_unit->hash());
               std::vector<uint8_t> buf = leave_unit->SerializeByte();
-              assert(batch.Write(
+              db_assert(batch.Write(
                     handle_leave_validator_unit_,
                     std::string((const char*)leave_unit->unit()->hash().bytes().data(), leave_unit->unit()->hash().bytes().size()),
                     std::string((const char*)buf.data(), buf.size())));
@@ -857,7 +862,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
               break;
             }
           default:
-            assert(0);
+            db_assert(0);
         }
         if(over)break;
       }
@@ -866,7 +871,7 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
   }
   //write validator_set to db
   std::vector<uint8_t> validator_set_buf = validator_set_list->SerializeByte();
-  assert(batch.Write(handle_validator_set_,
+  db_assert(batch.Write(handle_validator_set_,
                      std::string(validate_set_key),
                      std::string((const char*)validator_set_buf.data(), validator_set_buf.size())));
   db_.Write(batch);
@@ -947,11 +952,11 @@ void ambr::store::StoreManager::UpdateNewUnitMap(const std::vector<core::UnitHas
   });
   KeyValueDBInterface::WriteBatch batch;
   for(const core::PublicKey& pub_key:will_remove){
-    assert(batch.Delete(
+    db_assert(batch.Delete(
          handle_new_account_,
          std::string((const char*)pub_key.bytes().data(), pub_key.bytes().size())));
   }
-  assert(db_.Write(batch));
+  db_assert(db_.Write(batch));
 }
 
 bool ambr::store::StoreManager::GetLastValidateUnit(core::UnitHash& hash){
@@ -1008,11 +1013,11 @@ std::list<std::shared_ptr<ambr::core::Unit> > ambr::store::StoreManager::GetAllU
         }
         //add previous unit has to depends
         std::shared_ptr<ambr::core::Unit> unit = unit_store->GetUnit();
-        assert(unit);
+        db_assert(unit);
         Item item(unit);
         if(!unit->prev_unit().is_zero()){
           std::shared_ptr<store::UnitStore> unit_store_prv = GetUnit(unit->prev_unit());
-          assert(unit_store_prv);
+          db_assert(unit_store_prv);
           core::UnitHash prv_unit_hash = unit->prev_unit();
           if(unit_store_prv->validated_hash() == validated_unit_hash){
             item.depends_list_.push_back(prv_unit_hash);
@@ -1021,12 +1026,12 @@ std::list<std::shared_ptr<ambr::core::Unit> > ambr::store::StoreManager::GetAllU
 
         if(unit_store->type() == store::UnitStore::ST_ReceiveUnit){
           std::shared_ptr<core::ReceiveUnit> receive_unit = std::dynamic_pointer_cast<core::ReceiveUnit>(unit_store->GetUnit());
-          assert(receive_unit);
+          db_assert(receive_unit);
           core::UnitHash hash_from = receive_unit->from();
           Item item(receive_unit);
           std::shared_ptr<store::UnitStore> unit_tmp;
           unit_tmp = GetUnit(hash_from);
-          assert(unit_tmp);
+          db_assert(unit_tmp);
           if(unit_tmp->validated_hash() == validated_unit_hash){
             item.depends_list_.push_back(hash_from);
           }
@@ -1039,7 +1044,7 @@ std::list<std::shared_ptr<ambr::core::Unit> > ambr::store::StoreManager::GetAllU
   item_list.sort();
   while(item_list.size()){
     Item item = item_list.front();
-    assert(!item.depends_list_.size());
+    db_assert(!item.depends_list_.size());
     rtn.push_back(item.unit_);
     item_list.pop_front();
     core::UnitHash rm_hash = item.unit_->hash();
@@ -1243,7 +1248,7 @@ std::shared_ptr<ambr::store::ValidatorSetStore> ambr::store::StoreManager::GetVa
         std::string(validate_set_key), value_get);
   std::shared_ptr<ambr::store::ValidatorSetStore> validator_set =
       std::make_shared<ValidatorSetStore>();
-  assert(validator_set->DeSerializeByte(std::vector<uint8_t>(value_get.begin(), value_get.end())));
+  db_assert(validator_set->DeSerializeByte(std::vector<uint8_t>(value_get.begin(), value_get.end())));
   return validator_set;
 }
 
@@ -1845,9 +1850,9 @@ bool ambr::store::StoreManager::RemoveUnit(const ambr::core::UnitHash &hash, std
       if(GetLastUnitHashByPubKey(remove_item->public_key(), after_item_hash)){
         std::shared_ptr<store::UnitStore> unit = GetUnit(after_item_hash);
         while(1){
-          assert(unit);
+          db_assert(unit);
           std::shared_ptr<core::Unit> core_unit = unit->GetUnit();
-          assert(core_unit);
+          db_assert(core_unit);
           if(unit->is_validate()){
             if(err)*err = "can't remove this unit, is validated";
             return false;
@@ -1857,16 +1862,16 @@ bool ambr::store::StoreManager::RemoveUnit(const ambr::core::UnitHash &hash, std
             case core::UnitType::send:{
                 //unit
                 if(unit_for_remove.find(core_unit->hash()) == unit_for_remove.end()){
-                  assert(batch.Delete(handle_send_unit_, std::string((const char*)core_unit->hash().bytes().data(), core_unit->hash().bytes().size())));
+                  db_assert(batch.Delete(handle_send_unit_, std::string((const char*)core_unit->hash().bytes().data(), core_unit->hash().bytes().size())));
 
                   //account
                   if(!core_unit->prev_unit().is_zero()){
-                    assert(batch.Write(
+                    db_assert(batch.Write(
                              handle_account_,
                              std::string((const char*)core_unit->public_key().bytes().data(), core_unit->public_key().bytes().size()),
                              std::string((const char*)core_unit->prev_unit().bytes().data(), core_unit->prev_unit().bytes().size())));
                   }else{
-                    assert(batch.Delete(
+                    db_assert(batch.Delete(
                              handle_account_,
                              std::string((const char*)core_unit->public_key().bytes().data(), core_unit->public_key().bytes().size())));
                   }
@@ -1879,16 +1884,16 @@ bool ambr::store::StoreManager::RemoveUnit(const ambr::core::UnitHash &hash, std
             case core::UnitType::receive:{
                 //unit
                 if(unit_for_remove.find(core_unit->hash()) == unit_for_remove.end()){
-                  assert(batch.Delete(
+                  db_assert(batch.Delete(
                            handle_receive_unit_,
                            std::string((const char*)core_unit->hash().bytes().data(), core_unit->hash().bytes().size())));
                   //account
                   if(!core_unit->prev_unit().is_zero()){
-                    assert(batch.Write(handle_account_,
+                    db_assert(batch.Write(handle_account_,
                               std::string((const char*)core_unit->public_key().bytes().data(), core_unit->public_key().bytes().size()),
                               std::string((const char*)core_unit->prev_unit().bytes().data(), core_unit->prev_unit().bytes().size())));
                   }else{
-                    assert(batch.Delete(
+                    db_assert(batch.Delete(
                              handle_account_,
                              std::string((const char*)core_unit->public_key().bytes().data(), core_unit->public_key().bytes().size())));
                   }
@@ -1902,17 +1907,17 @@ bool ambr::store::StoreManager::RemoveUnit(const ambr::core::UnitHash &hash, std
             case core::UnitType::EnterValidateSet:{
                 //unit
                 if(unit_for_remove.find(core_unit->hash()) == unit_for_remove.end()){
-                  assert(batch.Delete(
+                  db_assert(batch.Delete(
                            handle_enter_validator_unit_,
                            std::string((const char*)core_unit->hash().bytes().data(), core_unit->hash().bytes().size())));
                   //account
                   if(!core_unit->prev_unit().is_zero()){
-                    assert(batch.Write(
+                    db_assert(batch.Write(
                              handle_account_,
                              std::string((const char*)core_unit->public_key().bytes().data(), core_unit->public_key().bytes().size()),
                              std::string((const char*)core_unit->prev_unit().bytes().data(), core_unit->prev_unit().bytes().size())));
                   }else{
-                    assert(batch.Delete(
+                    db_assert(batch.Delete(
                              handle_account_,
                              std::string((const char*)core_unit->public_key().bytes().data(), core_unit->public_key().bytes().size())));
                   }
@@ -1922,18 +1927,18 @@ bool ambr::store::StoreManager::RemoveUnit(const ambr::core::UnitHash &hash, std
             case core::UnitType::LeaveValidateSet:{
                 if(unit_for_remove.find(core_unit->hash()) == unit_for_remove.end()){
                   //unit
-                  assert(batch.Delete(
+                  db_assert(batch.Delete(
                            handle_leave_validator_unit_,
                            std::string((const char*)core_unit->hash().bytes().data(), core_unit->hash().bytes().size())));
 
                   //account
                   if(!core_unit->prev_unit().is_zero()){
-                    assert(batch.Write(
+                    db_assert(batch.Write(
                              handle_account_,
                              std::string((const char*)core_unit->public_key().bytes().data(), core_unit->public_key().bytes().size()),
                              std::string((const char*)core_unit->prev_unit().bytes().data(), core_unit->prev_unit().bytes().size())));
                   }else{
-                    assert(batch.Delete(
+                    db_assert(batch.Delete(
                              handle_account_,
                              std::string((const char*)core_unit->public_key().bytes().data(), core_unit->public_key().bytes().size())));
                   }
@@ -1943,7 +1948,7 @@ bool ambr::store::StoreManager::RemoveUnit(const ambr::core::UnitHash &hash, std
               }
             default:
               {
-                assert(0);
+                db_assert(0);
               }
           }
 
@@ -1954,16 +1959,16 @@ bool ambr::store::StoreManager::RemoveUnit(const ambr::core::UnitHash &hash, std
             core::UnitHash unit_hash = send_store->receive_unit_hash();
             if(!unit_hash.is_zero()){
               std::shared_ptr<store::ReceiveUnitStore> receive_unit = GetReceiveUnit(unit_hash);
-              assert(receive_unit);
-              assert(receive_unit->GetUnit());
+              db_assert(receive_unit);
+              db_assert(receive_unit->GetUnit());
               will_remove.push_back(receive_unit->GetUnit());
             }
           }
           //find validator
           std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = GetLastestValidateUnit()->unit();
-          assert(validator_unit);
+          db_assert(validator_unit);
           while(1){
-            assert(validator_unit);
+            db_assert(validator_unit);
             if(std::find(validator_unit->check_list().begin(), validator_unit->check_list().end(), core_unit->hash()) != validator_unit->check_list().end()){
               if(unit_for_remove.find(validator_unit->hash()) == unit_for_remove.end()){
                 will_remove.push_back(validator_unit);
@@ -1991,16 +1996,16 @@ bool ambr::store::StoreManager::RemoveUnit(const ambr::core::UnitHash &hash, std
       }
     }else{
       std::shared_ptr<ambr::core::ValidatorUnit> validator_unit = GetLastestValidateUnit()->unit();
-      assert(validator_unit);
+      db_assert(validator_unit);
       while(1){
-        assert(validator_unit);
+        db_assert(validator_unit);
 
         if(validator_unit->percent() < GetPassPercent() || validator_unit->hash() == remove_item->hash()){
           if(unit_for_remove.find(validator_unit->hash()) == unit_for_remove.end()){
-            assert(batch.Delete(
+            db_assert(batch.Delete(
                      handle_validator_unit_,
                      std::string((const char*)validator_unit->hash().bytes().data(), validator_unit->hash().bytes().size())));
-            assert(batch.Write(
+            db_assert(batch.Write(
                      handle_validator_unit_,
                      std::string(last_validate_key),
                      std::string((const char*)validator_unit->prev_unit().bytes().data(), validator_unit->prev_unit().bytes().size())));
@@ -2016,7 +2021,7 @@ bool ambr::store::StoreManager::RemoveUnit(const ambr::core::UnitHash &hash, std
           hash_null.clear();
           final_store->set_next_validator_hash(hash_null);
           std::vector<uint8_t> buf = final_store->SerializeByte();
-          assert(batch.Write(
+          db_assert(batch.Write(
                    handle_validator_unit_,
                    std::string((const char*)final_store->unit()->hash().bytes().data(), final_store->unit()->hash().bytes().size()),
                    std::string((const char*)buf.data(), buf.size())));
@@ -2044,7 +2049,7 @@ bool ambr::store::StoreManager::RemoveUnit(const ambr::core::UnitHash &hash, std
         wait_change[receive_unit->public_key()] = GetWaitForReceiveList(receive_unit->public_key());
       }
       wait_change[receive_unit->public_key()].push_back(send_store->GetUnit()->hash());
-      assert(batch.Write(
+      db_assert(batch.Write(
                handle_send_unit_,
                std::string((const char*)send_store->GetUnit()->hash().bytes().data(), send_store->GetUnit()->hash().bytes().size()),
                std::string((const char*)buf.data(), buf.size())));
@@ -2068,13 +2073,13 @@ bool ambr::store::StoreManager::RemoveUnit(const ambr::core::UnitHash &hash, std
     for(const ambr::core::UnitHash& hash: item.second){
       db_str.insert(db_str.end(), hash.bytes().begin(), hash.bytes().end());
     }
-    assert(batch.Write(
+    db_assert(batch.Write(
              handle_wait_for_receive_,
              std::string((const char*)item.first.bytes().data(), item.first.bytes().size()),
              db_str));
   }
 
-  assert(db_.Write(batch));
+  db_assert(db_.Write(batch));
   return true;
 }
 
@@ -2166,11 +2171,11 @@ void ambr::store::StoreManager::AddWaitForReceiveUnit(const ambr::core::PublicKe
   std::vector<uint8_t> vec_for_write(string_readed.begin(), string_readed.end());
   vec_for_write.insert(vec_for_write.end(), hash.bytes().begin(), hash.bytes().end());
   if(batch){
-    assert(batch->Write(handle_wait_for_receive_,
+    db_assert(batch->Write(handle_wait_for_receive_,
                         std::string((const char*)pub_key.bytes().data(), pub_key.bytes().size()),
                         std::string((const char*)vec_for_write.data(), vec_for_write.size())));
   }else{
-    assert(db_.Write(handle_wait_for_receive_,
+    db_assert(db_.Write(handle_wait_for_receive_,
                       std::string((const char*)pub_key.bytes().data(), pub_key.bytes().size()),
                       std::string((const char*)vec_for_write.data(), vec_for_write.size())));
   }
@@ -2186,11 +2191,11 @@ void ambr::store::StoreManager::RemoveWaitForReceiveUnit(const ambr::core::Publi
   }
 
   if(batch){
-    assert(batch->Write(handle_wait_for_receive_,
+    db_assert(batch->Write(handle_wait_for_receive_,
                         std::string((const char*)pub_key.bytes().data(), pub_key.bytes().size()),
                         std::string((const char*)vec_for_write.data(), vec_for_write.size())));
   }else{
-    assert(db_.Write(
+    db_assert(db_.Write(
                        handle_wait_for_receive_,
                        std::string((const char*)pub_key.bytes().data(), pub_key.bytes().size()),
                        std::string((const char*)vec_for_write.data(), vec_for_write.size())));
@@ -2219,7 +2224,7 @@ void ambr::store::StoreManager::DispositionTransectionFee(const ambr::core::Unit
     GetValidatorIncome(validator_item.validator_public_key_, balance_store);
     core::Amount amount_item = balance_store.balance_;
     amount_item += amount_for_disposistion;
-    assert(batch->Write(handle_validator_balance_,
+    db_assert(batch->Write(handle_validator_balance_,
                            std::string((const char*)validator_item.validator_public_key_.bytes().data(), validator_item.validator_public_key_.bytes().size()),
                            std::string(ValidatorBalanceStore(validator_hash, amount_item).SerializeByte())));
   }
@@ -2230,7 +2235,7 @@ void ambr::store::StoreManager::DispositionTransectionFee(const ambr::core::Unit
   }
   ambr::core::PublicKey pub_key_tmp;
   pub_key_tmp.clear();
-  assert(batch->Write(handle_validator_balance_,
+  db_assert(batch->Write(handle_validator_balance_,
                       std::string((const char*)pub_key_tmp.bytes().data(), pub_key_tmp.bytes().size()),
                       std::string(ValidatorBalanceStore(core::UnitHash(), odd).SerializeByte())));
 }
