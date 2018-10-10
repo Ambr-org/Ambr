@@ -21,8 +21,6 @@
 #include <server/ambrd.h>
 #include <memory>
 
-
-extern std::shared_ptr<ambr::store::StoreManager> p_store_manager;
 CCriticalSection cs_process;
 #if defined(NDEBUG)
 # error "Bitcoin cannot be compiled without assertions."
@@ -408,30 +406,9 @@ void PeerLogicValidation::InitializeNode(CNode *pnode) {
     if(!pnode->fInbound){
        pnode->nSendOffset = 0;
        PushNodeVersion(pnode, connman, GetTime());
-       // sync module
-       std::shared_ptr<ambr::store::ValidatorUnitStore> p_store = p_store_manager->GetLastestValidateUnit();
-       if(p_store){
-         std::shared_ptr<ambr::core::Unit> p_unit = p_store->GetUnit();
-         if(p_unit)
-         {
-            LogPrintf("p_unit is null ? %d\n", p_unit == nullptr);
-           //ambr::p2p::BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::REQUESTVALUNIT, p_unit->hash().encode_to_hex()));
-           connman->PushMessage(pnode, CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::REQUESTVALUNIT, p_unit->hash().encode_to_hex()));
-         }
-       }
+    }
+    else{
 
-    }else{
-        // sync module
-        std::shared_ptr<ambr::store::ValidatorUnitStore> p_store = p_store_manager->GetLastestValidateUnit();
-        if(p_store){
-          std::shared_ptr<ambr::core::Unit> p_unit = p_store->GetUnit();
-          if(p_unit)
-          {
-             LogPrintf("p_unit is null ? %d\n", p_unit == nullptr);
-            //ambr::p2p::BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::REQUESTVALUNIT, p_unit->hash().encode_to_hex()));
-            connman->PushMessage(pnode, CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::REQUESTVALUNIT, p_unit->hash().encode_to_hex()));
-          }
-        }
     }
 }
 
