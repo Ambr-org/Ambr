@@ -5,7 +5,7 @@
 #include <rocksdb/options.h>
 
 using namespace ambr::store;
-
+class KeyValueDBInterface::TableHandle:public rocksdb::ColumnFamilyHandle{};
 class KeyValueDBInterface::WriteBatch::Impl{
 public:
   bool Write(KeyValueDBInterface::TableHandle* table_handle, const std::string& key, const std::string& value){
@@ -124,11 +124,6 @@ void KeyValueDBInterface::Foreach(KeyValueDBInterface::TableHandle *table_handle
 
 bool KeyValueDBInterface::Write(KeyValueDBInterface::WriteBatch &brach){
   return impl_->Write(brach);
-}
-
-rocksdb::DB *KeyValueDBInterface::GetDBNavate()
-{
-  return impl_->GetDBNavate();
 }
 
 KeyValueDBInterface::KeyValueDBInterface(){

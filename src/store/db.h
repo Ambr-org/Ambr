@@ -2,8 +2,7 @@
 #define _DB_H_
 #include <string>
 #include <vector>
-//TODO will delete
-#include <rocksdb/db.h>
+#include <functional>
 namespace ambr {
 namespace store {
 
@@ -34,8 +33,6 @@ public:
                );
   // operator in brach is atom
   bool Write(WriteBatch& brach);
-public://TODO will delete
-  rocksdb::DB* GetDBNavate();
 public:
   KeyValueDBInterface();
   ~KeyValueDBInterface();
@@ -55,8 +52,6 @@ public:
   Impl* impl_;
 };
 
-//TODO will delete
-class KeyValueDBInterface::TableHandle:public rocksdb::ColumnFamilyHandle{};
 }
 }
 
