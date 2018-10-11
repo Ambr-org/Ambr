@@ -144,7 +144,7 @@ bool ambr::syn::SynManager::Impl::Init(const SynManagerConfig &config){
   p_peerLogicValidation_->AddOnAcceptCallback(std::bind(&ambr::syn::SynManager::Impl::OnAcceptNode, this, std::placeholders::_1));
   p_peerLogicValidation_->AddOnConnectCallback(std::bind(&ambr::syn::SynManager::Impl::OnConnectNode, this, std::placeholders::_1));
   p_peerLogicValidation_->AddOnDisConnectCallback(std::bind(&ambr::syn::SynManager::Impl::OnDisConnectNode, this, std::placeholders::_1));
-  p_peerLogicValidation_->AddOnMoreProcessCallback(std::bind(&ambr::syn::SynManager::Impl::OnReceiveNode, this, std::placeholders::_1, std::placeholders::_2));
+  //p_peerLogicValidation_->AddOnMoreProcessCallback(std::bind(&ambr::syn::SynManager::Impl::OnReceiveNode, this, std::placeholders::_1, std::placeholders::_2));
   CConnman::Options connOptions;
   connOptions.vSeedNodes = config.vec_seed_;
   connOptions.nListenPort = config.listen_port_;
