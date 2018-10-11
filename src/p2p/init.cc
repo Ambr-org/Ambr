@@ -215,9 +215,10 @@ bool ambr::p2p::init(CConnman::Options&& connOptions){
     }
     g_connman = std::unique_ptr<CConnman>(new CConnman(ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max()), ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max())));
     CConnman& connman = *g_connman;
-   //peerLogic = (new PeerLogicValidation(&connman, scheduler, false));
-   // RegisterValidationInterface(peerLogic.get());
+    peerLogic = (new PeerLogicValidation(&connman, scheduler, false));
+    //RegisterValidationInterface(peerLogic.get());
 
+    connOptions.m_msgproc = peerLogic;
     connOptions.nLocalServices = nLocalServices;
     connOptions.nMaxConnections = nMaxConnections;
     connOptions.nMaxOutbound = std::min(MAX_OUTBOUND_CONNECTIONS, connOptions.nMaxConnections);
