@@ -21,13 +21,12 @@
 #include "rpc/rpc_server.h"
 
 std::unique_ptr<ambr::rpc::RpcServer> p_rpc;
-std::shared_ptr<ambr::store::StoreManager> p_store_manager;
 std::shared_ptr<ambr::syn::SynManager> p_syn_manager;
 
 namespace ambr {
 namespace server {
 int DoServer(const std::string& db_path, uint16_t rpc_port, uint16_t p2p_port, const std::string& seed_ip, uint16_t seed_port) {
-  p_store_manager = std::make_shared<ambr::store::StoreManager>();
+  std::shared_ptr<ambr::store::StoreManager> p_store_manager = std::make_shared<ambr::store::StoreManager>();
   p_syn_manager = std::make_shared<ambr::syn::SynManager>(p_store_manager);
   p_rpc = std::unique_ptr<ambr::rpc::RpcServer>(new ambr::rpc::RpcServer());
 
