@@ -215,16 +215,13 @@ bool ambr::p2p::init(CConnman::Options&& connOptions){
     }
     g_connman = std::unique_ptr<CConnman>(new CConnman(ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max()), ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max())));
     CConnman& connman = *g_connman;
-    peerLogic = (new PeerLogicValidation(&connman, scheduler, false));
+   //peerLogic = (new PeerLogicValidation(&connman, scheduler, false));
    // RegisterValidationInterface(peerLogic.get());
 
     connOptions.nLocalServices = nLocalServices;
     connOptions.nMaxConnections = nMaxConnections;
     connOptions.nMaxOutbound = std::min(MAX_OUTBOUND_CONNECTIONS, connOptions.nMaxConnections);
     connOptions.nMaxAddnode = MAX_ADDNODE_CONNECTIONS;
-
-    connOptions.m_msgproc = peerLogic;
-
     connOptions.m_added_nodes = gArgs.GetArgs("-addnode");
 
 
@@ -262,9 +259,9 @@ bool ambr::p2p::init(CConnman::Options&& connOptions){
     connOptions.vWhitelistedRange.push_back(subnet);
    }
 
-   connOptions.vSeedNodes = gArgs.GetArgs("-seednode");
+   //connOptions.vSeedNodes = gArgs.GetArgs("-seednode");
 
-       // Initiate outbound connections unless connect=0
+   // Initiate outbound connections unless connect=0
 
    connOptions.m_use_addrman_outgoing = !gArgs.IsArgSet("-connect");
    if (!connOptions.m_use_addrman_outgoing) {
@@ -280,6 +277,25 @@ bool ambr::p2p::init(CConnman::Options&& connOptions){
    registerSignalHandler(SIGINT, HandleSIGTERM);
    #endif
 
+
+   struct in_addr addr_;
+   std::string str_seed = connOptions.vSeedNodes.at(0);
+   size_t num_pos = str_seed.find(":");
+   std::string&& str_IP = str_seed.substr(0, num_pos);
+   std::string&& str_port = str_seed.substr(num_pos + 1, str_seed.size());
+   auto s =inet_pton(AF_INET, str_IP.c_str(), &addr_);
+   if(1 != s){
+     return false;
+   }
+
+   std::vector<CAddress> addrs;
+   int num_port = atoi(str_port.c_str());
+   CAddress addr(CService(addr_ , num_port), NODE_NONE);
+   addrs.push_back(addr);
+
+   g_connman->AddNewAddresses(addrs, CAddress());
+
+   connOptions.vSeedNodes.clear();
    bool ret = g_connman->Start(scheduler, connOptions);
 
     if(ret){

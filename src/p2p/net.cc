@@ -1153,6 +1153,7 @@ void CConnman::AcceptConnection(const ListenSocket& hListenSocket) {
     pnode->AddRef();
     pnode->fWhitelisted = whitelisted;
 
+    pnode->fClient = false;
     m_msgproc->InitializeNode(pnode);
 
    // LogPrint(BCLog::NET, "connection from %s accepted\n", addr.ToString());
@@ -2027,6 +2028,7 @@ void CConnman::OpenNetworkConnection(const CAddress& addrConnect, bool fCountFai
     if (manual_connection)
         pnode->m_manual_connection = true;
 
+    pnode->fClient = true;
     m_msgproc->InitializeNode(pnode);
     {
         LOCK(cs_vNodes);
@@ -2306,7 +2308,7 @@ bool CConnman::Start(CScheduler& scheduler, const Options& connOptions)
         AddOneShot(strDest);
     }
 
-
+    DumpData();
     // Load addresses from peers.dat
 
     int64_t nStart = GetTimeMillis();
