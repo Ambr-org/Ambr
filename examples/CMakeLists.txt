@@ -85,7 +85,7 @@ set(CMAKE_AUTORCC ON)
 find_package(Qt5 REQUIRED Widgets)
 #qt5_wrap_cpp( MOC ${CUR_DIR}/examples/store_example_main_widget.h)
 #qt5_wrap_ui( UIC ${CUR_DIR}/examples/store_example_main_widget.ui)
-#QT5_ADD_RESOURCES(RCC ${CUR_DIR}/examples/store_example_main_widget.qrc)
+QT5_ADD_RESOURCES(RCC ${CUR_DIR}/examples/store_example_main_widget.qrc)
 set(QT_SRC
   ${CUR_DIR}/examples/store_example_main_widget.cc
   ${CUR_DIR}/examples/store_example_main_widget.h
@@ -140,6 +140,7 @@ add_executable(unit_store_example
   ${QT_SRC}
   ${RPC_SRC}
   ${PROTO_SRC}
+  ${RCC}
   ${DIR_PROTO_SRCS}
   ${DIR_PROTO_HDRS}
   )
