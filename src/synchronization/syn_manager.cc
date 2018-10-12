@@ -132,6 +132,7 @@ void ambr::syn::SynManager::UnSerialize(std::vector<uint8_t>& vec_bytes){
 }
 
 bool ambr::syn::SynManager::Impl::Init(const SynManagerConfig &config){
+    /*
   config_ = std::move(config);
   try{
     SelectParams(gArgs.GetChainName(), config.listen_port_);
@@ -161,6 +162,7 @@ bool ambr::syn::SynManager::Impl::Init(const SynManagerConfig &config){
   }
   Shutdown();
   return true;
+  */
 }
 
 void ambr::syn::SynManager::SendMessage(CSerializedNetMsg&& msg, CNode* p_node){

@@ -61,12 +61,12 @@ void ambr::p2p::RemoveNode(CNode* pNode){
 }
 
 
-void ambr::p2p::Interrupt(){
+void Interrupt(){
   if (g_connman)
     g_connman->Interrupt();
 }
 
-void ambr::p2p::WaitForShutdown(){
+void WaitForShutdown(){
   while (!ShutdownRequested()){
     MilliSleep(200);
   }
@@ -74,7 +74,7 @@ void ambr::p2p::WaitForShutdown(){
   Interrupt();
 }
 
-void ambr::p2p::Shutdown(){
+void Shutdown(){
   LogPrintf("%s: In progress...\n", __func__);
   static CCriticalSection cs_Shutdown;
 
@@ -90,19 +90,6 @@ void ambr::p2p::Shutdown(){
     //peerLogic.reset();
   g_connman.reset();
 
-  if(p_rpc){
-     LogPrintf("Stop RPC Server ...\n");
-     p_rpc->StopRpcServer();
-  }
-  p_rpc.reset();
-
-  /*
-  if(p_store_manager){
-     LogPrintf("Close Database ...\n");
-     //TODO: Call Close DB function
-  }
-   p_store_manager.reset();
-    */
 }
 
 void InitLogging()
@@ -215,7 +202,7 @@ bool ambr::p2p::init(CConnman::Options&& connOptions){
     }
     g_connman = std::unique_ptr<CConnman>(new CConnman(ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max()), ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max())));
     CConnman& connman = *g_connman;
-    peerLogic = (new PeerLogicValidation(&connman, scheduler, false));
+    peerLogic = (new PeerLogicValidation(&connman, scheduler, connOptions.DoReceiveNewSendUnit, false));
    // RegisterValidationInterface(peerLogic.get());
 
     connOptions.nLocalServices = nLocalServices;

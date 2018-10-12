@@ -7,9 +7,6 @@
 namespace ambr{
   namespace p2p{
     bool init(CConnman::Options&&);
-    void Interrupt();
-    void WaitForShutdown();
-    void Shutdown();  
 
     // p2p interface
     void SendMessage(CNode* p_node, CSerializedNetMsg&& msg);
