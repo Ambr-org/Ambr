@@ -22,9 +22,6 @@
 #include <memory>
 
 CCriticalSection cs_process;
-#if defined(NDEBUG)
-# error "Bitcoin cannot be compiled without assertions."
-#endif
 
 /** Expiration time for orphan transactions in seconds */
 static constexpr int64_t ORPHAN_TX_EXPIRE_TIME = 20 * 60;
@@ -490,8 +487,8 @@ void Misbehaving(NodeId pnode, int howmuch, const std::string& message)
 
 
 
-PeerLogicValidation::PeerLogicValidation(CConnman* connmanIn, CScheduler &scheduler, bool no_use)
-    : connman(connmanIn), m_stale_tip_check_time(0), m_enable_bip61(false) {
+PeerLogicValidation::PeerLogicValidation(CConnman* connmanIn, CScheduler &scheduler,  std::function<bool(const CNetMessage& netmsg, CNode* p_node)> SyncCallBack, bool no_use)
+    : connman(connmanIn), m_stale_tip_check_time(0), m_enable_bip61(false), DoReceiveNewSendUnit(SyncCallBack) {
     (void)no_use;
     // Initialize global variables that cannot be constructed at startup.
   //  recentRejects.reset(new CRollingBloomFilter(120000, 0.000001));
@@ -1232,7 +1229,7 @@ bool PeerLogicValidation::ProcessMessages(CNode* pfrom, std::atomic<bool>& inter
     {
         fRet = ProcessMessage(pfrom, strCommand, vRecv, msg.nTime, chainparams, connman, interruptMsgProc, m_enable_bip61);
         if(!fRet){
-           fRet = p_syn_manager->OnReceiveNode(msg, pfrom);
+          fRet = DoReceiveNewSendUnit(msg, pfrom);
         }
         if (interruptMsgProc)
             return false;

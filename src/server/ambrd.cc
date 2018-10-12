@@ -20,15 +20,12 @@
 #include "synchronization/syn_manager.h"
 #include "rpc/rpc_server.h"
 
-std::unique_ptr<ambr::rpc::RpcServer> p_rpc;
-std::shared_ptr<ambr::syn::SynManager> p_syn_manager;
-
 namespace ambr {
 namespace server {
 int DoServer(const std::string& db_path, uint16_t rpc_port, uint16_t p2p_port, const std::string& seed_ip, uint16_t seed_port) {
   std::shared_ptr<ambr::store::StoreManager> p_store_manager = std::make_shared<ambr::store::StoreManager>();
-  p_syn_manager = std::make_shared<ambr::syn::SynManager>(p_store_manager);
-  p_rpc = std::unique_ptr<ambr::rpc::RpcServer>(new ambr::rpc::RpcServer());
+  std::shared_ptr<ambr::syn::SynManager> p_syn_manager = std::make_shared<ambr::syn::SynManager>(p_store_manager);
+  std::unique_ptr<ambr::rpc::RpcServer> p_rpc = std::unique_ptr<ambr::rpc::RpcServer>(new ambr::rpc::RpcServer());
 
   p_store_manager->Init(db_path);
   google::SetLogDestination(google::GLOG_INFO, (db_path+"/log.log").c_str());
@@ -62,6 +59,7 @@ int DoServer(const std::string& db_path, uint16_t rpc_port, uint16_t p2p_port, c
   connOptions.nMaxAddnode = 12;
   connOptions.vSeedNodes = config.vec_seed_;
   connOptions.nListenPort = config.listen_port_;
+  connOptions.DoReceiveNewSendUnit = std::bind(&ambr::syn::SynManager::OnReceiveNode,p_syn_manager.get(),std::placeholders::_1, std::placeholders::_2);
   return ambr::p2p::init(std::move(connOptions));
 }
 

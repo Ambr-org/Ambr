@@ -18,6 +18,17 @@
 
 #define FIXED_RATE 70
 #define MAX_CONNECTIONS 12
+
+//All of the scenarios
+//1. Send unit delayed.
+//2. Request unit failed.
+//3. Wrong unit sequence
+//4. randmise peers, dynasty,
+//5. node, island,
+//6. 硬分叉处理， ？？
+//7. 消息太多cpu能力不足， 1. 加大内存， 2. 丢掉重传 
+//8. 带宽太窄， 发布出去， 直接丢掉
+ 
 class ambr::syn::SynManager::Impl{
 public:
   Impl(Ptr_StoreManager p_store_manager);
@@ -132,6 +143,7 @@ void ambr::syn::SynManager::UnSerialize(std::vector<uint8_t>& vec_bytes){
 }
 
 bool ambr::syn::SynManager::Impl::Init(const SynManagerConfig &config){
+    /*
   config_ = std::move(config);
   try{
     SelectParams(gArgs.GetChainName(), config.listen_port_);
@@ -179,7 +191,8 @@ bool ambr::syn::SynManager::Impl::Init(const SynManagerConfig &config){
     p_cconnman_->Interrupt();
   }
   Shutdown();
-  return true;*/
+  return true;
+  */
 }
 
 void ambr::syn::SynManager::SendMessage(CSerializedNetMsg&& msg, CNode* p_node){

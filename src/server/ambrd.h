@@ -11,9 +11,8 @@
 #define AMBR_SERVER_AMBRD_H_
 
 #include <crow.h>
-#include <synchronization/syn_manager.h>
 
-extern std::shared_ptr<ambr::syn::SynManager> p_syn_manager;
+
 namespace ambr {
 namespace server {
 

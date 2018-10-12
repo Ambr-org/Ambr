@@ -37,9 +37,12 @@ extern CCriticalSection cs_process;   //replace cs_main to cs_process
 class PeerLogicValidation  : public NetEventsInterface {
 private:
     CConnman* const connman;
+    //sync mode function
+
+    std::function<bool(const CNetMessage& netmsg, CNode* p_node)> DoReceiveNewSendUnit;
 
 public:
-    explicit PeerLogicValidation(CConnman* connman, CScheduler &scheduler, bool no_use = false);
+    explicit PeerLogicValidation(CConnman* connman, CScheduler &scheduler, std::function<bool(const CNetMessage& netmsg, CNode* p_node)>, bool no_use = false);
 
    
     /** Initialize a peer by adding it to mapNodeState and pushing a message requesting its version */

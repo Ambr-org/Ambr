@@ -114,6 +114,7 @@ struct CSerializedNetMsg
 };
 
 class NetEventsInterface;
+class CNetMessage;
 using Ptr_Node = std::shared_ptr<CNode>;
 
 class CConnman
@@ -151,6 +152,8 @@ public:
         bool m_use_addrman_outgoing = true;
         std::vector<std::string> m_specified_outgoing;
         std::vector<std::string> m_added_nodes;
+        //sync mode function
+        std::function<bool(const CNetMessage& netmsg, CNode* p_node)> DoReceiveNewSendUnit;
     };
 
     void Init(const Options& connOptions) {

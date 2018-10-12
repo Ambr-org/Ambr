@@ -61,12 +61,12 @@ void ambr::p2p::RemoveNode(CNode* pNode){
 }
 
 
-void ambr::p2p::Interrupt(){
+void Interrupt(){
   if (g_connman)
     g_connman->Interrupt();
 }
 
-void ambr::p2p::WaitForShutdown(){
+void WaitForShutdown(){
   while (!ShutdownRequested()){
     MilliSleep(200);
   }
@@ -74,7 +74,7 @@ void ambr::p2p::WaitForShutdown(){
   Interrupt();
 }
 
-void ambr::p2p::Shutdown(){
+void Shutdown(){
   LogPrintf("%s: In progress...\n", __func__);
   static CCriticalSection cs_Shutdown;
 
@@ -90,19 +90,6 @@ void ambr::p2p::Shutdown(){
     //peerLogic.reset();
   g_connman.reset();
 
-  if(p_rpc){
-     LogPrintf("Stop RPC Server ...\n");
-     p_rpc->StopRpcServer();
-  }
-  p_rpc.reset();
-
-  /*
-  if(p_store_manager){
-     LogPrintf("Close Database ...\n");
-     //TODO: Call Close DB function
-  }
-   p_store_manager.reset();
-    */
 }
 
 void InitLogging()
@@ -215,8 +202,8 @@ bool ambr::p2p::init(CConnman::Options&& connOptions){
     }
     g_connman = std::unique_ptr<CConnman>(new CConnman(ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max()), ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max())));
     CConnman& connman = *g_connman;
-    peerLogic = (new PeerLogicValidation(&connman, scheduler, false));
-    //RegisterValidationInterface(peerLogic.get());
+    peerLogic = (new PeerLogicValidation(&connman, scheduler, connOptions.DoReceiveNewSendUnit, false));
+   // RegisterValidationInterface(peerLogic.get());
 
     connOptions.m_msgproc = peerLogic;
     connOptions.nLocalServices = nLocalServices;
@@ -278,25 +265,6 @@ bool ambr::p2p::init(CConnman::Options&& connOptions){
    registerSignalHandler(SIGINT, HandleSIGTERM);
    #endif
 
-
-   struct in_addr addr_;
-   std::string str_seed = connOptions.vSeedNodes.at(0);
-   size_t num_pos = str_seed.find(":");
-   std::string&& str_IP = str_seed.substr(0, num_pos);
-   std::string&& str_port = str_seed.substr(num_pos + 1, str_seed.size());
-   auto s =inet_pton(AF_INET, str_IP.c_str(), &addr_);
-   if(1 != s){
-     return false;
-   }
-
-   std::vector<CAddress> addrs;
-   int num_port = atoi(str_port.c_str());
-   CAddress addr(CService(addr_ , num_port), NODE_NONE);
-   addrs.push_back(addr);
-
-   g_connman->AddNewAddresses(addrs, CAddress());
-
-   connOptions.vSeedNodes.clear();
    bool ret = g_connman->Start(scheduler, connOptions);
 
     if(ret){
