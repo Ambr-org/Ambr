@@ -108,7 +108,7 @@ namespace {
     struct QueuedBlock {
         uint256 hash;
         bool fValidatedHeaders;                                  //!< Whether this block has validated headers at the time of request.
-        
+
     };
     std::map<uint256, std::pair<NodeId, std::list<QueuedBlock>::iterator> > mapBlocksInFlight;
 
@@ -138,7 +138,7 @@ namespace {
             return &(*a) < &(*b);
         }
     };
-    
+
 } // namespace
 
 namespace {
@@ -240,7 +240,7 @@ struct CNodeState {
         nMisbehavior = 0;
         fShouldBan = false;
         hashLastUnknownBlock.SetNull();
-      
+
         nUnconnectingHeaders = 0;
         fSyncStarted = false;
         nHeadersSyncTimeout = 0;
@@ -398,14 +398,17 @@ void PeerLogicValidation::InitializeNode(CNode *pnode) {
     NodeId nodeid = pnode->GetId();
     {
         LOCK(cs_process);
+        if(pnode->fClient){
+          DoConnect(pnode);
+        }
+        else{
+          DoAccept(pnode);
+        }
         mapNodeState.emplace_hint(mapNodeState.end(), std::piecewise_construct, std::forward_as_tuple(nodeid), std::forward_as_tuple(addr, std::move(addrName)));
     }
     if(!pnode->fInbound){
        pnode->nSendOffset = 0;
        PushNodeVersion(pnode, connman, GetTime());
-    }
-    else{
-
     }
 }
 
@@ -427,7 +430,7 @@ void PeerLogicValidation::FinalizeNode(CNode* pnode, bool& fUpdateConnectionTime
     for (const QueuedBlock& entry : state->vBlocksInFlight) {
         mapBlocksInFlight.erase(entry.hash);
     }
-   
+
     nPreferredDownload -= state->fPreferredDownload;
     nPeersWithValidatedDownloads -= (state->nBlocksInFlightValidHeaders != 0);
     assert(nPeersWithValidatedDownloads >= 0);
@@ -452,7 +455,7 @@ bool GetNodeStateStats(NodeId nodeid, CNodeStateStats &stats) {
     if (state == nullptr)
         return false;
     stats.nMisbehavior = state->nMisbehavior;
-    
+
 
     return true;
 }
@@ -634,12 +637,12 @@ bool static ProcessHeadersMessage(CNode *pfrom, CConnman *connman, const CChainP
         bool fCanDirectFetch = CanDirectFetch(chainparams.GetConsensus());
         // If we're in IBD, we want outbound peers that will serve us a useful
         // chain. Disconnect peers that are on chains with insufficient work.
-   
+
 
         if (!pfrom->fDisconnect ) {
             // If this is an outbound peer, check to see if we should protect
             // it from the bad/lagging chain logic.
-         
+
         }
     }
 
@@ -654,7 +657,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         LogPrintf("dropmessagestest DROPPING RECV MESSAGE\n");
         return true;
     }
-     
+
     std::cout << "Command = " << strCommand << std::endl;
     if (!(pfrom->GetLocalServices() & NODE_BLOOM) &&
               (strCommand == NetMsgType::FILTERLOAD ||
@@ -810,7 +813,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
         if (!pfrom->fInbound)
         {
-            // Advertise our address 
+            // Advertise our address
 
           //  if (fListen && !IsInitialBlockDownload())
             if (fListen)
@@ -973,7 +976,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         for(auto i:s){
             std::cout <<"addr is " <<  i.ToString() << std::endl;
         }
-        
+
         if (vAddr.size() < 1000)
             pfrom->fGetAddr = false;
         if (pfrom->fOneShot)
@@ -1008,10 +1011,10 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
     }
 
 
-   
+
     else if (strCommand == NetMsgType::GETHEADERS)
     {
-    
+
 
     }
 
@@ -1101,7 +1104,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         int nListenPort ;
         vRecv >> nListenPort;
         auto addr = pfrom->addr;
-        connman->bindMaps[pfrom] = CService(static_cast<CNetAddr>(addr), nListenPort);        
+        connman->bindMaps[pfrom] = CService(static_cast<CNetAddr>(addr), nListenPort);
     }
 
 
@@ -1288,7 +1291,7 @@ void PeerLogicValidation::ConsiderEviction(CNode *pto, int64_t time_in_seconds)
         // their chain has more work than ours, we should sync to it,
         // unless it's invalid, in which case we should find that out and
         // disconnect from them elsewhere).
-       
+
     }
 }
 
@@ -1358,7 +1361,7 @@ void PeerLogicValidation::CheckForStaleTipAndEvictPeers(const Consensus::Params 
     EvictExtraOutboundPeers(time_in_seconds);
 
     if (time_in_seconds > m_stale_tip_check_time) {
-      
+
     }
 }
 
@@ -1419,12 +1422,12 @@ bool PeerLogicValidation::SendMessages(CNode* pto)
         //
         // Message: addr
         //
-       
+
         if (pto->nNextAddrSend < nNow) {
            // pto->nNextAddrSend = PoissonNextSend(nNow, AVG_ADDRESS_BROADCAST_INTERVAL);
            //TODO PoissonNextSend return long time to next send
             pto->nNextAddrSend = nNow + 3000 * 1000;
-         
+
             std::vector<CAddress> vAddr;
             vAddr.reserve(pto->vAddrToSend.size());
             for (const CAddress& addr : pto->vAddrToSend)
@@ -1455,7 +1458,7 @@ bool PeerLogicValidation::SendMessages(CNode* pto)
         // being saturated. We only count validated in-flight blocks so peers can't advertise non-existing block hashes
         // to unreasonably increase our timeout.
         if (state.vBlocksInFlight.size() > 0) {
- 
+
         }
         // Check for headers sync timeouts
         if (state.fSyncStarted && state.nHeadersSyncTimeout < std::numeric_limits<int64_t>::max()) {
