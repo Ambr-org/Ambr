@@ -43,7 +43,9 @@ const char *GETBLOCKTXN="getblocktxn";
 const char *BLOCKTXN="blocktxn";
 const char *GETLISTENPORT="getport";
 const char *LISTENPORT="listenport";
-const char *ALLUNIT = "allunit";
+const char *DYNASTY = "dynasty";
+const char *DYNASTYNO = "dynastyno";
+const char *REQUESTDYNASTYNO = "rdynastyno";
 const char *ACCOUNTUNIT = "accunit";
 const char *NOACCOUNTUNIT = "noaccunit";
 const char *REQUESTACCOUNTLUNIT = "reqaccunit";
@@ -84,7 +86,9 @@ const static std::string allNetMessageTypes[] = {
     NetMsgType::BLOCKTXN,
     NetMsgType::GETLISTENPORT,
     NetMsgType::LISTENPORT,
-    NetMsgType::ALLUNIT,
+    NetMsgType::DYNASTY,
+    NetMsgType::DYNASTYNO,
+    NetMsgType::REQUESTDYNASTYNO,
     NetMsgType::ACCOUNTUNIT,
     NetMsgType::NOACCOUNTUNIT,
     NetMsgType::REQUESTACCOUNTLUNIT,

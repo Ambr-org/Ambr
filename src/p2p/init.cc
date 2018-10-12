@@ -53,7 +53,6 @@ void ambr::p2p::BroadcastMessage(CSerializedNetMsg&& msg){
     for (CNode* pnode : g_connman->GetNodes()) {
         SendMessage(pnode, std::forward<CSerializedNetMsg>(msg));
     }
-
 }
 
 void ambr::p2p::RemoveNode(CNode* pNode){
@@ -203,6 +202,9 @@ bool ambr::p2p::init(CConnman::Options&& connOptions){
     g_connman = std::unique_ptr<CConnman>(new CConnman(ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max()), ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max())));
     CConnman& connman = *g_connman;
     peerLogic = (new PeerLogicValidation(&connman, scheduler, connOptions.DoReceiveNewSendUnit, false));
+    peerLogic->AddOnAcceptCallback(connOptions.DoAccept);
+    peerLogic->AddOnConnectCallback(connOptions.DoConnect);
+    peerLogic->AddOnDisConnectCallback(connOptions.DoDisConnect);
    // RegisterValidationInterface(peerLogic.get());
 
     connOptions.m_msgproc = peerLogic;

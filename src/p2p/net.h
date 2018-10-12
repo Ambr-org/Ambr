@@ -153,6 +153,9 @@ public:
         std::vector<std::string> m_specified_outgoing;
         std::vector<std::string> m_added_nodes;
         //sync mode function
+        std::function<void(CNode*)> DoAccept;
+        std::function<void(CNode*)> DoConnect;
+        std::function<void(CNode*)> DoDisConnect;
         std::function<bool(const CNetMessage& netmsg, CNode* p_node)> DoReceiveNewSendUnit;
     };
 

@@ -42,7 +42,7 @@ private:
     std::function<bool(const CNetMessage& netmsg, CNode* p_node)> DoReceiveNewSendUnit;
 
 public:
-    explicit PeerLogicValidation(CConnman* connman, CScheduler &scheduler, std::function<bool(const CNetMessage& netmsg, CNode* p_node)>, bool no_use = false);
+    explicit PeerLogicValidation(CConnman* connman, CScheduler &scheduler, std::function<bool(const CNetMessage& netmsg, CNode* p_node)> SyncCallBack = nullptr, bool no_use = false);
 
    
     /** Initialize a peer by adding it to mapNodeState and pushing a message requesting its version */
@@ -70,6 +70,8 @@ public:
     void CheckForStaleTipAndEvictPeers(const Consensus::Params &consensusParams);
     /** If we have extra outbound peers, try to disconnect the one with the oldest block announcement */
     void EvictExtraOutboundPeers(int64_t time_in_seconds);
+
+    void AddReceiveMsgCallback(const std::function<bool(const CNetMessage& netmsg, CNode* p_node)>& cb);
 
     boost::signals2::connection AddOnConnectCallback(std::function<void(CNode*)> cb){
       return DoConnect.connect(cb);

@@ -488,7 +488,7 @@ void Misbehaving(NodeId pnode, int howmuch, const std::string& message)
 
 
 PeerLogicValidation::PeerLogicValidation(CConnman* connmanIn, CScheduler &scheduler,  std::function<bool(const CNetMessage& netmsg, CNode* p_node)> SyncCallBack, bool no_use)
-    : connman(connmanIn), m_stale_tip_check_time(0), m_enable_bip61(false), DoReceiveNewSendUnit(SyncCallBack) {
+    : connman(connmanIn), DoReceiveNewSendUnit(SyncCallBack), m_stale_tip_check_time(0), m_enable_bip61(false) {
     (void)no_use;
     // Initialize global variables that cannot be constructed at startup.
   //  recentRejects.reset(new CRollingBloomFilter(120000, 0.000001));
@@ -1350,6 +1350,10 @@ void PeerLogicValidation::EvictExtraOutboundPeers(int64_t time_in_seconds)
             }
         }
     }
+}
+
+void PeerLogicValidation::AddReceiveMsgCallback(const std::function<bool(const CNetMessage& netmsg, CNode* p_node)>& cb){
+  DoReceiveNewSendUnit = cb;
 }
 
 void PeerLogicValidation::CheckForStaleTipAndEvictPeers(const Consensus::Params &consensusParams)
