@@ -18,6 +18,17 @@
 
 #define FIXED_RATE 70
 #define MAX_CONNECTIONS 12
+
+//All of the scenarios
+//1. Send unit delayed.
+//2. Request unit failed.
+//3. Wrong unit sequence
+//4. randmise peers, dynasty,
+//5. node, island,
+//6. 硬分叉处理， ？？
+//7. 消息太多cpu能力不足， 1. 加大内存， 2. 丢掉重传 
+//8. 带宽太窄， 发布出去， 直接丢掉
+ 
 class ambr::syn::SynManager::Impl{
 public:
   Impl(Ptr_StoreManager p_store_manager);
@@ -147,12 +158,31 @@ bool ambr::syn::SynManager::Impl::Init(const SynManagerConfig &config){
   p_peerLogicValidation_->AddOnDisConnectCallback(std::bind(&ambr::syn::SynManager::Impl::OnDisConnectNode, this, std::placeholders::_1));
   //p_peerLogicValidation_->AddOnMoreProcessCallback(std::bind(&ambr::syn::SynManager::Impl::OnReceiveNode, this, std::placeholders::_1, std::placeholders::_2));
   CConnman::Options connOptions;
+  connOptions.vSeedNodes = config.vec_seed_;
+  connOptions.nListenPort = config.listen_port_;
   connOptions.nMaxConnections = MAX_CONNECTIONS;
-  connOptions.nLocalServices = ServiceFlags(NODE_NETWORK | NODE_WITNESS);
-  connOptions.nMaxOutbound = std::min(MAX_OUTBOUND_CONNECTIONS, connOptions.nMaxConnections);
   connOptions.nMaxAddnode = MAX_ADDNODE_CONNECTIONS;
   connOptions.m_msgproc = p_peerLogicValidation_.get();
-  connOptions.vSeedNodes = config.vec_seed_;
+  connOptions.nLocalServices = ServiceFlags(NODE_NETWORK | NODE_WITNESS);
+  connOptions.nMaxOutbound = std::min(MAX_OUTBOUND_CONNECTIONS, connOptions.nMaxConnections);
+  return ambr::p2p::init(std::move(connOptions));
+
+  /*struct in_addr addr_;
+  std::string str_seed = config.vec_seed_.at(0);
+  size_t num_pos = str_seed.find(":");
+  std::string&& str_IP = str_seed.substr(0, num_pos);
+  std::string&& str_port = str_seed.substr(num_pos + 1, str_seed.size());
+  auto s =inet_pton(AF_INET, str_IP.c_str(), &addr_);
+  if(1 != s){
+    return false;
+  }
+
+  std::vector<CAddress> addrs;
+  int num_port = atoi(str_port.c_str());
+  CAddress addr(CService(addr_ , num_port), NODE_NONE);
+  addrs.push_back(addr);
+
+  p_cconnman_->AddNewAddresses(addrs, CAddress());
 
   if(p_cconnman_->Start(*p_scheduler.get(), connOptions)){
     WaitForShutdown();
