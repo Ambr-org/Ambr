@@ -2308,7 +2308,6 @@ bool CConnman::Start(CScheduler& scheduler, const Options& connOptions)
         AddOneShot(strDest);
     }
 
-    DumpData();
     // Load addresses from peers.dat
 
     int64_t nStart = GetTimeMillis();

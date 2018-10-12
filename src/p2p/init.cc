@@ -205,7 +205,6 @@ bool ambr::p2p::init(CConnman::Options&& connOptions){
     peerLogic = (new PeerLogicValidation(&connman, scheduler, connOptions.DoReceiveNewSendUnit, false));
    // RegisterValidationInterface(peerLogic.get());
 
-
     connOptions.m_msgproc = peerLogic;
     connOptions.nLocalServices = nLocalServices;
     connOptions.nMaxConnections = nMaxConnections;
@@ -266,25 +265,6 @@ bool ambr::p2p::init(CConnman::Options&& connOptions){
    registerSignalHandler(SIGINT, HandleSIGTERM);
    #endif
 
-
-   struct in_addr addr_;
-   std::string str_seed = connOptions.vSeedNodes.at(0);
-   size_t num_pos = str_seed.find(":");
-   std::string&& str_IP = str_seed.substr(0, num_pos);
-   std::string&& str_port = str_seed.substr(num_pos + 1, str_seed.size());
-   auto s =inet_pton(AF_INET, str_IP.c_str(), &addr_);
-   if(1 != s){
-     return false;
-   }
-
-   std::vector<CAddress> addrs;
-   int num_port = atoi(str_port.c_str());
-   CAddress addr(CService(addr_ , num_port), NODE_NONE);
-   addrs.push_back(addr);
-
-   g_connman->AddNewAddresses(addrs, CAddress());
-
-   connOptions.vSeedNodes.clear();
    bool ret = g_connman->Start(scheduler, connOptions);
 
     if(ret){
