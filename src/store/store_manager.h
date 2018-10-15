@@ -35,7 +35,7 @@ public:
   boost::signals2::connection AddCallBackReceiveNewValidatorUnit(std::function<void(std::shared_ptr<core::ValidatorUnit>)> callback);
   boost::signals2::connection AddCallBackReceiveNewVoteUnit(std::function<void(std::shared_ptr<core::VoteUnit>)> callback);
 public:
-  //bool AddUnit(std::shared_ptr<core::Unit> unit, std::string* err);
+  bool AddUnit(std::shared_ptr<core::Unit> unit, std::string* err);
   bool AddSendUnit(std::shared_ptr<core::SendUnit> send_unit, std::string* err);
   bool AddReceiveUnit(std::shared_ptr<core::ReceiveUnit> receive_unit, std::string* err);
   bool AddEnterValidatorSetUnit(std::shared_ptr<core::EnterValidateSetUint> unit, std::string* err);
@@ -44,6 +44,14 @@ public:
   bool AddVote(std::shared_ptr<core::VoteUnit> unit, std::string* err);
   void ClearVote();
   void UpdateNewUnitMap(const std::vector<core::UnitHash>& validator_check_list);
+
+  void AddUnitToBuffer(std::shared_ptr<core::Unit> unit, void* addtion_data);
+  boost::signals2::connection AddBufferHandleBack(
+      std::function<void(
+        std::shared_ptr<core::Unit>,
+        void*/*addtion_data*/,
+        bool/*result*/)>
+      callback);
 
   bool GetLastValidateUnit(core::UnitHash& hash);
   //get next validator hash for syn
@@ -197,6 +205,13 @@ private:
   boost::signals2::signal<void(std::shared_ptr<core::LeaveValidateSetUint>)> DoReceiveNewLeaveValidateSetUnit;
   boost::signals2::signal<void(std::shared_ptr<core::ValidatorUnit>)> DoReceiveNewValidatorUnit;
   boost::signals2::signal<void(std::shared_ptr<core::VoteUnit>)> DoReceiveNewVoteUnit;
+private://for unit buffer
+  std::mutex unit_buffer_mutex_;
+  boost::signals2::signal<void(
+      std::shared_ptr<core::Unit>,
+      void*/*addtion_data*/,
+      bool/*result*/)> buffer_handle_callback_;
+  std::list<std::pair<std::shared_ptr<core::Unit>, void* /*addtion_data*/>> unit_buffer_;
 };
 }
 }

@@ -15,6 +15,7 @@
 #include "unit_store.h"
 //TODO: when income has cash disposit,can't enter validator set. when leave use ReceiveFromValidator to receive cash
 //TODO: handle the situation delete receive unit which receive from validator
+const static int32_t MAX_BUFFER_SIZE = 1024;
 static const int use_log = true;
 std::shared_ptr<ambr::store::StoreManager> ambr::store::StoreManager::instance_ = std::shared_ptr<ambr::store::StoreManager>();
 static const std::string init_addr = "ambr_y4bwxzwwrze3mt4i99n614njtsda6s658uqtue9ytjp7i5npg6pz47qdjhx3";
@@ -182,6 +183,31 @@ boost::signals2::connection ambr::store::StoreManager::AddCallBackReceiveNewVali
 
 boost::signals2::connection ambr::store::StoreManager::AddCallBackReceiveNewVoteUnit(std::function<void (std::shared_ptr<ambr::core::VoteUnit>)> callback){
   return DoReceiveNewVoteUnit.connect(callback);
+}
+
+bool ambr::store::StoreManager::AddUnit(std::shared_ptr<ambr::core::Unit> unit, std::string *err){
+  if(!unit){
+    if(err)*err = "unit ptr is null";
+    return false;
+  }
+  switch(unit->type()){
+  case core::UnitType::send:
+      return AddSendUnit(std::dynamic_pointer_cast<core::SendUnit>(unit), err);
+  case core::UnitType::receive:
+      return AddReceiveUnit(std::dynamic_pointer_cast<core::ReceiveUnit>(unit), err);
+  case core::UnitType::Vote:
+      return AddVote(std::dynamic_pointer_cast<core::VoteUnit>(unit), err);
+  case core::UnitType::Validator:
+      return AddValidateUnit(std::dynamic_pointer_cast<core::ValidatorUnit>(unit), err);
+  case core::UnitType::EnterValidateSet:
+      return AddEnterValidatorSetUnit(std::dynamic_pointer_cast<core::EnterValidateSetUint>(unit), err);
+  case core::UnitType::LeaveValidateSet:
+      return AddLeaveValidatorSetUnit(std::dynamic_pointer_cast<core::LeaveValidateSetUint>(unit), err);
+  default:
+    break;
+  }
+  if(err)*err = "Unknow unit type";
+  return false;
 }
 
 
@@ -958,6 +984,33 @@ void ambr::store::StoreManager::UpdateNewUnitMap(const std::vector<core::UnitHas
          std::string((const char*)pub_key.bytes().data(), pub_key.bytes().size())));
   }
   db_assert(db_.Write(batch));
+}
+
+void ambr::store::StoreManager::AddUnitToBuffer(std::shared_ptr<ambr::core::Unit> unit, void* addtion_data){
+  bool need_flush = false;
+  std::lock_guard<std::mutex> lk(unit_buffer_mutex_);
+  if(AddUnit(unit, nullptr)){
+    need_flush = true;
+    buffer_handle_callback_(unit, addtion_data, true);
+  }else{
+    unit_buffer_.push_back(std::make_pair(unit, addtion_data));
+    if(unit_buffer_.size() > MAX_BUFFER_SIZE){
+      auto pop_item = unit_buffer_.front();
+      buffer_handle_callback_(pop_item.first, pop_item.second, false);
+      unit_buffer_.pop_front();
+    }
+  }
+  while(need_flush == true){
+    need_flush = false;
+    for(auto iter = unit_buffer_.begin(); iter != unit_buffer_.end(); iter++){
+      if(AddUnit(iter->first, nullptr)){
+        need_flush = true;
+        buffer_handle_callback_(iter->first, iter->second, true);
+        unit_buffer_.erase(iter);
+        break;
+      }
+    }
+  }
 }
 
 bool ambr::store::StoreManager::GetLastValidateUnit(core::UnitHash& hash){
