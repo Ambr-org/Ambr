@@ -7,6 +7,7 @@
 #include <memory>
 #include <boost/filesystem.hpp>
 #include <map>
+#include <unordered_map>
 #include <set>
 #include <unordered_map>
 #include <glog/logging.h>
@@ -981,15 +982,18 @@ ambr::core::UnitHash ambr::store::StoreManager::GetNextValidatorHash(const ambr:
 
 std::list<std::shared_ptr<ambr::core::Unit> > ambr::store::StoreManager::GetAllUnitByValidatorUnitHash(const ambr::core::UnitHash &hash){
   std::list<std::shared_ptr<core::Unit>> rtn;
+
   struct Item{
     Item(std::shared_ptr<core::Unit> unit):unit_(unit){}
     std::shared_ptr<core::Unit> unit_;
     std::list<core::UnitHash> depends_list_;
-    bool operator <(const Item& it){
-      return it.depends_list_.size() > depends_list_.size();
-    }
   };
-  std::list<Item> item_list;
+  std::function<bool(std::shared_ptr<Item>, std::shared_ptr<Item>)> compare_func =
+      [](std::shared_ptr<Item> item1, std::shared_ptr<Item> item2){
+    return item1->depends_list_.size() < item2->depends_list_.size();
+  };
+  std::list<std::shared_ptr<Item>> item_list;
+  std::unordered_map<core::UnitHash, std::list<std::shared_ptr<Item>>> depends_list;
   std::shared_ptr<ambr::store::ValidatorUnitStore> validator_store = GetValidateUnit(hash);
   if(!validator_store){
     return rtn;
@@ -1014,13 +1018,14 @@ std::list<std::shared_ptr<ambr::core::Unit> > ambr::store::StoreManager::GetAllU
         //add previous unit has to depends
         std::shared_ptr<ambr::core::Unit> unit = unit_store->GetUnit();
         db_assert(unit);
-        Item item(unit);
+        std::shared_ptr<Item> item = std::make_shared<Item>(unit);
         if(!unit->prev_unit().is_zero()){
           std::shared_ptr<store::UnitStore> unit_store_prv = GetUnit(unit->prev_unit());
           db_assert(unit_store_prv);
           core::UnitHash prv_unit_hash = unit->prev_unit();
           if(unit_store_prv->validated_hash() == validated_unit_hash){
-            item.depends_list_.push_back(prv_unit_hash);
+            item->depends_list_.push_back(prv_unit_hash);
+            depends_list[prv_unit_hash].push_back(item);
           }
         }
 
@@ -1028,33 +1033,43 @@ std::list<std::shared_ptr<ambr::core::Unit> > ambr::store::StoreManager::GetAllU
           std::shared_ptr<core::ReceiveUnit> receive_unit = std::dynamic_pointer_cast<core::ReceiveUnit>(unit_store->GetUnit());
           db_assert(receive_unit);
           core::UnitHash hash_from = receive_unit->from();
-          Item item(receive_unit);
+          std::shared_ptr<Item> item = std::make_shared<Item>(receive_unit);
           std::shared_ptr<store::UnitStore> unit_tmp;
           unit_tmp = GetUnit(hash_from);
           db_assert(unit_tmp);
           if(unit_tmp->validated_hash() == validated_unit_hash){
-            item.depends_list_.push_back(hash_from);
+            item->depends_list_.push_back(hash_from);
+            depends_list[hash_from].push_back(item);
           }
         }
         item_hash = unit->prev_unit();
         item_list.push_back(item);
       }
   }
-
-  item_list.sort();
+  item_list.sort(compare_func);
+  uint32_t count = 0;
   while(item_list.size()){
-    Item item = item_list.front();
-    db_assert(!item.depends_list_.size());
-    rtn.push_back(item.unit_);
-    item_list.pop_front();
-    core::UnitHash rm_hash = item.unit_->hash();
-
-    for(std::list<Item>::iterator iter = item_list.begin(); iter != item_list.end(); iter++){
-      iter->depends_list_.remove_if([&](const core::UnitHash& hash){
-        return  (hash == rm_hash);
-      });
+    count++;
+    std::shared_ptr<Item> item = item_list.front();
+    while(item && !item->depends_list_.size()){
+      //db_assert(!item->depends_list_.size());
+      rtn.push_back(item->unit_);
+      item_list.pop_front();
+      core::UnitHash rm_hash = item->unit_->hash();
+      for(std::shared_ptr<Item> rm_item : depends_list[rm_hash]){
+        count++;
+        rm_item->depends_list_.remove_if([&](const core::UnitHash& hash){
+          count++;
+          return  (hash == rm_hash);
+        });
+      }
+      if(item_list.size()){
+        item = item_list.front();
+      }else{
+        item.reset();
+      }
     }
-    item_list.sort();
+    item_list.sort(compare_func);
   }
   return rtn;
 }
