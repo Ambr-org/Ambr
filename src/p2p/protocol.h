@@ -247,14 +247,15 @@ extern const char *GETLISTENPORT;
 extern const char *LISTENPORT;
 
 extern const char *DYNASTY;
+extern const char *REQUESTDYNASTY;
 extern const char *DYNASTYNO;
 extern const char *REQUESTDYNASTYNO;
 extern const char *ACCOUNTUNIT;
 extern const char *NOACCOUNTUNIT;
-extern const char *REQUESTACCOUNTLUNIT;
+extern const char *REQUESTACCOUNTUNIT;
 extern const char *VALIDATORUNIT;
 extern const char *REQUESTVALUNIT;
-extern const char *NOVALIDATORUNIT;
+extern const char *NODYNASTY;
 }
 
 /* Get a vector of all valid message types (see above) */

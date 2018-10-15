@@ -44,14 +44,15 @@ const char *BLOCKTXN="blocktxn";
 const char *GETLISTENPORT="getport";
 const char *LISTENPORT="listenport";
 const char *DYNASTY = "dynasty";
+const char *REQUESTDYNASTY = "reqdynasty";
 const char *DYNASTYNO = "dynastyno";
 const char *REQUESTDYNASTYNO = "rdynastyno";
 const char *ACCOUNTUNIT = "accunit";
 const char *NOACCOUNTUNIT = "noaccunit";
-const char *REQUESTACCOUNTLUNIT = "reqaccunit";
+const char *REQUESTACCOUNTUNIT = "reqaccunit";
 const char *VALIDATORUNIT = "valunit";
 const char *REQUESTVALUNIT = "reqvalunit";
-const char *NOVALIDATORUNIT = "novalunit";
+const char *NODYNASTY = "nodynasty";
 } // namespace NetMsgType
 
 /** All known message types. Keep this in the same order as the list of
@@ -87,14 +88,15 @@ const static std::string allNetMessageTypes[] = {
     NetMsgType::GETLISTENPORT,
     NetMsgType::LISTENPORT,
     NetMsgType::DYNASTY,
+    NetMsgType::REQUESTDYNASTY,
     NetMsgType::DYNASTYNO,
     NetMsgType::REQUESTDYNASTYNO,
     NetMsgType::ACCOUNTUNIT,
     NetMsgType::NOACCOUNTUNIT,
-    NetMsgType::REQUESTACCOUNTLUNIT,
+    NetMsgType::REQUESTACCOUNTUNIT,
     NetMsgType::VALIDATORUNIT,
     NetMsgType::REQUESTVALUNIT,
-    NetMsgType::NOVALIDATORUNIT,
+    NetMsgType::NODYNASTY,
 };
 const static std::vector<std::string> allNetMessageTypesVec(allNetMessageTypes, allNetMessageTypes+ARRAYLEN(allNetMessageTypes));
 
