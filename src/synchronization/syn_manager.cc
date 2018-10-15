@@ -323,17 +323,19 @@ bool ambr::syn::Impl::ReceiveValidatorUnit(const Ptr_Unit& p_unit, CNode* p_node
 }
 
 void ambr::syn::Impl::ReceiveDynasty(const std::vector<uint8_t>& buf, CNode* p_node){
-    auto first = buf.begin();
-    for(auto it = buf.begin(); buf.end() >= it; ++it){
-      if(('a' == *it && 'm' == *(it + 1) && 'b' == *(it + 2) && 'r' == *(it + 3)) || buf.end() == it){
-        std::vector<uint8_t> buf_data;
-        buf_data.assign(first ,it);
-        first = it + 4;
-        if(buf.end() == it){
-          ReceiveValidatorUnit(ambr::core::Unit::CreateUnitByByte(buf_data), p_node);
-        }
-        else{
-          ReceiveUnit(ambr::core::Unit::CreateUnitByByte(buf_data), p_node);
+    if(0 < buf.size()){
+      auto first = buf.begin();
+      for(auto it = buf.begin(); buf.end() >= it; ++it){
+        if(('a' == *it && 'm' == *(it + 1) && 'b' == *(it + 2) && 'r' == *(it + 3)) || buf.end() == it){
+          std::vector<uint8_t> buf_data;
+          buf_data.assign(first ,it);
+          first = it + 4;
+          if(buf.end() == it){
+            ReceiveValidatorUnit(ambr::core::Unit::CreateUnitByByte(buf_data), p_node);
+          }
+          else{
+            ReceiveUnit(ambr::core::Unit::CreateUnitByByte(buf_data), p_node);
+          }
         }
       }
     }
