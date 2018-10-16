@@ -59,6 +59,9 @@ int DoServer(const std::string& db_path, uint16_t rpc_port, uint16_t p2p_port, c
   connOptions.nMaxAddnode = 12;
   connOptions.vSeedNodes = config.vec_seed_;
   connOptions.nListenPort = config.listen_port_;
+  connOptions.DoAccept = std::bind(&ambr::syn::SynManager::OnAcceptNode, p_syn_manager.get(), std::placeholders::_1);
+  connOptions.DoConnect = std::bind(&ambr::syn::SynManager::OnConnectNode, p_syn_manager.get(), std::placeholders::_1);
+  connOptions.DoDisConnect = std::bind(&ambr::syn::SynManager::OnDisConnectNode, p_syn_manager.get(), std::placeholders::_1);
   connOptions.DoReceiveNewSendUnit = std::bind(&ambr::syn::SynManager::OnReceiveNode,p_syn_manager.get(),std::placeholders::_1, std::placeholders::_2);
   return ambr::p2p::init(std::move(connOptions));
 }
