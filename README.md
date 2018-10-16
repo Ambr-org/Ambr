@@ -31,8 +31,8 @@ Linux
 
 ### Guides & Documentation
 
-* [White Paper-EN](http://ambr.org/whitepaper/Ambr_English.pdf)
-* [White Paper-CN](http://ambr.org/whitepaper/Ambr_Chinese.pdf)
+* [White Paper-EN](http://ambr.org/views/whitepaper/Ambr_English.pdf)
+* [White Paper-CN](http://ambr.org/views/whitepaper/Ambr_Chinese.pdf)
 * [Command Line Interface](https://github.com/Ambr-org/Ambr/wiki/Command-line-interface)
 * [RPC Protocol](https://github.com/Ambr-org/Ambr/wiki/RPC-protocol)
 * [Wallet Design](https://github.com/Ambr-org/Ambr/wiki/Wallet-design)
@@ -40,8 +40,7 @@ Linux
 
 ### Links & Resources
 
-* [Ambr Website](https://ambr.org)
-* [Ambr Roadmap](http://ambr.org/#sixthPage)
+* [Ambr Website](http://ambr.org)
 * [GitHub wiki](https://github.com/Ambr-org/Ambr/wiki)
 
 ### Want to Contribute?
