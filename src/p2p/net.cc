@@ -1699,7 +1699,7 @@ void CConnman::ProcessOneShot()
     CAddress addr;
     CSemaphoreGrant grant(*semOutbound, true);
     if (grant) {
-        OpenNetworkConnection(addr, false, &grant, strDest.c_str(), true);
+        OpenNetworkConnection(addr, false, &grant, strDest.c_str(), false);
     }
 }
 
