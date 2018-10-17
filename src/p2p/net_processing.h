@@ -39,7 +39,7 @@ private:
     CConnman* const connman;
     //sync mode function
 
-    std::function<bool(const CNetMessage& netmsg, CNode* p_node)> DoReceiveNewSendUnit;
+    std::function<bool(const CNetMessage& netmsg, CNode* p_node)> DoReceiveNewMsg;
 
 public:
     explicit PeerLogicValidation(CConnman* connman, CScheduler &scheduler, std::function<bool(const CNetMessage& netmsg, CNode* p_node)> SyncCallBack = nullptr, bool no_use = false);

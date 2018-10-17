@@ -500,9 +500,7 @@ void CNode::CloseSocketDisconnect()
     if (hSocket != INVALID_SOCKET)
     {
        // LogPrint(BCLog::NET, "disconnecting peer=%d\n", id);
-        if(CloseSocket(hSocket) && OnDisConnectNodeFunc){
-            OnDisConnectNodeFunc(this);
-        }
+       CloseSocket(hSocket);
     }
 }
 
@@ -787,9 +785,6 @@ bool CNode::ReceiveMsgBytes(const char *pch, unsigned int nBytes, bool& complete
 
             msg.nTime = nTimeMicros;
             complete = true;
-            if(OnReceiveNodeFunc){
-              OnReceiveNodeFunc(msg, this);
-            }
         }
     }
 

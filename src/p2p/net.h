@@ -156,7 +156,7 @@ public:
         std::function<void(CNode*)> DoAccept;
         std::function<void(CNode*)> DoConnect;
         std::function<void(CNode*)> DoDisConnect;
-        std::function<bool(const CNetMessage& netmsg, CNode* p_node)> DoReceiveNewSendUnit;
+        std::function<bool(const CNetMessage& netmsg, CNode* p_node)> DoReceiveNewMsg;
     };
 
     void Init(const Options& connOptions) {
@@ -784,8 +784,6 @@ private:
     // Our address, as reported by the peer
     CService addrLocal;
     mutable CCriticalSection cs_addrLocal;
-    std::function<void(CNode*)> OnDisConnectNodeFunc;
-    std::function<bool(const CNetMessage&, CNode*)> OnReceiveNodeFunc;
 public:
 
     NodeId GetId() const {

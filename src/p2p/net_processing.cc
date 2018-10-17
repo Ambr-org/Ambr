@@ -488,7 +488,7 @@ void Misbehaving(NodeId pnode, int howmuch, const std::string& message)
 
 
 PeerLogicValidation::PeerLogicValidation(CConnman* connmanIn, CScheduler &scheduler,  std::function<bool(const CNetMessage& netmsg, CNode* p_node)> SyncCallBack, bool no_use)
-    : connman(connmanIn), DoReceiveNewSendUnit(SyncCallBack), m_stale_tip_check_time(0), m_enable_bip61(false) {
+    : connman(connmanIn), DoReceiveNewMsg(SyncCallBack), m_stale_tip_check_time(0), m_enable_bip61(false) {
     (void)no_use;
     // Initialize global variables that cannot be constructed at startup.
   //  recentRejects.reset(new CRollingBloomFilter(120000, 0.000001));
@@ -1229,7 +1229,7 @@ bool PeerLogicValidation::ProcessMessages(CNode* pfrom, std::atomic<bool>& inter
     {
         fRet = ProcessMessage(pfrom, strCommand, vRecv, msg.nTime, chainparams, connman, interruptMsgProc, m_enable_bip61);
         if(!fRet){
-          fRet = DoReceiveNewSendUnit(msg, pfrom);
+          fRet = DoReceiveNewMsg(msg, pfrom);
         }
         if (interruptMsgProc)
             return false;
@@ -1353,7 +1353,7 @@ void PeerLogicValidation::EvictExtraOutboundPeers(int64_t time_in_seconds)
 }
 
 void PeerLogicValidation::AddReceiveMsgCallback(const std::function<bool(const CNetMessage& netmsg, CNode* p_node)>& cb){
-  DoReceiveNewSendUnit = cb;
+  DoReceiveNewMsg = cb;
 }
 
 void PeerLogicValidation::CheckForStaleTipAndEvictPeers(const Consensus::Params &consensusParams)
