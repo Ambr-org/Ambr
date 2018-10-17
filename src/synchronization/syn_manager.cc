@@ -151,7 +151,7 @@ bool ambr::syn::Impl::Init(const SynManagerConfig &config){
   connOptions.DoAccept = std::bind(&ambr::syn::Impl::OnAcceptNode, this, std::placeholders::_1);
   connOptions.DoConnect = std::bind(&ambr::syn::Impl::OnConnectNode, this, std::placeholders::_1);
   connOptions.DoDisConnect = std::bind(&ambr::syn::Impl::OnDisConnectNode, this, std::placeholders::_1);
-  connOptions.DoReceiveNewSendUnit = std::bind(&ambr::syn::Impl::OnReceiveNode, this,std::placeholders::_1, std::placeholders::_2);
+  connOptions.DoReceiveNewMsg = std::bind(&ambr::syn::Impl::OnReceiveNode, this,std::placeholders::_1, std::placeholders::_2);
   return ambr::p2p::init(std::move(connOptions));
 
   /*struct in_addr addr_;
@@ -531,49 +531,35 @@ void ambr::syn::Impl::ReturnDynasty(const std::vector<uint8_t>& buf, CNode* p_no
     in_hash.decode_from_hex(str_hash);
     if(p_storemanager_->GetValidateUnit(in_hash)){
       if(p_storemanager_->GetNextValidatorHashByHash(in_hash, out_hash, &str_error)){
-          std::shared_ptr<ambr::store::ValidatorUnitStore> p_unitstore = p_storemanager_->GetValidateUnit(out_hash);
-          if(p_unitstore){
-            std::shared_ptr<ambr::core::Unit> p_unit = p_unitstore->GetUnit();
-            if(p_unit){
-              std::vector<uint8_t> buf_data;
-              if(!p_unit->prev_unit().is_zero()){
-                size_t num_pos = 0;
-                std::list<std::shared_ptr<ambr::core::Unit>> list_p_units = p_storemanager_->GetAllUnitByValidatorUnitHash(p_unit->hash());
-                for(auto& it:list_p_units){
-                  std::vector<uint8_t>&& unit_buf = it->SerializeByte();
-                  if(!buf_data.empty()){
-                    buf_data.push_back('a');
-                    buf_data.push_back('m');
-                    buf_data.push_back('b');
-                    buf_data.push_back('r');
-                  }
-                  buf_data.insert(buf_data.end(), unit_buf.begin(), unit_buf.end());
-
-                  ++num_pos;
-                  if(0 == num_pos % 100){
-                    BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::DYNASTY, buf_data), nullptr);
-                    buf_data.clear();
-                  }
-
-                  if(list_p_units.size() == num_pos){
-                    buf_data.push_back('a');
-                    buf_data.push_back('m');
-                    buf_data.push_back('b');
-                    buf_data.push_back('r');
-                    std::vector<uint8_t>&& unit_buf = p_unit->SerializeByte();
-                    buf_data.insert(buf_data.end(), unit_buf.begin(), unit_buf.end());
-                    BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::DYNASTY, buf_data), nullptr);
-                    buf_data.clear();
-                  }
+        std::shared_ptr<ambr::store::ValidatorUnitStore> p_unitstore = p_storemanager_->GetValidateUnit(out_hash);
+        if(p_unitstore){
+         std::shared_ptr<ambr::core::Unit> p_unit = p_unitstore->GetUnit();
+          if(p_unit){
+            std::vector<uint8_t> buf_data;
+            if(!p_unit->prev_unit().is_zero()){
+              std::list<std::shared_ptr<ambr::core::Unit>> list_p_units = p_storemanager_->GetAllUnitByValidatorUnitHash(p_unit->hash());
+              for(auto& it:list_p_units){
+                std::vector<uint8_t>&& unit_buf = it->SerializeByte();
+                if(!buf_data.empty()){
+                  buf_data.push_back('a');
+                  buf_data.push_back('m');
+                  buf_data.push_back('b');
+                  buf_data.push_back('r');
                 }
-              }
-              else{
-                std::vector<uint8_t>&& unit_buf = p_unit->SerializeByte();
                 buf_data.insert(buf_data.end(), unit_buf.begin(), unit_buf.end());
-                SendMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::DYNASTY, buf_data), p_node);
+
               }
+                buf_data.push_back('a');
+                buf_data.push_back('m');
+                buf_data.push_back('b');
+                buf_data.push_back('r');
             }
+
+            std::vector<uint8_t>&& unit_buf = p_unit->SerializeByte();
+            buf_data.insert(buf_data.end(), unit_buf.begin(), unit_buf.end());
+            SendMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::DYNASTY, buf_data), p_node);
           }
+        }
       }
     }
     else{
@@ -722,7 +708,6 @@ void ambr::syn::SynManager::BoardCastNewValidatorUnit(std::shared_ptr<core::Vali
 
   std::vector<uint8_t> buf_data;
   if(!p_unit->prev_unit().is_zero()){
-    size_t num_pos = 0;
     std::list<std::shared_ptr<ambr::core::Unit>> list_p_units = p_storemanager_->GetAllUnitByValidatorUnitHash(p_unit->hash());
     for(auto& it:list_p_units){
       std::vector<uint8_t>&& unit_buf = it->SerializeByte();
@@ -733,30 +718,16 @@ void ambr::syn::SynManager::BoardCastNewValidatorUnit(std::shared_ptr<core::Vali
         buf_data.push_back('r');
       }
       buf_data.insert(buf_data.end(), unit_buf.begin(), unit_buf.end());
-
-      ++num_pos;
-      if(0 == num_pos % 100){
-        p_impl_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::DYNASTY, buf_data), nullptr);
-        buf_data.clear();
-      }
-
-      if(list_p_units.size() == num_pos){
-        buf_data.push_back('a');
-        buf_data.push_back('m');
-        buf_data.push_back('b');
-        buf_data.push_back('r');
-        std::vector<uint8_t>&& unit_buf = p_unit->SerializeByte();
-        buf_data.insert(buf_data.end(), unit_buf.begin(), unit_buf.end());
-        p_impl_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::DYNASTY, buf_data), nullptr);
-        buf_data.clear();
-      }
     }
+    buf_data.push_back('a');
+    buf_data.push_back('m');
+    buf_data.push_back('b');
+    buf_data.push_back('r');
   }
-  else{
-    std::vector<uint8_t>&& unit_buf = p_unit->SerializeByte();
-    buf_data.insert(buf_data.end(), unit_buf.begin(), unit_buf.end());
-    p_impl_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::DYNASTY, buf_data), nullptr);
-  }
+
+  std::vector<uint8_t>&& unit_buf = p_unit->SerializeByte();
+  buf_data.insert(buf_data.end(), unit_buf.begin(), unit_buf.end());
+  p_impl_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::DYNASTY, buf_data), nullptr);
 }
 
 void ambr::syn::SynManager::BoardCastNewJoinValidatorSetUnit(std::shared_ptr<core::EnterValidateSetUint> p_unit){
