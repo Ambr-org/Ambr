@@ -88,9 +88,9 @@ public:
   void SetOnDisconnect(const std::function<void(CNode*)>& func);
   void BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node);
   bool OnReceiveNode(const CNetMessage& netmsg, CNode* p_node);
-  void ReqDynasty(std::vector<uint8_t>& buf, CNode* p_node);
+  void ReqDynasty(const std::vector<uint8_t>& buf, CNode* p_node);
   void InitDynasty(const std::string& str_data, CNode* p_node);
-  void ReqAccountUnit(std::vector<uint8_t>& buf, CNode* p_node);
+  void ReqAccountUnit(const std::vector<uint8_t>& buf, CNode* p_node);
 
 
   void ReturnDynastyNo(CNode* p_node);
