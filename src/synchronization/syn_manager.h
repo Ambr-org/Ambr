@@ -62,11 +62,15 @@ public:
 };
 
 struct Node_Timers_t{
-  Node_Timers_t(boost::asio::io_service& io);
-  uint32_t reqdynastyno_;
-  uint32_t reqaccountunitno_;
-  boost::asio::deadline_timer accountunit_timer_;
+  Node_Timers_t();
+  bool reqdynastyno_;
+  bool reqaccountunitno_;
+  std::string str_validator_hash_;
+  std::string str_accountunit_hash_;
+  boost::asio::io_service dynasty_io_;
+  boost::asio::io_service accountunit_io_;
   boost::asio::deadline_timer dynasty_timer_;
+  boost::asio::deadline_timer accountunit_timer_;
 };
 
 class Impl{
@@ -88,9 +92,9 @@ public:
   void SetOnDisconnect(const std::function<void(CNode*)>& func);
   void BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node);
   bool OnReceiveNode(const CNetMessage& netmsg, CNode* p_node);
-  void ReqDynasty(const std::vector<uint8_t>& buf, CNode* p_node);
-  void InitDynasty(const std::string& str_data, CNode* p_node);
-  void ReqAccountUnit(const std::vector<uint8_t>& buf, CNode* p_node);
+  void ReqDynasty(const std::string& str_hash, size_t pos, CNode* p_node);
+  void InitDynasty(const std::string& str_hash, size_t pos, CNode* p_node);
+  void ReqAccountUnit(const std::string& str_hash, CNode* p_node);
 
 
   void ReturnDynastyNo(CNode* p_node);
@@ -122,11 +126,13 @@ private:
   Ptr_CScheduler p_scheduler;
   ambr::syn::SynState state_;
   boost::asio::io_service io_;
+  boost::threadpool::pool tpool_;
   Ptr_StoreManager p_storemanager_;
   std::list<CNode*> list_in_nodes_;
   std::list<CNode*> list_out_nodes_;
   std::list<Ptr_Unit> list_ptr_unit_;
   ambr::syn::SynManagerConfig config_;
+  ambr::core::UnitHash validator_hash_;
   boost::asio::deadline_timer dynastyno_timer_;
   Ptr_PeerLogicValidation p_peerLogicValidation_;
   std::map<CNode*, Node_Timers_t*> map_node_timer_;
