@@ -62,6 +62,8 @@
 #endif
 #endif
 
+#define BUFFER_SIZE 0x10000000
+
 /** Used to pass flags to the Bind() function */
 enum BindFlags {
     BF_NONE         = 0,
@@ -895,9 +897,7 @@ size_t CConnman::SocketSendData(CNode *pnode) const
             LOCK(pnode->cs_hSocket);
             if (pnode->hSocket == INVALID_SOCKET)
                 break;
-            nBytes = send(pnode->hSocket, reinterpret_cast<const char*>(data.data()) + pnode->nSendOffset, data.size() - pnode->nSendOffset, MSG_DONTWAIT);
-            /*if(nBytes>0)
-              std::cout<<std::dec<<data.size()<<","<<nBytes<<std::endl;*/
+            nBytes = send(pnode->hSocket, reinterpret_cast<const char*>(data.data()) + pnode->nSendOffset, data.size() - pnode->nSendOffset, MSG_WAITALL);
         }
         if (nBytes > 0) {
             pnode->nLastSend = GetSystemTimeInSeconds();
@@ -921,7 +921,7 @@ size_t CConnman::SocketSendData(CNode *pnode) const
                 {
                     LogPrintf("socket send error %s\n", NetworkErrorString(nErr));
                     pnode->CloseSocketDisconnect();
-                }
+                } std::cout << "socket send error:" << NetworkErrorString(nErr) << std::endl;
             }
             // couldn't send anything at all
             break;
@@ -1353,18 +1353,18 @@ void CConnman::ThreadSocketHandler()
             if (recvSet || errorSet)
             {
                 // typical socket buffer is 8K-64K
-                char pchBuf[0x10000] = {0};
+                memset(buffer_, 0, BUFFER_SIZE);
                 int nBytes = 0;
                 {
                     LOCK(pnode->cs_hSocket);
                     if (pnode->hSocket == INVALID_SOCKET)
                         continue;
-                    nBytes = recv(pnode->hSocket, pchBuf, sizeof(pchBuf), MSG_DONTWAIT);
+                    nBytes = recv(pnode->hSocket, buffer_, BUFFER_SIZE, MSG_DONTWAIT);
                 }
                 if (nBytes > 0)
                 {
                     bool notify = false;
-                    if (!pnode->ReceiveMsgBytes(pchBuf, nBytes, notify))
+                    if (!pnode->ReceiveMsgBytes(buffer_, nBytes, notify))
                         pnode->CloseSocketDisconnect();
                     RecordBytesRecv(nBytes);
                     if (notify) {
@@ -2224,7 +2224,7 @@ void CConnman::SetNetworkActive(bool active)
 
 }
 
-CConnman::CConnman(uint64_t nSeed0In, uint64_t nSeed1In) : nSeed0(nSeed0In), nSeed1(nSeed1In)
+CConnman::CConnman(uint64_t nSeed0In, uint64_t nSeed1In) : nSeed0(nSeed0In), nSeed1(nSeed1In), buffer_(new char[BUFFER_SIZE])
 {
     fNetworkActive = true;
     setBannedIsDirty = false;

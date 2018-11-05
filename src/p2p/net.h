@@ -469,6 +469,7 @@ private:
 
     std::atomic<int64_t> m_next_send_inv_to_incoming{0};
     friend struct CConnmanTest;
+    char* buffer_;
 };
 
 void Discover();
