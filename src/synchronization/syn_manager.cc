@@ -32,8 +32,8 @@
 //8. 带宽太窄， 发布出去， 直接丢掉
 
 ambr::syn::Node_Timers_t::Node_Timers_t()
-  : reqdynastyno_(false)
-  , reqaccountunitno_(false)
+  : num_dynastyno_(0)
+  , num_accountunitno_(0)
   , dynasty_timer_(dynasty_io_, boost::posix_time::seconds(1))
   , accountunit_timer_(accountunit_io_, boost::posix_time::seconds(1)){
 }
@@ -178,32 +178,6 @@ bool ambr::syn::Impl::Init(const SynManagerConfig &config){
   connOptions.DoDisConnect = std::bind(&ambr::syn::Impl::OnDisConnectNode, this, std::placeholders::_1);
   connOptions.DoReceiveNewMsg = std::bind(&ambr::syn::Impl::OnReceiveNode, this,std::placeholders::_1, std::placeholders::_2);
   return ambr::p2p::init(std::move(connOptions));
-
-  /*struct in_addr addr_;
-  std::string str_seed = config.vec_seed_.at(0);
-  size_t num_pos = str_seed.find(":");
-  std::string&& str_IP = str_seed.substr(0, num_pos);
-  std::string&& str_port = str_seed.substr(num_pos + 1, str_seed.size());
-  auto s =inet_pton(AF_INET, str_IP.c_str(), &addr_);
-  if(1 != s){
-    return false;
-  }
-
-  std::vector<CAddress> addrs;
-  int num_port = atoi(str_port.c_str());
-  CAddress addr(CService(addr_ , num_port), NODE_NONE);
-  addrs.push_back(addr);
-
-  p_cconnman_->AddNewAddresses(addrs, CAddress());
-
-  if(p_cconnman_->Start(*p_scheduler.get(), connOptions)){
-    WaitForShutdown();
-  }
-  else{
-    p_cconnman_->Interrupt();
-  }
-  Shutdown();
-  return true;*/
 }
 
 void ambr::syn::Impl::SendMessage(CSerializedNetMsg&& msg, CNode* p_node){
@@ -288,23 +262,20 @@ bool ambr::syn::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode* p_node){
     return true;
 }
 
-void ambr::syn::Impl::ReqDynasty(const std::string& str_hash, size_t pos, CNode* p_node){
-  size_t counter = 0;
-  auto it = map_node_timer_.find(p_node);
-  if(map_node_timer_.end() != it){
-    Node_Timers_t* p_timers = it->second;
-    while(p_timers && p_timers->reqdynastyno_){
-      sleep(5);
-      ++counter;
-      if(4 <= counter){
-        LOG(INFO) << "cancel dynasty timer: " << str_hash << ", " << counter;
-        return;
-      }
-      else{
-        std::stringstream ss; ss << pos << "ambr";
-        LOG(INFO) << "Req dynasty: " << str_hash << ", " << counter;;
-        SendMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::REQUESTDYNASTY, ss.str() + str_hash), p_node);
-      }
+void ambr::syn::Impl::ReqDynasty(const std::string& str_hash, CNode* p_node, Node_Timers_t* p_timers_){
+  if(p_timers_){
+    if(3 <= p_timers_->num_dynastyno_++){
+      p_timers_->num_dynastyno_ = 0;
+      p_timers_->dynasty_timer_.cancel();
+      LOG(INFO) << "cancel dynasty timer: " << str_hash;
+    }
+    else{
+      std::stringstream ss;
+      ss << "endambr";
+      LOG(INFO) << "Req dynasty: " << ss.str() + str_hash << ", " << p_timers_->num_dynastyno_;
+      SendMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::REQUESTDYNASTY, ss.str() + str_hash), p_node);
+      p_timers_->dynasty_timer_.expires_at(p_timers_->dynasty_timer_.expires_at() + boost::posix_time::milliseconds(2000));
+      p_timers_->dynasty_timer_.async_wait(boost::bind(&ambr::syn::Impl::ReqDynasty, this, str_hash, p_node, p_timers_));
     }
   }
   else{
@@ -320,26 +291,31 @@ void ambr::syn::Impl::InitDynasty(const std::string& str_hash, size_t pos, CNode
     SendMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::REQUESTDYNASTY, ss.str() + str_hash), p_node);
     LOG(INFO) << "to init dynasty: "  << ", " << str_hash;
 
-    /*p_timers->dynasty_io_.reset();
-    p_timers->str_validator_hash_ = str_data;
-    p_timers->dynasty_timer_.async_wait(std::bind(&ambr::syn::Impl::ReqDynasty, this, str_data, p_node));
-    p_timers->dynasty_io_.run();*/
-    p_timers->reqdynastyno_ = true;
-    tpool_.schedule(std::bind(&ambr::syn::Impl::ReqDynasty, this, str_hash, pos, p_node));
+    if(p_timers){
+      p_timers->num_dynastyno_ = 0;
+      p_timers->str_validator_hash_ = str_hash;
+      p_timers->dynasty_timer_.async_wait(std::bind(&ambr::syn::Impl::ReqDynasty, this, str_hash, p_node, p_timers));
+      p_timers->dynasty_io_.run();
+    }
   }
 }
 
-void ambr::syn::Impl::ReqAccountUnit(const std::string& str_hash, CNode* p_node){
-  auto it = map_node_timer_.find(p_node);
-  if(map_node_timer_.end() != it){
-    Node_Timers_t* p_timers = it->second;
-    if(false == p_timers->reqaccountunitno_){
-      p_timers->reqaccountunitno_ = true;
-      p_timers->accountunit_timer_.cancel();
+void ambr::syn::Impl::ReqAccountUnit(const std::string& str_hash, CNode* p_node, Node_Timers_t* p_timers_){
+  if(p_timers_){
+    if(3 <= p_timers_->num_accountunitno_++){
+      p_timers_->num_accountunitno_ = 0;
+      p_timers_->accountunit_timer_.cancel();
+      LOG(INFO) << "cancel account timer: " << str_hash;
     }
     else{
+      LOG(INFO) << "Req dynasty: " << str_hash << ", " << p_timers_->num_accountunitno_;
       SendMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::REQUESTACCOUNTUNIT, str_hash), p_node);
+      p_timers_->accountunit_timer_.expires_at(p_timers_->accountunit_timer_.expires_at() + boost::posix_time::milliseconds(2000));
+      p_timers_->accountunit_timer_.async_wait(std::bind(&ambr::syn::Impl::ReqAccountUnit, this, str_hash, p_node, p_timers_));
     }
+  }
+  else{
+    LOG(INFO) << "no acccount timer: " << str_hash;
   }
 }
 
@@ -375,18 +351,18 @@ void ambr::syn::Impl::ReceiveUnit(const Ptr_Unit& p_unit, CNode* p_node){
       //LOG(INFO) << "accountunit: " << p_unit->hash().encode_to_hex();
 
       if(!p_unit->prev_unit().is_zero() && nullptr == p_storemanager_->GetUnit(p_unit->prev_unit())){
-        /*ambr::core::UnitHash hash;
+        ambr::core::UnitHash hash;
         p_storemanager_->GetLastUnitHashByPubKey(p_unit->public_key(), hash);
         std::string&& str_hash = hash.encode_to_hex();
 
-        LOG(INFO) << "to request account unit: " ;
+        LOG(INFO) << "to request account unit: " << str_hash;
         SendMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::REQUESTACCOUNTUNIT, str_hash), p_node);
         if(p_timers){
-          p_timers->accountunit_io_.reset();
+          p_timers->num_accountunitno_ = 0;
           p_timers->str_accountunit_hash_ = str_hash;
-          p_timers->accountunit_timer_.async_wait(std::bind(&ambr::syn::Impl::ReqAccountUnit, this, str_hash, p_node));
+          p_timers->accountunit_timer_.async_wait(std::bind(&ambr::syn::Impl::ReqAccountUnit, this, str_hash, p_node, p_timers));
           p_timers->accountunit_io_.run();
-        }*/
+        }
       }
       else{
 
@@ -549,13 +525,10 @@ bool ambr::syn::Impl::ReceiveValidatorUnit(const Ptr_Unit& p_unit, CNode* p_node
           auto it = map_node_timer_.find(p_node);
           if(map_node_timer_.end() != it){
             Node_Timers_t* p_timers = it->second;
-            /*p_timers->dynasty_io_.reset();
-            p_timers->str_validator_hash_ = p_unit->hash().encode_to_hex();
-            p_timers->dynasty_timer_.async_wait(std::bind(&ambr::syn::Impl::ReqDynasty, this, p_unit->hash().encode_to_hex(), p_node));
-            p_timers->dynasty_io_.run();*/
             if(p_timers){
-              p_timers->reqdynastyno_ = true;
-              tpool_.schedule(std::bind(&ambr::syn::Impl::ReqDynasty, this, p_unit->hash().encode_to_hex(), 0, p_node));
+              p_timers->num_dynastyno_ = 0;
+              p_timers->dynasty_timer_.async_wait(std::bind(&ambr::syn::Impl::ReqDynasty, this, p_unit->hash().encode_to_hex(), p_node, p_timers));
+              p_timers->dynasty_io_.run();
             }
           }
 
@@ -579,74 +552,71 @@ bool ambr::syn::Impl::ReceiveValidatorUnit(const Ptr_Unit& p_unit, CNode* p_node
 void ambr::syn::Impl::ReceiveDynasty(const std::vector<uint8_t>& buf, CNode* p_node){
   if(0 < buf.size()){
     std::vector<uint8_t> buf_data;
-    std::string str_hash, str_data;
+    std::string str_hash, str_data = "end";
     LOG(INFO) << "dynasty begin: ";
-    auto first = buf.begin(); int i = 0;int length = 0;
+    int i = 0;int length = 0;
     for(auto it = buf.begin(); buf.end() > it; it += length){
-      //if(('a' == *it && 'm' == *(it + 1) && 'b' == *(it + 2) && 'r' == *(it + 3)) || buf.end() == it)
-        length = *it++ * pow(2, 24) + *it++ * pow(2, 16) + *it++ * pow(2, 8) + *it++;
+      length = *it++ * pow(2, 24) + *it++ * pow(2, 16) + *it++ * pow(2, 8) + *it++;
 
-        buf_data.clear();
-        buf_data.assign(it ,it + length);
-        LOG(INFO) << "create unit begin ";
-        std::shared_ptr<ambr::core::Unit> p_unit = ambr::core::Unit::CreateUnitByByte(buf_data);
-        LOG(INFO) << "create unit end ";
-        if(p_unit && ambr::core::UnitType::Validator == p_unit->type()){
-          str_hash = p_unit->hash().encode_to_hex();
+      buf_data.clear();
+      buf_data.assign(it ,it + length);
+      std::shared_ptr<ambr::core::Unit> p_unit = ambr::core::Unit::CreateUnitByByte(buf_data);
+      if(p_unit && ambr::core::UnitType::Validator == p_unit->type()){
+       str_hash = p_unit->hash().encode_to_hex();
 
-          auto it_map = map_node_timer_.find(p_node);
-          if(map_node_timer_.end() != it_map){
-            Node_Timers_t* p_timers = it_map->second;
-            if(p_timers && p_unit->prev_unit().encode_to_hex() == p_timers->str_validator_hash_){
-              p_timers->reqdynastyno_ = false;
-              LOG(INFO) << "cancel dynasty timer: " << p_unit->prev_unit().encode_to_hex();
-            }
+        auto it_map = map_node_timer_.find(p_node);
+        if(map_node_timer_.end() != it_map){
+          Node_Timers_t* p_timers = it_map->second;
+          if(p_timers && p_unit->prev_unit().encode_to_hex() == p_timers->str_validator_hash_){
+            p_timers->dynasty_timer_.cancel();
+            LOG(INFO) << "cancel dynasty timer: " << p_unit->prev_unit().encode_to_hex();
           }
+        }
 
-          LOG(INFO) << "dynasty validatorunit: "  << ", " << str_hash;
-          if(!p_storemanager_->GetValidateUnit(p_unit->hash()) && p_storemanager_->GetValidateUnit(p_unit->prev_unit())){
-            p_storemanager_->AddUnitToBuffer(p_unit, (void*)p_node);
-            if(buf.end() == it){
-              str_hash = "ambr" + str_hash;
+      LOG(INFO) << "dynasty validatorunit: "  << ", " << str_hash;
+        if(!p_storemanager_->GetValidateUnit(p_unit->hash()) && p_storemanager_->GetValidateUnit(p_unit->prev_unit())){
+          p_storemanager_->AddUnitToBuffer(p_unit, (void*)p_node);
+          if(buf.end() == it){
+            str_hash = "ambr" + str_hash;
+            SendMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::REQUESTDYNASTY, str_data + str_hash), p_node);
+            LOG(INFO) << "request dynasty: " << str_data + str_hash;
+          }
+        }
+        else if(!p_storemanager_->GetValidateUnit(p_unit->prev_unit())){
+          std::shared_ptr<ambr::store::ValidatorUnitStore> p_unitstore = p_storemanager_->GetLastestValidateUnit();
+          if(p_unitstore){
+            std::shared_ptr<ambr::core::Unit> p_val_unit = p_unitstore->GetUnit();
+            if(p_val_unit){
+              str_hash = "ambr" + p_val_unit->hash().encode_to_hex();
               SendMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::REQUESTDYNASTY, str_data + str_hash), p_node);
-              LOG(INFO) << "request dynasty: " << str_data + str_hash;
+              LOG(INFO) << "dynasty return1: " << str_data + str_hash;
+              return;
             }
           }
-          else if(!p_storemanager_->GetValidateUnit(p_unit->prev_unit())){
-            std::shared_ptr<ambr::store::ValidatorUnitStore> p_unitstore = p_storemanager_->GetLastestValidateUnit();
-            if(p_unitstore){
-              std::shared_ptr<ambr::core::Unit> p_val_unit = p_unitstore->GetUnit();
-              if(p_val_unit){
-                str_hash = "ambr" + p_val_unit->hash().encode_to_hex();
-                SendMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::REQUESTDYNASTY, str_data + str_hash), p_node);
-                LOG(INFO) << "dynasty return1: " << str_data + str_hash;
-                return;
-              }
-            }
+        }
+        else if(p_storemanager_->GetValidateUnit(p_unit->hash())){
+          LOG(INFO) << "dynasty return2: " << str_hash;
+          return;
+        }
+      }
+      else if(p_unit){
+          LOG(INFO) << "dynasty accountunit: " << p_unit->hash().encode_to_hex() << ": " << i;
+          p_storemanager_->AddUnitToBuffer(p_unit, (void*)p_node);
+          LOG(INFO) << "dynasty accountunit: " << p_unit->hash().encode_to_hex() << ": " << ++i;
+          if(buf.end() == it + length){
+            str_hash = "ambr" + str_hash;
+            SendMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::REQUESTDYNASTY, str_data + str_hash), p_node);
+            LOG(INFO) << "invalidate unit: " << str_data + str_hash;
           }
-          else if(p_storemanager_->GetValidateUnit(p_unit->hash())){
-            LOG(INFO) << "dynasty return2: " << str_hash;
-            return;
-          }
-        }
-        else if(p_unit){
-            LOG(INFO) << "dynasty accountunit: " << p_unit->hash().encode_to_hex() << ": " << i;
-            p_storemanager_->AddUnitToBuffer(p_unit, (void*)p_node);
-            LOG(INFO) << "dynasty accountunit: " << p_unit->hash().encode_to_hex() << ": " << ++i;
-            if(buf.end() == it + length){
-              str_hash = "ambr" + str_hash;
-              SendMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::REQUESTDYNASTY, str_data + str_hash), p_node);
-              LOG(INFO) << "invalidate unit: " << str_data + str_hash;
-            }
-        }
-        else if(buf.begin() + 4 == it)
-        {
-           str_data.assign(buf_data.begin(), buf_data.end());
-        }
-        else
-        {
-           LOG(INFO) << "invalidate unit: " << str_hash << ", " << ++i;
-        }
+      }
+      else if(buf.begin() + 4 == it)
+      {
+         str_data.assign(buf_data.begin(), buf_data.end());
+      }
+      else
+      {
+         LOG(INFO) << "invalidate unit: " << str_hash << ", " << ++i;
+      }
     }
     LOG(INFO) << "dynasty end: ";
   }
@@ -674,7 +644,7 @@ void ambr::syn::Impl::ReceiveNoDynasty(const std::string& strTmp, CNode* p_node)
 }
 
 void ambr::syn::Impl::ReturnDynasty(const std::vector<uint8_t>& buf, CNode* p_node){
-    int num = 0;
+    size_t num = 0;
     std::string str_error, str_data;
     str_data.assign(buf.begin(), buf.end());
     ambr::core::UnitHash in_hash, out_hash;
@@ -684,16 +654,10 @@ void ambr::syn::Impl::ReturnDynasty(const std::vector<uint8_t>& buf, CNode* p_no
     std::string str_begin = str_data.substr(0, pos);
 
     in_hash.decode_from_hex(str_hash);
-    if("end" == str_begin){
-      if(!p_storemanager_->GetNextValidatorHashByHash(in_hash, out_hash, &str_error)){
-        return;
-      }
+    if(!p_storemanager_->GetNextValidatorHashByHash(in_hash, out_hash, &str_error)){
+      return;
     }
-    else{
-        out_hash = in_hash;
-        num = atoi(str_begin.c_str());
-        num = (0 < num) ? num : 0;
-    }
+
     LOG(INFO) << "in hash:"  << in_hash.encode_to_hex() << "out hash:"  << out_hash.encode_to_hex() << ", begin: " << str_begin << ", num: " <<num;
     if(p_storemanager_->GetValidateUnit(in_hash)){
         std::shared_ptr<ambr::store::ValidatorUnitStore> p_unitstore = p_storemanager_->GetValidateUnit(out_hash);
@@ -714,10 +678,6 @@ void ambr::syn::Impl::ReturnDynasty(const std::vector<uint8_t>& buf, CNode* p_no
               LOG(INFO) << "return dynasty begin:"  << in_hash.encode_to_hex();
               for(auto it : list_p_units){
                 if(num < ++counter){
-                  /*buf_data.push_back('a');
-                  buf_data.push_back('m');
-                  buf_data.push_back('b');
-                  buf_data.push_back('r');*/
                   std::vector<uint8_t>&& vec_unit = it->SerializeByte();
                   int length = vec_unit.size();
                   buf_data.push_back((uint8_t)((length >> 24)& 0xff));
@@ -725,22 +685,14 @@ void ambr::syn::Impl::ReturnDynasty(const std::vector<uint8_t>& buf, CNode* p_no
                   buf_data.push_back((uint8_t)((length >> 8)& 0xff));
                   buf_data.push_back((uint8_t)(length& 0xff));
                   buf_data.insert(buf_data.end(), vec_unit.begin(), vec_unit.end());
-                  if(0 == counter % 10000){
-                    break;
-                  }
                 }
               }
             }
 
             std::stringstream ss;
-            if(0 == counter % 10000 && 0 < counter){
-              ss.str("");
-              ss << counter;
-            }
-            else{
-              ss.str("");
-              ss << "end";
-            }
+            ss.str("");
+            ss << "end";
+
             std::string&& str_tmp = ss.str();
             uint32_t len_str = str_tmp.size();
             buf_data.insert(buf_data.begin(), str_tmp.begin(), str_tmp.end());

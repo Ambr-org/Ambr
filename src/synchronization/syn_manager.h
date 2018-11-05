@@ -63,8 +63,8 @@ public:
 
 struct Node_Timers_t{
   Node_Timers_t();
-  bool reqdynastyno_;
-  bool reqaccountunitno_;
+  size_t num_dynastyno_;
+  size_t num_accountunitno_;
   std::string str_validator_hash_;
   std::string str_accountunit_hash_;
   boost::asio::io_service dynasty_io_;
@@ -92,9 +92,9 @@ public:
   void SetOnDisconnect(const std::function<void(CNode*)>& func);
   void BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node);
   bool OnReceiveNode(const CNetMessage& netmsg, CNode* p_node);
-  void ReqDynasty(const std::string& str_hash, size_t pos, CNode* p_node);
+  void ReqDynasty(const std::string& str_hash, CNode* p_node, Node_Timers_t* p_timers_);
   void InitDynasty(const std::string& str_hash, size_t pos, CNode* p_node);
-  void ReqAccountUnit(const std::string& str_hash, CNode* p_node);
+  void ReqAccountUnit(const std::string& str_hash, CNode* p_node, Node_Timers_t* p_timers_);
 
 
   void ReturnDynastyNo(CNode* p_node);
