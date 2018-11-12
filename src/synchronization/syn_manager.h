@@ -73,74 +73,7 @@ struct Node_Timers_t{
   boost::asio::deadline_timer accountunit_timer_;
 };
 
-class Impl{
-public:
-  Impl(Ptr_StoreManager p_store_manager);
 
-  void ReqDynastyNo();
-  void InitDynastyNo();
-  uint32_t GetNodeCount();
-  void AddListInNode(CNode *pnode);
-  bool GetIfPauseSend(const std::string &addr);
-  bool GetIfPauseReceive(const std::string &addr);
-  void RemoveNode(CNode* p_node, uint32_t second);
-  bool UnSerialize(std::vector<uint8_t>& vec_bytes);
-  bool Init(const ambr::syn::SynManagerConfig& config);
-  void SendMessage(CSerializedNetMsg&& msg, CNode* p_node);
-  void SetOnAccept(const std::function<void(CNode*)>& func);
-  void SetOnConnected(const std::function<void(CNode*)>& func);
-  void SetOnDisconnect(const std::function<void(CNode*)>& func);
-  void BoardcastMessage(CSerializedNetMsg&& msg, CNode* p_node);
-  bool OnReceiveNode(const CNetMessage& netmsg, CNode* p_node);
-  void ReqDynasty(const std::string& str_hash, CNode* p_node, Node_Timers_t* p_timers_);
-  void InitDynasty(const std::string& str_hash, size_t pos, CNode* p_node);
-  void ReqAccountUnit(const std::string& str_hash, CNode* p_node, Node_Timers_t* p_timers_);
-
-
-  void ReturnDynastyNo(CNode* p_node);
-  void ReceiveUnit(const Ptr_Unit& p_unit, CNode* p_node);
-  void ReceiveDynastyNo(const uint64_t& num, CNode* p_node);
-  void ReturnUnit(const std::vector<uint8_t>& buf, CNode* p_node);
-  bool ReceiveValidatorUnit(const Ptr_Unit& p_unit, CNode* p_node);
-  void ReceiveDynasty(const std::vector<uint8_t>& buf, CNode* p_node);
-  void ReceiveNoDynasty(const std::string& strTmp, CNode* p_node);
-  void ReturnDynasty(const std::vector<uint8_t>& buf, CNode* p_node);
-
-private:
-  void Shutdown();
-  void WaitForShutdown();
-
-public:
-  void OnAcceptNode(CNode* p_node);
-  void OnConnectNode(CNode* p_node);
-  void OnDisConnectNode(CNode* p_node);
-
-private:
-  bool exit_;
-  uint64_t num_dyn_no_;
-  uint64_t num_node_no_;
-  CNode* p_max_no_node_;
-  uint32_t reqdynastyno_;
-  std::mutex state_mutex_;
-  Ptr_CConnman p_cconnman_;
-  Ptr_CScheduler p_scheduler;
-  ambr::syn::SynState state_;
-  boost::asio::io_service io_;
-  boost::threadpool::pool tpool_;
-  Ptr_StoreManager p_storemanager_;
-  std::list<CNode*> list_in_nodes_;
-  std::list<CNode*> list_out_nodes_;
-  std::list<Ptr_Unit> list_ptr_unit_;
-  ambr::syn::SynManagerConfig config_;
-  ambr::core::UnitHash validator_hash_;
-  boost::asio::deadline_timer dynastyno_timer_;
-  Ptr_PeerLogicValidation p_peerLogicValidation_;
-  std::map<CNode*, Node_Timers_t*> map_node_timer_;
-
-  std::function<void(CNode*)> on_accept_node_func_;
-  std::function<void(CNode*)> on_connect_node_func_;
-  std::function<void(CNode*)> on_disconnect_node_func_;
-};
 
 class SynManager{
 public:
@@ -165,7 +98,8 @@ public:
 
   bool GetNodeIfPauseSend(const std::string& node_addr);
   bool GetNodeIfPauseReceive(const std::string& node_addr);
-
+public:
+  class Impl;
 private:
   Impl* p_impl_;
   std::mutex state_mutex_;

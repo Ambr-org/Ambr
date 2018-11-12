@@ -99,7 +99,7 @@ set(PROTO_SRC
 
 
 add_custom_command(OUTPUT ${CUR_DIR}/src/proto/unit.pb.cc ${CUR_DIR}/src/proto/unit.pb.h
-  COMMAND ../../libs/grpc/bins/opt/protobuf/protoc  --cpp_out=. unit.proto
+  COMMAND ${CUR_DIR}/libs/grpc/third_party/protobuf/src/.libs/protoc  --cpp_out=. unit.proto
   WORKING_DIRECTORY ${CUR_DIR}/src/proto/
   DEPENDS ${CUR_DIR}/src/proto/unit.proto)
 
@@ -112,12 +112,12 @@ set(RPC_SRC
   ${CUR_DIR}/src/rpc/rpc_server.h
   )
 add_custom_command(OUTPUT ${CUR_DIR}/src/rpc/rpc.grpc.pb.cc ${CUR_DIR}/src/rpc/rpc.grpc.pb.h
-  COMMAND ../../libs/grpc/bins/opt/protobuf/protoc  --grpc_out=. --plugin=protoc-gen-grpc=../../libs/grpc/bins/opt/grpc_cpp_plugin rpc.proto
+  COMMAND ${CUR_DIR}/libs/grpc/third_party/protobuf/src/.libs/protoc  --grpc_out=. --plugin=protoc-gen-grpc=${CUR_DIR}/libs/grpc/bins/opt/grpc_cpp_plugin rpc.proto
   WORKING_DIRECTORY ${CUR_DIR}/src/rpc/
   DEPENDS ${CUR_DIR}/src/rpc/rpc.proto)
 
 add_custom_command(OUTPUT ${CUR_DIR}/src/rpc/rpc.pb.cc ${CUR_DIR}/src/rpc/rpc.pb.h
-  COMMAND ../../libs/grpc/bins/opt/protobuf/protoc  --cpp_out=. rpc.proto
+  COMMAND ${CUR_DIR}/libs/grpc/third_party/protobuf/src/.libs/protoc  --cpp_out=. rpc.proto
   WORKING_DIRECTORY ${CUR_DIR}/src/rpc/
   DEPENDS ${CUR_DIR}/src/rpc/rpc.proto)
 
