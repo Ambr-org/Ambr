@@ -42,7 +42,7 @@ class CScheduler;
 class CNode;
 
 /** Time between pings automatically sent out for latency probing and keepalive (in seconds). */
-static const int PING_INTERVAL = 2 * 60;
+static const int PING_INTERVAL = 1;
 /** Time after which to disconnect, after waiting for a ping response (or inactivity). */
 static const int TIMEOUT_INTERVAL = 20 * 60;
 /** Run the feeler connection loop once every 2 minutes or 120 seconds. **/
@@ -157,9 +157,11 @@ public:
         std::function<void(CNode*)> DoConnect;
         std::function<void(CNode*)> DoDisConnect;
         std::function<bool(const CNetMessage& netmsg, CNode* p_node)> DoReceiveNewMsg;
+        std::function<uint64_t()> DoGetLastNonce;
     };
 
     void Init(const Options& connOptions) {
+        option = connOptions;
         nLocalServices = connOptions.nLocalServices;
         nMaxConnections = connOptions.nMaxConnections;
         nMaxOutbound = std::min(connOptions.nMaxOutbound, connOptions.nMaxConnections);
@@ -190,6 +192,8 @@ public:
     bool GetNetworkActive() const;
     void SetNetworkActive(bool active);
     std::vector<CNode*>& GetVectorNodes();
+
+    Options GetOptions(){return option;}
 
     void OpenNetworkConnection(const CAddress& addrConnect, bool fCountFailure, CSemaphoreGrant *grantOutbound = nullptr, const char *strDest = nullptr, bool fOneShot = false, bool fFeeler = false, bool manual_connection = false);
     bool CheckIncomingNonce(uint64_t nonce);
@@ -470,6 +474,7 @@ private:
     std::atomic<int64_t> m_next_send_inv_to_incoming{0};
     friend struct CConnmanTest;
     char* buffer_;
+    Options option;
 };
 
 void Discover();
@@ -757,6 +762,7 @@ public:
     // Minimum fee rate with which to filter inv's to this node
     CCriticalSection cs_feeFilter;
     int64_t nextSendTimeFeeFilter;
+    std::atomic<int64_t> latest_nonce;
 
     CNode(NodeId id, ServiceFlags nLocalServicesIn, int nMyStartingHeightIn, SOCKET hSocketIn, const CAddress &addrIn, uint64_t nKeyedNetGroupIn, uint64_t nLocalHostNonceIn, const CAddress &addrBindIn, const std::string &addrNameIn = "", bool fInboundIn = false);
     ~CNode();

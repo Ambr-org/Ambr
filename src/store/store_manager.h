@@ -54,6 +54,7 @@ public:
       callback);
 
   bool GetLastValidateUnit(core::UnitHash& hash);
+  utils::uint64 GetLastValidateUnitNonce();
   //get next validator hash for syn
   core::UnitHash GetNextValidatorHash(const core::UnitHash& hash);
   // get all unit validated by which validator unit hash is 'hash'
@@ -143,6 +144,7 @@ public:
   std::shared_ptr<LeaveValidatorSetUnitStore> GetLeaveValidatorSetUnit(const core::UnitHash& hash);
   std::list<std::shared_ptr<core::VoteUnit>> GetVoteList();
   bool GetValidatorIncome(const core::PublicKey& pub_key, ValidatorBalanceStore& out);
+
 public:
   //could rm not final confirmation unit
   //all unit that depend on this unit will be removed too.

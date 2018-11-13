@@ -246,6 +246,7 @@ bool ambr::syn::SynManager::Impl::Init(const SynManagerConfig &config){
   connOptions.DoConnect = std::bind(&ambr::syn::SynManager::Impl::OnConnectNode, this, std::placeholders::_1);
   connOptions.DoDisConnect = std::bind(&ambr::syn::SynManager::Impl::OnDisConnectNode, this, std::placeholders::_1);
   connOptions.DoReceiveNewMsg = std::bind(&ambr::syn::SynManager::Impl::OnReceiveNode, this,std::placeholders::_1, std::placeholders::_2);
+  connOptions.DoGetLastNonce = std::bind(&ambr::store::StoreManager::GetLastValidateUnitNonce, p_storemanager_);
   return ambr::p2p::init(std::move(connOptions));
 }
 
@@ -324,6 +325,9 @@ bool ambr::syn::SynManager::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode
 
       UnSerialize(buf);
       return ReceiveValidatorUnit(ambr::core::Unit::CreateUnitByByte(buf), p_node);
+    }
+    else if(NetMsgType::PING == tmp || NetMsgType::PONG==tmp){
+      //LOG(INFO)<<"recieve ping or pong,nonce is "<<nonce;
     }
     else{
       //thread_pool_.schedule(boost::bind(on_receive_node_func_, msg, p_node));

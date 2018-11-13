@@ -1025,6 +1025,14 @@ bool ambr::store::StoreManager::GetLastValidateUnit(core::UnitHash& hash){
   return true;
 }
 
+ambr::utils::uint64 ambr::store::StoreManager::GetLastValidateUnitNonce(){
+  std::shared_ptr<core::ValidatorUnit> validator_unit = std::dynamic_pointer_cast<core::ValidatorUnit>(GetLastestValidateUnit()->GetUnit());
+  while(!validator_unit->Validate(nullptr)){
+    validator_unit = std::dynamic_pointer_cast<core::ValidatorUnit>(GetValidateUnit(validator_unit->prev_unit()));
+  }
+  return validator_unit->nonce();
+}
+
 ambr::core::UnitHash ambr::store::StoreManager::GetNextValidatorHash(const ambr::core::UnitHash &hash){
   std::shared_ptr<ambr::store::ValidatorUnitStore> unit_store = GetValidateUnit(hash);
   if(unit_store){
