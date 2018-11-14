@@ -28,12 +28,12 @@ TEST (ValidatorTest, JoinValidator) {
   std::cout<<"<ValidatorTest.JoinValidator>:user1 first enter test"<<std::endl;
   EXPECT_FALSE(manager->JoinValidatorSet(validator_pri[0], ambr::store::StoreManager::GetMinValidatorBalance(), &test_hash, added_unit, &err));
   EXPECT_TRUE(manager->JoinValidatorSet(validator_pri[0],
-    ambr::store::StoreManager::GetMinValidatorBalance()+ambr::core::EnterValidateSetUint().GetFeeSize()*ambr::store::StoreManager::GetTransectionFeeBase(),
+    ambr::store::StoreManager::GetMinValidatorBalance()+ambr::core::EnterValidateSetUnit().GetFeeSize()*ambr::store::StoreManager::GetTransectionFeeBase(),
     &test_hash, added_unit, &err));
   //twice enter validator set
   std::cout<<"<ValidatorTest.JoinValidator>:user1 twice enter test"<<std::endl;
   EXPECT_FALSE(manager->JoinValidatorSet(validator_pri[0],
-    ambr::store::StoreManager::GetMinValidatorBalance()+ambr::core::EnterValidateSetUint().GetFeeSize()*ambr::store::StoreManager::GetTransectionFeeBase(),
+    ambr::store::StoreManager::GetMinValidatorBalance()+ambr::core::EnterValidateSetUnit().GetFeeSize()*ambr::store::StoreManager::GetTransectionFeeBase(),
     &test_hash, added_unit, &err));
 
 

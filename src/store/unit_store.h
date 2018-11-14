@@ -16,8 +16,8 @@ namespace core{
   class Unit;
   class SendUnit;
   class ReceiveUnit;
-  class EnterValidateSetUint;
-  class LeaveValidateSetUint;
+  class EnterValidateSetUnit;
+  class LeaveValidateSetUnit;
 }
 namespace store{
 
@@ -110,9 +110,9 @@ private:
 
 class EnterValidatorSetUnitStore:public UnitStore{
 public:
-  EnterValidatorSetUnitStore(std::shared_ptr<core::EnterValidateSetUint> unit = nullptr);
+  EnterValidatorSetUnitStore(std::shared_ptr<core::EnterValidateSetUnit> unit = nullptr);
 public:
-  std::shared_ptr<core::EnterValidateSetUint> unit();
+  std::shared_ptr<core::EnterValidateSetUnit> unit();
 public:
   virtual std::string SerializeJson() const override;
   virtual bool DeSerializeJson(const std::string& json) override;
@@ -120,15 +120,15 @@ public:
   virtual bool DeSerializeByte(const std::vector<uint8_t>& buf) override;
   virtual std::shared_ptr<ambr::core::Unit> GetUnit() override;
 private:
-  std::shared_ptr<core::EnterValidateSetUint> unit_;
+  std::shared_ptr<core::EnterValidateSetUnit> unit_;
 };
 
 
 class LeaveValidatorSetUnitStore:public UnitStore{
 public:
-  LeaveValidatorSetUnitStore(std::shared_ptr<core::LeaveValidateSetUint> unit = nullptr);
+  LeaveValidatorSetUnitStore(std::shared_ptr<core::LeaveValidateSetUnit> unit = nullptr);
 public:
-  std::shared_ptr<core::LeaveValidateSetUint> unit();
+  std::shared_ptr<core::LeaveValidateSetUnit> unit();
 public:
   virtual std::string SerializeJson() const override;
   virtual bool DeSerializeJson(const std::string& json) override;
@@ -136,7 +136,7 @@ public:
   virtual bool DeSerializeByte(const std::vector<uint8_t>& buf) override;
   virtual std::shared_ptr<ambr::core::Unit> GetUnit() override;
 private:
-  std::shared_ptr<core::LeaveValidateSetUint> unit_;
+  std::shared_ptr<core::LeaveValidateSetUnit> unit_;
 };
 
 class ValidatorItem{

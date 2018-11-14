@@ -269,7 +269,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
    <item>
     <widget class="QTabWidget" name="tabMain">
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="tab_7">
       <attribute name="title">
@@ -691,7 +691,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                       <property name="geometry">
                        <rect>
                         <x>0</x>
-                        <y>-60</y>
+                        <y>0</y>
                         <width>579</width>
                         <height>586</height>
                        </rect>
@@ -1290,7 +1290,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                      <rect>
                       <x>0</x>
                       <y>0</y>
-                      <width>599</width>
+                      <width>176</width>
                       <height>1420</height>
                      </rect>
                     </property>
@@ -2471,42 +2471,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
             </layout>
            </item>
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_77">
-             <item>
-              <layout class="QVBoxLayout" name="verticalLayout_27">
-               <item>
-                <widget class="QLabel" name="label_21">
-                 <property name="text">
-                  <string>Connection In</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QTableWidget" name="tbP2PConnectionIn">
-                 <column>
-                  <property name="text">
-                   <string>IP</string>
-                  </property>
-                 </column>
-                 <column>
-                  <property name="text">
-                   <string>Port</string>
-                  </property>
-                 </column>
-                 <column>
-                  <property name="text">
-                   <string>PauseSend</string>
-                  </property>
-                 </column>
-                 <column>
-                  <property name="text">
-                   <string>PauseReceive</string>
-                  </property>
-                 </column>
-                </widget>
-               </item>
-              </layout>
-             </item>
+            <layout class="QVBoxLayout" name="verticalLayout_50">
              <item>
               <layout class="QVBoxLayout" name="verticalLayout_28">
                <item>
@@ -2518,6 +2483,9 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                </item>
                <item>
                 <widget class="QTableWidget" name="tbP2PConnectionOut">
+                 <attribute name="horizontalHeaderDefaultSectionSize">
+                  <number>120</number>
+                 </attribute>
                  <column>
                   <property name="text">
                    <string>IP</string>
@@ -2536,6 +2504,60 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                  <column>
                   <property name="text">
                    <string>PauseReceive</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>LatestValidatorNonce</string>
+                  </property>
+                 </column>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_27">
+               <item>
+                <widget class="QLabel" name="label_21">
+                 <property name="text">
+                  <string>Connection In</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QTableWidget" name="tbP2PConnectionIn">
+                 <attribute name="horizontalHeaderCascadingSectionResizes">
+                  <bool>true</bool>
+                 </attribute>
+                 <attribute name="horizontalHeaderDefaultSectionSize">
+                  <number>120</number>
+                 </attribute>
+                 <attribute name="verticalHeaderCascadingSectionResizes">
+                  <bool>true</bool>
+                 </attribute>
+                 <column>
+                  <property name="text">
+                   <string>IP</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>Port</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>PauseSend</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>PauseReceive</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>LatestValidatorNonce</string>
                   </property>
                  </column>
                 </widget>

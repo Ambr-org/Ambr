@@ -315,9 +315,9 @@ private:
   uint64_t nonce_;
 };
 
-class EnterValidateSetUint:public Unit{
+class EnterValidateSetUnit:public Unit{
 public:
-  EnterValidateSetUint();
+  EnterValidateSetUnit();
 public:
   virtual std::string SerializeJson () const override;
   virtual bool DeSerializeJson(const std::string& json) override;
@@ -332,9 +332,9 @@ public:
   virtual int32_t GetFeeSize();
 };
 
-class LeaveValidateSetUint:public Unit{
+class LeaveValidateSetUnit:public Unit{
 public:
-  LeaveValidateSetUint();
+  LeaveValidateSetUnit();
 public:
   virtual std::string SerializeJson () const override;
   virtual bool DeSerializeJson(const std::string& json) override;

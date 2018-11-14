@@ -55,23 +55,6 @@ struct SynManagerConfig{
   std::vector<std::string> vec_seed_;
 };
 
-class SynState{
-public:
-  bool is_sync_ = false;
-  bool is_online_ = false;
-};
-
-struct Node_Timers_t{
-  Node_Timers_t();
-  size_t num_dynastyno_;
-  size_t num_accountunitno_;
-  std::string str_validator_hash_;
-  std::string str_accountunit_hash_;
-  boost::asio::io_service dynasty_io_;
-  boost::asio::io_service accountunit_io_;
-  boost::asio::deadline_timer dynasty_timer_;
-  boost::asio::deadline_timer accountunit_timer_;
-};
 
 
 
@@ -93,8 +76,8 @@ public:
   void BoardCastNewVoteUnit(std::shared_ptr<core::VoteUnit> p_unit);
   void BoardCastNewReceiveUnit(std::shared_ptr<core::ReceiveUnit> p_unit);
   void BoardCastNewValidatorUnit(std::shared_ptr<core::ValidatorUnit> p_unit);
-  void BoardCastNewJoinValidatorSetUnit(std::shared_ptr<core::EnterValidateSetUint> p_unit);
-  void BoardCastNewLeaveValidatorSetUnit(std::shared_ptr<core::LeaveValidateSetUint> p_unit);
+  void BoardCastNewJoinValidatorSetUnit(std::shared_ptr<core::EnterValidateSetUnit> p_unit);
+  void BoardCastNewLeaveValidatorSetUnit(std::shared_ptr<core::LeaveValidateSetUnit> p_unit);
 
   bool GetNodeIfPauseSend(const std::string& node_addr);
   bool GetNodeIfPauseReceive(const std::string& node_addr);

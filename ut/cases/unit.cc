@@ -253,13 +253,13 @@ TEST (UnitTest, ValidatorUnit) {
   EXPECT_TRUE(unit1->Validate(nullptr));
 }
 
-TEST (UnitTest, EnterValidateSetUint) {
+TEST (UnitTest, EnterValidateSetUnit) {
   ambr::core::PrivateKey pri_key = ambr::core::CreateRandomPrivateKey();
   ambr::core::PublicKey pub_key = ambr::core::GetPublicKeyByPrivateKey(pri_key);
   ambr::core::UnitHash unit_hash_rand;
   unit_hash_rand.set_bytes(ambr::crypto::Random::CreateRandomArray<256/8>());
 
-  std::shared_ptr<ambr::core::EnterValidateSetUint> unit1 = std::make_shared<ambr::core::EnterValidateSetUint>();
+  std::shared_ptr<ambr::core::EnterValidateSetUnit> unit1 = std::make_shared<ambr::core::EnterValidateSetUnit>();
   SERIALIZE_EQ_TEST(unit1);
   SERIALIZE_EQ_TEST_VALUE(unit1, version, (uint32_t)0x00000001);
   SERIALIZE_EQ_TEST_VALUE(unit1, type, ambr::core::UnitType::EnterValidateSet);
@@ -277,13 +277,13 @@ TEST (UnitTest, EnterValidateSetUint) {
   EXPECT_TRUE(unit1->Validate(nullptr));
 }
 
-TEST (UnitTest, LeaveValidateSetUint) {
+TEST (UnitTest, LeaveValidateSetUnit) {
   ambr::core::PrivateKey pri_key = ambr::core::CreateRandomPrivateKey();
   ambr::core::PublicKey pub_key = ambr::core::GetPublicKeyByPrivateKey(pri_key);
   ambr::core::UnitHash unit_hash_rand;
   unit_hash_rand.set_bytes(ambr::crypto::Random::CreateRandomArray<256/8>());
 
-  std::shared_ptr<ambr::core::LeaveValidateSetUint> unit1 = std::make_shared<ambr::core::LeaveValidateSetUint>();
+  std::shared_ptr<ambr::core::LeaveValidateSetUnit> unit1 = std::make_shared<ambr::core::LeaveValidateSetUnit>();
   SERIALIZE_EQ_TEST(unit1);
   SERIALIZE_EQ_TEST_VALUE(unit1, version, (uint32_t)0x00000001);
   SERIALIZE_EQ_TEST_VALUE(unit1, type, ambr::core::UnitType::LeaveValidateSet);

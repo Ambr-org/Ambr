@@ -23,8 +23,8 @@ std::shared_ptr<ambr::core::Unit> ambr::core::Unit::CreateUnitByByte(const std::
   auto validator_unit = std::make_shared<ValidatorUnit>();
   auto receive_unit = std::make_shared<ReceiveUnit>();
   auto send_unit = std::make_shared<SendUnit>();
-  auto add_validator_unit = std::make_shared<EnterValidateSetUint>();
-  //auto leave_validator_unit = std::make_shared<LeaveValidateSetUint>();
+  auto add_validator_unit = std::make_shared<EnterValidateSetUnit>();
+  //auto leave_validator_unit = std::make_shared<LeaveValidateSetUnit>();
   auto vote_unit = std::make_shared<VoteUnit>();
   if(validator_unit->DeSerializeByte(buf)){
     return validator_unit;
@@ -762,11 +762,11 @@ int32_t ambr::core::ValidatorUnit::GetFeeSize(){
 
 
 
-ambr::core::EnterValidateSetUint::EnterValidateSetUint():Unit(){
+ambr::core::EnterValidateSetUnit::EnterValidateSetUnit():Unit(){
   type_ = ambr::core::UnitType::EnterValidateSet;
 }
 
-std::string ambr::core::EnterValidateSetUint::SerializeJson() const{
+std::string ambr::core::EnterValidateSetUnit::SerializeJson() const{
   ::boost::property_tree::ptree unit_pt;
   unit_pt.put("version", version_);
   unit_pt.put("type", (uint8_t)type_);
@@ -782,7 +782,7 @@ std::string ambr::core::EnterValidateSetUint::SerializeJson() const{
   return stream.str();
 }
 
-bool ambr::core::EnterValidateSetUint::DeSerializeJson(const std::string& json){
+bool ambr::core::EnterValidateSetUnit::DeSerializeJson(const std::string& json){
   try{
     ::boost::property_tree::ptree pt;
     std::istringstream stream(json.c_str());
@@ -805,11 +805,11 @@ bool ambr::core::EnterValidateSetUint::DeSerializeJson(const std::string& json){
 }
 
 
-std::vector<uint8_t> ambr::core::EnterValidateSetUint::SerializeByte( ) const {
+std::vector<uint8_t> ambr::core::EnterValidateSetUnit::SerializeByte( ) const {
   std::vector<uint8_t> buf;
-  ::ambr::protobuf::EnterValidateSetUint obj;
+  ::ambr::protobuf::EnterValidateSetUnit obj;
   obj.set_version_(version_);
-  obj.set_type_((ambr::protobuf::EnterValidateSetUint::Type)type_);
+  obj.set_type_((ambr::protobuf::EnterValidateSetUnit::Type)type_);
   obj.set_public_key_(public_key_.bytes().data(), public_key_.bytes().size());
   obj.set_prev_unit_(prev_unit_.bytes().data(),prev_unit_.bytes().size());
   obj.set_balance_(balance_.bytes().data(),balance_.bytes().size());
@@ -821,8 +821,8 @@ std::vector<uint8_t> ambr::core::EnterValidateSetUint::SerializeByte( ) const {
   return buf;
 }
 
-bool ambr::core::EnterValidateSetUint::DeSerializeByte(const std::vector<uint8_t> &buf,size_t* used_size){
-  ::ambr::protobuf::EnterValidateSetUint obj;
+bool ambr::core::EnterValidateSetUnit::DeSerializeByte(const std::vector<uint8_t> &buf,size_t* used_size){
+  ::ambr::protobuf::EnterValidateSetUnit obj;
   google::protobuf::io::CodedInputStream stream(buf.data(),buf.size());
   if(obj.ParseFromCodedStream(&stream)){
     version_= (uint32_t)obj.version_();
@@ -840,7 +840,7 @@ bool ambr::core::EnterValidateSetUint::DeSerializeByte(const std::vector<uint8_t
   return false;
 }
 
-ambr::core::UnitHash ambr::core::EnterValidateSetUint::CalcHash() const {
+ambr::core::UnitHash ambr::core::EnterValidateSetUnit::CalcHash() const {
   crypto::SHA256OneByOneHasher hasher;
   hasher.init();
   hasher.process(version_);
@@ -854,16 +854,16 @@ ambr::core::UnitHash ambr::core::EnterValidateSetUint::CalcHash() const {
   return UnitHash(array);
 }
 
-void ambr::core::EnterValidateSetUint::CalcHashAndFill(){
+void ambr::core::EnterValidateSetUnit::CalcHashAndFill(){
   hash_ = CalcHash();
 }
 
-bool ambr::core::EnterValidateSetUint::SignatureAndFill(const ambr::core::PrivateKey &key){
+bool ambr::core::EnterValidateSetUnit::SignatureAndFill(const ambr::core::PrivateKey &key){
   sign_ = GetSignByPrivateKey(hash_.bytes().data(), hash_.bytes().size(), key);
   return true;
 }
 
-bool ambr::core::EnterValidateSetUint::Validate(std::string *err) const{
+bool ambr::core::EnterValidateSetUnit::Validate(std::string *err) const{
   //check version
   if(version_ != 0x00000001){
     if(err){
@@ -885,16 +885,16 @@ bool ambr::core::EnterValidateSetUint::Validate(std::string *err) const{
   return true;
 }
 
-int32_t ambr::core::EnterValidateSetUint::GetFeeSize(){
+int32_t ambr::core::EnterValidateSetUnit::GetFeeSize(){
   return Unit::GetFeeSize();
 }
 
 
-ambr::core::LeaveValidateSetUint::LeaveValidateSetUint():Unit(){
+ambr::core::LeaveValidateSetUnit::LeaveValidateSetUnit():Unit(){
   type_ = ambr::core::UnitType::LeaveValidateSet;
 }
 
-std::string ambr::core::LeaveValidateSetUint::SerializeJson() const{
+std::string ambr::core::LeaveValidateSetUnit::SerializeJson() const{
   ::boost::property_tree::ptree unit_pt;
   unit_pt.put("version", version_);
   unit_pt.put("type", (uint8_t)type_);
@@ -910,7 +910,7 @@ std::string ambr::core::LeaveValidateSetUint::SerializeJson() const{
   return stream.str();
 }
 
-bool ambr::core::LeaveValidateSetUint::DeSerializeJson(const std::string& json){
+bool ambr::core::LeaveValidateSetUnit::DeSerializeJson(const std::string& json){
   try{
     ::boost::property_tree::ptree pt;
     std::istringstream stream(json.c_str());
@@ -932,11 +932,11 @@ bool ambr::core::LeaveValidateSetUint::DeSerializeJson(const std::string& json){
   }
 }
 
-std::vector<uint8_t> ambr::core::LeaveValidateSetUint::SerializeByte( ) const {
+std::vector<uint8_t> ambr::core::LeaveValidateSetUnit::SerializeByte( ) const {
   std::vector<uint8_t> buf;
-  ::ambr::protobuf::LeaveValidateSetUint obj;
+  ::ambr::protobuf::LeaveValidateSetUnit obj;
   obj.set_version_(version_);
-  obj.set_type_((ambr::protobuf::LeaveValidateSetUint::Type)type_);
+  obj.set_type_((ambr::protobuf::LeaveValidateSetUnit::Type)type_);
   obj.set_public_key_(public_key_.bytes().data(), public_key_.bytes().size());
   obj.set_prev_unit_(prev_unit_.bytes().data(), prev_unit_.bytes().size());
   obj.set_balance_(balance_.bytes().data(), balance_.bytes().size());
@@ -949,8 +949,8 @@ std::vector<uint8_t> ambr::core::LeaveValidateSetUint::SerializeByte( ) const {
   return buf;
 }
 
-bool ambr::core::LeaveValidateSetUint::DeSerializeByte(const std::vector<uint8_t> &buf,size_t* used_size){
-  ::ambr::protobuf::LeaveValidateSetUint obj;
+bool ambr::core::LeaveValidateSetUnit::DeSerializeByte(const std::vector<uint8_t> &buf,size_t* used_size){
+  ::ambr::protobuf::LeaveValidateSetUnit obj;
   google::protobuf::io::CodedInputStream stream(buf.data(),buf.size());
   if(obj.ParseFromCodedStream(&stream)){
     version_= (uint32_t)obj.version_();
@@ -968,7 +968,7 @@ bool ambr::core::LeaveValidateSetUint::DeSerializeByte(const std::vector<uint8_t
   return false;
 }
 
-ambr::core::UnitHash ambr::core::LeaveValidateSetUint::CalcHash() const {
+ambr::core::UnitHash ambr::core::LeaveValidateSetUnit::CalcHash() const {
   crypto::SHA256OneByOneHasher hasher;
   hasher.init();
   hasher.process(version_);
@@ -982,16 +982,16 @@ ambr::core::UnitHash ambr::core::LeaveValidateSetUint::CalcHash() const {
   return UnitHash(array);
 }
 
-void ambr::core::LeaveValidateSetUint::CalcHashAndFill(){
+void ambr::core::LeaveValidateSetUnit::CalcHashAndFill(){
   hash_ = CalcHash();
 }
 
-bool ambr::core::LeaveValidateSetUint::SignatureAndFill(const ambr::core::PrivateKey &key){
+bool ambr::core::LeaveValidateSetUnit::SignatureAndFill(const ambr::core::PrivateKey &key){
   sign_ = GetSignByPrivateKey(hash_.bytes().data(), hash_.bytes().size(), key);
   return true;
 }
 
-bool ambr::core::LeaveValidateSetUint::Validate(std::string *err) const{
+bool ambr::core::LeaveValidateSetUnit::Validate(std::string *err) const{
   //check version
   if(version_ != 0x00000001){
     if(err){
@@ -1014,7 +1014,7 @@ bool ambr::core::LeaveValidateSetUint::Validate(std::string *err) const{
 }
 
 
-int32_t ambr::core::LeaveValidateSetUint::GetFeeSize(){
+int32_t ambr::core::LeaveValidateSetUnit::GetFeeSize(){
   return Unit::GetFeeSize();
 }
 

@@ -319,13 +319,13 @@ void ambr::store::ValidatorUnitStore::set_next_validator_hash(const ambr::core::
 }
 //=========================
 
-ambr::store::EnterValidatorSetUnitStore::EnterValidatorSetUnitStore(std::shared_ptr<core::EnterValidateSetUint> unit):
+ambr::store::EnterValidatorSetUnitStore::EnterValidatorSetUnitStore(std::shared_ptr<core::EnterValidateSetUnit> unit):
   UnitStore(ST_EnterValidatorSet),
   unit_(unit){
   //assert(unit);
 }
 
-std::shared_ptr<ambr::core::EnterValidateSetUint> ambr::store::EnterValidatorSetUnitStore::unit(){
+std::shared_ptr<ambr::core::EnterValidateSetUnit> ambr::store::EnterValidatorSetUnitStore::unit(){
   return unit_;
 }
 
@@ -357,7 +357,7 @@ bool ambr::store::EnterValidatorSetUnitStore::DeSerializeJson(const std::string 
       //deserialize other addtion
       validated_hash_.decode_from_hex(pt.get<std::string>("store_addtion.validated_hash"));
     }
-    unit_ = std::make_shared<core::EnterValidateSetUint>();
+    unit_ = std::make_shared<core::EnterValidateSetUnit>();
     if(!unit_->DeSerializeJson(json)){
       return false;
     }
@@ -377,7 +377,7 @@ std::vector<uint8_t> ambr::store::EnterValidatorSetUnitStore::SerializeByte() co
 }
 
 bool ambr::store::EnterValidatorSetUnitStore::DeSerializeByte(const std::vector<uint8_t> &buf){
-  unit_ = std::make_shared<core::EnterValidateSetUint>();
+  unit_ = std::make_shared<core::EnterValidateSetUnit>();
   size_t used_count = 0;
   std::vector<uint8_t> buf_new;
   buf_new.resize(buf.size() -  sizeof(version_)-sizeof(type_) -sizeof(validated_hash_));
@@ -409,13 +409,13 @@ std::shared_ptr<ambr::core::Unit> ambr::store::EnterValidatorSetUnitStore::GetUn
   return unit_;
 }
 
-ambr::store::LeaveValidatorSetUnitStore::LeaveValidatorSetUnitStore(std::shared_ptr<core::LeaveValidateSetUint> unit):
+ambr::store::LeaveValidatorSetUnitStore::LeaveValidatorSetUnitStore(std::shared_ptr<core::LeaveValidateSetUnit> unit):
   UnitStore(ST_LeaveValidatorSet),
   unit_(unit){
   //assert(unit);
 }
 
-std::shared_ptr<ambr::core::LeaveValidateSetUint> ambr::store::LeaveValidatorSetUnitStore::unit(){
+std::shared_ptr<ambr::core::LeaveValidateSetUnit> ambr::store::LeaveValidatorSetUnitStore::unit(){
   return unit_;
 }
 
@@ -447,7 +447,7 @@ bool ambr::store::LeaveValidatorSetUnitStore::DeSerializeJson(const std::string 
       //deserialize other addtion
       validated_hash_.decode_from_hex(pt.get<std::string>("store_addtion.validated_hash"));
     }
-    unit_ = std::make_shared<core::LeaveValidateSetUint>();
+    unit_ = std::make_shared<core::LeaveValidateSetUnit>();
     if(!unit_->DeSerializeJson(json)){
       return false;
     }
@@ -468,7 +468,7 @@ std::vector<uint8_t> ambr::store::LeaveValidatorSetUnitStore::SerializeByte() co
 }
 
 bool ambr::store::LeaveValidatorSetUnitStore::DeSerializeByte(const std::vector<uint8_t> &buf){
-  unit_ = std::make_shared<core::LeaveValidateSetUint>();
+  unit_ = std::make_shared<core::LeaveValidateSetUnit>();
   size_t used_count = 0;
   std::vector<uint8_t> buf_new;
   buf_new.resize(buf.size()-sizeof(version_)-sizeof(type_)-sizeof(validated_hash_));

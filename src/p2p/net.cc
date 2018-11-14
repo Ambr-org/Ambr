@@ -875,14 +875,6 @@ const uint256& CNetMessage::GetMessageHash() const
     return data_hash;
 }
 
-
-
-
-
-
-
-
-
 // requires LOCK(cs_vSend)
 size_t CConnman::SocketSendData(CNode *pnode) const
 {

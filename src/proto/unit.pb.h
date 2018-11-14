@@ -48,12 +48,12 @@ void AddDescriptors();
 }  // namespace protobuf_unit_2eproto
 namespace ambr {
 namespace protobuf {
-class EnterValidateSetUint;
-class EnterValidateSetUintDefaultTypeInternal;
-extern EnterValidateSetUintDefaultTypeInternal _EnterValidateSetUint_default_instance_;
-class LeaveValidateSetUint;
-class LeaveValidateSetUintDefaultTypeInternal;
-extern LeaveValidateSetUintDefaultTypeInternal _LeaveValidateSetUint_default_instance_;
+class EnterValidateSetUnit;
+class EnterValidateSetUnitDefaultTypeInternal;
+extern EnterValidateSetUnitDefaultTypeInternal _EnterValidateSetUnit_default_instance_;
+class LeaveValidateSetUnit;
+class LeaveValidateSetUnitDefaultTypeInternal;
+extern LeaveValidateSetUnitDefaultTypeInternal _LeaveValidateSetUnit_default_instance_;
 class ReceiveUnit;
 class ReceiveUnitDefaultTypeInternal;
 extern ReceiveUnitDefaultTypeInternal _ReceiveUnit_default_instance_;
@@ -70,8 +70,8 @@ extern VoteUnitDefaultTypeInternal _VoteUnit_default_instance_;
 }  // namespace ambr
 namespace google {
 namespace protobuf {
-template<> ::ambr::protobuf::EnterValidateSetUint* Arena::CreateMaybeMessage<::ambr::protobuf::EnterValidateSetUint>(Arena*);
-template<> ::ambr::protobuf::LeaveValidateSetUint* Arena::CreateMaybeMessage<::ambr::protobuf::LeaveValidateSetUint>(Arena*);
+template<> ::ambr::protobuf::EnterValidateSetUnit* Arena::CreateMaybeMessage<::ambr::protobuf::EnterValidateSetUnit>(Arena*);
+template<> ::ambr::protobuf::LeaveValidateSetUnit* Arena::CreateMaybeMessage<::ambr::protobuf::LeaveValidateSetUnit>(Arena*);
 template<> ::ambr::protobuf::ReceiveUnit* Arena::CreateMaybeMessage<::ambr::protobuf::ReceiveUnit>(Arena*);
 template<> ::ambr::protobuf::SendUnit* Arena::CreateMaybeMessage<::ambr::protobuf::SendUnit>(Arena*);
 template<> ::ambr::protobuf::ValidatorUnit* Arena::CreateMaybeMessage<::ambr::protobuf::ValidatorUnit>(Arena*);
@@ -207,57 +207,57 @@ inline bool ValidatorUnit_Type_Parse(
   return ::google::protobuf::internal::ParseNamedEnum<ValidatorUnit_Type>(
     ValidatorUnit_Type_descriptor(), name, value);
 }
-enum EnterValidateSetUint_Type {
-  EnterValidateSetUint_Type_Invalidate = 0,
-  EnterValidateSetUint_Type_send = 1,
-  EnterValidateSetUint_Type_receive = 2,
-  EnterValidateSetUint_Type_Vote = 3,
-  EnterValidateSetUint_Type_Validator = 4,
-  EnterValidateSetUint_Type_EnterValidateSet = 5,
-  EnterValidateSetUint_Type_LeaveValidateSet = 6,
-  EnterValidateSetUint_Type_EnterValidateSetUint_Type_INT_MIN_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32min,
-  EnterValidateSetUint_Type_EnterValidateSetUint_Type_INT_MAX_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32max
+enum EnterValidateSetUnit_Type {
+  EnterValidateSetUnit_Type_Invalidate = 0,
+  EnterValidateSetUnit_Type_send = 1,
+  EnterValidateSetUnit_Type_receive = 2,
+  EnterValidateSetUnit_Type_Vote = 3,
+  EnterValidateSetUnit_Type_Validator = 4,
+  EnterValidateSetUnit_Type_EnterValidateSet = 5,
+  EnterValidateSetUnit_Type_LeaveValidateSet = 6,
+  EnterValidateSetUnit_Type_EnterValidateSetUnit_Type_INT_MIN_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32min,
+  EnterValidateSetUnit_Type_EnterValidateSetUnit_Type_INT_MAX_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32max
 };
-bool EnterValidateSetUint_Type_IsValid(int value);
-const EnterValidateSetUint_Type EnterValidateSetUint_Type_Type_MIN = EnterValidateSetUint_Type_Invalidate;
-const EnterValidateSetUint_Type EnterValidateSetUint_Type_Type_MAX = EnterValidateSetUint_Type_LeaveValidateSet;
-const int EnterValidateSetUint_Type_Type_ARRAYSIZE = EnterValidateSetUint_Type_Type_MAX + 1;
+bool EnterValidateSetUnit_Type_IsValid(int value);
+const EnterValidateSetUnit_Type EnterValidateSetUnit_Type_Type_MIN = EnterValidateSetUnit_Type_Invalidate;
+const EnterValidateSetUnit_Type EnterValidateSetUnit_Type_Type_MAX = EnterValidateSetUnit_Type_LeaveValidateSet;
+const int EnterValidateSetUnit_Type_Type_ARRAYSIZE = EnterValidateSetUnit_Type_Type_MAX + 1;
 
-const ::google::protobuf::EnumDescriptor* EnterValidateSetUint_Type_descriptor();
-inline const ::std::string& EnterValidateSetUint_Type_Name(EnterValidateSetUint_Type value) {
+const ::google::protobuf::EnumDescriptor* EnterValidateSetUnit_Type_descriptor();
+inline const ::std::string& EnterValidateSetUnit_Type_Name(EnterValidateSetUnit_Type value) {
   return ::google::protobuf::internal::NameOfEnum(
-    EnterValidateSetUint_Type_descriptor(), value);
+    EnterValidateSetUnit_Type_descriptor(), value);
 }
-inline bool EnterValidateSetUint_Type_Parse(
-    const ::std::string& name, EnterValidateSetUint_Type* value) {
-  return ::google::protobuf::internal::ParseNamedEnum<EnterValidateSetUint_Type>(
-    EnterValidateSetUint_Type_descriptor(), name, value);
+inline bool EnterValidateSetUnit_Type_Parse(
+    const ::std::string& name, EnterValidateSetUnit_Type* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<EnterValidateSetUnit_Type>(
+    EnterValidateSetUnit_Type_descriptor(), name, value);
 }
-enum LeaveValidateSetUint_Type {
-  LeaveValidateSetUint_Type_Invalidate = 0,
-  LeaveValidateSetUint_Type_send = 1,
-  LeaveValidateSetUint_Type_receive = 2,
-  LeaveValidateSetUint_Type_Vote = 3,
-  LeaveValidateSetUint_Type_Validator = 4,
-  LeaveValidateSetUint_Type_EnterValidateSet = 5,
-  LeaveValidateSetUint_Type_LeaveValidateSet = 6,
-  LeaveValidateSetUint_Type_LeaveValidateSetUint_Type_INT_MIN_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32min,
-  LeaveValidateSetUint_Type_LeaveValidateSetUint_Type_INT_MAX_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32max
+enum LeaveValidateSetUnit_Type {
+  LeaveValidateSetUnit_Type_Invalidate = 0,
+  LeaveValidateSetUnit_Type_send = 1,
+  LeaveValidateSetUnit_Type_receive = 2,
+  LeaveValidateSetUnit_Type_Vote = 3,
+  LeaveValidateSetUnit_Type_Validator = 4,
+  LeaveValidateSetUnit_Type_EnterValidateSet = 5,
+  LeaveValidateSetUnit_Type_LeaveValidateSet = 6,
+  LeaveValidateSetUnit_Type_LeaveValidateSetUnit_Type_INT_MIN_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32min,
+  LeaveValidateSetUnit_Type_LeaveValidateSetUnit_Type_INT_MAX_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32max
 };
-bool LeaveValidateSetUint_Type_IsValid(int value);
-const LeaveValidateSetUint_Type LeaveValidateSetUint_Type_Type_MIN = LeaveValidateSetUint_Type_Invalidate;
-const LeaveValidateSetUint_Type LeaveValidateSetUint_Type_Type_MAX = LeaveValidateSetUint_Type_LeaveValidateSet;
-const int LeaveValidateSetUint_Type_Type_ARRAYSIZE = LeaveValidateSetUint_Type_Type_MAX + 1;
+bool LeaveValidateSetUnit_Type_IsValid(int value);
+const LeaveValidateSetUnit_Type LeaveValidateSetUnit_Type_Type_MIN = LeaveValidateSetUnit_Type_Invalidate;
+const LeaveValidateSetUnit_Type LeaveValidateSetUnit_Type_Type_MAX = LeaveValidateSetUnit_Type_LeaveValidateSet;
+const int LeaveValidateSetUnit_Type_Type_ARRAYSIZE = LeaveValidateSetUnit_Type_Type_MAX + 1;
 
-const ::google::protobuf::EnumDescriptor* LeaveValidateSetUint_Type_descriptor();
-inline const ::std::string& LeaveValidateSetUint_Type_Name(LeaveValidateSetUint_Type value) {
+const ::google::protobuf::EnumDescriptor* LeaveValidateSetUnit_Type_descriptor();
+inline const ::std::string& LeaveValidateSetUnit_Type_Name(LeaveValidateSetUnit_Type value) {
   return ::google::protobuf::internal::NameOfEnum(
-    LeaveValidateSetUint_Type_descriptor(), value);
+    LeaveValidateSetUnit_Type_descriptor(), value);
 }
-inline bool LeaveValidateSetUint_Type_Parse(
-    const ::std::string& name, LeaveValidateSetUint_Type* value) {
-  return ::google::protobuf::internal::ParseNamedEnum<LeaveValidateSetUint_Type>(
-    LeaveValidateSetUint_Type_descriptor(), name, value);
+inline bool LeaveValidateSetUnit_Type_Parse(
+    const ::std::string& name, LeaveValidateSetUnit_Type* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<LeaveValidateSetUnit_Type>(
+    LeaveValidateSetUnit_Type_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -1327,24 +1327,24 @@ class ValidatorUnit : public ::google::protobuf::Message /* @@protoc_insertion_p
 };
 // -------------------------------------------------------------------
 
-class EnterValidateSetUint : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:ambr.protobuf.EnterValidateSetUint) */ {
+class EnterValidateSetUnit : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:ambr.protobuf.EnterValidateSetUnit) */ {
  public:
-  EnterValidateSetUint();
-  virtual ~EnterValidateSetUint();
+  EnterValidateSetUnit();
+  virtual ~EnterValidateSetUnit();
 
-  EnterValidateSetUint(const EnterValidateSetUint& from);
+  EnterValidateSetUnit(const EnterValidateSetUnit& from);
 
-  inline EnterValidateSetUint& operator=(const EnterValidateSetUint& from) {
+  inline EnterValidateSetUnit& operator=(const EnterValidateSetUnit& from) {
     CopyFrom(from);
     return *this;
   }
   #if LANG_CXX11
-  EnterValidateSetUint(EnterValidateSetUint&& from) noexcept
-    : EnterValidateSetUint() {
+  EnterValidateSetUnit(EnterValidateSetUnit&& from) noexcept
+    : EnterValidateSetUnit() {
     *this = ::std::move(from);
   }
 
-  inline EnterValidateSetUint& operator=(EnterValidateSetUint&& from) noexcept {
+  inline EnterValidateSetUnit& operator=(EnterValidateSetUnit&& from) noexcept {
     if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
       if (this != &from) InternalSwap(&from);
     } else {
@@ -1354,34 +1354,34 @@ class EnterValidateSetUint : public ::google::protobuf::Message /* @@protoc_inse
   }
   #endif
   static const ::google::protobuf::Descriptor* descriptor();
-  static const EnterValidateSetUint& default_instance();
+  static const EnterValidateSetUnit& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const EnterValidateSetUint* internal_default_instance() {
-    return reinterpret_cast<const EnterValidateSetUint*>(
-               &_EnterValidateSetUint_default_instance_);
+  static inline const EnterValidateSetUnit* internal_default_instance() {
+    return reinterpret_cast<const EnterValidateSetUnit*>(
+               &_EnterValidateSetUnit_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
     4;
 
-  void Swap(EnterValidateSetUint* other);
-  friend void swap(EnterValidateSetUint& a, EnterValidateSetUint& b) {
+  void Swap(EnterValidateSetUnit* other);
+  friend void swap(EnterValidateSetUnit& a, EnterValidateSetUnit& b) {
     a.Swap(&b);
   }
 
   // implements Message ----------------------------------------------
 
-  inline EnterValidateSetUint* New() const final {
-    return CreateMaybeMessage<EnterValidateSetUint>(NULL);
+  inline EnterValidateSetUnit* New() const final {
+    return CreateMaybeMessage<EnterValidateSetUnit>(NULL);
   }
 
-  EnterValidateSetUint* New(::google::protobuf::Arena* arena) const final {
-    return CreateMaybeMessage<EnterValidateSetUint>(arena);
+  EnterValidateSetUnit* New(::google::protobuf::Arena* arena) const final {
+    return CreateMaybeMessage<EnterValidateSetUnit>(arena);
   }
   void CopyFrom(const ::google::protobuf::Message& from) final;
   void MergeFrom(const ::google::protobuf::Message& from) final;
-  void CopyFrom(const EnterValidateSetUint& from);
-  void MergeFrom(const EnterValidateSetUint& from);
+  void CopyFrom(const EnterValidateSetUnit& from);
+  void MergeFrom(const EnterValidateSetUnit& from);
   void Clear() final;
   bool IsInitialized() const final;
 
@@ -1398,7 +1398,7 @@ class EnterValidateSetUint : public ::google::protobuf::Message /* @@protoc_inse
   void SharedCtor();
   void SharedDtor();
   void SetCachedSize(int size) const final;
-  void InternalSwap(EnterValidateSetUint* other);
+  void InternalSwap(EnterValidateSetUnit* other);
   private:
   inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
     return NULL;
@@ -1412,40 +1412,40 @@ class EnterValidateSetUint : public ::google::protobuf::Message /* @@protoc_inse
 
   // nested types ----------------------------------------------------
 
-  typedef EnterValidateSetUint_Type Type;
+  typedef EnterValidateSetUnit_Type Type;
   static const Type Invalidate =
-    EnterValidateSetUint_Type_Invalidate;
+    EnterValidateSetUnit_Type_Invalidate;
   static const Type send =
-    EnterValidateSetUint_Type_send;
+    EnterValidateSetUnit_Type_send;
   static const Type receive =
-    EnterValidateSetUint_Type_receive;
+    EnterValidateSetUnit_Type_receive;
   static const Type Vote =
-    EnterValidateSetUint_Type_Vote;
+    EnterValidateSetUnit_Type_Vote;
   static const Type Validator =
-    EnterValidateSetUint_Type_Validator;
+    EnterValidateSetUnit_Type_Validator;
   static const Type EnterValidateSet =
-    EnterValidateSetUint_Type_EnterValidateSet;
+    EnterValidateSetUnit_Type_EnterValidateSet;
   static const Type LeaveValidateSet =
-    EnterValidateSetUint_Type_LeaveValidateSet;
+    EnterValidateSetUnit_Type_LeaveValidateSet;
   static inline bool Type_IsValid(int value) {
-    return EnterValidateSetUint_Type_IsValid(value);
+    return EnterValidateSetUnit_Type_IsValid(value);
   }
   static const Type Type_MIN =
-    EnterValidateSetUint_Type_Type_MIN;
+    EnterValidateSetUnit_Type_Type_MIN;
   static const Type Type_MAX =
-    EnterValidateSetUint_Type_Type_MAX;
+    EnterValidateSetUnit_Type_Type_MAX;
   static const int Type_ARRAYSIZE =
-    EnterValidateSetUint_Type_Type_ARRAYSIZE;
+    EnterValidateSetUnit_Type_Type_ARRAYSIZE;
   static inline const ::google::protobuf::EnumDescriptor*
   Type_descriptor() {
-    return EnterValidateSetUint_Type_descriptor();
+    return EnterValidateSetUnit_Type_descriptor();
   }
   static inline const ::std::string& Type_Name(Type value) {
-    return EnterValidateSetUint_Type_Name(value);
+    return EnterValidateSetUnit_Type_Name(value);
   }
   static inline bool Type_Parse(const ::std::string& name,
       Type* value) {
-    return EnterValidateSetUint_Type_Parse(name, value);
+    return EnterValidateSetUnit_Type_Parse(name, value);
   }
 
   // accessors -------------------------------------------------------
@@ -1526,13 +1526,13 @@ class EnterValidateSetUint : public ::google::protobuf::Message /* @@protoc_inse
   ::google::protobuf::uint32 version_() const;
   void set_version_(::google::protobuf::uint32 value);
 
-  // .ambr.protobuf.EnterValidateSetUint.Type type_ = 2;
+  // .ambr.protobuf.EnterValidateSetUnit.Type type_ = 2;
   void clear_type_();
   static const int kTypeFieldNumber = 2;
-  ::ambr::protobuf::EnterValidateSetUint_Type type_() const;
-  void set_type_(::ambr::protobuf::EnterValidateSetUint_Type value);
+  ::ambr::protobuf::EnterValidateSetUnit_Type type_() const;
+  void set_type_(::ambr::protobuf::EnterValidateSetUnit_Type value);
 
-  // @@protoc_insertion_point(class_scope:ambr.protobuf.EnterValidateSetUint)
+  // @@protoc_insertion_point(class_scope:ambr.protobuf.EnterValidateSetUnit)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
@@ -1548,24 +1548,24 @@ class EnterValidateSetUint : public ::google::protobuf::Message /* @@protoc_inse
 };
 // -------------------------------------------------------------------
 
-class LeaveValidateSetUint : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:ambr.protobuf.LeaveValidateSetUint) */ {
+class LeaveValidateSetUnit : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:ambr.protobuf.LeaveValidateSetUnit) */ {
  public:
-  LeaveValidateSetUint();
-  virtual ~LeaveValidateSetUint();
+  LeaveValidateSetUnit();
+  virtual ~LeaveValidateSetUnit();
 
-  LeaveValidateSetUint(const LeaveValidateSetUint& from);
+  LeaveValidateSetUnit(const LeaveValidateSetUnit& from);
 
-  inline LeaveValidateSetUint& operator=(const LeaveValidateSetUint& from) {
+  inline LeaveValidateSetUnit& operator=(const LeaveValidateSetUnit& from) {
     CopyFrom(from);
     return *this;
   }
   #if LANG_CXX11
-  LeaveValidateSetUint(LeaveValidateSetUint&& from) noexcept
-    : LeaveValidateSetUint() {
+  LeaveValidateSetUnit(LeaveValidateSetUnit&& from) noexcept
+    : LeaveValidateSetUnit() {
     *this = ::std::move(from);
   }
 
-  inline LeaveValidateSetUint& operator=(LeaveValidateSetUint&& from) noexcept {
+  inline LeaveValidateSetUnit& operator=(LeaveValidateSetUnit&& from) noexcept {
     if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
       if (this != &from) InternalSwap(&from);
     } else {
@@ -1575,34 +1575,34 @@ class LeaveValidateSetUint : public ::google::protobuf::Message /* @@protoc_inse
   }
   #endif
   static const ::google::protobuf::Descriptor* descriptor();
-  static const LeaveValidateSetUint& default_instance();
+  static const LeaveValidateSetUnit& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const LeaveValidateSetUint* internal_default_instance() {
-    return reinterpret_cast<const LeaveValidateSetUint*>(
-               &_LeaveValidateSetUint_default_instance_);
+  static inline const LeaveValidateSetUnit* internal_default_instance() {
+    return reinterpret_cast<const LeaveValidateSetUnit*>(
+               &_LeaveValidateSetUnit_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
     5;
 
-  void Swap(LeaveValidateSetUint* other);
-  friend void swap(LeaveValidateSetUint& a, LeaveValidateSetUint& b) {
+  void Swap(LeaveValidateSetUnit* other);
+  friend void swap(LeaveValidateSetUnit& a, LeaveValidateSetUnit& b) {
     a.Swap(&b);
   }
 
   // implements Message ----------------------------------------------
 
-  inline LeaveValidateSetUint* New() const final {
-    return CreateMaybeMessage<LeaveValidateSetUint>(NULL);
+  inline LeaveValidateSetUnit* New() const final {
+    return CreateMaybeMessage<LeaveValidateSetUnit>(NULL);
   }
 
-  LeaveValidateSetUint* New(::google::protobuf::Arena* arena) const final {
-    return CreateMaybeMessage<LeaveValidateSetUint>(arena);
+  LeaveValidateSetUnit* New(::google::protobuf::Arena* arena) const final {
+    return CreateMaybeMessage<LeaveValidateSetUnit>(arena);
   }
   void CopyFrom(const ::google::protobuf::Message& from) final;
   void MergeFrom(const ::google::protobuf::Message& from) final;
-  void CopyFrom(const LeaveValidateSetUint& from);
-  void MergeFrom(const LeaveValidateSetUint& from);
+  void CopyFrom(const LeaveValidateSetUnit& from);
+  void MergeFrom(const LeaveValidateSetUnit& from);
   void Clear() final;
   bool IsInitialized() const final;
 
@@ -1619,7 +1619,7 @@ class LeaveValidateSetUint : public ::google::protobuf::Message /* @@protoc_inse
   void SharedCtor();
   void SharedDtor();
   void SetCachedSize(int size) const final;
-  void InternalSwap(LeaveValidateSetUint* other);
+  void InternalSwap(LeaveValidateSetUnit* other);
   private:
   inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
     return NULL;
@@ -1633,40 +1633,40 @@ class LeaveValidateSetUint : public ::google::protobuf::Message /* @@protoc_inse
 
   // nested types ----------------------------------------------------
 
-  typedef LeaveValidateSetUint_Type Type;
+  typedef LeaveValidateSetUnit_Type Type;
   static const Type Invalidate =
-    LeaveValidateSetUint_Type_Invalidate;
+    LeaveValidateSetUnit_Type_Invalidate;
   static const Type send =
-    LeaveValidateSetUint_Type_send;
+    LeaveValidateSetUnit_Type_send;
   static const Type receive =
-    LeaveValidateSetUint_Type_receive;
+    LeaveValidateSetUnit_Type_receive;
   static const Type Vote =
-    LeaveValidateSetUint_Type_Vote;
+    LeaveValidateSetUnit_Type_Vote;
   static const Type Validator =
-    LeaveValidateSetUint_Type_Validator;
+    LeaveValidateSetUnit_Type_Validator;
   static const Type EnterValidateSet =
-    LeaveValidateSetUint_Type_EnterValidateSet;
+    LeaveValidateSetUnit_Type_EnterValidateSet;
   static const Type LeaveValidateSet =
-    LeaveValidateSetUint_Type_LeaveValidateSet;
+    LeaveValidateSetUnit_Type_LeaveValidateSet;
   static inline bool Type_IsValid(int value) {
-    return LeaveValidateSetUint_Type_IsValid(value);
+    return LeaveValidateSetUnit_Type_IsValid(value);
   }
   static const Type Type_MIN =
-    LeaveValidateSetUint_Type_Type_MIN;
+    LeaveValidateSetUnit_Type_Type_MIN;
   static const Type Type_MAX =
-    LeaveValidateSetUint_Type_Type_MAX;
+    LeaveValidateSetUnit_Type_Type_MAX;
   static const int Type_ARRAYSIZE =
-    LeaveValidateSetUint_Type_Type_ARRAYSIZE;
+    LeaveValidateSetUnit_Type_Type_ARRAYSIZE;
   static inline const ::google::protobuf::EnumDescriptor*
   Type_descriptor() {
-    return LeaveValidateSetUint_Type_descriptor();
+    return LeaveValidateSetUnit_Type_descriptor();
   }
   static inline const ::std::string& Type_Name(Type value) {
-    return LeaveValidateSetUint_Type_Name(value);
+    return LeaveValidateSetUnit_Type_Name(value);
   }
   static inline bool Type_Parse(const ::std::string& name,
       Type* value) {
-    return LeaveValidateSetUint_Type_Parse(name, value);
+    return LeaveValidateSetUnit_Type_Parse(name, value);
   }
 
   // accessors -------------------------------------------------------
@@ -1747,13 +1747,13 @@ class LeaveValidateSetUint : public ::google::protobuf::Message /* @@protoc_inse
   ::google::protobuf::uint32 version_() const;
   void set_version_(::google::protobuf::uint32 value);
 
-  // .ambr.protobuf.LeaveValidateSetUint.Type type_ = 2;
+  // .ambr.protobuf.LeaveValidateSetUnit.Type type_ = 2;
   void clear_type_();
   static const int kTypeFieldNumber = 2;
-  ::ambr::protobuf::LeaveValidateSetUint_Type type_() const;
-  void set_type_(::ambr::protobuf::LeaveValidateSetUint_Type value);
+  ::ambr::protobuf::LeaveValidateSetUnit_Type type_() const;
+  void set_type_(::ambr::protobuf::LeaveValidateSetUnit_Type value);
 
-  // @@protoc_insertion_point(class_scope:ambr.protobuf.LeaveValidateSetUint)
+  // @@protoc_insertion_point(class_scope:ambr.protobuf.LeaveValidateSetUnit)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
@@ -3414,596 +3414,596 @@ inline void ValidatorUnit::set_nonce_(::google::protobuf::uint64 value) {
 
 // -------------------------------------------------------------------
 
-// EnterValidateSetUint
+// EnterValidateSetUnit
 
 // uint32 version_ = 1;
-inline void EnterValidateSetUint::clear_version_() {
+inline void EnterValidateSetUnit::clear_version_() {
   version__ = 0u;
 }
-inline ::google::protobuf::uint32 EnterValidateSetUint::version_() const {
-  // @@protoc_insertion_point(field_get:ambr.protobuf.EnterValidateSetUint.version_)
+inline ::google::protobuf::uint32 EnterValidateSetUnit::version_() const {
+  // @@protoc_insertion_point(field_get:ambr.protobuf.EnterValidateSetUnit.version_)
   return version__;
 }
-inline void EnterValidateSetUint::set_version_(::google::protobuf::uint32 value) {
+inline void EnterValidateSetUnit::set_version_(::google::protobuf::uint32 value) {
   
   version__ = value;
-  // @@protoc_insertion_point(field_set:ambr.protobuf.EnterValidateSetUint.version_)
+  // @@protoc_insertion_point(field_set:ambr.protobuf.EnterValidateSetUnit.version_)
 }
 
-// .ambr.protobuf.EnterValidateSetUint.Type type_ = 2;
-inline void EnterValidateSetUint::clear_type_() {
+// .ambr.protobuf.EnterValidateSetUnit.Type type_ = 2;
+inline void EnterValidateSetUnit::clear_type_() {
   type__ = 0;
 }
-inline ::ambr::protobuf::EnterValidateSetUint_Type EnterValidateSetUint::type_() const {
-  // @@protoc_insertion_point(field_get:ambr.protobuf.EnterValidateSetUint.type_)
-  return static_cast< ::ambr::protobuf::EnterValidateSetUint_Type >(type__);
+inline ::ambr::protobuf::EnterValidateSetUnit_Type EnterValidateSetUnit::type_() const {
+  // @@protoc_insertion_point(field_get:ambr.protobuf.EnterValidateSetUnit.type_)
+  return static_cast< ::ambr::protobuf::EnterValidateSetUnit_Type >(type__);
 }
-inline void EnterValidateSetUint::set_type_(::ambr::protobuf::EnterValidateSetUint_Type value) {
+inline void EnterValidateSetUnit::set_type_(::ambr::protobuf::EnterValidateSetUnit_Type value) {
   
   type__ = value;
-  // @@protoc_insertion_point(field_set:ambr.protobuf.EnterValidateSetUint.type_)
+  // @@protoc_insertion_point(field_set:ambr.protobuf.EnterValidateSetUnit.type_)
 }
 
 // bytes public_key_ = 3;
-inline void EnterValidateSetUint::clear_public_key_() {
+inline void EnterValidateSetUnit::clear_public_key_() {
   public_key__.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline const ::std::string& EnterValidateSetUint::public_key_() const {
-  // @@protoc_insertion_point(field_get:ambr.protobuf.EnterValidateSetUint.public_key_)
+inline const ::std::string& EnterValidateSetUnit::public_key_() const {
+  // @@protoc_insertion_point(field_get:ambr.protobuf.EnterValidateSetUnit.public_key_)
   return public_key__.GetNoArena();
 }
-inline void EnterValidateSetUint::set_public_key_(const ::std::string& value) {
+inline void EnterValidateSetUnit::set_public_key_(const ::std::string& value) {
   
   public_key__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:ambr.protobuf.EnterValidateSetUint.public_key_)
+  // @@protoc_insertion_point(field_set:ambr.protobuf.EnterValidateSetUnit.public_key_)
 }
 #if LANG_CXX11
-inline void EnterValidateSetUint::set_public_key_(::std::string&& value) {
+inline void EnterValidateSetUnit::set_public_key_(::std::string&& value) {
   
   public_key__.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:ambr.protobuf.EnterValidateSetUint.public_key_)
+  // @@protoc_insertion_point(field_set_rvalue:ambr.protobuf.EnterValidateSetUnit.public_key_)
 }
 #endif
-inline void EnterValidateSetUint::set_public_key_(const char* value) {
+inline void EnterValidateSetUnit::set_public_key_(const char* value) {
   GOOGLE_DCHECK(value != NULL);
   
   public_key__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:ambr.protobuf.EnterValidateSetUint.public_key_)
+  // @@protoc_insertion_point(field_set_char:ambr.protobuf.EnterValidateSetUnit.public_key_)
 }
-inline void EnterValidateSetUint::set_public_key_(const void* value, size_t size) {
+inline void EnterValidateSetUnit::set_public_key_(const void* value, size_t size) {
   
   public_key__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:ambr.protobuf.EnterValidateSetUint.public_key_)
+  // @@protoc_insertion_point(field_set_pointer:ambr.protobuf.EnterValidateSetUnit.public_key_)
 }
-inline ::std::string* EnterValidateSetUint::mutable_public_key_() {
+inline ::std::string* EnterValidateSetUnit::mutable_public_key_() {
   
-  // @@protoc_insertion_point(field_mutable:ambr.protobuf.EnterValidateSetUint.public_key_)
+  // @@protoc_insertion_point(field_mutable:ambr.protobuf.EnterValidateSetUnit.public_key_)
   return public_key__.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline ::std::string* EnterValidateSetUint::release_public_key_() {
-  // @@protoc_insertion_point(field_release:ambr.protobuf.EnterValidateSetUint.public_key_)
+inline ::std::string* EnterValidateSetUnit::release_public_key_() {
+  // @@protoc_insertion_point(field_release:ambr.protobuf.EnterValidateSetUnit.public_key_)
   
   return public_key__.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline void EnterValidateSetUint::set_allocated_public_key_(::std::string* public_key_) {
+inline void EnterValidateSetUnit::set_allocated_public_key_(::std::string* public_key_) {
   if (public_key_ != NULL) {
     
   } else {
     
   }
   public_key__.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), public_key_);
-  // @@protoc_insertion_point(field_set_allocated:ambr.protobuf.EnterValidateSetUint.public_key_)
+  // @@protoc_insertion_point(field_set_allocated:ambr.protobuf.EnterValidateSetUnit.public_key_)
 }
 
 // bytes prev_unit_ = 4;
-inline void EnterValidateSetUint::clear_prev_unit_() {
+inline void EnterValidateSetUnit::clear_prev_unit_() {
   prev_unit__.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline const ::std::string& EnterValidateSetUint::prev_unit_() const {
-  // @@protoc_insertion_point(field_get:ambr.protobuf.EnterValidateSetUint.prev_unit_)
+inline const ::std::string& EnterValidateSetUnit::prev_unit_() const {
+  // @@protoc_insertion_point(field_get:ambr.protobuf.EnterValidateSetUnit.prev_unit_)
   return prev_unit__.GetNoArena();
 }
-inline void EnterValidateSetUint::set_prev_unit_(const ::std::string& value) {
+inline void EnterValidateSetUnit::set_prev_unit_(const ::std::string& value) {
   
   prev_unit__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:ambr.protobuf.EnterValidateSetUint.prev_unit_)
+  // @@protoc_insertion_point(field_set:ambr.protobuf.EnterValidateSetUnit.prev_unit_)
 }
 #if LANG_CXX11
-inline void EnterValidateSetUint::set_prev_unit_(::std::string&& value) {
+inline void EnterValidateSetUnit::set_prev_unit_(::std::string&& value) {
   
   prev_unit__.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:ambr.protobuf.EnterValidateSetUint.prev_unit_)
+  // @@protoc_insertion_point(field_set_rvalue:ambr.protobuf.EnterValidateSetUnit.prev_unit_)
 }
 #endif
-inline void EnterValidateSetUint::set_prev_unit_(const char* value) {
+inline void EnterValidateSetUnit::set_prev_unit_(const char* value) {
   GOOGLE_DCHECK(value != NULL);
   
   prev_unit__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:ambr.protobuf.EnterValidateSetUint.prev_unit_)
+  // @@protoc_insertion_point(field_set_char:ambr.protobuf.EnterValidateSetUnit.prev_unit_)
 }
-inline void EnterValidateSetUint::set_prev_unit_(const void* value, size_t size) {
+inline void EnterValidateSetUnit::set_prev_unit_(const void* value, size_t size) {
   
   prev_unit__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:ambr.protobuf.EnterValidateSetUint.prev_unit_)
+  // @@protoc_insertion_point(field_set_pointer:ambr.protobuf.EnterValidateSetUnit.prev_unit_)
 }
-inline ::std::string* EnterValidateSetUint::mutable_prev_unit_() {
+inline ::std::string* EnterValidateSetUnit::mutable_prev_unit_() {
   
-  // @@protoc_insertion_point(field_mutable:ambr.protobuf.EnterValidateSetUint.prev_unit_)
+  // @@protoc_insertion_point(field_mutable:ambr.protobuf.EnterValidateSetUnit.prev_unit_)
   return prev_unit__.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline ::std::string* EnterValidateSetUint::release_prev_unit_() {
-  // @@protoc_insertion_point(field_release:ambr.protobuf.EnterValidateSetUint.prev_unit_)
+inline ::std::string* EnterValidateSetUnit::release_prev_unit_() {
+  // @@protoc_insertion_point(field_release:ambr.protobuf.EnterValidateSetUnit.prev_unit_)
   
   return prev_unit__.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline void EnterValidateSetUint::set_allocated_prev_unit_(::std::string* prev_unit_) {
+inline void EnterValidateSetUnit::set_allocated_prev_unit_(::std::string* prev_unit_) {
   if (prev_unit_ != NULL) {
     
   } else {
     
   }
   prev_unit__.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), prev_unit_);
-  // @@protoc_insertion_point(field_set_allocated:ambr.protobuf.EnterValidateSetUint.prev_unit_)
+  // @@protoc_insertion_point(field_set_allocated:ambr.protobuf.EnterValidateSetUnit.prev_unit_)
 }
 
 // bytes balance_ = 5;
-inline void EnterValidateSetUint::clear_balance_() {
+inline void EnterValidateSetUnit::clear_balance_() {
   balance__.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline const ::std::string& EnterValidateSetUint::balance_() const {
-  // @@protoc_insertion_point(field_get:ambr.protobuf.EnterValidateSetUint.balance_)
+inline const ::std::string& EnterValidateSetUnit::balance_() const {
+  // @@protoc_insertion_point(field_get:ambr.protobuf.EnterValidateSetUnit.balance_)
   return balance__.GetNoArena();
 }
-inline void EnterValidateSetUint::set_balance_(const ::std::string& value) {
+inline void EnterValidateSetUnit::set_balance_(const ::std::string& value) {
   
   balance__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:ambr.protobuf.EnterValidateSetUint.balance_)
+  // @@protoc_insertion_point(field_set:ambr.protobuf.EnterValidateSetUnit.balance_)
 }
 #if LANG_CXX11
-inline void EnterValidateSetUint::set_balance_(::std::string&& value) {
+inline void EnterValidateSetUnit::set_balance_(::std::string&& value) {
   
   balance__.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:ambr.protobuf.EnterValidateSetUint.balance_)
+  // @@protoc_insertion_point(field_set_rvalue:ambr.protobuf.EnterValidateSetUnit.balance_)
 }
 #endif
-inline void EnterValidateSetUint::set_balance_(const char* value) {
+inline void EnterValidateSetUnit::set_balance_(const char* value) {
   GOOGLE_DCHECK(value != NULL);
   
   balance__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:ambr.protobuf.EnterValidateSetUint.balance_)
+  // @@protoc_insertion_point(field_set_char:ambr.protobuf.EnterValidateSetUnit.balance_)
 }
-inline void EnterValidateSetUint::set_balance_(const void* value, size_t size) {
+inline void EnterValidateSetUnit::set_balance_(const void* value, size_t size) {
   
   balance__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:ambr.protobuf.EnterValidateSetUint.balance_)
+  // @@protoc_insertion_point(field_set_pointer:ambr.protobuf.EnterValidateSetUnit.balance_)
 }
-inline ::std::string* EnterValidateSetUint::mutable_balance_() {
+inline ::std::string* EnterValidateSetUnit::mutable_balance_() {
   
-  // @@protoc_insertion_point(field_mutable:ambr.protobuf.EnterValidateSetUint.balance_)
+  // @@protoc_insertion_point(field_mutable:ambr.protobuf.EnterValidateSetUnit.balance_)
   return balance__.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline ::std::string* EnterValidateSetUint::release_balance_() {
-  // @@protoc_insertion_point(field_release:ambr.protobuf.EnterValidateSetUint.balance_)
+inline ::std::string* EnterValidateSetUnit::release_balance_() {
+  // @@protoc_insertion_point(field_release:ambr.protobuf.EnterValidateSetUnit.balance_)
   
   return balance__.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline void EnterValidateSetUint::set_allocated_balance_(::std::string* balance_) {
+inline void EnterValidateSetUnit::set_allocated_balance_(::std::string* balance_) {
   if (balance_ != NULL) {
     
   } else {
     
   }
   balance__.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), balance_);
-  // @@protoc_insertion_point(field_set_allocated:ambr.protobuf.EnterValidateSetUint.balance_)
+  // @@protoc_insertion_point(field_set_allocated:ambr.protobuf.EnterValidateSetUnit.balance_)
 }
 
 // bytes hash_ = 6;
-inline void EnterValidateSetUint::clear_hash_() {
+inline void EnterValidateSetUnit::clear_hash_() {
   hash__.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline const ::std::string& EnterValidateSetUint::hash_() const {
-  // @@protoc_insertion_point(field_get:ambr.protobuf.EnterValidateSetUint.hash_)
+inline const ::std::string& EnterValidateSetUnit::hash_() const {
+  // @@protoc_insertion_point(field_get:ambr.protobuf.EnterValidateSetUnit.hash_)
   return hash__.GetNoArena();
 }
-inline void EnterValidateSetUint::set_hash_(const ::std::string& value) {
+inline void EnterValidateSetUnit::set_hash_(const ::std::string& value) {
   
   hash__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:ambr.protobuf.EnterValidateSetUint.hash_)
+  // @@protoc_insertion_point(field_set:ambr.protobuf.EnterValidateSetUnit.hash_)
 }
 #if LANG_CXX11
-inline void EnterValidateSetUint::set_hash_(::std::string&& value) {
+inline void EnterValidateSetUnit::set_hash_(::std::string&& value) {
   
   hash__.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:ambr.protobuf.EnterValidateSetUint.hash_)
+  // @@protoc_insertion_point(field_set_rvalue:ambr.protobuf.EnterValidateSetUnit.hash_)
 }
 #endif
-inline void EnterValidateSetUint::set_hash_(const char* value) {
+inline void EnterValidateSetUnit::set_hash_(const char* value) {
   GOOGLE_DCHECK(value != NULL);
   
   hash__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:ambr.protobuf.EnterValidateSetUint.hash_)
+  // @@protoc_insertion_point(field_set_char:ambr.protobuf.EnterValidateSetUnit.hash_)
 }
-inline void EnterValidateSetUint::set_hash_(const void* value, size_t size) {
+inline void EnterValidateSetUnit::set_hash_(const void* value, size_t size) {
   
   hash__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:ambr.protobuf.EnterValidateSetUint.hash_)
+  // @@protoc_insertion_point(field_set_pointer:ambr.protobuf.EnterValidateSetUnit.hash_)
 }
-inline ::std::string* EnterValidateSetUint::mutable_hash_() {
+inline ::std::string* EnterValidateSetUnit::mutable_hash_() {
   
-  // @@protoc_insertion_point(field_mutable:ambr.protobuf.EnterValidateSetUint.hash_)
+  // @@protoc_insertion_point(field_mutable:ambr.protobuf.EnterValidateSetUnit.hash_)
   return hash__.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline ::std::string* EnterValidateSetUint::release_hash_() {
-  // @@protoc_insertion_point(field_release:ambr.protobuf.EnterValidateSetUint.hash_)
+inline ::std::string* EnterValidateSetUnit::release_hash_() {
+  // @@protoc_insertion_point(field_release:ambr.protobuf.EnterValidateSetUnit.hash_)
   
   return hash__.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline void EnterValidateSetUint::set_allocated_hash_(::std::string* hash_) {
+inline void EnterValidateSetUnit::set_allocated_hash_(::std::string* hash_) {
   if (hash_ != NULL) {
     
   } else {
     
   }
   hash__.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), hash_);
-  // @@protoc_insertion_point(field_set_allocated:ambr.protobuf.EnterValidateSetUint.hash_)
+  // @@protoc_insertion_point(field_set_allocated:ambr.protobuf.EnterValidateSetUnit.hash_)
 }
 
 // bytes sign_ = 7;
-inline void EnterValidateSetUint::clear_sign_() {
+inline void EnterValidateSetUnit::clear_sign_() {
   sign__.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline const ::std::string& EnterValidateSetUint::sign_() const {
-  // @@protoc_insertion_point(field_get:ambr.protobuf.EnterValidateSetUint.sign_)
+inline const ::std::string& EnterValidateSetUnit::sign_() const {
+  // @@protoc_insertion_point(field_get:ambr.protobuf.EnterValidateSetUnit.sign_)
   return sign__.GetNoArena();
 }
-inline void EnterValidateSetUint::set_sign_(const ::std::string& value) {
+inline void EnterValidateSetUnit::set_sign_(const ::std::string& value) {
   
   sign__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:ambr.protobuf.EnterValidateSetUint.sign_)
+  // @@protoc_insertion_point(field_set:ambr.protobuf.EnterValidateSetUnit.sign_)
 }
 #if LANG_CXX11
-inline void EnterValidateSetUint::set_sign_(::std::string&& value) {
+inline void EnterValidateSetUnit::set_sign_(::std::string&& value) {
   
   sign__.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:ambr.protobuf.EnterValidateSetUint.sign_)
+  // @@protoc_insertion_point(field_set_rvalue:ambr.protobuf.EnterValidateSetUnit.sign_)
 }
 #endif
-inline void EnterValidateSetUint::set_sign_(const char* value) {
+inline void EnterValidateSetUnit::set_sign_(const char* value) {
   GOOGLE_DCHECK(value != NULL);
   
   sign__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:ambr.protobuf.EnterValidateSetUint.sign_)
+  // @@protoc_insertion_point(field_set_char:ambr.protobuf.EnterValidateSetUnit.sign_)
 }
-inline void EnterValidateSetUint::set_sign_(const void* value, size_t size) {
+inline void EnterValidateSetUnit::set_sign_(const void* value, size_t size) {
   
   sign__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:ambr.protobuf.EnterValidateSetUint.sign_)
+  // @@protoc_insertion_point(field_set_pointer:ambr.protobuf.EnterValidateSetUnit.sign_)
 }
-inline ::std::string* EnterValidateSetUint::mutable_sign_() {
+inline ::std::string* EnterValidateSetUnit::mutable_sign_() {
   
-  // @@protoc_insertion_point(field_mutable:ambr.protobuf.EnterValidateSetUint.sign_)
+  // @@protoc_insertion_point(field_mutable:ambr.protobuf.EnterValidateSetUnit.sign_)
   return sign__.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline ::std::string* EnterValidateSetUint::release_sign_() {
-  // @@protoc_insertion_point(field_release:ambr.protobuf.EnterValidateSetUint.sign_)
+inline ::std::string* EnterValidateSetUnit::release_sign_() {
+  // @@protoc_insertion_point(field_release:ambr.protobuf.EnterValidateSetUnit.sign_)
   
   return sign__.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline void EnterValidateSetUint::set_allocated_sign_(::std::string* sign_) {
+inline void EnterValidateSetUnit::set_allocated_sign_(::std::string* sign_) {
   if (sign_ != NULL) {
     
   } else {
     
   }
   sign__.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), sign_);
-  // @@protoc_insertion_point(field_set_allocated:ambr.protobuf.EnterValidateSetUint.sign_)
+  // @@protoc_insertion_point(field_set_allocated:ambr.protobuf.EnterValidateSetUnit.sign_)
 }
 
 // -------------------------------------------------------------------
 
-// LeaveValidateSetUint
+// LeaveValidateSetUnit
 
 // uint32 version_ = 1;
-inline void LeaveValidateSetUint::clear_version_() {
+inline void LeaveValidateSetUnit::clear_version_() {
   version__ = 0u;
 }
-inline ::google::protobuf::uint32 LeaveValidateSetUint::version_() const {
-  // @@protoc_insertion_point(field_get:ambr.protobuf.LeaveValidateSetUint.version_)
+inline ::google::protobuf::uint32 LeaveValidateSetUnit::version_() const {
+  // @@protoc_insertion_point(field_get:ambr.protobuf.LeaveValidateSetUnit.version_)
   return version__;
 }
-inline void LeaveValidateSetUint::set_version_(::google::protobuf::uint32 value) {
+inline void LeaveValidateSetUnit::set_version_(::google::protobuf::uint32 value) {
   
   version__ = value;
-  // @@protoc_insertion_point(field_set:ambr.protobuf.LeaveValidateSetUint.version_)
+  // @@protoc_insertion_point(field_set:ambr.protobuf.LeaveValidateSetUnit.version_)
 }
 
-// .ambr.protobuf.LeaveValidateSetUint.Type type_ = 2;
-inline void LeaveValidateSetUint::clear_type_() {
+// .ambr.protobuf.LeaveValidateSetUnit.Type type_ = 2;
+inline void LeaveValidateSetUnit::clear_type_() {
   type__ = 0;
 }
-inline ::ambr::protobuf::LeaveValidateSetUint_Type LeaveValidateSetUint::type_() const {
-  // @@protoc_insertion_point(field_get:ambr.protobuf.LeaveValidateSetUint.type_)
-  return static_cast< ::ambr::protobuf::LeaveValidateSetUint_Type >(type__);
+inline ::ambr::protobuf::LeaveValidateSetUnit_Type LeaveValidateSetUnit::type_() const {
+  // @@protoc_insertion_point(field_get:ambr.protobuf.LeaveValidateSetUnit.type_)
+  return static_cast< ::ambr::protobuf::LeaveValidateSetUnit_Type >(type__);
 }
-inline void LeaveValidateSetUint::set_type_(::ambr::protobuf::LeaveValidateSetUint_Type value) {
+inline void LeaveValidateSetUnit::set_type_(::ambr::protobuf::LeaveValidateSetUnit_Type value) {
   
   type__ = value;
-  // @@protoc_insertion_point(field_set:ambr.protobuf.LeaveValidateSetUint.type_)
+  // @@protoc_insertion_point(field_set:ambr.protobuf.LeaveValidateSetUnit.type_)
 }
 
 // bytes public_key_ = 3;
-inline void LeaveValidateSetUint::clear_public_key_() {
+inline void LeaveValidateSetUnit::clear_public_key_() {
   public_key__.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline const ::std::string& LeaveValidateSetUint::public_key_() const {
-  // @@protoc_insertion_point(field_get:ambr.protobuf.LeaveValidateSetUint.public_key_)
+inline const ::std::string& LeaveValidateSetUnit::public_key_() const {
+  // @@protoc_insertion_point(field_get:ambr.protobuf.LeaveValidateSetUnit.public_key_)
   return public_key__.GetNoArena();
 }
-inline void LeaveValidateSetUint::set_public_key_(const ::std::string& value) {
+inline void LeaveValidateSetUnit::set_public_key_(const ::std::string& value) {
   
   public_key__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:ambr.protobuf.LeaveValidateSetUint.public_key_)
+  // @@protoc_insertion_point(field_set:ambr.protobuf.LeaveValidateSetUnit.public_key_)
 }
 #if LANG_CXX11
-inline void LeaveValidateSetUint::set_public_key_(::std::string&& value) {
+inline void LeaveValidateSetUnit::set_public_key_(::std::string&& value) {
   
   public_key__.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:ambr.protobuf.LeaveValidateSetUint.public_key_)
+  // @@protoc_insertion_point(field_set_rvalue:ambr.protobuf.LeaveValidateSetUnit.public_key_)
 }
 #endif
-inline void LeaveValidateSetUint::set_public_key_(const char* value) {
+inline void LeaveValidateSetUnit::set_public_key_(const char* value) {
   GOOGLE_DCHECK(value != NULL);
   
   public_key__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:ambr.protobuf.LeaveValidateSetUint.public_key_)
+  // @@protoc_insertion_point(field_set_char:ambr.protobuf.LeaveValidateSetUnit.public_key_)
 }
-inline void LeaveValidateSetUint::set_public_key_(const void* value, size_t size) {
+inline void LeaveValidateSetUnit::set_public_key_(const void* value, size_t size) {
   
   public_key__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:ambr.protobuf.LeaveValidateSetUint.public_key_)
+  // @@protoc_insertion_point(field_set_pointer:ambr.protobuf.LeaveValidateSetUnit.public_key_)
 }
-inline ::std::string* LeaveValidateSetUint::mutable_public_key_() {
+inline ::std::string* LeaveValidateSetUnit::mutable_public_key_() {
   
-  // @@protoc_insertion_point(field_mutable:ambr.protobuf.LeaveValidateSetUint.public_key_)
+  // @@protoc_insertion_point(field_mutable:ambr.protobuf.LeaveValidateSetUnit.public_key_)
   return public_key__.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline ::std::string* LeaveValidateSetUint::release_public_key_() {
-  // @@protoc_insertion_point(field_release:ambr.protobuf.LeaveValidateSetUint.public_key_)
+inline ::std::string* LeaveValidateSetUnit::release_public_key_() {
+  // @@protoc_insertion_point(field_release:ambr.protobuf.LeaveValidateSetUnit.public_key_)
   
   return public_key__.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline void LeaveValidateSetUint::set_allocated_public_key_(::std::string* public_key_) {
+inline void LeaveValidateSetUnit::set_allocated_public_key_(::std::string* public_key_) {
   if (public_key_ != NULL) {
     
   } else {
     
   }
   public_key__.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), public_key_);
-  // @@protoc_insertion_point(field_set_allocated:ambr.protobuf.LeaveValidateSetUint.public_key_)
+  // @@protoc_insertion_point(field_set_allocated:ambr.protobuf.LeaveValidateSetUnit.public_key_)
 }
 
 // bytes prev_unit_ = 4;
-inline void LeaveValidateSetUint::clear_prev_unit_() {
+inline void LeaveValidateSetUnit::clear_prev_unit_() {
   prev_unit__.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline const ::std::string& LeaveValidateSetUint::prev_unit_() const {
-  // @@protoc_insertion_point(field_get:ambr.protobuf.LeaveValidateSetUint.prev_unit_)
+inline const ::std::string& LeaveValidateSetUnit::prev_unit_() const {
+  // @@protoc_insertion_point(field_get:ambr.protobuf.LeaveValidateSetUnit.prev_unit_)
   return prev_unit__.GetNoArena();
 }
-inline void LeaveValidateSetUint::set_prev_unit_(const ::std::string& value) {
+inline void LeaveValidateSetUnit::set_prev_unit_(const ::std::string& value) {
   
   prev_unit__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:ambr.protobuf.LeaveValidateSetUint.prev_unit_)
+  // @@protoc_insertion_point(field_set:ambr.protobuf.LeaveValidateSetUnit.prev_unit_)
 }
 #if LANG_CXX11
-inline void LeaveValidateSetUint::set_prev_unit_(::std::string&& value) {
+inline void LeaveValidateSetUnit::set_prev_unit_(::std::string&& value) {
   
   prev_unit__.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:ambr.protobuf.LeaveValidateSetUint.prev_unit_)
+  // @@protoc_insertion_point(field_set_rvalue:ambr.protobuf.LeaveValidateSetUnit.prev_unit_)
 }
 #endif
-inline void LeaveValidateSetUint::set_prev_unit_(const char* value) {
+inline void LeaveValidateSetUnit::set_prev_unit_(const char* value) {
   GOOGLE_DCHECK(value != NULL);
   
   prev_unit__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:ambr.protobuf.LeaveValidateSetUint.prev_unit_)
+  // @@protoc_insertion_point(field_set_char:ambr.protobuf.LeaveValidateSetUnit.prev_unit_)
 }
-inline void LeaveValidateSetUint::set_prev_unit_(const void* value, size_t size) {
+inline void LeaveValidateSetUnit::set_prev_unit_(const void* value, size_t size) {
   
   prev_unit__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:ambr.protobuf.LeaveValidateSetUint.prev_unit_)
+  // @@protoc_insertion_point(field_set_pointer:ambr.protobuf.LeaveValidateSetUnit.prev_unit_)
 }
-inline ::std::string* LeaveValidateSetUint::mutable_prev_unit_() {
+inline ::std::string* LeaveValidateSetUnit::mutable_prev_unit_() {
   
-  // @@protoc_insertion_point(field_mutable:ambr.protobuf.LeaveValidateSetUint.prev_unit_)
+  // @@protoc_insertion_point(field_mutable:ambr.protobuf.LeaveValidateSetUnit.prev_unit_)
   return prev_unit__.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline ::std::string* LeaveValidateSetUint::release_prev_unit_() {
-  // @@protoc_insertion_point(field_release:ambr.protobuf.LeaveValidateSetUint.prev_unit_)
+inline ::std::string* LeaveValidateSetUnit::release_prev_unit_() {
+  // @@protoc_insertion_point(field_release:ambr.protobuf.LeaveValidateSetUnit.prev_unit_)
   
   return prev_unit__.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline void LeaveValidateSetUint::set_allocated_prev_unit_(::std::string* prev_unit_) {
+inline void LeaveValidateSetUnit::set_allocated_prev_unit_(::std::string* prev_unit_) {
   if (prev_unit_ != NULL) {
     
   } else {
     
   }
   prev_unit__.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), prev_unit_);
-  // @@protoc_insertion_point(field_set_allocated:ambr.protobuf.LeaveValidateSetUint.prev_unit_)
+  // @@protoc_insertion_point(field_set_allocated:ambr.protobuf.LeaveValidateSetUnit.prev_unit_)
 }
 
 // bytes balance_ = 5;
-inline void LeaveValidateSetUint::clear_balance_() {
+inline void LeaveValidateSetUnit::clear_balance_() {
   balance__.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline const ::std::string& LeaveValidateSetUint::balance_() const {
-  // @@protoc_insertion_point(field_get:ambr.protobuf.LeaveValidateSetUint.balance_)
+inline const ::std::string& LeaveValidateSetUnit::balance_() const {
+  // @@protoc_insertion_point(field_get:ambr.protobuf.LeaveValidateSetUnit.balance_)
   return balance__.GetNoArena();
 }
-inline void LeaveValidateSetUint::set_balance_(const ::std::string& value) {
+inline void LeaveValidateSetUnit::set_balance_(const ::std::string& value) {
   
   balance__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:ambr.protobuf.LeaveValidateSetUint.balance_)
+  // @@protoc_insertion_point(field_set:ambr.protobuf.LeaveValidateSetUnit.balance_)
 }
 #if LANG_CXX11
-inline void LeaveValidateSetUint::set_balance_(::std::string&& value) {
+inline void LeaveValidateSetUnit::set_balance_(::std::string&& value) {
   
   balance__.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:ambr.protobuf.LeaveValidateSetUint.balance_)
+  // @@protoc_insertion_point(field_set_rvalue:ambr.protobuf.LeaveValidateSetUnit.balance_)
 }
 #endif
-inline void LeaveValidateSetUint::set_balance_(const char* value) {
+inline void LeaveValidateSetUnit::set_balance_(const char* value) {
   GOOGLE_DCHECK(value != NULL);
   
   balance__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:ambr.protobuf.LeaveValidateSetUint.balance_)
+  // @@protoc_insertion_point(field_set_char:ambr.protobuf.LeaveValidateSetUnit.balance_)
 }
-inline void LeaveValidateSetUint::set_balance_(const void* value, size_t size) {
+inline void LeaveValidateSetUnit::set_balance_(const void* value, size_t size) {
   
   balance__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:ambr.protobuf.LeaveValidateSetUint.balance_)
+  // @@protoc_insertion_point(field_set_pointer:ambr.protobuf.LeaveValidateSetUnit.balance_)
 }
-inline ::std::string* LeaveValidateSetUint::mutable_balance_() {
+inline ::std::string* LeaveValidateSetUnit::mutable_balance_() {
   
-  // @@protoc_insertion_point(field_mutable:ambr.protobuf.LeaveValidateSetUint.balance_)
+  // @@protoc_insertion_point(field_mutable:ambr.protobuf.LeaveValidateSetUnit.balance_)
   return balance__.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline ::std::string* LeaveValidateSetUint::release_balance_() {
-  // @@protoc_insertion_point(field_release:ambr.protobuf.LeaveValidateSetUint.balance_)
+inline ::std::string* LeaveValidateSetUnit::release_balance_() {
+  // @@protoc_insertion_point(field_release:ambr.protobuf.LeaveValidateSetUnit.balance_)
   
   return balance__.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline void LeaveValidateSetUint::set_allocated_balance_(::std::string* balance_) {
+inline void LeaveValidateSetUnit::set_allocated_balance_(::std::string* balance_) {
   if (balance_ != NULL) {
     
   } else {
     
   }
   balance__.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), balance_);
-  // @@protoc_insertion_point(field_set_allocated:ambr.protobuf.LeaveValidateSetUint.balance_)
+  // @@protoc_insertion_point(field_set_allocated:ambr.protobuf.LeaveValidateSetUnit.balance_)
 }
 
 // bytes hash_ = 6;
-inline void LeaveValidateSetUint::clear_hash_() {
+inline void LeaveValidateSetUnit::clear_hash_() {
   hash__.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline const ::std::string& LeaveValidateSetUint::hash_() const {
-  // @@protoc_insertion_point(field_get:ambr.protobuf.LeaveValidateSetUint.hash_)
+inline const ::std::string& LeaveValidateSetUnit::hash_() const {
+  // @@protoc_insertion_point(field_get:ambr.protobuf.LeaveValidateSetUnit.hash_)
   return hash__.GetNoArena();
 }
-inline void LeaveValidateSetUint::set_hash_(const ::std::string& value) {
+inline void LeaveValidateSetUnit::set_hash_(const ::std::string& value) {
   
   hash__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:ambr.protobuf.LeaveValidateSetUint.hash_)
+  // @@protoc_insertion_point(field_set:ambr.protobuf.LeaveValidateSetUnit.hash_)
 }
 #if LANG_CXX11
-inline void LeaveValidateSetUint::set_hash_(::std::string&& value) {
+inline void LeaveValidateSetUnit::set_hash_(::std::string&& value) {
   
   hash__.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:ambr.protobuf.LeaveValidateSetUint.hash_)
+  // @@protoc_insertion_point(field_set_rvalue:ambr.protobuf.LeaveValidateSetUnit.hash_)
 }
 #endif
-inline void LeaveValidateSetUint::set_hash_(const char* value) {
+inline void LeaveValidateSetUnit::set_hash_(const char* value) {
   GOOGLE_DCHECK(value != NULL);
   
   hash__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:ambr.protobuf.LeaveValidateSetUint.hash_)
+  // @@protoc_insertion_point(field_set_char:ambr.protobuf.LeaveValidateSetUnit.hash_)
 }
-inline void LeaveValidateSetUint::set_hash_(const void* value, size_t size) {
+inline void LeaveValidateSetUnit::set_hash_(const void* value, size_t size) {
   
   hash__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:ambr.protobuf.LeaveValidateSetUint.hash_)
+  // @@protoc_insertion_point(field_set_pointer:ambr.protobuf.LeaveValidateSetUnit.hash_)
 }
-inline ::std::string* LeaveValidateSetUint::mutable_hash_() {
+inline ::std::string* LeaveValidateSetUnit::mutable_hash_() {
   
-  // @@protoc_insertion_point(field_mutable:ambr.protobuf.LeaveValidateSetUint.hash_)
+  // @@protoc_insertion_point(field_mutable:ambr.protobuf.LeaveValidateSetUnit.hash_)
   return hash__.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline ::std::string* LeaveValidateSetUint::release_hash_() {
-  // @@protoc_insertion_point(field_release:ambr.protobuf.LeaveValidateSetUint.hash_)
+inline ::std::string* LeaveValidateSetUnit::release_hash_() {
+  // @@protoc_insertion_point(field_release:ambr.protobuf.LeaveValidateSetUnit.hash_)
   
   return hash__.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline void LeaveValidateSetUint::set_allocated_hash_(::std::string* hash_) {
+inline void LeaveValidateSetUnit::set_allocated_hash_(::std::string* hash_) {
   if (hash_ != NULL) {
     
   } else {
     
   }
   hash__.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), hash_);
-  // @@protoc_insertion_point(field_set_allocated:ambr.protobuf.LeaveValidateSetUint.hash_)
+  // @@protoc_insertion_point(field_set_allocated:ambr.protobuf.LeaveValidateSetUnit.hash_)
 }
 
 // bytes sign_ = 7;
-inline void LeaveValidateSetUint::clear_sign_() {
+inline void LeaveValidateSetUnit::clear_sign_() {
   sign__.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline const ::std::string& LeaveValidateSetUint::sign_() const {
-  // @@protoc_insertion_point(field_get:ambr.protobuf.LeaveValidateSetUint.sign_)
+inline const ::std::string& LeaveValidateSetUnit::sign_() const {
+  // @@protoc_insertion_point(field_get:ambr.protobuf.LeaveValidateSetUnit.sign_)
   return sign__.GetNoArena();
 }
-inline void LeaveValidateSetUint::set_sign_(const ::std::string& value) {
+inline void LeaveValidateSetUnit::set_sign_(const ::std::string& value) {
   
   sign__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:ambr.protobuf.LeaveValidateSetUint.sign_)
+  // @@protoc_insertion_point(field_set:ambr.protobuf.LeaveValidateSetUnit.sign_)
 }
 #if LANG_CXX11
-inline void LeaveValidateSetUint::set_sign_(::std::string&& value) {
+inline void LeaveValidateSetUnit::set_sign_(::std::string&& value) {
   
   sign__.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:ambr.protobuf.LeaveValidateSetUint.sign_)
+  // @@protoc_insertion_point(field_set_rvalue:ambr.protobuf.LeaveValidateSetUnit.sign_)
 }
 #endif
-inline void LeaveValidateSetUint::set_sign_(const char* value) {
+inline void LeaveValidateSetUnit::set_sign_(const char* value) {
   GOOGLE_DCHECK(value != NULL);
   
   sign__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:ambr.protobuf.LeaveValidateSetUint.sign_)
+  // @@protoc_insertion_point(field_set_char:ambr.protobuf.LeaveValidateSetUnit.sign_)
 }
-inline void LeaveValidateSetUint::set_sign_(const void* value, size_t size) {
+inline void LeaveValidateSetUnit::set_sign_(const void* value, size_t size) {
   
   sign__.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:ambr.protobuf.LeaveValidateSetUint.sign_)
+  // @@protoc_insertion_point(field_set_pointer:ambr.protobuf.LeaveValidateSetUnit.sign_)
 }
-inline ::std::string* LeaveValidateSetUint::mutable_sign_() {
+inline ::std::string* LeaveValidateSetUnit::mutable_sign_() {
   
-  // @@protoc_insertion_point(field_mutable:ambr.protobuf.LeaveValidateSetUint.sign_)
+  // @@protoc_insertion_point(field_mutable:ambr.protobuf.LeaveValidateSetUnit.sign_)
   return sign__.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline ::std::string* LeaveValidateSetUint::release_sign_() {
-  // @@protoc_insertion_point(field_release:ambr.protobuf.LeaveValidateSetUint.sign_)
+inline ::std::string* LeaveValidateSetUnit::release_sign_() {
+  // @@protoc_insertion_point(field_release:ambr.protobuf.LeaveValidateSetUnit.sign_)
   
   return sign__.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline void LeaveValidateSetUint::set_allocated_sign_(::std::string* sign_) {
+inline void LeaveValidateSetUnit::set_allocated_sign_(::std::string* sign_) {
   if (sign_ != NULL) {
     
   } else {
     
   }
   sign__.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), sign_);
-  // @@protoc_insertion_point(field_set_allocated:ambr.protobuf.LeaveValidateSetUint.sign_)
+  // @@protoc_insertion_point(field_set_allocated:ambr.protobuf.LeaveValidateSetUnit.sign_)
 }
 
 #ifdef __GNUC__
@@ -4053,15 +4053,15 @@ template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::ambr::protobuf::ValidatorUnit_Type>() {
   return ::ambr::protobuf::ValidatorUnit_Type_descriptor();
 }
-template <> struct is_proto_enum< ::ambr::protobuf::EnterValidateSetUint_Type> : ::std::true_type {};
+template <> struct is_proto_enum< ::ambr::protobuf::EnterValidateSetUnit_Type> : ::std::true_type {};
 template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::ambr::protobuf::EnterValidateSetUint_Type>() {
-  return ::ambr::protobuf::EnterValidateSetUint_Type_descriptor();
+inline const EnumDescriptor* GetEnumDescriptor< ::ambr::protobuf::EnterValidateSetUnit_Type>() {
+  return ::ambr::protobuf::EnterValidateSetUnit_Type_descriptor();
 }
-template <> struct is_proto_enum< ::ambr::protobuf::LeaveValidateSetUint_Type> : ::std::true_type {};
+template <> struct is_proto_enum< ::ambr::protobuf::LeaveValidateSetUnit_Type> : ::std::true_type {};
 template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::ambr::protobuf::LeaveValidateSetUint_Type>() {
-  return ::ambr::protobuf::LeaveValidateSetUint_Type_descriptor();
+inline const EnumDescriptor* GetEnumDescriptor< ::ambr::protobuf::LeaveValidateSetUnit_Type>() {
+  return ::ambr::protobuf::LeaveValidateSetUnit_Type_descriptor();
 }
 
 }  // namespace protobuf

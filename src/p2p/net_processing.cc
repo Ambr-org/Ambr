@@ -1027,7 +1027,6 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             vRecv >> nonce;
             vRecv >> last_validator_nonce;
             pfrom->latest_nonce = last_validator_nonce;
-            std::cout<<"last validator nonce:"<<last_validator_nonce;
             // Echo the message back with the nonce. This allows for two useful features:
             //
             // 1) A remote node can quickly check if the connection is operational
@@ -1058,7 +1057,6 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             vRecv >> nonce;
             vRecv >> last_validator_nonce;
             pfrom->latest_nonce = last_validator_nonce;
-            std::cout<<"last validator nonce:"<<last_validator_nonce;
             // Only process pong message if there is an outstanding ping (old ping without nonce should never pong)
             if (pfrom->nPingNonceSent != 0) {
                 if (nonce == pfrom->nPingNonceSent) {

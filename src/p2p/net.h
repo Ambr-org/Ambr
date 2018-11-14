@@ -762,7 +762,7 @@ public:
     // Minimum fee rate with which to filter inv's to this node
     CCriticalSection cs_feeFilter;
     int64_t nextSendTimeFeeFilter;
-    std::atomic<int64_t> latest_nonce;
+    std::atomic<uint64_t> latest_nonce;
 
     CNode(NodeId id, ServiceFlags nLocalServicesIn, int nMyStartingHeightIn, SOCKET hSocketIn, const CAddress &addrIn, uint64_t nKeyedNetGroupIn, uint64_t nLocalHostNonceIn, const CAddress &addrBindIn, const std::string &addrNameIn = "", bool fInboundIn = false);
     ~CNode();

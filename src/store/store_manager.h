@@ -30,22 +30,22 @@ public:
   //callback
   boost::signals2::connection AddCallBackReceiveNewSendUnit(std::function<void(std::shared_ptr<core::SendUnit>)> callback);
   boost::signals2::connection AddCallBackReceiveNewReceiveUnit(std::function<void(std::shared_ptr<core::ReceiveUnit>)> callback);
-  boost::signals2::connection AddCallBackReceiveNewJoinValidatorSetUnit(std::function<void(std::shared_ptr<core::EnterValidateSetUint>)> callback);
-  boost::signals2::connection AddCallBackReceiveNewLeaveValidatorSetUnit(std::function<void(std::shared_ptr<core::LeaveValidateSetUint>)> callback);
+  boost::signals2::connection AddCallBackReceiveNewJoinValidatorSetUnit(std::function<void(std::shared_ptr<core::EnterValidateSetUnit>)> callback);
+  boost::signals2::connection AddCallBackReceiveNewLeaveValidatorSetUnit(std::function<void(std::shared_ptr<core::LeaveValidateSetUnit>)> callback);
   boost::signals2::connection AddCallBackReceiveNewValidatorUnit(std::function<void(std::shared_ptr<core::ValidatorUnit>)> callback);
   boost::signals2::connection AddCallBackReceiveNewVoteUnit(std::function<void(std::shared_ptr<core::VoteUnit>)> callback);
 public:
   bool AddUnit(std::shared_ptr<core::Unit> unit, std::string* err);
   bool AddSendUnit(std::shared_ptr<core::SendUnit> send_unit, std::string* err);
   bool AddReceiveUnit(std::shared_ptr<core::ReceiveUnit> receive_unit, std::string* err);
-  bool AddEnterValidatorSetUnit(std::shared_ptr<core::EnterValidateSetUint> unit, std::string* err);
-  bool AddLeaveValidatorSetUnit(std::shared_ptr<core::LeaveValidateSetUint> unit, std::string* err);
+  bool AddEnterValidatorSetUnit(std::shared_ptr<core::EnterValidateSetUnit> unit, std::string* err);
+  bool AddLeaveValidatorSetUnit(std::shared_ptr<core::LeaveValidateSetUnit> unit, std::string* err);
   bool AddValidateUnit(std::shared_ptr<core::ValidatorUnit> unit, std::string* err);
   bool AddVote(std::shared_ptr<core::VoteUnit> unit, std::string* err);
   void ClearVote();
   void UpdateNewUnitMap(const std::vector<core::UnitHash>& validator_check_list);
 
-  void AddUnitToBuffer(std::shared_ptr<core::Unit> unit, void* addtion_data);
+  void AddUnitToBuffer(std::shared_ptr<core::Unit> unit, void* addtion_data = nullptr);
   boost::signals2::connection AddBufferHandleBack(
       std::function<void(
         std::shared_ptr<core::Unit>,
@@ -54,11 +54,13 @@ public:
       callback);
 
   bool GetLastValidateUnit(core::UnitHash& hash);
-  utils::uint64 GetLastValidateUnitNonce();
+  ambr::utils::uint64 GetLastValidatedUnitNonce();
+  ambr::core::UnitHash GetLastValidatedUnitHash();
   //get next validator hash for syn
   core::UnitHash GetNextValidatorHash(const core::UnitHash& hash);
   // get all unit validated by which validator unit hash is 'hash'
   std::list<std::shared_ptr<core::Unit>> GetAllUnitByValidatorUnitHash(const core::UnitHash& hash);
+  std::list<std::shared_ptr<core::Unit>> GetMoreAllUnitByValidatorUnitHash(const core::UnitHash& hash, uint32_t validator_unit_count);
   std::list<std::shared_ptr<core::ValidatorUnit>> GetValidateHistory(size_t count);
   bool GetLastUnitHashByPubKey(const core::PublicKey& pub_key, core::UnitHash& hash);
   bool GetBalanceByPubKey(const core::PublicKey& pub_key, core::Amount& balance);
@@ -203,8 +205,8 @@ private:
 private:
   boost::signals2::signal<void(std::shared_ptr<core::SendUnit>)> DoReceiveNewSendUnit;
   boost::signals2::signal<void(std::shared_ptr<core::ReceiveUnit>)> DoReceiveNewReceiveUnit;
-  boost::signals2::signal<void(std::shared_ptr<core::EnterValidateSetUint>)> DoReceiveNewEnterValidateSetUnit;
-  boost::signals2::signal<void(std::shared_ptr<core::LeaveValidateSetUint>)> DoReceiveNewLeaveValidateSetUnit;
+  boost::signals2::signal<void(std::shared_ptr<core::EnterValidateSetUnit>)> DoReceiveNewEnterValidateSetUnit;
+  boost::signals2::signal<void(std::shared_ptr<core::LeaveValidateSetUnit>)> DoReceiveNewLeaveValidateSetUnit;
   boost::signals2::signal<void(std::shared_ptr<core::ValidatorUnit>)> DoReceiveNewValidatorUnit;
   boost::signals2::signal<void(std::shared_ptr<core::VoteUnit>)> DoReceiveNewVoteUnit;
 private://for unit buffer

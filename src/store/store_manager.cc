@@ -75,7 +75,7 @@ void ambr::store::StoreManager::Init(const std::string& path){
       unit->SignatureAndFill(core::PrivateKey("25E25210DCE702D4E36B6C8A17E18DC1D02A9E4F0D1D31C4AEE77327CF1641CC"));
 
       //construct enter validator set unit of genesis
-      std::shared_ptr<core::EnterValidateSetUint> enter_unit = std::make_shared<core::EnterValidateSetUint>();
+      std::shared_ptr<core::EnterValidateSetUnit> enter_unit = std::make_shared<core::EnterValidateSetUnit>();
       enter_unit->set_version(0x00000001);
       enter_unit->set_type(core::UnitType::EnterValidateSet);
       enter_unit->set_public_key(unit->public_key());
@@ -169,11 +169,11 @@ boost::signals2::connection ambr::store::StoreManager::AddCallBackReceiveNewRece
   return DoReceiveNewReceiveUnit.connect(callback);
 }
 
-boost::signals2::connection ambr::store::StoreManager::AddCallBackReceiveNewJoinValidatorSetUnit(std::function<void (std::shared_ptr<ambr::core::EnterValidateSetUint>)> callback){
+boost::signals2::connection ambr::store::StoreManager::AddCallBackReceiveNewJoinValidatorSetUnit(std::function<void (std::shared_ptr<ambr::core::EnterValidateSetUnit>)> callback){
   return DoReceiveNewEnterValidateSetUnit.connect(callback);
 }
 
-boost::signals2::connection ambr::store::StoreManager::AddCallBackReceiveNewLeaveValidatorSetUnit(std::function<void (std::shared_ptr<ambr::core::LeaveValidateSetUint>)> callback){
+boost::signals2::connection ambr::store::StoreManager::AddCallBackReceiveNewLeaveValidatorSetUnit(std::function<void (std::shared_ptr<ambr::core::LeaveValidateSetUnit>)> callback){
   return DoReceiveNewLeaveValidateSetUnit.connect(callback);
 }
 
@@ -200,9 +200,9 @@ bool ambr::store::StoreManager::AddUnit(std::shared_ptr<ambr::core::Unit> unit, 
   case core::UnitType::Validator:
       return AddValidateUnit(std::dynamic_pointer_cast<core::ValidatorUnit>(unit), err);
   case core::UnitType::EnterValidateSet:
-      return AddEnterValidatorSetUnit(std::dynamic_pointer_cast<core::EnterValidateSetUint>(unit), err);
+      return AddEnterValidatorSetUnit(std::dynamic_pointer_cast<core::EnterValidateSetUnit>(unit), err);
   case core::UnitType::LeaveValidateSet:
-      return AddLeaveValidatorSetUnit(std::dynamic_pointer_cast<core::LeaveValidateSetUint>(unit), err);
+      return AddLeaveValidatorSetUnit(std::dynamic_pointer_cast<core::LeaveValidateSetUnit>(unit), err);
   default:
     break;
   }
@@ -413,7 +413,7 @@ bool ambr::store::StoreManager::AddReceiveUnit(std::shared_ptr<ambr::core::Recei
   return true;
 }
 
-bool ambr::store::StoreManager::AddEnterValidatorSetUnit(std::shared_ptr<ambr::core::EnterValidateSetUint> unit, std::string *err){
+bool ambr::store::StoreManager::AddEnterValidatorSetUnit(std::shared_ptr<ambr::core::EnterValidateSetUnit> unit, std::string *err){
   LockGrade lk(mutex_);
   if(!unit){
     if(err){
@@ -545,7 +545,7 @@ bool ambr::store::StoreManager::AddEnterValidatorSetUnit(std::shared_ptr<ambr::c
   return true;
 }
 
-bool ambr::store::StoreManager::AddLeaveValidatorSetUnit(std::shared_ptr<ambr::core::LeaveValidateSetUint> unit, std::string *err){
+bool ambr::store::StoreManager::AddLeaveValidatorSetUnit(std::shared_ptr<ambr::core::LeaveValidateSetUnit> unit, std::string *err){
   LockGrade lk(mutex_);
   if(!unit){
     if(err){
@@ -787,6 +787,25 @@ bool ambr::store::StoreManager::AddValidateUnit(std::shared_ptr<ambr::core::Vali
   ClearVote();
   //validator now
   if(unit->percent() > PASS_PERCENT){//passed
+    //set last validator unit is validated
+    std::shared_ptr<ValidatorUnitStore> prv_validator_store =
+        std::dynamic_pointer_cast<ValidatorUnitStore>(GetValidateUnit(unit->prev_unit()));
+
+    while(prv_validator_store && prv_validator_store->is_validate() == false){
+      prv_validator_store->set_is_validate(unit->hash());
+      if(prv_validator_store->next_validator_hash().is_zero()){
+        prv_validator_store->set_next_validator_hash(unit->hash());
+      }
+      std::vector<uint8_t> buf_prv = prv_validator_store->SerializeByte();
+      db_assert(batch.Write(
+         handle_validator_unit_,
+         std::string((const char*)prv_validator_store->GetUnit()->hash().bytes().data(), prv_validator_store->GetUnit()->hash().bytes().size()),
+         std::string((const char*)buf_prv.data(), buf_prv.size())));
+      prv_validator_store = std::dynamic_pointer_cast<ValidatorUnitStore>(GetValidateUnit(prv_validator_store->GetUnit()->prev_unit()));
+    }
+
+
+
     validator_set_list->set_current_nonce(unit->nonce());
     validator_set_list->set_current_validator(unit->public_key());
     std::vector<ambr::core::UnitHash> checked_list = prv_validate_unit->check_list();
@@ -989,15 +1008,22 @@ void ambr::store::StoreManager::UpdateNewUnitMap(const std::vector<core::UnitHas
 void ambr::store::StoreManager::AddUnitToBuffer(std::shared_ptr<ambr::core::Unit> unit, void* addtion_data){
   bool need_flush = false;
   std::lock_guard<std::mutex> lk(unit_buffer_mutex_);
-  if(AddUnit(unit, nullptr)){
+  std::string err;
+  if(AddUnit(unit, &err)){
     need_flush = true;
     buffer_handle_callback_(unit, addtion_data, true);
   }else{
-    unit_buffer_.push_back(std::make_pair(unit, addtion_data));
-    if(unit_buffer_.size() > MAX_BUFFER_SIZE){
-      auto pop_item = unit_buffer_.front();
-      buffer_handle_callback_(pop_item.first, pop_item.second, false);
-      unit_buffer_.pop_front();
+    if(!GetUnit(unit->hash())){
+      unit_buffer_.push_back(std::make_pair(unit, addtion_data));
+      if(unit_buffer_.size() > MAX_BUFFER_SIZE){
+        auto pop_item = unit_buffer_.front();
+        buffer_handle_callback_(pop_item.first, pop_item.second, false);
+        unit_buffer_.pop_front();
+      }
+    }
+    else{
+      bool fordebug;
+      fordebug=true;
     }
   }
   while(need_flush == true){
@@ -1025,12 +1051,20 @@ bool ambr::store::StoreManager::GetLastValidateUnit(core::UnitHash& hash){
   return true;
 }
 
-ambr::utils::uint64 ambr::store::StoreManager::GetLastValidateUnitNonce(){
+ambr::utils::uint64 ambr::store::StoreManager::GetLastValidatedUnitNonce(){
   std::shared_ptr<core::ValidatorUnit> validator_unit = std::dynamic_pointer_cast<core::ValidatorUnit>(GetLastestValidateUnit()->GetUnit());
   while(!validator_unit->Validate(nullptr)){
     validator_unit = std::dynamic_pointer_cast<core::ValidatorUnit>(GetValidateUnit(validator_unit->prev_unit()));
   }
   return validator_unit->nonce();
+}
+
+ambr::core::UnitHash ambr::store::StoreManager::GetLastValidatedUnitHash(){
+  std::shared_ptr<core::ValidatorUnit> validator_unit = std::dynamic_pointer_cast<core::ValidatorUnit>(GetLastestValidateUnit()->GetUnit());
+  while(!validator_unit->Validate(nullptr)){
+    validator_unit = std::dynamic_pointer_cast<core::ValidatorUnit>(GetValidateUnit(validator_unit->prev_unit()));
+  }
+  return validator_unit->hash();
 }
 
 ambr::core::UnitHash ambr::store::StoreManager::GetNextValidatorHash(const ambr::core::UnitHash &hash){
@@ -1132,8 +1166,14 @@ std::list<std::shared_ptr<ambr::core::Unit> > ambr::store::StoreManager::GetAllU
     }
     item_list.sort(compare_func);
   }
+  rtn.push_back(validator_store->GetUnit());
   return rtn;
 }
+
+/*std::list<std::shared_ptr<ambr::core::Unit> > ambr::store::StoreManager::GetMoreAllUnitByValidatorUnitHash(const ambr::core::UnitHash &hash, uint32_t validator_unit_count){
+  if(validator_unit_count > 10)validator_unit_count=10;
+  GetNextValidatorHash(hash)
+}*/
 
 std::list<std::shared_ptr<ambr::core::ValidatorUnit> > ambr::store::StoreManager::GetValidateHistory(size_t count){
   LockGrade lk(mutex_);
@@ -1519,7 +1559,7 @@ bool ambr::store::StoreManager::JoinValidatorSet(const core::PrivateKey& pri_key
                                                  std::shared_ptr<ambr::core::Unit>& unit_join,
                                                  std::string* err){
   LockGrade lk(mutex_);
-  std::shared_ptr<ambr::core::EnterValidateSetUint> unit = std::make_shared<ambr::core::EnterValidateSetUint>();
+  std::shared_ptr<ambr::core::EnterValidateSetUnit> unit = std::make_shared<ambr::core::EnterValidateSetUnit>();
   core::PublicKey pub_key = core::GetPublicKeyByPrivateKey(pri_key);
   core::UnitHash last_hash;
   std::shared_ptr<ambr::store::UnitStore> last_unit;
@@ -1565,7 +1605,7 @@ bool ambr::store::StoreManager::LeaveValidatorSet(const core::PrivateKey& pri_ke
                                                   std::string* err)
 {
   LockGrade lk(mutex_);
-  std::shared_ptr<ambr::core::LeaveValidateSetUint> unit = std::make_shared<ambr::core::LeaveValidateSetUint>();
+  std::shared_ptr<ambr::core::LeaveValidateSetUnit> unit = std::make_shared<ambr::core::LeaveValidateSetUnit>();
   core::PublicKey pub_key = core::GetPublicKeyByPrivateKey(pri_key);
   core::UnitHash last_hash;
   std::shared_ptr<ambr::store::UnitStore> last_unit;
