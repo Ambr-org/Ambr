@@ -658,7 +658,6 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         return true;
     }
 
-    std::cout << "Command = " << strCommand << std::endl;
     if (!(pfrom->GetLocalServices() & NODE_BLOOM) &&
               (strCommand == NetMsgType::FILTERLOAD ||
                strCommand == NetMsgType::FILTERADD))
@@ -1190,6 +1189,15 @@ bool PeerLogicValidation::ProcessMessages(CNode* pfrom, std::atomic<bool>& inter
         if (pfrom->vProcessMsg.empty())
             return false;
         // Just take one message
+        while(pfrom->vProcessMsg.size() > connman->GetMaxProcessReivSize() &&
+              pfrom->vProcessMsg.front().hdr.GetCommand() != "ping" &&
+              pfrom->vProcessMsg.front().hdr.GetCommand() != "pong"){
+          msgs.splice(msgs.begin(), pfrom->vProcessMsg, pfrom->vProcessMsg.begin());
+          pfrom->nProcessQueueSize -= msgs.front().vRecv.size() + CMessageHeader::HEADER_SIZE;
+          pfrom->fPauseRecv = pfrom->nProcessQueueSize > connman->GetReceiveFloodSize();
+        }
+
+        msgs.clear();
         msgs.splice(msgs.begin(), pfrom->vProcessMsg, pfrom->vProcessMsg.begin());
         pfrom->nProcessQueueSize -= msgs.front().vRecv.size() + CMessageHeader::HEADER_SIZE;
         pfrom->fPauseRecv = pfrom->nProcessQueueSize > connman->GetReceiveFloodSize();
@@ -1233,9 +1241,11 @@ bool PeerLogicValidation::ProcessMessages(CNode* pfrom, std::atomic<bool>& inter
     bool fRet = false;
     try
     {
+        std::cout << "Command = " << strCommand << std::endl;
+        int64_t start_time = GetTimeMicros();
         fRet = ProcessMessage(pfrom, strCommand, vRecv, msg.nTime, chainparams, connman, interruptMsgProc, m_enable_bip61);
-        //if(!fRet){
         fRet = DoReceiveNewMsg(msg, pfrom);
+        std::cout<<"UseTime "<<(GetTimeMicros()-start_time)/1000000.0f<<std::endl;
         //}
         if (interruptMsgProc)
             return false;

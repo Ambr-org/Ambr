@@ -43,6 +43,7 @@ public:
   void AddListInNode(CNode *pnode);
   bool GetIfPauseSend(const std::string &addr);
   bool GetIfPauseReceive(const std::string &addr);
+  uint64_t GetNodeNonce(const std::string &addr);
   void RemoveNode(CNode* p_node, uint32_t second);
   bool UnSerialize(std::vector<uint8_t>& vec_bytes);
   bool Init(const ambr::syn::SynManagerConfig& config);
@@ -73,7 +74,7 @@ private:
   CNode* p_max_no_node_;
   uint32_t reqdynastyno_;
   std::mutex state_mutex_;
-  Ptr_CConnman p_cconnman_;
+  //Ptr_CConnman p_cconnman_;
   Ptr_CScheduler p_scheduler;
   //ambr::syn::SynState state_;
   Ptr_StoreManager p_storemanager_;
@@ -108,7 +109,7 @@ private:
     node_sync_ = node_sync;
     //request sync
     SendMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::REQUESTDYNASTY, p_storemanager_->GetLastValidatedUnitHash().encode_to_hex()), node_sync);
-    LOG(WARNING)<<">>>>>>>>>>start sync";
+    LOG(WARNING)<<">>>>>>>>>>start sync:"<<p_storemanager_->GetLastValidatedUnitHash().encode_to_hex();
     sync_timer_.expires_from_now(boost::posix_time::milliseconds(sync_timer_value_));
     sync_timer_.async_wait(boost::bind(&ambr::syn::SynManager::Impl::OnSyncTimeOut, this, boost::asio::placeholders::error));
   }
@@ -143,7 +144,7 @@ ambr::syn::SynManager::Impl::Impl(Ptr_StoreManager p_store_manager)
   , num_node_no_(0)
   , p_max_no_node_(nullptr)
   , reqdynastyno_(0)
-  , p_cconnman_(std::make_shared<CConnman>(ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max()), ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max())))
+  //, p_cconnman_(std::make_shared<CConnman>(ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max()), ambr::p2p::GetRand(std::numeric_limits<uint64_t>::max())))
   , p_scheduler(std::make_shared<CScheduler>())
   , p_storemanager_(p_store_manager)
   , is_sync_(false)
@@ -151,7 +152,7 @@ ambr::syn::SynManager::Impl::Impl(Ptr_StoreManager p_store_manager)
   , dynasty_timer_(ios_)
   , dynasty_timer_value_(1000)
   , sync_timer_(ios_)
-  , sync_timer_value_(1000)
+  , sync_timer_value_(10000)
   , node_sync_(nullptr){
 }
 
@@ -166,11 +167,45 @@ void ambr::syn::SynManager::Impl::AddListInNode(CNode *pnode){
 }
 
 bool ambr::syn::SynManager::Impl::GetIfPauseSend(const std::string &addr){
-  return p_cconnman_->GetIfPauseSend(addr);
+  for(CNode* node_item:list_in_nodes_){
+    if(node_item->GetAddrName() == addr){
+      return node_item->fPauseSend;
+    }
+  }
+  for(CNode* node_item:list_out_nodes_){
+    if(node_item->GetAddrName() == addr){
+      return node_item->fPauseSend;
+    }
+  }
+  return false;
 }
 
 bool ambr::syn::SynManager::Impl::GetIfPauseReceive(const std::string &addr){
-  return p_cconnman_->GetIfPauseReceive(addr);
+  for(CNode* node_item:list_in_nodes_){
+    if(node_item->GetAddrName() == addr){
+      return node_item->fPauseRecv;
+    }
+  }
+  for(CNode* node_item:list_out_nodes_){
+    if(node_item->GetAddrName() == addr){
+      return node_item->fPauseRecv;
+    }
+  }
+  return false;
+}
+
+uint64_t ambr::syn::SynManager::Impl::GetNodeNonce(const std::string &addr){
+  for(CNode* node_item:list_in_nodes_){
+    if(node_item->GetAddrName() == addr){
+      return node_item->latest_nonce;
+    }
+  }
+  for(CNode* node_item:list_out_nodes_){
+    if(node_item->GetAddrName() == addr){
+      return node_item->latest_nonce;
+    }
+  }
+  return 0;
 }
 
 void ambr::syn::SynManager::Impl::RemoveNode(CNode* p_node, uint32_t second){
@@ -293,6 +328,7 @@ bool ambr::syn::SynManager::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode
       if(validator_hash_next_.is_zero())return true;
       if(!p_storemanager_->GetValidateUnit(validator_hash_next_)->is_validate())return true;
       std::list<std::shared_ptr<ambr::core::Unit> >unit_list = p_storemanager_->GetAllUnitByValidatorUnitHash(validator_hash_next_);
+      LOG(INFO)<<"Count of sended unit is :"<<unit_list.size();
       std::vector<std::vector<uint8_t>> unit_list_buf;
       //unit_list_buf.resize(unit_list.size());
       size_t idx = 0;
@@ -319,14 +355,21 @@ bool ambr::syn::SynManager::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode
       if(p_node != node_sync_ || is_sync_ != true){
         return false;
       }
+
       std::vector<uint8_t> buf;
       buf.assign(netmsg.vRecv.begin(), netmsg.vRecv.end());
       UnSerialize(buf);
       bool right = true;
       uint64_t idx = 0;
+      uint32_t unit_count = 0;
       while(right){
         uint64_t size = 0;
-        if(buf.size() - idx < sizeof(size))return true;
+        if(buf.size() - idx < sizeof(size)){
+          LOG(INFO)<<"Count of Receive unit is :"<<unit_count;
+          OnGetSync();
+          LOG(WARNING)<<">>>>>>>>>>Receive sync:"<<p_storemanager_->GetLastValidatedUnitHash().encode_to_hex();
+          return true;
+        }
         memcpy(&size, buf.data()+idx, sizeof(size));
         idx+=sizeof(size);
         if(size <= sizeof(uint32_t)){
@@ -358,9 +401,10 @@ bool ambr::syn::SynManager::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode
         }
         idx+=buf_tmp.size();
         p_storemanager_->AddUnitToBuffer(unit);
-
+        unit_count++;
       }
     }
+
     return false;
 }
 
@@ -433,9 +477,8 @@ void ambr::syn::SynManager::Impl::ReturnUnit(const std::vector<uint8_t>& buf, CN
 }
 
 void ambr::syn::SynManager::Impl::Shutdown(){
-    static CCriticalSection cs_Shutdown;
-    TRY_LOCK(cs_Shutdown, lockShutdown);
-    p_cconnman_->Stop();
+  exit_ = true;
+  ios_thread.join();
 }
 
 void ambr::syn::SynManager::Impl::WaitForShutdown(){
@@ -443,7 +486,7 @@ void ambr::syn::SynManager::Impl::WaitForShutdown(){
     {
         MilliSleep(200);
     }
-    p_cconnman_->Interrupt();
+    //p_cconnman_->Interrupt();
 }
 
 void ambr::syn::SynManager::Impl::IoServiceThread(){
@@ -606,4 +649,8 @@ bool ambr::syn::SynManager::GetNodeIfPauseSend(const std::string &node_addr){
 
 bool ambr::syn::SynManager::GetNodeIfPauseReceive(const std::string &node_addr){
   return p_impl_->GetIfPauseReceive(node_addr);
+}
+
+uint64_t ambr::syn::SynManager::GetNodeNonce(const std::string &node_addr){
+  return p_impl_->GetNodeNonce(node_addr);
 }

@@ -81,6 +81,7 @@ public:
 
   bool GetNodeIfPauseSend(const std::string& node_addr);
   bool GetNodeIfPauseReceive(const std::string& node_addr);
+  uint64_t GetNodeNonce(const std::string& node_addr);
 public:
   class Impl;
 private:

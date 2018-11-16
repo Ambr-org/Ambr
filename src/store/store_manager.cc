@@ -1076,12 +1076,15 @@ ambr::core::UnitHash ambr::store::StoreManager::GetNextValidatorHash(const ambr:
 }
 
 std::list<std::shared_ptr<ambr::core::Unit> > ambr::store::StoreManager::GetAllUnitByValidatorUnitHash(const ambr::core::UnitHash &hash){
+ /* boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();
+
   std::list<std::shared_ptr<core::Unit>> rtn;
 
   struct Item{
     Item(std::shared_ptr<core::Unit> unit):unit_(unit){}
     std::shared_ptr<core::Unit> unit_;
     std::list<core::UnitHash> depends_list_;
+    //std::set<core::UnitHash> child_list_;
   };
   std::function<bool(std::shared_ptr<Item>, std::shared_ptr<Item>)> compare_func =
       [](std::shared_ptr<Item> item1, std::shared_ptr<Item> item2){
@@ -1128,7 +1131,7 @@ std::list<std::shared_ptr<ambr::core::Unit> > ambr::store::StoreManager::GetAllU
           std::shared_ptr<core::ReceiveUnit> receive_unit = std::dynamic_pointer_cast<core::ReceiveUnit>(unit_store->GetUnit());
           db_assert(receive_unit);
           core::UnitHash hash_from = receive_unit->from();
-          std::shared_ptr<Item> item = std::make_shared<Item>(receive_unit);
+          //std::shared_ptr<Item> item = std::make_shared<Item>(receive_unit);
           std::shared_ptr<store::UnitStore> unit_tmp;
           unit_tmp = GetUnit(hash_from);
           db_assert(unit_tmp);
@@ -1141,6 +1144,7 @@ std::list<std::shared_ptr<ambr::core::Unit> > ambr::store::StoreManager::GetAllU
         item_list.push_back(item);
       }
   }
+  LOG(INFO)<<__FUNCTION__<<"step 1 use time:"<<(boost::posix_time::microsec_clock::local_time()-start).total_microseconds();
   item_list.sort(compare_func);
   uint32_t count = 0;
   while(item_list.size()){
@@ -1167,7 +1171,130 @@ std::list<std::shared_ptr<ambr::core::Unit> > ambr::store::StoreManager::GetAllU
     item_list.sort(compare_func);
   }
   rtn.push_back(validator_store->GetUnit());
+  LOG(INFO)<<__FUNCTION__<<"step 2 use time:"<<(boost::posix_time::microsec_clock::local_time()-start).total_microseconds();
+  return rtn;*/
+  boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();
+
+  std::list<std::shared_ptr<core::Unit>> rtn;
+
+  struct Item{
+    Item(std::shared_ptr<core::Unit> unit):unit_(unit){}
+    std::shared_ptr<core::Unit> unit_;
+    std::set<core::UnitHash> depends_list_;
+    //std::set<core::UnitHash> child_list_;
+  };
+  std::function<bool(std::shared_ptr<Item>, std::shared_ptr<Item>)> compare_func =
+       [](std::shared_ptr<Item> item1, std::shared_ptr<Item> item2){
+     return item1->depends_list_.size() < item2->depends_list_.size();
+  };
+  std::map<ambr::core::UnitHash, std::shared_ptr<Item>> item_list;
+  std::unordered_map<core::UnitHash, std::set<ambr::core::UnitHash>> depends_list;
+  std::shared_ptr<ambr::store::ValidatorUnitStore> validator_store = GetValidateUnit(hash);
+  if(!validator_store){
+    return rtn;
+  }
+  //validated_hash, if this validator_unit is not effective, validated unit is not this unit's hash
+  core::UnitHash validated_unit_hash;
+  bool b_first = true;
+
+  for(core::UnitHash item_hash: validator_store->unit()->check_list()){
+    while(1){
+      std::shared_ptr<ambr::store::UnitStore> unit_store = GetUnit(item_hash);
+      if(!unit_store){
+        break;
+      }
+      if(b_first){
+        validated_unit_hash = unit_store->validated_hash();
+        b_first = false;
+      }
+      if(validated_unit_hash != unit_store->validated_hash()){
+        break;
+      }
+      //add previous unit has to depends
+      std::shared_ptr<ambr::core::Unit> unit = unit_store->GetUnit();
+      db_assert(unit);
+      std::shared_ptr<Item> item = std::make_shared<Item>(unit);
+      if(!unit->prev_unit().is_zero()){
+        std::shared_ptr<store::UnitStore> unit_store_prv = GetUnit(unit->prev_unit());
+        db_assert(unit_store_prv);
+        core::UnitHash prv_unit_hash = unit->prev_unit();
+        if(unit_store_prv->validated_hash() == validated_unit_hash){
+          item->depends_list_.insert(prv_unit_hash);
+          depends_list[prv_unit_hash].insert(item->unit_->hash());
+        }
+      }
+
+      if(unit_store->type() == store::UnitStore::ST_ReceiveUnit){
+        std::shared_ptr<core::ReceiveUnit> receive_unit = std::dynamic_pointer_cast<core::ReceiveUnit>(unit_store->GetUnit());
+        db_assert(receive_unit);
+        core::UnitHash hash_from = receive_unit->from();
+        //std::shared_ptr<Item> item = std::make_shared<Item>(receive_unit);
+        std::shared_ptr<store::UnitStore> unit_tmp;
+        unit_tmp = GetUnit(hash_from);
+        db_assert(unit_tmp);
+        if(unit_tmp->validated_hash() == validated_unit_hash){
+          item->depends_list_.insert(hash_from);
+          depends_list[hash_from].insert(item->unit_->hash());
+        }
+      }
+      item_hash = unit->prev_unit();
+      item_list.insert(std::make_pair(item->unit_->hash(), item));
+    }
+  }
+  LOG(INFO)<<__FUNCTION__<<"step 1 use time:"<<(boost::posix_time::microsec_clock::local_time()-start).total_microseconds();
+  /*for(const std::pair<core::UnitHash, std::list<std::shared_ptr<Item>>> &depends_item: depends_list){
+    for(const std::shared_ptr<Item> &item:depends_item.second){
+      item->child_list_.insert(depends_item.first);
+    }
+  }*/
+  std::list<std::shared_ptr<Item>> zero_item;
+  for(const std::pair<ambr::core::UnitHash, std::shared_ptr<Item>> &item:item_list){
+    if(item.second->depends_list_.size() == 0){
+      zero_item.push_back(item.second);
+    }
+  }
+  while(zero_item.size()){
+    std::shared_ptr<Item> item = zero_item.front();
+    zero_item.pop_front();
+    rtn.push_back(item->unit_);
+    for(const ambr::core::UnitHash& child_item:depends_list[item->unit_->hash()]){
+      item_list[child_item]->depends_list_.erase(item->unit_->hash());
+      if(item_list[child_item]->depends_list_.size()==0){
+        zero_item.push_back(item_list[child_item]);
+      }
+    }
+  }
+  rtn.push_back(validator_store->GetUnit());
+  LOG(INFO)<<__FUNCTION__<<"step 2 use time:"<<(boost::posix_time::microsec_clock::local_time()-start).total_microseconds();
   return rtn;
+   /*item_list.sort(compare_func);
+   uint32_t count = 0;
+   while(item_list.size()){
+     count++;
+     std::shared_ptr<Item> item = item_list.front();
+     while(item && !item->depends_list_.size()){
+       //db_assert(!item->depends_list_.size());
+       rtn.push_back(item->unit_);
+       item_list.pop_front();
+       core::UnitHash rm_hash = item->unit_->hash();
+       for(std::shared_ptr<Item> rm_item : depends_list[rm_hash]){
+         count++;
+         rm_item->depends_list_.remove_if([&](const core::UnitHash& hash){
+           count++;
+           return  (hash == rm_hash);
+         });
+       }
+       if(item_list.size()){
+         item = item_list.front();
+       }else{
+         item.reset();
+       }
+     }
+     item_list.sort(compare_func);
+   }
+   rtn.push_back(validator_store->GetUnit());
+   LOG(INFO)<<__FUNCTION__<<"step 2 use time:"<<(boost::posix_time::microsec_clock::local_time()-start).total_microseconds();
+   return rtn;*/
 }
 
 /*std::list<std::shared_ptr<ambr::core::Unit> > ambr::store::StoreManager::GetMoreAllUnitByValidatorUnitHash(const ambr::core::UnitHash &hash, uint32_t validator_unit_count){

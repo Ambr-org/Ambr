@@ -143,6 +143,7 @@ public:
         NetEventsInterface* m_msgproc = nullptr;
         unsigned int nSendBufferMaxSize = 0;
         unsigned int nReceiveFloodSize = 0;
+        unsigned int nMaxProcessReivSize=6;
         uint64_t nMaxOutboundTimeframe = 0;
         uint64_t nMaxOutboundLimit = 0;
         std::vector<std::string> vSeedNodes;
@@ -172,6 +173,7 @@ public:
         m_msgproc = connOptions.m_msgproc;
         nSendBufferMaxSize = connOptions.nSendBufferMaxSize;
         nReceiveFloodSize = connOptions.nReceiveFloodSize;
+        nMaxProcessReivSize = connOptions.nMaxProcessReivSize;
         {
             LOCK(cs_totalBytesSent);
             nMaxOutboundTimeframe = connOptions.nMaxOutboundTimeframe;
@@ -330,6 +332,7 @@ public:
     CSipHasher GetDeterministicRandomizer(uint64_t id) const;
 
     unsigned int GetReceiveFloodSize() const;
+    unsigned int GetMaxProcessReivSize() const;
 
     void WakeMessageHandler();
 
@@ -338,9 +341,6 @@ public:
         Variable intervals will result in privacy decrease.
     */
     int64_t PoissonNextSendInbound(int64_t now, int average_interval_seconds);
-
-    bool GetIfPauseReceive(const std::string& addr);
-    bool GetIfPauseSend(const std::string& addr);
 
     std::vector<CNode*> GetNodes(){
         return vNodes;
@@ -417,6 +417,7 @@ private:
 
     unsigned int nSendBufferMaxSize;
     unsigned int nReceiveFloodSize;
+    unsigned int nMaxProcessReivSize;
 
     std::vector<ListenSocket> vhListenSocket;
     std::atomic<bool> fNetworkActive;

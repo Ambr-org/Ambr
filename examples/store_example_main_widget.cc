@@ -66,12 +66,7 @@ StoreExampleMainWidget::StoreExampleMainWidget(std::shared_ptr<ambr::store::Stor
   for(int i = 0; i < 32; i++){
     validator_auto_.push_back(std::make_shared<ambr::utils::ValidatorAuto>(store_manager));
   }
-  chain_draw_timer.start(40);
-  connect(&chain_draw_timer, SIGNAL(timeout()), this, SLOT(OnDrawTimerOut()));
-  tps_timer_.start(1000);
-  connect(&tps_timer_, SIGNAL(timeout()), this, SLOT(OnTpsTimer()));
-  net_state_timer_.start(1000);
-  connect(&net_state_timer_, SIGNAL(timeout()), this, SLOT(OnNetStateTimer()));
+
 }
 
 StoreExampleMainWidget::~StoreExampleMainWidget(){
@@ -741,6 +736,13 @@ void StoreExampleMainWidget::on_btnInitDataBase_clicked(){
   ui->tabMain->setTabEnabled(3, true);
   ui->btnInitDataBase->setEnabled(false);
   rpc_server_.StartRpcServer(store_manager_, 10112);
+  //start timmer
+  chain_draw_timer.start(40);
+  connect(&chain_draw_timer, SIGNAL(timeout()), this, SLOT(OnDrawTimerOut()));
+  tps_timer_.start(1000);
+  connect(&tps_timer_, SIGNAL(timeout()), this, SLOT(OnTpsTimer()));
+  net_state_timer_.start(1000);
+  connect(&net_state_timer_, SIGNAL(timeout()), this, SLOT(OnNetStateTimer()));
 }
 
 void StoreExampleMainWidget::on_btnFlushValidatorSet_clicked(){
@@ -1053,15 +1055,18 @@ void StoreExampleMainWidget::OnTpsTimer(){
 }
 
 void StoreExampleMainWidget::OnNetStateTimer(){
+  ui->lblValidatorNonce->setText(QString::number(store_manager_->GetLastValidatedUnitNonce()));
   for(int i = 0; i < ui->tbP2PConnectionIn->rowCount(); i++){
     std::string str_addr = ui->tbP2PConnectionIn->item(i, 0)->text().toStdString()+":"+ui->tbP2PConnectionIn->item(i, 1)->text().toStdString();
     ui->tbP2PConnectionIn->setItem(i,2, new QTableWidgetItem(p_syn_manager->GetNodeIfPauseSend(str_addr)?"yes":"no"));
     ui->tbP2PConnectionIn->setItem(i,3, new QTableWidgetItem(p_syn_manager->GetNodeIfPauseReceive(str_addr)?"yes":"no"));
+    ui->tbP2PConnectionIn->setItem(i,4, new QTableWidgetItem(QString::number(p_syn_manager->GetNodeNonce(str_addr))));
   }
   for(int i = 0; i < ui->tbP2PConnectionOut->rowCount(); i++){
     std::string str_addr = ui->tbP2PConnectionOut->item(i, 0)->text().toStdString()+":"+ui->tbP2PConnectionOut->item(i, 1)->text().toStdString();
     ui->tbP2PConnectionOut->setItem(i,2, new QTableWidgetItem(p_syn_manager->GetNodeIfPauseSend(str_addr)?"yes":"no"));
     ui->tbP2PConnectionOut->setItem(i,3, new QTableWidgetItem(p_syn_manager->GetNodeIfPauseReceive(str_addr)?"yes":"no"));
+    ui->tbP2PConnectionOut->setItem(i,4, new QTableWidgetItem(QString::number(p_syn_manager->GetNodeNonce(str_addr))));
   }
 }
 

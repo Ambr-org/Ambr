@@ -18,7 +18,7 @@
 #include <scheduler.h>
 
 #include <utilstrencodings.h>
-
+#include <glog/logging.h>
 #ifdef WIN32
 #include <string.h>
 #else
@@ -878,6 +878,7 @@ const uint256& CNetMessage::GetMessageHash() const
 // requires LOCK(cs_vSend)
 size_t CConnman::SocketSendData(CNode *pnode) const
 {
+    LOCK(pnode->cs_hSocket);
     auto it = pnode->vSendMsg.begin();
     size_t nSentSize = 0;
 
@@ -886,10 +887,11 @@ size_t CConnman::SocketSendData(CNode *pnode) const
         assert(data.size() > pnode->nSendOffset);
         int nBytes = 0;
         {
-            LOCK(pnode->cs_hSocket);
             if (pnode->hSocket == INVALID_SOCKET)
                 break;
-            nBytes = send(pnode->hSocket, reinterpret_cast<const char*>(data.data()) + pnode->nSendOffset, data.size() - pnode->nSendOffset, MSG_WAITALL);
+            LOG(INFO)<<"Sending message, size:"<<data.size() - pnode->nSendOffset;
+            nBytes = send(pnode->hSocket, reinterpret_cast<const char*>(data.data()) + pnode->nSendOffset, data.size() - pnode->nSendOffset, MSG_DONTWAIT|MSG_NOSIGNAL);
+            LOG(INFO)<<"Sended, size:"<<nBytes;
         }
         if (nBytes > 0) {
             pnode->nLastSend = GetSystemTimeInSeconds();
@@ -2692,6 +2694,7 @@ int CConnman::GetBestHeight() const
 
 unsigned int CConnman::GetReceiveFloodSize() const { return nReceiveFloodSize; }
 
+unsigned int CConnman::GetMaxProcessReivSize() const{ return nMaxProcessReivSize; }
 CNode::CNode(NodeId idIn, ServiceFlags nLocalServicesIn, int nMyStartingHeightIn, SOCKET hSocketIn, const CAddress& addrIn, uint64_t nKeyedNetGroupIn, uint64_t nLocalHostNonceIn, const CAddress &addrBindIn, const std::string& addrNameIn, bool fInboundIn) :
     nTimeConnected(GetSystemTimeInSeconds()),
     addr(addrIn),
@@ -2835,6 +2838,7 @@ bool CConnman::NodeFullyConnected(const CNode* pnode)
 
 void CConnman::PushMessage(CNode* pnode, CSerializedNetMsg&& msg)
 {
+    LOG(INFO)<<"start send message to "<<pnode->GetAddrName()<<", command is "<<msg.command;
     size_t nMessageSize = msg.data.size();
     size_t nTotalSize = nMessageSize + CMessageHeader::HEADER_SIZE;
     LogPrint(BCLog::NET, "sending %s (%d bytes) peer=%d\n",  SanitizeString(msg.command.c_str()), nMessageSize, pnode->GetId());
@@ -2892,28 +2896,6 @@ int64_t CConnman::PoissonNextSendInbound(int64_t now, int average_interval_secon
         m_next_send_inv_to_incoming = PoissonNextSend(now, average_interval_seconds);
     }
     return m_next_send_inv_to_incoming;
-}
-
-bool CConnman::GetIfPauseReceive(const std::string &addr){
-  LOCK(cs_vNodes);
-  // Disconnect unused nodes
-  for(CNode* pNode:vNodes){
-    if(pNode->addrName == addr){
-      return pNode->fPauseRecv;
-    }
-  }
-  return false;
-}
-
-bool CConnman::GetIfPauseSend(const std::string &addr){
-  LOCK(cs_vNodes);
-  // Disconnect unused nodes
-  for(CNode* pNode:vNodes){
-    if(pNode->addrName == addr){
-      return pNode->fPauseSend;
-    }
-  }
-  return true;
 }
 
 int64_t PoissonNextSend(int64_t now, int average_interval_seconds)
