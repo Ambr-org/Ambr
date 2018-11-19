@@ -50,14 +50,6 @@ StoreExampleMainWidget::StoreExampleMainWidget(std::shared_ptr<ambr::store::Stor
   connect(this, SIGNAL(sgConnect(QString)), this, SLOT(onDealConnect(QString)));
   connect(this, SIGNAL(sgDisconnected(QString)), this, SLOT(onDealDisconnected(QString)));
 
-  store_manager_->AddCallBackReceiveNewSendUnit(std::bind(&ambr::syn::SynManager::BoardCastNewSendUnit, p_syn_manager.get(), std::placeholders::_1));
-  store_manager_->AddCallBackReceiveNewReceiveUnit(std::bind(&ambr::syn::SynManager::BoardCastNewReceiveUnit, p_syn_manager.get(), std::placeholders::_1));
-  store_manager_->AddCallBackReceiveNewValidatorUnit(std::bind(&ambr::syn::SynManager::BoardCastNewValidatorUnit, p_syn_manager.get(), std::placeholders::_1));
-  store_manager_->AddCallBackReceiveNewJoinValidatorSetUnit(std::bind(&ambr::syn::SynManager::BoardCastNewJoinValidatorSetUnit, p_syn_manager.get(), std::placeholders::_1));
-  store_manager_->AddCallBackReceiveNewLeaveValidatorSetUnit(std::bind(&ambr::syn::SynManager::BoardCastNewLeaveValidatorSetUnit, p_syn_manager.get(), std::placeholders::_1));
-  store_manager_->AddCallBackReceiveNewVoteUnit(std::bind(&ambr::syn::SynManager::BoardCastNewVoteUnit, p_syn_manager.get(), std::placeholders::_1));
-
-
   store_manager_->AddCallBackReceiveNewSendUnit(std::bind(&StoreExampleMainWidget::OnGetNewUnit, this));
   store_manager_->AddCallBackReceiveNewReceiveUnit(std::bind(&StoreExampleMainWidget::OnGetNewUnit, this));
   store_manager_->AddCallBackReceiveNewValidatorUnit(std::bind(&StoreExampleMainWidget::OnGetNewUnit, this));

@@ -290,6 +290,9 @@ bool ambr::syn::SynManager::Impl::Init(const SynManagerConfig &config){
   dynasty_timer_.expires_from_now(boost::posix_time::milliseconds(dynasty_timer_value_));
   dynasty_timer_.async_wait(boost::bind(&ambr::syn::SynManager::Impl::IosDenastySyn, this, _1));
   ios_thread = std::thread(std::bind(&ambr::syn::SynManager::Impl::IoServiceThread, this));
+
+
+
   return ambr::p2p::init(std::move(connOptions));
 
 }
@@ -321,7 +324,7 @@ bool ambr::syn::SynManager::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode
     if(NetMsgType::REQUESTDYNASTY == tmp){
       std::vector<uint8_t> buf;
       buf.assign(netmsg.vRecv.begin(), netmsg.vRecv.end());
-      UnSerialize(buf);
+      if(!UnSerialize(buf)) return false;
       ambr::core::UnitHash validator_hash;
       validator_hash.decode_from_hex(std::string((const char*)buf.data(), buf.size()));
       ambr::core::UnitHash validator_hash_next_ = p_storemanager_->GetNextValidatorHash(validator_hash);
@@ -358,7 +361,7 @@ bool ambr::syn::SynManager::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode
 
       std::vector<uint8_t> buf;
       buf.assign(netmsg.vRecv.begin(), netmsg.vRecv.end());
-      UnSerialize(buf);
+      if(!UnSerialize(buf)) return false;
       bool right = true;
       uint64_t idx = 0;
       uint32_t unit_count = 0;
@@ -368,12 +371,12 @@ bool ambr::syn::SynManager::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode
           LOG(INFO)<<"Count of Receive unit is :"<<unit_count;
           OnGetSync();
           LOG(WARNING)<<">>>>>>>>>>Receive sync:"<<p_storemanager_->GetLastValidatedUnitHash().encode_to_hex();
-          return true;
+          return false;
         }
         memcpy(&size, buf.data()+idx, sizeof(size));
         idx+=sizeof(size);
         if(size <= sizeof(uint32_t)){
-          return true;
+          return false;
         }
 
         uint32_t type = 0;
@@ -390,22 +393,63 @@ bool ambr::syn::SynManager::Impl::OnReceiveNode(const CNetMessage& netmsg, CNode
           case ambr::core::UnitType::EnterValidateSet:unit = std::make_shared<ambr::core::EnterValidateSetUnit>();break;
           case ambr::core::UnitType::LeaveValidateSet:unit = std::make_shared<ambr::core::LeaveValidateSetUnit>();break;
           default:
-            return true;
+            return false;
         }
         std::vector<uint8_t> buf_tmp;
         buf_tmp.resize(size-sizeof(type));
         if(buf.size() - idx < size - sizeof(type))return true;
         memcpy(buf_tmp.data(), buf.data()+idx, buf_tmp.size());
         if(!unit->DeSerializeByte(buf_tmp, nullptr)){
-          return true;
+          return false;
         }
         idx+=buf_tmp.size();
         p_storemanager_->AddUnitToBuffer(unit);
         unit_count++;
       }
+    }else if(NetMsgType::NEWUNIT == tmp){
+      std::vector<uint8_t> buf;
+      buf.assign(netmsg.vRecv.begin(), netmsg.vRecv.end());
+      if(!UnSerialize(buf)) return false;
+      uint32_t type = 0;
+      if(buf.size() < sizeof(type))return false;
+      memcpy(&type, buf.data(), sizeof(type));
+      std::shared_ptr<ambr::core::Unit> unit;
+      std::vector<uint8_t> buf_for_deser;
+      buf_for_deser.resize(buf.size()-sizeof(type));
+      memcpy(buf_for_deser.data(), buf.data()+sizeof(type), buf.size()-sizeof(type));
+      switch((ambr::core::UnitType)type){
+        //TODO:efficiency should improve
+        case ambr::core::UnitType::send:
+          unit = std::make_shared<ambr::core::SendUnit>();
+          if(!unit->DeSerializeByte(buf_for_deser, nullptr))return false;
+          break;
+        case ambr::core::UnitType::receive:
+          unit = std::make_shared<ambr::core::ReceiveUnit>();
+          if(!unit->DeSerializeByte(buf_for_deser, nullptr))return false;
+          break;
+        case ambr::core::UnitType::Vote:
+          unit = std::make_shared<ambr::core::VoteUnit>();
+          if(!unit->DeSerializeByte(buf_for_deser, nullptr))return false;
+          break;
+        case ambr::core::UnitType::Validator:
+          unit = std::make_shared<ambr::core::ValidatorUnit>();
+          if(!unit->DeSerializeByte(buf_for_deser, nullptr))return false;
+          break;
+        case ambr::core::UnitType::EnterValidateSet:
+          unit = std::make_shared<ambr::core::EnterValidateSetUnit>();
+          if(!unit->DeSerializeByte(buf_for_deser, nullptr))return false;
+          break;
+        case ambr::core::UnitType::LeaveValidateSet:
+          unit = std::make_shared<ambr::core::LeaveValidateSetUnit>();
+          if(!unit->DeSerializeByte(buf_for_deser, nullptr))return false;
+          break;
+        default:
+          return false;
+      }
+      p_storemanager_->AddUnitToBuffer(unit);
     }
 
-    return false;
+    return true;
 }
 
 void ambr::syn::SynManager::Impl::ReceiveUnit(const Ptr_Unit& p_unit, CNode* p_node){
@@ -577,7 +621,12 @@ void ambr::syn::SynManager::Impl::OnDisConnectNode(CNode* p_node){
 ambr::syn::SynManager::SynManager(Ptr_StoreManager p_storemanager)
   : p_impl_(new Impl(p_storemanager))
   , p_storemanager_(p_storemanager){
-
+  p_storemanager_->AddCallBackReceiveNewSendUnit(std::bind(&ambr::syn::SynManager::BoardCastNewUnit, this, std::placeholders::_1));
+  p_storemanager_->AddCallBackReceiveNewReceiveUnit(std::bind(&ambr::syn::SynManager::BoardCastNewUnit, this, std::placeholders::_1));
+  p_storemanager_->AddCallBackReceiveNewValidatorUnit(std::bind(&ambr::syn::SynManager::BoardCastNewUnit, this, std::placeholders::_1));
+  p_storemanager_->AddCallBackReceiveNewJoinValidatorSetUnit(std::bind(&ambr::syn::SynManager::BoardCastNewUnit, this, std::placeholders::_1));
+  p_storemanager_->AddCallBackReceiveNewLeaveValidatorSetUnit(std::bind(&ambr::syn::SynManager::BoardCastNewUnit, this, std::placeholders::_1));
+  p_storemanager_->AddCallBackReceiveNewVoteUnit(std::bind(&ambr::syn::SynManager::BoardCastNewUnit, this, std::placeholders::_1));
 }
 
 void ambr::syn::SynManager::OnAcceptNode(CNode* p_node){
@@ -616,31 +665,15 @@ void ambr::syn::SynManager::SetOnDisconnectNode(const std::function<void(CNode*)
   p_impl_->SetOnDisconnect(func);
 }
 
-void ambr::syn::SynManager::BoardCastNewSendUnit(std::shared_ptr<core::SendUnit> p_unit){
-  /*std::vector<uint8_t>&& buf = p_unit->SerializeByte();
-  std::string str_data;
-  str_data.assign(buf.begin(), buf.end());
-  p_impl_->BoardcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::ACCOUNTUNIT, str_data), nullptr);*/
-}
-
-void ambr::syn::SynManager::BoardCastNewVoteUnit(std::shared_ptr<ambr::core::VoteUnit> p_unit){
-
-}
-
-void ambr::syn::SynManager::BoardCastNewReceiveUnit(std::shared_ptr<core::ReceiveUnit> p_unit){
-
-}
-
-void ambr::syn::SynManager::BoardCastNewValidatorUnit(std::shared_ptr<core::ValidatorUnit> p_unit){
-
-}
-
-void ambr::syn::SynManager::BoardCastNewJoinValidatorSetUnit(std::shared_ptr<core::EnterValidateSetUnit> p_unit){
-
-}
-
-void ambr::syn::SynManager::BoardCastNewLeaveValidatorSetUnit(std::shared_ptr<core::LeaveValidateSetUnit> p_unit){
-
+void ambr::syn::SynManager::BoardCastNewUnit(std::shared_ptr<ambr::core::Unit> p_unit){
+  uint32_t type = (uint32_t)p_unit->type();
+  std::vector<uint8_t> unit_buf;
+  std::string buf_str;
+  unit_buf = p_unit->SerializeByte();
+  buf_str.resize(unit_buf.size()+sizeof(type));
+  memcpy((char*)buf_str.data(), &type, sizeof(type));
+  memcpy((char*)buf_str.data()+sizeof(type), unit_buf.data(), unit_buf.size());
+  ambr::p2p::BroadcastMessage(CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::NEWUNIT, buf_str));
 }
 
 bool ambr::syn::SynManager::GetNodeIfPauseSend(const std::string &node_addr){

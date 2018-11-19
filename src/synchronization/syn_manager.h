@@ -72,13 +72,7 @@ public:
   void SetOnConnectedNode(const std::function<void(CNode*)>& func);
   void SetOnDisconnectNode(const std::function<void(CNode*)>& func);
 
-  void BoardCastNewSendUnit(std::shared_ptr<core::SendUnit> p_unit);
-  void BoardCastNewVoteUnit(std::shared_ptr<core::VoteUnit> p_unit);
-  void BoardCastNewReceiveUnit(std::shared_ptr<core::ReceiveUnit> p_unit);
-  void BoardCastNewValidatorUnit(std::shared_ptr<core::ValidatorUnit> p_unit);
-  void BoardCastNewJoinValidatorSetUnit(std::shared_ptr<core::EnterValidateSetUnit> p_unit);
-  void BoardCastNewLeaveValidatorSetUnit(std::shared_ptr<core::LeaveValidateSetUnit> p_unit);
-
+  void BoardCastNewUnit(std::shared_ptr<core::Unit> p_unit);
   bool GetNodeIfPauseSend(const std::string& node_addr);
   bool GetNodeIfPauseReceive(const std::string& node_addr);
   uint64_t GetNodeNonce(const std::string& node_addr);

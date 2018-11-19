@@ -46,6 +46,7 @@ const char *LISTENPORT="listenport";
 const char *DYNASTY = "dynasty";
 const char *REQUESTDYNASTY = "reqdynasty";
 const char *RESPONCEDYNASTY = "resdynasty";
+const char *NEWUNIT="newunit";
 } // namespace NetMsgType
 
 /** All known message types. Keep this in the same order as the list of
@@ -83,6 +84,7 @@ const static std::string allNetMessageTypes[] = {
 
     NetMsgType::REQUESTDYNASTY,
     NetMsgType::RESPONCEDYNASTY,
+    NetMsgType::NEWUNIT,
 };
 const static std::vector<std::string> allNetMessageTypesVec(allNetMessageTypes, allNetMessageTypes+ARRAYLEN(allNetMessageTypes));
 

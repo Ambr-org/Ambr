@@ -248,6 +248,7 @@ extern const char *LISTENPORT;
 
 extern const char *REQUESTDYNASTY;
 extern const char *RESPONCEDYNASTY;
+extern const char *NEWUNIT;
 
 }
 
