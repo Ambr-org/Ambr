@@ -655,7 +655,7 @@ void StoreExampleMainWidget::on_btnUnit_clicked(){
     if(!unit){
       ui->edtUnitPlainEdit->setPlainText("Couldn't find unit!");
     }else{
-      ui->edtUnitPlainEdit->setPlainText(unit->GetUnit()->SerializeJson().c_str());
+      ui->edtUnitPlainEdit->setPlainText(unit->SerializeJson().c_str());
     }
 }
 void StoreExampleMainWidget::on_btnTranslateReceive_clicked(){

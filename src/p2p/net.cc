@@ -918,7 +918,7 @@ size_t CConnman::SocketSendData(CNode *pnode) const
                 } std::cout << "socket send error:" << NetworkErrorString(nErr) << std::endl;
             }
             // couldn't send anything at all
-            break;
+            //break;
         }
     }
 
@@ -2862,10 +2862,15 @@ void CConnman::PushMessage(CNode* pnode, CSerializedNetMsg&& msg)
         if (pnode->nSendSize > nSendBufferMaxSize)
             pnode->fPauseSend = true;
 
-        pnode->vSendMsg.push_back(std::move(serializedHeader));
-        if (nMessageSize)
-            pnode->vSendMsg.push_back(std::move(msg.data));
+        if((msg.command == NetMsgType::REQUESTDYNASTY ||
+           msg.command == NetMsgType::RESPONCEDYNASTY||
+           msg.command == NetMsgType::NEWUNIT) && pnode->vSendMsg.size() > 10){
 
+        }else{
+          pnode->vSendMsg.push_back(std::move(serializedHeader));
+          if (nMessageSize)
+              pnode->vSendMsg.push_back(std::move(msg.data));
+        }
         // If write queue empty, attempt "optimistic write"
         if (optimisticSend == true)
           nBytesSent = SocketSendData(pnode);

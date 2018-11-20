@@ -1144,13 +1144,13 @@ static bool SendRejectsAndCheckIfBanned(CNode* pnode, CConnman* connman, bool en
         else if (pnode->m_manual_connection)
             LogPrintf("Warning: not punishing manually-connected peer %s!\n", pnode->addr.ToString());
         else {
-            pnode->fDisconnect = true;
+            /*pnode->fDisconnect = true;
             if (pnode->addr.IsLocal())
                 LogPrintf("Warning: not banning local peer %s!\n", pnode->addr.ToString());
             else
             {
                 connman->Ban(pnode->addr, BanReasonNodeMisbehaving);
-            }
+            }*/
         }
         return true;
     }
@@ -1190,8 +1190,9 @@ bool PeerLogicValidation::ProcessMessages(CNode* pfrom, std::atomic<bool>& inter
             return false;
         // Just take one message
         while(pfrom->vProcessMsg.size() > connman->GetMaxProcessReivSize() &&
-              pfrom->vProcessMsg.front().hdr.GetCommand() != "ping" &&
-              pfrom->vProcessMsg.front().hdr.GetCommand() != "pong"){
+              (pfrom->vProcessMsg.front().hdr.GetCommand() == NetMsgType::REQUESTDYNASTY ||
+               pfrom->vProcessMsg.front().hdr.GetCommand() == NetMsgType::RESPONCEDYNASTY ||
+               pfrom->vProcessMsg.front().hdr.GetCommand() == NetMsgType::NEWUNIT)){
           msgs.splice(msgs.begin(), pfrom->vProcessMsg, pfrom->vProcessMsg.begin());
           pfrom->nProcessQueueSize -= msgs.front().vRecv.size() + CMessageHeader::HEADER_SIZE;
           pfrom->fPauseRecv = pfrom->nProcessQueueSize > connman->GetReceiveFloodSize();
